@@ -34,6 +34,7 @@ Ground rules for whoever resumes:
 | P7 | Offline perf pass: `tests/perf.lua` scenarios, allocation ceilings, bucket coverage | done | see git log ("Run the offline perf pass"); findings in docs/performance.md |
 | P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | done | release-candidate bundle `docs/automated-tests/20260915-150853/` (green, commit 275f786); spelling gate added; first audit bundle from `/wow-addon:standards-audit` |
 | P9 | GitHub issues for deferred work; roster row in WowAddonStandards | done | issues #1–#12 (`state:triaged`); roster row WowAddonStandards cb97a3a |
+| P9b | Standards-audit fixes (`docs/audits/2026-09-15/` PFE-01…07, 09, 11) + fresh release-candidate run | done | fixes 89d30b0; bundle `docs/automated-tests/20260915-154839/` (green) f76510f |
 | P10 | In-game smoke + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |
 
 ## P1 — Standards scaffold

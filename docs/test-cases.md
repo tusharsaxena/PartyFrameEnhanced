@@ -151,6 +151,14 @@ badge and any count quoted in the docs must agree with it.
 - petframes: Use class color takes the OWNER's class
 - petframes: suspended, events come off and every driver is hide
 
+### test_preview.lua (5)
+
+- preview: unlocking turns preview on and makes free-placement holders grabbable
+- preview: unlocking in combat is refused, the stored lock stays, and the player is told why
+- preview: `/pfe preview` toggles the placeholders and leaves the lock alone
+- preview: a profile saved unlocked comes back in preview
+- status: names the frame system, each unit, each feature, and anything switched off
+
 ### test_slash.lua (9)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
@@ -206,9 +214,10 @@ badge and any count quoted in the docs must agree with it.
 | test_castbars.lua | 13 |
 | test_targetframes.lua | 12 |
 | test_petframes.lua | 5 |
+| test_preview.lua | 5 |
 | test_slash.lua | 9 |
 | test_optionssetup.lua | 4 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **121** |
+| **Total** | **126** |

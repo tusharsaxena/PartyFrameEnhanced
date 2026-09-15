@@ -322,7 +322,7 @@ function CastBars:OnEnable()
         bars[unit] = el
     end
     NS.Anchor.Register({
-        key = "castbar", secure = false, elements = bars,
+        key = "castbar", label = L["Cast bars"], secure = false, elements = bars,
         config = function() return cfg end,
         slotSize = slotSize,
         defaultPosition = { "CENTER", 0, -180 },

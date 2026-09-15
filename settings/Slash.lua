@@ -14,7 +14,7 @@ local print = NS.Print
 local SlashLib = LibStub and LibStub("LibKa0s-Slash-1.0", true)
 local cli   -- built at the bottom; every handler reaches it at CALL time
 
-local runResetAll, runDebug, runPerf, runProfile, runLock
+local runResetAll, runDebug, runPerf, runProfile, runLock, runStatus
 
 NS.COMMANDS = {
     {"help",     "List available commands",
@@ -40,6 +40,14 @@ NS.COMMANDS = {
         function() runLock(true) end},
     {"unlock",   "Unlock the elements to drag them, with placeholder content",
         function() runLock(false) end},
+    {"preview",  "Toggle placeholder content on every element, without unlocking",
+        function()
+            if NS.Preview.Toggle() then
+                print(NS.State.preview and "Preview on" or "Preview off")
+            end
+        end},
+    {"status",   "Show which party frames were found and what each feature is doing",
+        function() runStatus() end},
     {"debug",    "Toggle the debug console \226\128\148 `on`/`off` enable/disable logging",
         function(rest) runDebug(rest) end},
     {"perf",     "Measure performance \226\128\148 try `/pfe perf` for the workflow",
@@ -63,11 +71,43 @@ function runResetAll()
     end
 end
 
--- Through the write seam, so the checkbox, `/pfe set locked` and this verb take one path.
+-- Through the write seam, so the checkbox, `/pfe set locked` and this verb take one path. The row's
+-- onChange may refuse an unlock in combat (modules/Preview.lua), so the reply reads the stored
+-- value back rather than assuming.
 function runLock(locked)
     NS.SetByPath("locked", locked)
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+    if NS.GetSetting("locked") ~= locked then return end
     print(locked and "Elements locked" or "Elements unlocked \226\128\148 drag them into place")
+end
+
+-- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing
+-- showing". Reads only public seams; changes nothing.
+local FEATURES = { { "castbar", "Cast bars" }, { "target", "Target frames" }, { "pet", "Pet frames" } }
+
+function runStatus()
+    print("Frame system: " .. (NS.Providers.ActiveLabel() or "none found"))
+    local parts = {}
+    for _, unit in ipairs(NS.Units.LIST) do
+        local mark = NS.Providers.FrameFor(unit) and "frame" or "\226\128\148"
+        if not NS.Units.IsIncluded(unit) then mark = "off" end
+        parts[#parts + 1] = NS.Units.LABEL[unit] .. ": " .. mark
+    end
+    print("  " .. table.concat(parts, "  \194\183  "))
+    for _, f in ipairs(FEATURES) do
+        local cfg = NS.db.profile[f[1]]
+        local state = cfg.enabled and (cfg.anchorMode == "free" and "on, free placement"
+            or "on, attached") or "off"
+        print("  " .. f[2] .. ": " .. state)
+    end
+    local flags = {}
+    if NS.GetSetting("enabled") ~= true then flags[#flags + 1] = "addon disabled" end
+    if NS.GetSetting("visibility") ~= "always" then
+        flags[#flags + 1] = "visibility " .. tostring(NS.GetSetting("visibility"))
+    end
+    if NS.State.preview then flags[#flags + 1] = "preview on" end
+    if NS.Perf.suspended then flags[#flags + 1] = "suspended by a perf run" end
+    if #flags > 0 then print("  Note: " .. table.concat(flags, ", ")) end
 end
 
 -- The guided run lives in LibKa0s-Perf; the library returns lines and this prints them

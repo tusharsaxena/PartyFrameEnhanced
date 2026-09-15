@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-121%2F121_passing-green)
+![Tests](https://img.shields.io/badge/Tests-126%2F126_passing-green)
 
 ![Ka0s Party Frame Enhanced](media/logos/partyframeenhanced.logo.png)
 
@@ -77,7 +77,7 @@ Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and
 
 | Symptom | Fix |
 |---|---|
-| Nothing shows next to my party frames | Check the General page: *Enable* ticked, *General visibility* not *Never*, and the frame system your UI actually uses. `/pfe status` (coming with the first release) shows what the addon found. |
+| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are *General visibility* set to *Never* or the wrong *Frame system* on the General page. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
 | The settings panel won't open | It refuses in combat on purpose. Try again once combat ends. |

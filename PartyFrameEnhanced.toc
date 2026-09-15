@@ -74,6 +74,8 @@ modules\CastBars.lua
 modules\UnitButtons.lua
 modules\TargetFrames.lua
 modules\PetFrames.lua
+# Last module: its OnEnable reads the lock after every feature has registered with Anchor.
+modules\Preview.lua
 
 # Settings (last — depend on everything else being initialized)
 settings\Schema.lua

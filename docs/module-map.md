@@ -32,22 +32,17 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 21 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
 | 22 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
 | 23 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
-| 24 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
-| 25 | `settings/Slash.lua` | `NS.COMMANDS`, the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 26 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 27 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 28 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 29 | `settings/ElementRows.lua` | the Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
-| 30 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
-| 31 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
-| 32 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
-| 33 | `settings/Profiles.lua` | the AceDBOptions page | last |
-
-## Arriving with preview mode (plan P6)
-
-| File | Responsibility |
-|---|---|
-| `modules/Preview.lua` | the lock ↔ preview toggle, the holders' drag handles |
+| 24 | `modules/Preview.lua` | preview mode: the lock ↔ preview toggle, the combat refusal, `/pfe preview` | **load-bearing**: last module, so its OnEnable reads the lock after every feature has registered with Anchor |
+| 25 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 26 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 27 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 28 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 29 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 30 | `settings/ElementRows.lua` | the Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 31 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
+| 32 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
+| 33 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
+| 34 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
 ## Tests
 

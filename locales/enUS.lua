@@ -82,6 +82,12 @@ for _, key in ipairs({
     "Preview target", "Preview pet",
 }) do L[key] = key end
 
+-- Preview mode and the holders' labels (modules/Preview.lua, modules/Anchor.lua)
+for _, key in ipairs({
+    "cannot unlock during combat \226\128\148 the clickable frames cannot move until it ends",
+    "Cast bars", "Target frames", "Pet frames",
+}) do L[key] = key end
+
 -- Reset confirmation (options-ui-§12, verbatim)
 L["Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."] =
     "Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."

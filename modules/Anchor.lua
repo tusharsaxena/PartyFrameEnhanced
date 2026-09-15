@@ -26,6 +26,7 @@ NS.Anchor = Anchor
 
 local features, order = {}, {}
 Anchor.__features, Anchor.__order = features, order
+local unlocked = false
 
 -- For a "match the party frame's width" pin: the left and right edge points on the same side as a
 -- nine-point anchor. Precomputed so a pass concatenates nothing.
@@ -195,6 +196,16 @@ function Anchor.Register(spec)
     order[#order + 1] = spec.key
     local holder = CreateFrame("Frame", "PartyFrameEnhanced_" .. spec.key .. "_Holder", UIParent)
     holder:SetSize(1, 1)
+    -- What a player grabs while unlocked: a translucent plate and the feature's name, shown only
+    -- for a free-placement feature in unlocked mode (Anchor.SetUnlocked).
+    holder.plate = holder:CreateTexture(nil, "BACKGROUND")
+    holder.plate:SetAllPoints(holder)
+    holder.plate:SetColorTexture(0, 0.6, 1, 0.25)
+    holder.plate:Hide()
+    holder.label = holder:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    holder.label:SetPoint("BOTTOM", holder, "TOP", 0, 2)
+    holder.label:SetText(spec.label or spec.key)
+    holder.label:Hide()
     holder:SetMovable(true)
     holder:SetClampedToScreen(true)
     holder:EnableMouse(false)
@@ -210,13 +221,31 @@ function Anchor.Register(spec)
     return spec
 end
 
+-- Grabbable exactly while unlocked and in free placement. The holder carries no secure frame's
+-- anchor as a child, but a secure element anchored to it restricts it in combat, so its mouse state
+-- changes out of combat only.
+local function refreshHolder(spec)
+    local grab = unlocked and spec.config().anchorMode == "free"
+    NS.RunSecure("holder:" .. spec.key, function()
+        spec.holder:EnableMouse(grab)
+    end)
+    if grab then
+        spec.holder.plate:Show()
+        spec.holder.label:Show()
+    else
+        spec.holder.plate:Hide()
+        spec.holder.label:Hide()
+    end
+end
+
 --- Unlocked (preview) mode lets the free-placement holders be grabbed.
 function Anchor.SetUnlocked(on)
-    for _, key in ipairs(order) do
-        local spec = features[key]
-        local free = spec.config().anchorMode == "free"
-        spec.holder:EnableMouse(on and free or false)
-    end
+    unlocked = on and true or false
+    for _, key in ipairs(order) do refreshHolder(features[key]) end
+end
+
+function Anchor.IsUnlocked()
+    return unlocked
 end
 
 --- Store where a drag left a feature's holder. The only writer of `<feature>.position` besides
@@ -253,6 +282,8 @@ ev:RegisterMessage(NS.MSG.PROFILE, function() Anchor.ApplyAll() end)
 ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
     if features[section] then
         Anchor.Apply(section)
+        -- An anchor-mode change moves the feature in or out of the grabbable set.
+        refreshHolder(features[section])
     elseif section == "master" or section == "general" then
         Anchor.ApplyAll()
     end

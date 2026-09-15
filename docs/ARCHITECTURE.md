@@ -22,8 +22,8 @@ each — Media (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/C
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
-Build status: the skeleton, the providers, the anchor engine and all three features are in the tree;
-preview mode's lock toggle and the `status` verb land in plan P6.
+Build status: feature-complete for v0.1.0. What remains is the offline perf pass, the release record
+and in-game testing (plan P7–P10).
 
 ## Module Map
 
@@ -66,9 +66,9 @@ source to check).
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, fourteen verbs in `NS.COMMANDS` today — the ten reserved ones plus
-`resetposition`, `lock`, `unlock` and `profile`; `preview` and `status` arrive with preview mode. Table
-and behavior: [slash-dispatch.md](slash-dispatch.md).
+`/pfe` and `/partyframeenhanced`, sixteen verbs in `NS.COMMANDS` — the ten reserved ones plus
+`resetposition`, `lock`, `unlock`, `preview`, `status` and `profile`. Table and behavior:
+[slash-dispatch.md](slash-dispatch.md).
 
 ## Event Subscriptions
 
@@ -133,7 +133,7 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 | Doc | Status | Trigger |
 |---|---|---|
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
-| `slash-dispatch.md` | Present | 14 commands in `NS.COMMANDS` (trigger: eight or more) |
+| `slash-dispatch.md` | Present | 16 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 17 shims (trigger: three or more) |

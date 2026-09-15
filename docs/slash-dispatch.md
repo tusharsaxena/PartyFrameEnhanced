@@ -18,13 +18,13 @@ The landing page renders the same table.
 | `resetall` | the global reset: the active profile back to defaults | yes |
 | `resetposition` | every free-placement stack back to its default position (`NS.Anchor.ResetPositions`) | no |
 | `lock` | locks the elements and leaves preview mode | no |
-| `unlock` | unlocks them for dragging, with placeholder content | no |
+| `unlock` | unlocks them for dragging, with placeholder content; refused in combat with a gray notice | no |
+| `preview` | toggles the placeholder content alone, the lock untouched; turning it on is refused in combat | no |
+| `status` | the detected frame system, which units have a frame, each feature's state, and anything switched off | no |
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |
 | `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management | no |
-
-Arriving later: `preview` and `status` (plan P6).
 
 ## Output
 

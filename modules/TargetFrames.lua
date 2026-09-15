@@ -191,7 +191,7 @@ function TargetFrames:OnEnable()
         buttons[unit] = btn
     end
     NS.Anchor.Register({
-        key = "target", secure = true, elements = buttons,
+        key = "target", label = L["Target frames"], secure = true, elements = buttons,
         config = function() return cfg end,
         slotSize = function()
             local scale = NS.GetSetting("scale") or 1

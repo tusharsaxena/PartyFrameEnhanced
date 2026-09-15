@@ -115,7 +115,7 @@ function PetFrames:OnEnable()
         buttons[unit] = btn
     end
     NS.Anchor.Register({
-        key = "pet", secure = true, elements = buttons,
+        key = "pet", label = L["Pet frames"], secure = true, elements = buttons,
         config = function() return cfg end,
         slotSize = function()
             local scale = NS.GetSetting("scale") or 1

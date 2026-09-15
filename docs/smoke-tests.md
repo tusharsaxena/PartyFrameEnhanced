@@ -22,6 +22,7 @@ mode are added by the phases that build them (plan P2–P6).
 | F | Cast bars | a party (a follower dungeon works), a target dummy |
 | G | Target frames | a party, mobs to target |
 | H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
+| I | Preview, placement and status | any Retail; a party for the attached steps |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -35,9 +36,9 @@ mode are added by the phases that build them (plan P2–P6).
 
 ## B. Slash surface
 
-4. `/pfe` alone → the help block: a version line and fourteen verbs (help, config, list, get, set,
-   reset, resetall, resetposition, lock, unlock, debug, perf, version, profile), each a gold
-   `/pfe <verb>`, an em dash and a white description.
+4. `/pfe` alone → the help block: a version line and sixteen verbs (help, config, list, get, set,
+   reset, resetall, resetposition, lock, unlock, preview, status, debug, perf, version, profile), each
+   a gold `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` → the identical block.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
 7. `/pfe version` → `[PFE] v0.1.0`.
@@ -152,6 +153,22 @@ EllesmereUI's, where noted.
 41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
     green, a warlock's warlock purple.
 42. **Click to target.** Click a pet frame → you target the pet.
+
+## I. Preview, placement and status
+
+43. **Unlock previews.** `/pfe unlock` → every enabled element shows placeholder content: a cast bar
+    mid-cast, a target frame at 65% with a skull, a pet frame at 80%. `/pfe lock` → all of it goes;
+    live data returns. *Failure:* a placeholder left behind after locking (preview-mode MUST).
+44. **Unlock refused in combat.** On a dummy, in combat: `/pfe unlock` → a gray *cannot unlock during
+    combat* line, nothing previews, and *Lock frame* stays ticked on an open General page.
+45. **Free placement drags.** Set Cast Bars → Position → *Anchor mode* to *Free placement*, unlock → a
+    translucent plate labeled *Cast bars* appears over the stack. Drag it; lock; `/reload` → the stack
+    is where you left it. General → *Reset position* (or `/pfe resetposition`) → back to its default.
+46. **Preview without unlocking.** `/pfe preview` → placeholders, but no plate and nothing draggable;
+    again → gone.
+47. **Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
+    feature's state, and a *Note:* line when something is switched off (set General visibility to
+    *Never* and run it again).
 
 ## T. Non-English client (locale)
 

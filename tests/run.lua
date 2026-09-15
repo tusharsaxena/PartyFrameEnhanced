@@ -62,6 +62,7 @@ Kit.run{
     "test_castbars",
     "test_targetframes",
     "test_petframes",
+    "test_preview",
     "test_slash",
     "test_optionssetup",
     "test_surface_parity",

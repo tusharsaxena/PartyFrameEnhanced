@@ -92,6 +92,7 @@ local LIFECYCLE_EVENTS = {
     PLAYER_ENTERING_WORLD = "OnEnterWorld",
     PLAYER_REGEN_DISABLED = "OnEnterCombat",
     PLAYER_REGEN_ENABLED  = "OnLeaveCombat",
+    GROUP_ROSTER_UPDATE   = "OnRosterUpdate",
     ADDON_ACTION_BLOCKED  = "OnActionBlocked",
     ADDON_ACTION_FORBIDDEN = "OnActionBlocked",
 }
@@ -110,6 +111,7 @@ function NS.ResumeAll()
     addon:RegisterLifecycleEvents()
     -- The combat state may have moved while the regen events were unregistered.
     NS.State.inCombat = UnitAffectingCombat("player") and true or false
+    NS.State.inParty = NS.Units.InParty()
     if not InCombatLockdown() then flushSecure() end
     each("Resume")
     NS.PublishVisibility()
@@ -124,6 +126,7 @@ end
 
 function addon:OnEnable()
     NS.ClearLSMCache()
+    NS.State.inParty = NS.Units.InParty()
     NS.State.inCombat = UnitAffectingCombat("player") and true or false
     self:RegisterLifecycleEvents()
     -- Modules build their frames here, at PLAYER_LOGIN, which is out of combat on every login and
@@ -134,6 +137,17 @@ function addon:OnEnable()
 end
 
 function addon:OnEnterWorld()
+    NS.State.inParty = NS.Units.InParty()
+    NS.PublishVisibility()
+end
+
+-- The party-only rule (NS.Units.InParty) can flip on a roster change: republish, so every element
+-- re-decides and every feature re-syncs its unit events. The same answer sends nothing.
+function addon:OnRosterUpdate()
+    local now = NS.Units.InParty()
+    if now == NS.State.inParty then return end
+    NS.State.inParty = now
+    NS.Debug("Party", "%s", now and "in a party \226\128\148 active" or "not in a party \226\128\148 nothing shows")
     NS.PublishVisibility()
 end
 

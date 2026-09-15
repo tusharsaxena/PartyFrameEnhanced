@@ -100,6 +100,9 @@ local function statusFlags()
     if NS.GetSetting("visibility") ~= "always" then
         flags[#flags + 1] = L["visibility %s"]:format(tostring(NS.GetSetting("visibility")))
     end
+    if not NS.Units.InParty() then
+        flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe test)"]
+    end
     if NS.State.preview then flags[#flags + 1] = L["preview on"] end
     if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end
     return flags

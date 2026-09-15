@@ -84,7 +84,7 @@ local function wantedEvents(on, unit)
 end
 
 local function syncEvents()
-    local on = not suspended and cfg.enabled and Element.MasterShows()
+    local on = not suspended and cfg.enabled and Element.MasterShows() and Units.InParty()
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         local want = wantedEvents(on, unit)
@@ -169,5 +169,9 @@ ev:RegisterMessage(NS.MSG.PROFILE, whenReady(function()
     cfg, gen = NS.db.profile.pet, NS.db.profile.general
     reconfigure()
 end))
-ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(refreshAll))
+-- VISIBILITY also carries the party flip (core/PartyFrameEnhanced.lua), so events follow it.
+ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
+    syncEvents()
+    refreshAll()
+end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))

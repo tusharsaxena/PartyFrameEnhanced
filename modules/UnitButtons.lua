@@ -127,9 +127,11 @@ function UnitButtons.RenderPreview(btn, name, pct, showName, showPercent)
     UnitButtons.Invalidate(btn)
 end
 
---- The feature-independent rungs of the show decision (design spec §6.7, rungs 0–2 and 5–6).
+--- The feature-independent rungs of the show decision (design spec §6.7, rungs 0–2 and 5–6), plus the
+--- party-only rung (NS.Units.InParty), which preview and test mode skip.
 function UnitButtons.Allowed(cfg, unit)
     if not Element.MasterShows() or not cfg.enabled then return false end
+    if not NS.State.preview and not NS.Units.InParty() then return false end
     if not NS.Units.IsIncluded(unit) then return false end
     if cfg.anchorMode ~= "free" and not NS.Providers.FrameFor(unit) then return false end
     return true

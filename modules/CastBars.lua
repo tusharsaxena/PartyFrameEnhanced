@@ -62,6 +62,7 @@ local suspended = false
 local function shouldShow(el)
     if not Element.MasterShows() or not cfg.enabled then return false end
     if NS.State.preview then return true end
+    if not Units.InParty() then return false end
     if not Element.VisibilityAllows() then return false end
     if not Units.IsIncluded(el.unit) then return false end
     if cfg.anchorMode ~= "free" and not NS.Providers.FrameFor(el.unit) then return false end
@@ -74,6 +75,7 @@ local function hiddenReason(el)
     if NS.Perf.suspended then return "suspended by a perf run" end
     if NS.GetSetting("enabled") ~= true then return "addon disabled" end
     if not cfg.enabled then return "cast bars off" end
+    if not Units.InParty() then return "not in a party" end
     if not Element.VisibilityAllows() then return "General visibility" end
     if not Units.IsIncluded(el.unit) then return "unit not included" end
     return "no party frame for the unit"
@@ -324,7 +326,7 @@ end
 
 -- Registered only while the feature is on and the unit included: a disabled unit costs no dispatch.
 local function syncEvents()
-    local on = not suspended and NS.GetSetting("enabled") == true and cfg.enabled
+    local on = not suspended and NS.GetSetting("enabled") == true and cfg.enabled and Units.InParty()
     local changed, listening = 0, 0
     for _, unit in ipairs(Units.LIST) do
         local el = bars[unit]
@@ -406,5 +408,10 @@ ev:RegisterMessage(NS.MSG.PROFILE, function()
     syncEvents()
     refreshAll()
 end)
-ev:RegisterMessage(NS.MSG.VISIBILITY, function() if cfg then refreshAll() end end)
+-- VISIBILITY also carries the party flip (core/PartyFrameEnhanced.lua), so events follow it.
+ev:RegisterMessage(NS.MSG.VISIBILITY, function()
+    if not cfg then return end
+    syncEvents()
+    refreshAll()
+end)
 ev:RegisterMessage(NS.MSG.LAYOUT, function() if cfg then refreshAll() end end)

@@ -180,7 +180,7 @@ local function onEvent(btn)
 end
 
 local function syncEvents()
-    local on = featureOn()
+    local on = featureOn() and Units.InParty()
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         if on and Units.IsIncluded(unit) then
@@ -271,7 +271,11 @@ ev:RegisterMessage(NS.MSG.PROFILE, whenReady(function()
     cfg, gen = NS.db.profile.target, NS.db.profile.general
     reconfigure()
 end))
-ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(refreshAll))
+-- VISIBILITY also carries the party flip (core/PartyFrameEnhanced.lua), so events follow it.
+ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
+    syncEvents()
+    refreshAll()
+end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 
 -- Markers change for every unit at once; one repaint pass over the shown frames.

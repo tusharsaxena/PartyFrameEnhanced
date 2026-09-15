@@ -65,8 +65,14 @@ Versions are pinned only where a version matters: `lua5.1` is hard, `luacheck` a
 **None required to build, run or test the addon.** It is packaged from the committed tree and
 nothing is generated at build time.
 
-The placeholder logo (`media/logos/partyframeenhanced.logo.tga`, from the `.png` beside it) was
-produced once with Python 3 + Pillow; regenerating it is optional and only needed if the art changes.
+The in-game logo (`media/logos/partyframeenhanced.logo.tga`, 512×512 RGBA, uncompressed) is converted
+from the 2000×2000 `.png` beside it with Python 3 + Pillow (Lanczos downscale). The client loads only
+the `.tga` and needs power-of-two sides; the `.png` (the README's image) and the `.jpg` are dev-only
+and ignored by `.pkgmeta`. Regenerate it only when the art changes:
+
+```sh
+python3 -c "from PIL import Image; Image.open('media/logos/partyframeenhanced.logo.png').convert('RGBA').resize((512, 512), Image.LANCZOS).save('media/logos/partyframeenhanced.logo.tga', rle=False)"
+```
 **None of this group is required to build, run or test the addon.**
 
 ## Am I set up correctly?

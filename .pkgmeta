@@ -20,3 +20,4 @@ ignore:
   - DEPENDENCIES.md
   # WoW cannot load .png at all; the master .png exists to regenerate the .tga.
   - media/logos/*.png
+  - media/logos/*.jpg

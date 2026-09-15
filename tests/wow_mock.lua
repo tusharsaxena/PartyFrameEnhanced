@@ -40,6 +40,14 @@ return function()
     local f = baseCreateFrame(frameType, name, parent, template)
     rawset(f, "CreateTexture", function() return region() end)
     rawset(f, "CreateFontString", function() return region() end)
+    if type(template) == "string" and template:find("Secure", 1, true) then
+      -- Secure buttons record their attributes and mouse state; RegisterStateDriver (below)
+      -- records the driver on the frame.
+      f.__attrs = {}
+      rawset(f, "SetAttribute", function(self, k, v) self.__attrs[k] = v end)
+      rawset(f, "GetAttribute", function(self, k) return self.__attrs[k] end)
+      rawset(f, "EnableMouse", function(self, on) self.__mouse = on end)
+    end
     if frameType == "StatusBar" then
       rawset(f, "SetMinMaxValues", function(self, lo, hi) self.__min, self.__max = lo, hi end)
       rawset(f, "SetValue", function(self, v) self.__value = v end)
@@ -80,6 +88,45 @@ return function()
   M.UnitChannelDuration = function(unit)
     local c = M.__casts[unit]
     return c and c.kind ~= "cast" and durationFor(c) or nil
+  end
+
+  -- Secure state drivers, recorded on the frame (fidelity rule 3: a driver string is what decides
+  -- whether a target frame ever shows).
+  M.RegisterStateDriver = function(frame, state, driver)
+    frame.__drivers = frame.__drivers or {}
+    frame.__drivers[state] = driver
+  end
+  M.UnregisterStateDriver = function(frame, state)
+    if frame.__drivers then frame.__drivers[state] = nil end
+  end
+
+  -- Units a suite can describe by token: M.__units[token] = { exists, name, health, healthMax,
+  -- pct, isPlayer, class, reaction, marker }. A token without an entry falls back to the base mock.
+  M.__units = {}
+  local baseUnitExists, baseUnitName = M.UnitExists, M.UnitName
+  M.UnitExists = function(u)
+    local d = M.__units[u]
+    if d then return d.exists ~= false end
+    return baseUnitExists(u)
+  end
+  M.UnitName = function(u)
+    local d = M.__units[u]
+    if d then return d.name end
+    return baseUnitName(u)
+  end
+  M.UnitHealth = function(u) local d = M.__units[u]; return d and d.health or 0 end
+  M.UnitHealthMax = function(u) local d = M.__units[u]; return d and d.healthMax or 100 end
+  M.UnitHealthPercent = function(u) local d = M.__units[u]; return d and d.pct end
+  M.CurveConstants = { ScaleTo100 = "ScaleTo100" }
+  M.UnitIsPlayer = function(u) local d = M.__units[u]; return d and d.isPlayer or false end
+  M.UnitReaction = function(u) local d = M.__units[u]; return d and d.reaction end
+  M.GetRaidTargetIndex = function(u) local d = M.__units[u]; return d and d.marker end
+  M.SetRaidTargetIconTexture = function(tex, index) tex.__marker = index end
+  local baseUnitClass = M.UnitClass
+  M.UnitClass = function(u)
+    local d = M.__units[u]
+    if d and d.class then return d.class, d.class end
+    return baseUnitClass(u)
   end
 
   -- Every chat line the addon prints, in order. The printer (LibKa0s-Core-1.0, or core/CoreSetup.lua's

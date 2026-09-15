@@ -70,6 +70,10 @@ modules\Anchor.lua
 # Before every feature: publishes NS.Element, which the features capture at file scope.
 modules\Element.lua
 modules\CastBars.lua
+# Before TargetFrames and PetFrames: publishes NS.UnitButtons, which both capture at file scope.
+modules\UnitButtons.lua
+modules\TargetFrames.lua
+modules\PetFrames.lua
 
 # Settings (last — depend on everything else being initialized)
 settings\Schema.lua
@@ -81,4 +85,6 @@ settings\General.lua
 # LOAD-BEARING: publishes NS.ElementRows, which every feature page calls at file load.
 settings\ElementRows.lua
 settings\CastBars.lua
+settings\TargetFrames.lua
+settings\PetFrames.lua
 settings\Profiles.lua

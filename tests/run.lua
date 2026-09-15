@@ -60,6 +60,8 @@ Kit.run{
     "test_providers",
     "test_anchor",
     "test_castbars",
+    "test_targetframes",
+    "test_petframes",
     "test_slash",
     "test_optionssetup",
     "test_surface_parity",

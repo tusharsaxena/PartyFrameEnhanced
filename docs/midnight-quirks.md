@@ -41,6 +41,31 @@ secret either, which is what makes `if name then` and the stale-bar check safe.
 6. **End of cast comes from events.** `if remaining <= 0` is a secret comparison. The stop, failed and
    interrupted events decide; a 0.1 s tick catches a stop the client never sent by checking nil-ness.
 
+## A party member's target is a compound token
+
+`party1target` is secret whenever any link in the chain fails the identity test, so its name, class,
+player-ness, reaction, health and raid marker can each come back secret (SimplePartyTargets hit all of
+them). The target frames:
+
+- pass the name, health, max health and marker index straight to `SetText`, `SetMinMaxValues`,
+  `SetValue` and `SetRaidTargetIconTexture`;
+- render health percent as `UnitHealthPercent(token, true, CurveConstants.ScaleTo100)` into
+  `SetFormattedText("%d%%", …)` — the client does the scaling;
+- read the class **token** through `Compat.ClassToken`, which answers nil for a secret, so
+  `RAID_CLASS_COLORS[secret]` can never run (the library's own resolver is not used here for that
+  reason: it indexes the table with whatever `UnitClass` answered);
+- treat an unknown player-ness or reaction as an NPC of unknown mood and use the hostile swatch;
+- skip a repaint only when both health values are plain and unchanged — a secret cannot be compared,
+  so a secret health is always pushed.
+
+Compound tokens also get **no unit events**: `UNIT_HEALTH` never fires for `party1target`. Health is a
+gated repeating timer (`target.tickInterval`, default 0.2 s) that runs only while at least one tracked
+unit has a target and cancels itself when none do. `UnitExists` on the token fails open (secret →
+exists).
+
+`UnitIsUnit("party1target", …)` is always secret, which is why there is no "hide when my party member
+targets me" option.
+
 ## Stops re-derive instead of matching ids
 
 A stop, fail or interrupt re-queries the unit before acting (`CastBars` `onEvent`): if the unit is

@@ -21,7 +21,7 @@ read_globals = {
   "UnitCastingInfo", "UnitChannelInfo", "UnitCastingDuration", "UnitChannelDuration",
   "UnitEmpoweredChannelDuration", "GetRaidTargetIndex", "SetRaidTargetIconTexture",
   "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_Secrets", "C_CurveUtil",
-  "Enum", "GetCVarBool",
+  "Enum", "GetCVarBool", "CurveConstants",
   -- The client's own localized words for a stopped cast, displayed only.
   "INTERRUPTED", "FAILED",
   -- Secure frames (target and pet frames).
@@ -62,6 +62,8 @@ files["core/Database.lua"] = { ignore = { "212/self" } }
 -- receiver.
 files["modules/Providers.lua"] = { ignore = { "212/self" } }
 files["modules/CastBars.lua"] = { ignore = { "212/self" } }
+files["modules/TargetFrames.lua"] = { ignore = { "212/self" } }
+files["modules/PetFrames.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /
 -- Sl:OnSlash / Sl:Register mirror the instance's colon methods; a stub that narrows a signature

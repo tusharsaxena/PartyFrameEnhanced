@@ -50,14 +50,16 @@ local COMPOSED = {
   CastBarsBg     = 2,   --   ColorPair (Background)
   CastBarsBorder = 5,   --   BorderGroup, with Show border
   CastBarsFont   = 6,   --   FontGroup
+  TargetFrames   = 17,  -- settings/TargetFrames.lua: BarGroup 4, ColorPair 2, BorderGroup 5, FontGroup 6
+  PetFrames      = 17,  -- settings/PetFrames.lua: the same four blocks
 }
 
 test("optionssetup: the degraded load registers every host-declared row; the gap is the composers'", function()
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 47, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 24, "the library-absent schema")
+  assertEqual(#NS.Schema, 115, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 58, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 

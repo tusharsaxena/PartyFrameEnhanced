@@ -153,17 +153,36 @@ function Element.Reskin(el, cfg, look)
     if not el.__combatFaded then el:SetAlpha(el.__alpha) end
 end
 
---- The colors that can follow a unit's class: background, border and text. `unit` is the one the
---- element describes (options-ui-§17: classColorSource = "unit"); a class the client cannot answer
---- falls through to the stored swatch, inside the resolver.
-function Element.ApplyColors(el, cfg, unit)
-    el.bg:SetVertexColor(NS.ResolveColor(cfg.bgColor, cfg.useClassColorBg, unit))
+--- The colors that can follow a unit's class: background, border and text. `resolve(stored, on)`
+--- answers r, g, b, a for one swatch and its "Use class color" companion, for the unit the element
+--- describes (options-ui-§17: classColorSource = "unit"); an unresolvable class falls through to the
+--- stored swatch. Passed in rather than chosen here, because a target frame's unit can have a secret
+--- class that must never reach a table lookup (Element.ClassResolver).
+function Element.ApplyColors(el, cfg, resolve)
+    el.bg:SetVertexColor(resolve(cfg.bgColor, cfg.useClassColorBg))
     if cfg.borderShow then
-        el.border:SetBackdropBorderColor(NS.ResolveColor(cfg.borderColor, cfg.useClassColorBorder, unit))
+        el.border:SetBackdropBorderColor(resolve(cfg.borderColor, cfg.useClassColorBorder))
     end
-    local r, g, b, a = NS.ResolveColor(cfg.fontColor, cfg.useClassColorFont, unit)
+    local r, g, b, a = resolve(cfg.fontColor, cfg.useClassColorFont)
     el.text:SetTextColor(r, g, b, a)
     el.text2:SetTextColor(r, g, b, a)
+end
+
+--- The stored swatch's channels.
+function Element.Stored(stored)
+    if type(stored) ~= "table" then return 1, 1, 1, 1 end
+    return stored.r or 1, stored.g or 1, stored.b or 1, stored.a or 1
+end
+
+--- A resolver for a class token already known to be plain (or nil): the class color with the
+--- stored alpha when the companion is on and the class resolves, the stored swatch otherwise.
+function Element.ClassResolver(classToken)
+    local c = classToken and type(RAID_CLASS_COLORS) == "table" and RAID_CLASS_COLORS[classToken]
+    return function(stored, on)
+        local r, g, b, a = Element.Stored(stored)
+        if on and type(c) == "table" and type(c.r) == "number" then return c.r, c.g, c.b, a end
+        return r, g, b, a
+    end
 end
 
 -- ── the show decision's shared rungs (spec §6.7) ──────────────────────────────────────────────

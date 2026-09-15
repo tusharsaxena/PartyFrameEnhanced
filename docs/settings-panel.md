@@ -19,8 +19,17 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Cast Bars | Border | the border block with *Show border* |
 | Cast Bars | Text | the font block, spell name, time left |
 | Cast Bars | Icon | spell icon and its side, the shield, the spark |
-| Target Frames | *(plan P4)* | General · Position · Bar · Border · Text · Marker |
-| Pet Frames | *(plan P5)* | General · Position · Bar · Border · Text |
+| Target Frames | General | enable, click to target, health refresh interval |
+| Target Frames | Position | as Cast Bars |
+| Target Frames | Bar | the fill block, NPC reaction colors, the background |
+| Target Frames | Border | the border block with *Show border* |
+| Target Frames | Text | the font block, name, health percent |
+| Target Frames | Marker | the target's raid marker |
+| Pet Frames | General | enable, click to target |
+| Pet Frames | Position | as Cast Bars |
+| Pet Frames | Bar | the fill block (*Use class color* = the owner's class), the background |
+| Pet Frames | Border | the border block with *Show border* |
+| Pet Frames | Text | the font block, name, health percent |
 | Profiles | — (AceDBOptions) | create, switch, copy, reset, delete profiles |
 
 ## General → Master controls
@@ -66,6 +75,33 @@ composers, and every companion there resolves to the **tracked unit's** class
 | Border | — | Show border · Border style · Border thickness (px) · Border color · Use class color |
 | Text | Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Show spell name → `showName` · Show time left → `showTime` |
 | Icon | — | Show spell icon → `showIcon` · Icon side → `iconSide` · Show shield → `showShield` · Show spark → `showSpark` |
+
+## Target Frames
+
+Paths under `target.`. Position, Border and Text-font as on Cast Bars.
+
+| Tab | Subgroup | Controls → path |
+|---|---|---|
+| General | — | Enable target frames → `enabled` · Click to target → `clickToTarget` · Health refresh (seconds) → `tickInterval` |
+| Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) |
+| Bar | Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion) |
+| Bar | Background | Background color · Use class color |
+| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` |
+| Marker | — | Show raid marker → `showMarker` |
+
+*Click to target* and every size or position change are secure writes: made in combat, they apply
+when combat ends.
+
+## Pet Frames
+
+Paths under `pet.`. Position, Border and Text-font as on Cast Bars.
+
+| Tab | Subgroup | Controls → path |
+|---|---|---|
+| General | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` |
+| Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
+| Bar | Background | Background color · Use class color |
+| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` |
 
 ## Resets
 

@@ -20,6 +20,8 @@ mode are added by the phases that build them (plan P2–P6).
 | D | Resets and profiles | any Retail |
 | E | Debug console and perf harness | any Retail |
 | F | Cast bars | a party (a follower dungeon works), a target dummy |
+| G | Target frames | a party, mobs to target |
+| H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -118,6 +120,39 @@ EllesmereUI's, where noted.
     color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no bar
     appears on the next cast.
 
+## G. Target frames
+
+32. **Beside each frame.** A party member targets a mob → a small frame appears to the right of their
+    party frame with the mob's name, a red health bar (hostile) and its health percent. They clear
+    target → it disappears. *Failure:* the frame beside the wrong member, or one that stays after they
+    clear target.
+33. **Health moves.** The member's target takes damage → the bar and percent drop within a fraction of
+    a second (the 0.2 s refresh), in combat, with **zero Lua errors** in a dungeon. *Failure:* an error
+    naming `secret`, `compare` or `index` from `TargetFrames.lua` or `UnitButtons.lua`.
+34. **Colors.** A friendly NPC target → green; a neutral one → yellow. Tick *Use class color* on the
+    Bar tab, have a member target a player → the player's class color.
+35. **Raid marker.** Mark a member's target with a skull → the skull appears on that target frame.
+36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
+    target* → clicks pass through; ticking it back in combat applies when combat ends.
+37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
+    at once (the driver's `[combat]` clause) — no Lua error, no blocked-action message. Move a frame in
+    free placement: refused in combat, allowed out of it.
+38. **Re-sort in combat.** Raid-style or EllesmereUI sorted by role: someone joins mid-pull → target
+    frames whose party frame moved fade out, then reappear beside the right member when combat ends.
+    `/pfe debug on` shows `[Secure] queued …` then `[Secure] flushed …`. *Failure:* a frame beside the
+    wrong member during combat, or an `ADDON_ACTION_BLOCKED` line in the console.
+
+## H. Pet frames
+
+39. **A pet appears.** A hunter or warlock in the party → a small frame under their party frame with
+    the pet's name and health. They dismiss it → the frame disappears. Summon another → it shows the new
+    pet.
+40. **Your own pet.** On a pet class with your own row included, raid-style or EllesmereUI: your pet's
+    frame sits under your party frame.
+41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
+    green, a warlock's warlock purple.
+42. **Click to target.** Click a pet frame → you target the pet.
+
 ## T. Non-English client (locale)
 
 What this addon touches that a client translates, enumerated from the code rather than assumed:
@@ -142,11 +177,11 @@ Steps, each naming its failure:
   panel in English (untranslated, as expected). *Failure:* an error frame, or a label reading as a raw
   key like `L["Frame system"]` (the fallback metatable missing). *May be signed off on English:* the
   fallback is exercised by every headless case that renders a label.
-- **T2. Class colors from the token** (arrives with target frames, P4). Target a German-named
-  class-bearing player (a *Magier*) from a party member → the target frame takes mage blue. *Failure:*
-  the stored swatch color instead of the class color on deDE only — the class was keyed on the localized
-  name. *Headless stand-in:* `tests/test_targetframes.lua` feeds `UnitClass` a localized first return
-  and asserts the token decides (P4).
+- **T2. Class colors from the token.** With *Use class color* on, have a party member target a
+  German-named class-bearing player (a *Magier*) → the target frame takes mage blue. *Failure:* the
+  stored swatch color instead of the class color on deDE only — the class was keyed on the localized
+  name. *Headless stand-in:* `Compat.ClassToken` reads `UnitClass`'s second return only, and
+  `tests/test_targetframes.lua` colors a `MAGE` target from the token.
 - **T3. Spell names and the stop word render whole.** Watch a party member cast a spell whose German
   name has an umlaut or ß (*Blitzschlag*, *Gedankenschlag*) → the name renders without a `?` or
   replacement box at its end, and the time text has no stray `%s`/`%.1f`. Interrupt a cast → the bar

@@ -39,8 +39,24 @@ castbar.showName = true  showTime = true  showIcon = true  iconSide = "LEFT"
 castbar.showShield = true  showSpark = true
 ```
 
-The target and pet sections are added by the phases that build them (plan P4–P5); their shapes are
-in the spec's §8.
+```text
+target.enabled = true  target.clickToTarget = true  target.tickInterval = 0.2
+target.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = 0
+target.matchWidth = false  width = 110  height = 20  growth = "DOWN"  spacing = 4  position = nil
+target.barTexture = "Blizzard"  barAlpha = 1.0  barColor = {0.25, 0.75, 0.25, 1}  useClassColorBar = false
+target.colorReaction = true  hostileColor / neutralColor / friendlyColor   (palette, no companion)
+target.bgColor = {0, 0, 0, 0.6}  useClassColorBg = false
+target.borderShow = false  borderStyle  borderSize = 8  borderColor  useClassColorBorder = false
+target.font  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
+target.showName = true  showPercent = true  showMarker = true
+
+pet.enabled = true  pet.clickToTarget = true
+pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "BOTTOMLEFT"  offsetX = 0  offsetY = -20
+pet.matchWidth = false  width = 80  height = 14  growth = "DOWN"  spacing = 4  position = nil
+pet.barTexture  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)
+pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)
+pet.showName = true  showPercent = false
+```
 
 The Master controls tab's **Debug console** row is `sessionOnly` at `state.debugConsole`: its value is
 the console window's own visibility and never reaches the profile.

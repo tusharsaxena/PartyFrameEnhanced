@@ -27,29 +27,32 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 16 | `defaults/Profile.lua` | every profile default | before the settings pages that read it |
 | 17 | `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT | **load-bearing**: registers first, so the lifecycle enables it before the features |
 | 18 | `modules/Anchor.lua` | attached pin (memoized), free stack, drag and the position owner, secure combat fade/defer | after Providers, before the features that register with it |
-| 19 | `modules/Element.lua` | the shared element regions, the config-driven restyle, unit colors, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
+| 19 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
 | 20 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
-| 21 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
-| 22 | `settings/Slash.lua` | `NS.COMMANDS`, the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 23 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 24 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 25 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 26 | `settings/ElementRows.lua` | the Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
-| 27 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
-| 28 | `settings/Profiles.lua` | the AceDBOptions page | last |
+| 21 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
+| 22 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
+| 23 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
+| 24 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 25 | `settings/Slash.lua` | `NS.COMMANDS`, the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 26 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 27 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 28 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 29 | `settings/ElementRows.lua` | the Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 30 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
+| 31 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
+| 32 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
+| 33 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
-## Arriving with the features (plan P4–P6)
+## Arriving with preview mode (plan P6)
 
 | File | Responsibility |
 |---|---|
-| `modules/TargetFrames.lua` | secure target frames, `UNIT_TARGET`, the health ticker |
-| `modules/PetFrames.lua` | secure pet frames and pet events |
-| `modules/Preview.lua` | the lock ↔ preview toggle |
-| `settings/TargetFrames.lua`, `settings/PetFrames.lua` | one page each |
+| `modules/Preview.lua` | the lock ↔ preview toggle, the holders' drag handles |
 
 ## Tests
 
 `tests/run.lua` (load list, lifecycle kick, suite list), `tests/wow_mock.lua` (thin extender: unit
-classes, distinct recording regions and status bars, scripted casts), `tests/degraded_env.lua`
-(library-absent load), `tests/perf.lua` (offline scenarios, outside the gate), and one
-`tests/test_*.lua` per module. `tests/_kit/` is vendored and never edited.
+classes, distinct recording regions and status bars, scripted casts, unit data by token, secure
+attributes and state drivers), `tests/degraded_env.lua` (library-absent load), `tests/perf.lua`
+(offline scenarios, outside the gate), and one `tests/test_*.lua` per module. `tests/_kit/` is
+vendored and never edited.

@@ -278,7 +278,8 @@ local function reskinAll()
     for _, unit in ipairs(Units.LIST) do
         local el = bars[unit]
         Element.Reskin(el, cfg, cfg)
-        Element.ApplyColors(el, cfg, unit)
+        -- A party member's own class is never secret, so the library resolver is safe here.
+        Element.ApplyColors(el, cfg, function(stored, on) return NS.ResolveColor(stored, on, unit) end)
         if el.state == "casting" then applyFill(el) end
     end
     if t0 then Perf.Note("reskin", debugprofilestop() - t0) end

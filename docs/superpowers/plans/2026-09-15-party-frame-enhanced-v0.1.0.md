@@ -28,8 +28,8 @@ Ground rules for whoever resumes:
 | P1 | Standards scaffold: TOC, libs, core seams, schema/slash/options skeleton, tests harness, doc set | done | 246dba6 (code), next commit (docs + first automated-test bundle) |
 | P2 | Units, Compat, Providers (Blizzard raid-style, Blizzard classic, EllesmereUI), Anchor engine | done | see git log ("Add the frame-system providers and the anchor engine") |
 | P3 | Cast bars | done | see git log ("Add the cast bars") |
-| P4 | Target frames (secure) + health ticker | pending | |
-| P5 | Pet frames (secure) | pending | |
+| P4 | Target frames (secure) + health ticker | done | see git log ("Add the target and pet frames") |
+| P5 | Pet frames (secure) | done | same commit as P4 — they share `modules/UnitButtons.lua` |
 | P6 | Settings pages complete, preview/unlock, `status` verb | pending | |
 | P7 | Offline perf pass: `tests/perf.lua` scenarios, allocation ceilings, bucket coverage | pending | |
 | P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | pending | |

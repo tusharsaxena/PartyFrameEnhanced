@@ -62,6 +62,26 @@ for _, key in ipairs({
     "Preview cast",
 }) do L[key] = key end
 
+-- Target and pet frames (settings/TargetFrames.lua, settings/PetFrames.lua, the modules)
+for _, key in ipairs({
+    "Enable target frames", "Show what each party member is targeting, beside their party frame.",
+    "Click to target", "Left-click a target frame to target that unit yourself. Applied out of combat.",
+    "Health refresh (seconds)", "How often a shown target frame's health updates. Lower is smoother and costs more.",
+    "Reaction colors", "Color NPCs by reaction",
+    "Color a non-player target by how it feels about you. When the game hides that, the hostile color is used.",
+    "Hostile color", "Bar color for a hostile NPC.",
+    "Neutral color", "Bar color for a neutral NPC.",
+    "Friendly color", "Bar color for a friendly NPC.",
+    "Show name", "The unit's name.",
+    "Show health percent", "The unit's health as a percentage, at the right end.",
+    "Marker", "Show raid marker", "The target's raid marker, when it has one.",
+    "Restore every Target Frames setting on this profile to its addon default.",
+    "Enable pet frames", "Show each party member's pet, beside their party frame.",
+    "Left-click a pet frame to target that pet. Applied out of combat.",
+    "Restore every Pet Frames setting on this profile to its addon default.",
+    "Preview target", "Preview pet",
+}) do L[key] = key end
+
 -- Reset confirmation (options-ui-§12, verbatim)
 L["Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."] =
     "Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."

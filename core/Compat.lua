@@ -156,6 +156,69 @@ function Compat.AlphaFromBool(region, flag, ifTrue, ifFalse)
     region:SetAlpha(Compat.BoolValue(flag, ifTrue, ifFalse))
 end
 
+-- ── units a party member targets (spec §6.3) ──────────────────────────────────────────────────
+--
+-- `partyNtarget` is a compound token: its identity is secret whenever any link in the chain fails
+-- the client's identity test, so its class, player-ness and reaction can come back secret. Each shim
+-- below answers a PLAIN value or nil (unknown); nothing downstream ever indexes a table with a value
+-- it has not checked.
+
+--- The unit's health as 0-100 (possibly secret), for SetFormattedText only, or nil. The curve makes
+--- the client scale it, so no Lua arithmetic touches it.
+function Compat.HealthPercent(token)
+    if not UnitHealthPercent then return nil end
+    local curve = CurveConstants and CurveConstants.ScaleTo100
+    local ok, pct = pcall(UnitHealthPercent, token, true, curve)
+    if ok then return pct end
+    return nil
+end
+
+--- The unit's class TOKEN ("MAGE"), or nil when it is secret, absent or not a string. The localized
+--- name (the first return) is never used: class colors key on the token (localization-§4).
+function Compat.ClassToken(token)
+    local ok, _, classToken = pcall(UnitClass, token)
+    if not ok or Compat.IsSecret(classToken) or type(classToken) ~= "string" then return nil end
+    return classToken
+end
+
+--- true / false for a player-controlled unit, or nil when the answer is secret.
+function Compat.IsPlayer(token)
+    if not UnitIsPlayer then return nil end
+    local ok, v = pcall(UnitIsPlayer, token)
+    if not ok or Compat.IsSecret(v) then return nil end
+    return v and true or false
+end
+
+--- The unit's reaction to the player (1-8), or nil when it is secret or unknown.
+function Compat.Reaction(token)
+    if not UnitReaction then return nil end
+    local ok, v = pcall(UnitReaction, token, "player")
+    if not ok or Compat.IsSecret(v) or type(v) ~= "number" then return nil end
+    return v
+end
+
+--- Show the unit's raid marker on `texture`, or hide it. The index may be secret; it is handed to
+--- the client's own setter untouched, and only its presence is tested.
+function Compat.RaidMarker(texture, token)
+    local ok, index = pcall(GetRaidTargetIndex, token)
+    if ok and index and SetRaidTargetIconTexture then
+        SetRaidTargetIconTexture(texture, index)
+        texture:Show()
+        return true
+    end
+    texture:Hide()
+    return false
+end
+
+--- Whether a unit exists: true, false, or true for a secret answer (fail open — a frame shown for a
+--- unit that turns out absent draws nothing, a frame hidden for one that exists loses data).
+function Compat.UnitExists(token)
+    local ok, v = pcall(UnitExists, token)
+    if not ok then return false end
+    if Compat.IsSecret(v) then return true end
+    return v and true or false
+end
+
 --- Whether Blizzard's party frames are in the raid-style layout. 12.x stores this per Edit Mode
 --- layout; the old `useCompactPartyFrames` CVar is the fallback for a build without the method.
 function Compat.UseRaidStyleParty()

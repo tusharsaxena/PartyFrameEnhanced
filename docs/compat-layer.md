@@ -21,8 +21,14 @@ library's and are not documented here.
 | `BoolValue(flag, a, b)` | `C_CurveUtil.EvaluateColorValueFromBoolean` | `a` or `b` (possibly secret) | picks a value by a secret boolean without an `if` |
 | `AlphaFromBool(region, flag, a, b)` | `Region:SetAlphaFromBoolean` | — | the one alpha setter that takes a secret boolean |
 
-Arriving with the target and pet frames: the health-percent and raid-marker shims (P4). Each is added
-here in the change that adds it. Why each secret rule exists: [midnight-quirks.md](midnight-quirks.md).
+| `HealthPercent(token)` | `UnitHealthPercent(token, true, CurveConstants.ScaleTo100)` | 0–100, possibly secret, or nil | the client scales it, so no Lua arithmetic; rendered only through `SetFormattedText` |
+| `ClassToken(token)` | `UnitClass`'s second return | the class token, or nil when secret or absent | a secret token must never index `RAID_CLASS_COLORS`; the localized name is never used (localization-§4) |
+| `IsPlayer(token)` | `UnitIsPlayer` | `true` / `false` / **nil = unknown** | compound tokens' player-ness can be secret |
+| `Reaction(token)` | `UnitReaction(token, "player")` | 1–8, or nil when secret | the reaction palette is indexed only by a plain number |
+| `RaidMarker(texture, token)` | `GetRaidTargetIndex` + `SetRaidTargetIconTexture` | shows or hides the texture | the index may be secret; only its presence is tested |
+| `UnitExists(token)` | `UnitExists` | boolean; **true** for a secret answer (fail open) | the ticker's "anyone targeting?" gate |
+
+Why each secret rule exists: [midnight-quirks.md](midnight-quirks.md).
 
 Tests: `tests/test_compat.lua` drives each shim through a mock `issecretvalue` that marks one sentinel
 secret.

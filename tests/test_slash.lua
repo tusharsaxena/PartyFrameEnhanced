@@ -32,6 +32,34 @@ test("slash: the reserved verbs are all present", function()
   end
 end)
 
+-- Runs `fn` with NS.OpenOptionsPanel swapped for a counter; the `config` verb looks it up per call.
+local function countOpens(fn)
+  local saved, opens = NS.OpenOptionsPanel, 0
+  NS.OpenOptionsPanel = function() opens = opens + 1 end
+  local ok, err = pcall(fn)
+  NS.OpenOptionsPanel = saved
+  if not ok then error(err, 0) end
+  return opens
+end
+
+test("slash: a bare /pfe opens the settings panel through `config`, not the help", function()
+  local out
+  assertEqual(countOpens(function() out = slash("") end), 1, "bare /pfe ran `config`")
+  assertTrue(joined(out):find("slash commands", 1, true) == nil, "and printed no help block")
+end)
+
+test("slash: whitespace-only input is a bare /pfe", function()
+  assertEqual(countOpens(function() slash("   ") end), 1)
+end)
+
+test("slash: `help` prints the command list and opens nothing", function()
+  local out
+  assertEqual(countOpens(function() out = slash("help") end), 0)
+  local text = joined(out)
+  assertTrue(text:find("slash commands", 1, true) ~= nil, "the version header")
+  assertTrue(text:find("/pfe config", 1, true) ~= nil, "a row per verb")
+end)
+
 test("slash: /pfe and /partyframeenhanced are both registered through AceConsole", function()
   NS.Slash:Register()
   local AceConsole = mocks.LibStub("AceConsole-3.0")

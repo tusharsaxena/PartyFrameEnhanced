@@ -262,7 +262,13 @@ if not SlashLib then
         end
         stub.OnSlash = function(_, msg)
             local raw = (msg or ""):match("^%s*(.-)%s*$") or ""
-            if raw == "" then return stub.PrintHelp() end
+            -- Bare opens the settings through `config`, as the library does (slash-commands-§4).
+            if raw == "" then
+                for _, e in ipairs(d.commands) do
+                    if e[1] == "config" then return e[3]("") end
+                end
+                return stub.PrintHelp()
+            end
             local cmd, rest = raw:match("^(%S+)%s*(.*)$")
             cmd = (cmd or ""):lower()
             cmd = (d.aliases or {})[cmd] or cmd

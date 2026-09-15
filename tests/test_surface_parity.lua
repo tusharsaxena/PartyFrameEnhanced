@@ -59,3 +59,11 @@ test("parity: the Slash stub carries every dispatcher member the addon calls", f
     "HelpHeader", "HelpRows", "BuildListLines", "CliVersion", "Text",
   })
 end)
+
+test("parity: a bare /pfe runs `config` in the library-absent build too", function()
+  local NS2 = loadDegraded()
+  local opens = 0
+  NS2.OpenOptionsPanel = function() opens = opens + 1 end
+  NS2.Slash.__cli:OnSlash("  ")
+  assertTrue(opens == 1, "the stub dispatcher sent bare input to `config`")
+end)

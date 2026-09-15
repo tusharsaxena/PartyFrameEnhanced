@@ -9,8 +9,8 @@ The landing page renders the same table.
 
 | Verb | What it does | Reserved |
 |---|---|---|
-| `help` | the command list (bare `/pfe` does the same) | yes |
-| `config` (alias `options`) | opens the settings panel; refused in combat with a gray notice | yes |
+| `help` | the command list | yes |
+| `config` (alias `options`) | opens the settings panel on its landing page (bare `/pfe` does the same); refused in combat with a gray notice | yes |
 | `list` | every setting and its value, grouped by page | yes |
 | `get <path>` | one setting's value | yes |
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |

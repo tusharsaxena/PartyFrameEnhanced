@@ -37,10 +37,11 @@ mode are added by the phases that build them (plan P2–P6).
 
 ## B. Slash surface
 
-4. `/pfe` alone → the help block: a version line and sixteen verbs (help, config, list, get, set,
+4. `/pfe` alone → the settings panel opens on the landing page (in combat: the gray refusal
+   instead). `/pfe help` → the help block: a version line and sixteen verbs (help, config, list, get, set,
    reset, resetall, resetposition, lock, unlock, test, status, debug, perf, version, profile), each
    a gold `/pfe <verb>`, an em dash and a white description.
-5. `/partyframeenhanced` → the identical block.
+5. `/partyframeenhanced` and `/partyframeenhanced help` → the same as `/pfe` and `/pfe help`.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
 7. `/pfe version` → `[PFE] v0.1.0`.
 8. `/pfe list` → a green header, `[general]` group, then `path = value` rows with gold paths and white

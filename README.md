@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-181%2F181_passing-green)
+![Tests](https://img.shields.io/badge/Tests-185%2F185_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -54,8 +54,8 @@ Target and pet frames are secure buttons, the same kind Blizzard's own unit fram
 clicking them works in combat. The game also refuses to let any addon move one mid-fight. If someone
 joins or leaves during a pull, those frames hide until combat ends and then reappear in the right spot.
 
-Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and `/pfe help` (or
-`/partyframeenhanced help`) prints the full command list.
+Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and typing `/pfe` on its
+own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full command list.
 
 ## How it works
 

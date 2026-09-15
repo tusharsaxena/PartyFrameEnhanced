@@ -35,7 +35,7 @@ gets rewritten.
 
 The record shape is the **library's**, versioned there. The field-by-field contract is
 [LibKa0s docs/record-schema.md](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/record-schema.md).
-In outline, and with **type placeholders only** (there is no capture here to quote):
+In outline, with type placeholders (the captures below carry the real values):
 
 ```jsonc
 {
@@ -72,12 +72,19 @@ lifecycle lines — the three inputs `/wow-addon:perf-analysis` needs. The last 
 outside the AceDB tree.
 
 For this addon the useful arms are a **party** pull (five units casting, targets changing) — solo play
-exercises almost nothing.
+exercises only your own row, and never the pet frames. Take both arms:
+
+- **somewhere quiet** — an instance, or a spot no other player wanders through. A city square moves
+  the frame-time delta more than the addon does (the first capture's delta was ~99% environment);
+- **in a party with at least one pet class**, so `petEvent` fires and every party row has casts and
+  targets;
+- **with the setup in the label**, since the record carries no addon config: frame system and anchor
+  mode, e.g. `/pfe perf start party ellesmere attached`.
 
 ## Capture index
 
-No capture has been taken yet. The addon has not been played; the first capture is a separate
-`/wow-addon:perf-analysis` run after in-game testing (plan P10).
-
 | Stamp | Addon version | Label | What it measured | Bundle |
 |---|---|---|---|---|
+| 20260915-161824 | 0.1.0 | `2026-09-15 16:14` | Solo Vengeance Demon Hunter in Silvermoon City: your own cast bar and target frame only. 0.861 ms/s of bracketed cost; the +1.63 ms/frame delta is about 99% environment or unbracketed client work; the health tick renders 4.89 buttons a pass solo | [ANALYSIS](20260915-161824/ANALYSIS.md) |
+
+No party capture yet: the pet-frame path and every party-member element are still unmeasured.

@@ -62,6 +62,12 @@ core\PartyFrameEnhanced.lua
 # Defaults (the only place a profile default is hardcoded — savedvariables-§2)
 defaults\Profile.lua
 
+# Modules (after core\PerfSetup.lua: each takes `local Perf = NS.Perf` at file scope)
+# LOAD-BEARING: Providers publishes NS.Providers, which Anchor reads at call time and the features
+# read through Anchor; it registers first so the lifecycle enables it first.
+modules\Providers.lua
+modules\Anchor.lua
+
 # Settings (last — depend on everything else being initialized)
 settings\Schema.lua
 settings\Slash.lua

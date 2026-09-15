@@ -78,6 +78,40 @@ badge and any count quoted in the docs must agree with it.
 - bus: every message is prefixed Ka0s_PartyFrameEnhanced_
 - bus: no message has more than one sending file
 
+### test_compat.lua (7)
+
+- compat: IsSecret answers false without the client's issecretvalue
+- compat: FrameUnit prefers displayedUnit, then unit, then unitToken, then the attribute
+- compat: FrameUnit rejects a secret, an empty string and a non-string, and moves on
+- compat: FrameVisible fails open on a secret and closed on nil or an error
+- compat: UnitIsUnit answers nil when the comparison is refused or secret
+- compat: UseRaidStyleParty reads Edit Mode first and the CVar second
+- compat: IsAddOnLoaded goes through C_AddOns and answers false without it
+
+### test_providers.lua (11)
+
+- providers: Blizzard classic maps party1..4 by unitToken and never the player
+- providers: Blizzard raid-style maps the player too, and follows a re-sort
+- providers: EllesmereUI outranks Blizzard in Automatic, and reads the secure unit attribute
+- providers: the General page can pin Blizzard even with EllesmereUI on screen
+- providers: EllesmereUI's frames are ignored unless the addon is loaded
+- providers: hidden member frames and raid tokens that cannot be compared are skipped
+- providers: a raid group puts the map to sleep
+- providers: a resolve that finds what it already had sends no LAYOUT
+- providers: any number of requests before the next frame cost one resolve
+- providers: a hooked member frame's unit change requests a resolve
+- providers: suspended, requests do nothing and events come off
+
+### test_anchor.lua (7)
+
+- anchor: attached pins each element to its unit's frame by the configured points
+- anchor: a pass that changes nothing makes no SetPoint call
+- anchor: match width pins both edges instead of one point
+- anchor: free placement stacks included units down from the holder
+- anchor: a secure feature in combat fades what would move and defers the pass to regen
+- anchor: a drag saves the holder's position and ResetPositions clears it
+- anchor: LAYOUT re-applies every registered feature
+
 ### test_slash.lua (9)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
@@ -127,9 +161,12 @@ badge and any count quoted in the docs must agree with it.
 | test_perfsetup.lua | 4 |
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 3 |
+| test_compat.lua | 7 |
+| test_providers.lua | 11 |
+| test_anchor.lua | 7 |
 | test_slash.lua | 9 |
 | test_optionssetup.lua | 4 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **66** |
+| **Total** | **91** |

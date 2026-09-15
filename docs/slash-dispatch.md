@@ -16,6 +16,7 @@ The landing page renders the same table.
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |
 | `reset <path>` | one setting back to its default | yes |
 | `resetall` | the global reset: the active profile back to defaults | yes |
+| `resetposition` | every free-placement stack back to its default position (`NS.Anchor.ResetPositions`) | no |
 | `lock` | locks the elements and leaves preview mode | no |
 | `unlock` | unlocks them for dragging, with placeholder content | no |
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
@@ -23,7 +24,7 @@ The landing page renders the same table.
 | `version` | the addon version from the TOC | yes |
 | `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management | no |
 
-Arriving later: `resetposition` (plan P2), `preview` and `status` (plan P6).
+Arriving later: `preview` and `status` (plan P6).
 
 ## Output
 

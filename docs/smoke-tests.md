@@ -32,9 +32,9 @@ mode are added by the phases that build them (plan P2–P6).
 
 ## B. Slash surface
 
-4. `/pfe` alone → the help block: a version line and thirteen verbs (help, config, list, get, set,
-   reset, resetall, lock, unlock, debug, perf, version, profile), each a gold `/pfe <verb>`, an em dash
-   and a white description.
+4. `/pfe` alone → the help block: a version line and fourteen verbs (help, config, list, get, set,
+   reset, resetall, resetposition, lock, unlock, debug, perf, version, profile), each a gold
+   `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` → the identical block.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
 7. `/pfe version` → `[PFE] v0.1.0`.

@@ -31,6 +31,11 @@ NS.COMMANDS = {
         function(rest) cli:CliReset(rest) end},
     {"resetall", "Reset every setting to defaults",
         function() runResetAll() end},
+    {"resetposition", "Move every free-placement stack back to its default position",
+        function()
+            NS.Anchor.ResetPositions()
+            print("Positions reset")
+        end},
     {"lock",     "Lock the elements in place and leave preview mode",
         function() runLock(true) end},
     {"unlock",   "Unlock the elements to drag them, with placeholder content",

@@ -25,19 +25,19 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 14 | `core/Database.lua` | AceDB init, the migration ladder | conventional (called at OnInitialize) |
 | 15 | `core/PartyFrameEnhanced.lua` | AceAddon promotion, lifecycle, combat flag, secure-write queue, module registry, VISIBILITY/PROFILE sender | after the seams it reclaims and calls |
 | 16 | `defaults/Profile.lua` | every profile default | before the settings pages that read it |
-| 17 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
-| 18 | `settings/Slash.lua` | `NS.COMMANDS`, the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 19 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 20 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 21 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 22 | `settings/Profiles.lua` | the AceDBOptions page | last |
+| 17 | `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT | **load-bearing**: registers first, so the lifecycle enables it before the features |
+| 18 | `modules/Anchor.lua` | attached pin (memoized), free stack, drag and the position owner, secure combat fade/defer | after Providers, before the features that register with it |
+| 19 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 20 | `settings/Slash.lua` | `NS.COMMANDS`, the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 21 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 22 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 23 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 24 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
-## Arriving with the features (plan P2–P6)
+## Arriving with the features (plan P3–P6)
 
 | File | Responsibility |
 |---|---|
-| `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT |
-| `modules/Anchor.lua` | attached pin, free stack, memoized `SetPoint`, drag and the position owner, combat deferral |
 | `modules/Element.lua` | shared element chrome and the reskin signature |
 | `modules/CastBars.lua` | cast bar elements and their per-unit events |
 | `modules/TargetFrames.lua` | secure target frames, `UNIT_TARGET`, the health ticker |

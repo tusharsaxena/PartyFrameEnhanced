@@ -13,7 +13,7 @@ exclude_files = { "libs/", "docs/audits/", "docs/reviews/", "_dev/", "tests/_kit
 
 read_globals = {
   "_G", "LibStub", "CreateFrame", "UIParent", "GetTime", "select", "wipe", "Mixin",
-  "Settings", "C_Timer", "C_AddOns", "GetAddOnMetadata", "DEFAULT_CHAT_FRAME",
+  "Settings", "C_Timer", "C_AddOns", "GetAddOnMetadata", "IsAddOnLoaded", "DEFAULT_CHAT_FRAME",
   "StaticPopup_Show", "hooksecurefunc", "InCombatLockdown", "UnitAffectingCombat",
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
   "UnitExists", "UnitClass", "UnitName", "UnitGUID", "UnitIsPlayer", "UnitIsUnit", "UnitReaction",
@@ -54,6 +54,11 @@ files["core/PartyFrameEnhanced.lua"] = { ignore = { "212/self" } }
 -- NS:InitDB and NS:RunMigrations are reached with a colon (OnInitialize, tests/run.lua); the
 -- receiver and the namespace are one table.
 files["core/Database.lua"] = { ignore = { "212/self" } }
+
+-- The module lifecycle calls m:OnEnable() / m:Suspend() / m:Resume() with a colon
+-- (core/PartyFrameEnhanced.lua's `each`); a module whose state is file-local does not read the
+-- receiver.
+files["modules/Providers.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /
 -- Sl:OnSlash / Sl:Register mirror the instance's colon methods; a stub that narrows a signature

@@ -69,8 +69,8 @@ receivers.
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, thirteen verbs in `NS.COMMANDS` today — the ten reserved ones plus
-`lock`, `unlock` and `profile`; `resetposition`, `preview` and `status` arrive with their modules. Table
+`/pfe` and `/partyframeenhanced`, fourteen verbs in `NS.COMMANDS` today — the ten reserved ones plus
+`resetposition`, `lock`, `unlock` and `profile`; `preview` and `status` arrive with preview mode. Table
 and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Event Subscriptions
@@ -132,10 +132,10 @@ collection record it.
 | Doc | Status | Trigger |
 |---|---|---|
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
-| `slash-dispatch.md` | Present | 13 commands in `NS.COMMANDS` (trigger: eight or more) |
+| `slash-dispatch.md` | Present | 14 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Not applicable | No client-version workaround of the addon's own yet; the cast bars' secret-value handling (P3) fires it |
-| `compat-layer.md` | Not applicable | `core/Compat.lua` publishes 1 shim (trigger: three or more); P2 adds the rest and fires it |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 6 shims (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 

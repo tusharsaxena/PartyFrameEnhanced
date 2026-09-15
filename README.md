@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-131%2F131_passing-green)
+![Tests](https://img.shields.io/badge/Tests-136%2F136_passing-green)
 
 ![Ka0s Party Frame Enhanced](media/logos/partyframeenhanced.logo.png)
 
@@ -24,8 +24,8 @@ frames show you.
 
 Everything is set up under **Settings → AddOns → Ka0s Party Frame Enhanced**, or with `/pfe`.
 
-> Party Frame Enhanced is in development. The settings panel and the slash commands are in place; the
-> three elements are being built now, and the first release follows in-game testing.
+> This is a pre-release. Everything described here is built, but it hasn't been through in-game
+> testing yet, so expect rough edges until 0.1.0 is tagged.
 
 ## Usage
 
@@ -93,4 +93,4 @@ that gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
-| 0.1.0 | unreleased | First version, in development: settings panel, slash commands, profiles. |
+| 0.1.0 | unreleased | First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |

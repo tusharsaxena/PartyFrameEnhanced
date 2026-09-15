@@ -30,18 +30,22 @@ local function setPreview(on, why)
     NS.PublishVisibility()
 end
 
---- The `locked` row's onChange (settings/General.lua), reached from every writer of that row.
-function NS.OnLockChanged(locked)
-    if not locked and InCombatLockdown() then
-        -- Put the stored value back without re-entering the seam, and show the panel the truth.
-        NS.SetSetting("locked", true)
-        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+--- The `locked` row's validate (settings/General.lua): runs inside the write seam BEFORE the value
+--- is stored, so a refused unlock never lands. A panel checkbox that was clicked is redrawn from the
+--- unchanged value.
+function NS.AcceptLock(locked)
+    if locked == false and InCombatLockdown() then
         NS.Print(REFUSED)
+        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
         return false
     end
+    return true
+end
+
+--- The `locked` row's onChange, reached from every writer of that row once the value is stored.
+function NS.OnLockChanged(locked)
     NS.Anchor.SetUnlocked(not locked)
     setPreview(not locked, locked and "locked" or "unlocked")
-    return true
 end
 
 --- `/pfe preview`: placeholders on or off, the lock untouched. Refused in combat for the same

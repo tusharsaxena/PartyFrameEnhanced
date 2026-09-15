@@ -62,6 +62,20 @@ test("loadorder: OptionsSetup loads before every settings page", function()
   end
 end)
 
+test("loadorder: Schema loads before every settings file, and the TOC says why", function()
+  -- red under: a page file above settings/Schema.lua — its RegisterSchemaRows call raises at load.
+  local index = tocIndex()
+  local schema = index["settings/schema.lua"]
+  assertTrue(schema ~= nil, "settings/Schema.lua is not in the TOC")
+  for path, i in pairs(index) do
+    if path:match("^settings/") and path ~= "settings/schema.lua" then
+      assertTrue(i > schema, path .. " must load after settings/Schema.lua")
+    end
+  end
+  assertTrue(readFile(TOC):find("publishes NS.RegisterSchemaRows", 1, true) ~= nil,
+    "the TOC line must say Schema's position is load-bearing")
+end)
+
 test("loadorder: PerfSetup loads before every module", function()
   local index = tocIndex()
   local perf = index["core/perfsetup.lua"]

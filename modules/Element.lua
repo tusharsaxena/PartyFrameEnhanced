@@ -13,6 +13,8 @@ local Element = {}
 NS.Element = Element
 
 local SPARK_TEXTURE  = "Interface\\CastingBar\\UI-CastingBar-Spark"
+-- Blizzard's own cast-bar shield rather than LibKa0s's `shield` icon, deliberately: a party cast bar
+-- is read against the default UI's cast bars, and the shield means "cannot be interrupted" there.
 local SHIELD_TEXTURE = "Interface\\CastingBar\\UI-CastingBar-Small-Shield"
 local MARKER_TEXTURE = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
 

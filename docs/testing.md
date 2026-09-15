@@ -16,24 +16,26 @@ What to install is [`../DEPENDENCIES.md`](../DEPENDENCIES.md); this page is how 
 | Syntax-check one file | `luac5.1 -p <path/to/file.lua>` | no output |
 | In-game smoke tests | manual | [smoke-tests.md](./smoke-tests.md) |
 
-`.luacheckrc` carries **no top-level `ignore`**. Three `files[...]` stanzas each name one file and one
+`.luacheckrc` carries **no top-level `ignore`**. Eight `files[...]` stanzas each name one file and one
 code (`212/self`) for receivers a calling convention forces on a body that does not read them —
 `core/PartyFrameEnhanced.lua` (AceAddon/AceEvent handlers), `core/Database.lua` (`NS:InitDB`,
-`NS:RunMigrations`) and `settings/Slash.lua` (the degraded `SlashLib:New` and the `Sl:` methods). The
-reason for each sits above it in `.luacheckrc`.
+`NS:RunMigrations`), `settings/Slash.lua` (the degraded `SlashLib:New` and the `Sl:` methods), and the
+five modules whose lifecycle hooks are colon methods (`modules/Providers.lua`, `CastBars.lua`,
+`TargetFrames.lua`, `PetFrames.lua`, `Preview.lua`). The reason for each sits above it in
+`.luacheckrc`.
 
 ## What the suite covers
 
 The harness is the vendored LibKa0s testkit under `tests/_kit/` (never edited here). `tests/run.lua`
 holds only this addon's load list — the library half derived from `libs/LibKa0s/LibKa0s.xml`, the
-addon half from `PartyFrameEnhanced.toc` — the lifecycle kick (`NS:InitDB()`,
-`NS.CreateOptionsPanel()`) and the suite list. `tests/wow_mock.lua` is a thin extender over the kit's
-base mock.
+addon half from `PartyFrameEnhanced.toc` — the lifecycle kick (`NS:InitDB()`, then
+`NS.addon:OnEnable()`, which enables every module and registers the settings panel) and the suite list.
+`tests/wow_mock.lua` is a thin extender over the kit's base mock.
 
 The suites test what is **this addon's**: each setup file's descriptor and degradation stub, the
-schema and its write seam, the slash table, the lifecycle and the secure-write queue, and (as they
-land) the providers, the anchor engine and the three features. The library's own internals are tested
-in the LibKa0s repo and not again here (testing-§8).
+schema and its write seam, the slash table, the lifecycle and the secure-write queue, the providers,
+the anchor engine, the three features, preview mode, perf-bucket coverage and the spelling gate. The
+library's own internals are tested in the LibKa0s repo and not again here (testing-§8).
 
 `tests/test_spelling.lua` is the US-English prose gate (localization-§5): it copies the standard's
 published `BRITISH` and `ALLOWED` lists **whole** and scans every authored `.lua`, `.md` and `.toc`

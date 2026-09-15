@@ -78,6 +78,8 @@ modules\PetFrames.lua
 modules\Preview.lua
 
 # Settings (last — depend on everything else being initialized)
+# LOAD-BEARING: publishes NS.RegisterSchemaRows and the write seam, which every settings page calls
+# at file load; it must stay above every settings\<page>.lua.
 settings\Schema.lua
 settings\Slash.lua
 # LOAD-BEARING: publishes NS.Helpers, which every settings page calls at file load.

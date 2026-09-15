@@ -64,6 +64,10 @@ for _, row in ipairs(masterRows) do
     local fn = masterOnChange[row.path]
     if fn then row.onChange = fn end
     if not row.sessionOnly then row.section = "master" end
+    -- An unlock in combat is refused at the seam, before it is stored (modules/Preview.lua).
+    if row.path == "locked" then
+        row.validate = function(v) return not NS.AcceptLock or NS.AcceptLock(v) end
+    end
 end
 NS.RegisterSchemaRows(masterRows)
 
@@ -103,9 +107,9 @@ StaticPopupDialogs["PARTYFRAMEENHANCED_RESET_ALL"] = {
     OnAccept     = function()
         if NS.Helpers and NS.Helpers.RestoreAllDefaults then
             NS.Helpers.RestoreAllDefaults()
-            print("All settings reset to defaults.")
+            print(L["All settings reset to defaults."])
         else
-            print("Cannot reset settings \226\128\148 the settings helpers failed to load.")
+            print(L["Cannot reset settings \226\128\148 the settings helpers failed to load."])
         end
     end,
 }

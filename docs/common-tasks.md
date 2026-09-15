@@ -26,7 +26,7 @@ and `luacheck .`.
 
 ## Add a frame system (provider)
 
-1. Add a provider table to `modules/Providers.lua` (plan P2): `id`, `label`, `priority`,
+1. Add a provider table to `modules/Providers.lua` and to its `PROVIDERS` list: `id`, `family`, `label`, `priority`,
    `IsAvailable`, `IsActive`, `ForEachFrame`, `InstallHooks`. Presence-guard it; hooks are
    `hooksecurefunc` / `HookScript` only.
 2. List the addon in the TOC's `## OptionalDeps:`.

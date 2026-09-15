@@ -66,7 +66,7 @@ the console window's own visibility and never reaches the profile.
 - `castbar.position`, `target.position`, `pet.position` — each feature's free-placement anchor
   `{ point, x, y }`. Written only by a drag; no control sets it and no schema row addresses it. Owner:
   `modules/Anchor.lua`. Writers: its drag-stop handler and `Anchor.ResetPositions` (the *Reset
-  position* button and `/pfe resetposition`). Arrives in plan P2.
+  position* button and `/pfe resetposition`).
 
 ## Global
 

@@ -22,30 +22,32 @@ each — Media (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/C
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
-Build status: feature-complete for v0.1.0. What remains is the offline perf pass, the release record
-and in-game testing (plan P7–P10).
+Build status: feature-complete for v0.1.0, with the offline perf pass, the release-candidate record
+and the first standards audit done. What remains before the tag is in-game testing (plan P10).
 
 ## Module Map
 
-Twenty-two files load today, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-four files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
-captures `NS.Perf`, DebugLogSetup after its three inputs, and OptionsSetup before every settings page;
-the TOC comments each one and `tests/test_loadorder.lua` pins them. Full table:
+captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
+and UnitButtons before the features that capture them, Preview last among the modules, Schema before
+every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
+`tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
 
 ## Settings Schema
 
 One schema (`settings/Schema.lua`) drives the panel, the CLI and the resets, and **one write seam** —
 `NS.SetByPath` — carries every write to a schema path: the panel (the Options descriptor's `set` /
-`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. The seam stores the value, runs the
-row's `onChange`, logs one `[Set]` line (one per bulk act), and publishes `CONFIG(<section>)`.
+`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. The seam asks the row's `validate`
+first (the lock refuses an unlock in combat there, before anything is stored), then stores the value,
+runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publishes `CONFIG(<section>)`.
 
 - **Structural registries:** none. The player creates and deletes nothing.
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
   feature's free-placement anchor, written only by a drag. Owner: `modules/Anchor.lua`; writers: its
   drag-stop handler and `Anchor.ResetPositions` (the *Reset position* button, `/pfe resetposition`).
-  Arrives with the anchor engine (plan P2).
 - **Session-only rows:** `state.debugConsole` (the console window's visibility).
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:

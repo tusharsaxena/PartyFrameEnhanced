@@ -53,6 +53,7 @@ function UnitButtons.ApplyDriver(btn, driver)
     NS.RunSecure("driver:" .. btn.__key, function()
         btn.__driver = driver
         RegisterStateDriver(btn, "visibility", driver)
+        NS.Debug("Secure", "%s driver: %s", btn.__key, driver)
     end)
 end
 

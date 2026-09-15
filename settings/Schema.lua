@@ -11,6 +11,7 @@ local _, NS = ...
 --   section  the CONFIG payload for the row: "master", "general", "castbar", "target", "pet".
 --            Derived from the path's first segment when absent; flat paths are "master".
 --   onChange extra work beyond the CONFIG publish the seam always does.
+--   validate function(value) → false to refuse a write before it is stored.
 --
 -- NO ROW CARRIES `disabledIf` on a color (options-ui-§17, anti-pattern #74).
 
@@ -157,19 +158,27 @@ end
 --- single write seam for every schema path (architecture-§5): the panel, `/pfe set`, `/pfe lock`,
 --- resets — all land here, so the CLI and the panel cannot drift onto different code paths.
 function NS.SetByPath(path, value)
+    local row = byPath[path]
+    -- A row may refuse a value BEFORE anything is stored — the lock refuses an unlock in combat.
+    -- Refused here, the value never lands, so no writer has to put it back and no [Set] line
+    -- claims a write that did not stick (architecture-§5).
+    if row and row.validate and not row.validate(value) then
+        NS.Debug("Set", "%s refused", path)
+        return false
+    end
     -- The old value is read only inside a bracket: outside one it is needed for nothing.
     local changed = bulkDepth > 0 and not sameValue(NS.GetSetting(path), value)
     NS.SetSetting(path, value)
-    local row = byPath[path]
     if bulkDepth > 0 then
         if changed then bulkWrites = bulkWrites + 1 end
     elseif NS.State and NS.State.debug then
         NS.Debug("Set", "%s = %s", path, row and NS.FormatSchemaValue(row, value) or tostring(value))
     end
-    if not row then return end
+    if not row then return true end
     if row.onChange then row.onChange(value) end
     -- Session rows store nothing an element renders from; nothing needs to hear about them.
     if not row.sessionOnly then publishConfig(sectionOf(row)) end
+    return true
 end
 
 NS.Bulk = {}

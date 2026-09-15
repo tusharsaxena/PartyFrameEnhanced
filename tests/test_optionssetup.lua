@@ -74,6 +74,40 @@ test("optionssetup: the stub publishes every member a page file touches at load"
     "LSMValues answers a function, never a table frozen at load")
 end)
 
+test("optionssetup: Reset All resets the active profile only — the list and the active profile stay", function()
+  -- options-ui-§12 Testing: prove the blast radius, not the mechanism.
+  local db = NS.db
+  local current = db:GetCurrentProfile()
+  db:SetProfile("SecondProfile")
+  db:SetProfile(current)
+  local function profileList()
+    local list = {}
+    for _, name in ipairs(db:GetProfiles()) do list[#list + 1] = name end
+    table.sort(list)
+    return table.concat(list, ",")
+  end
+  local listBefore = profileList()
+  NS.SetByPath("general.provider", "blizzard")
+  NS.SetByPath("castbar.height", 30)
+  NS.SetByPath("state.debugConsole", true)
+  local profiles = 0
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.PROFILE, function() profiles = profiles + 1 end)
+
+  NS.Helpers.RestoreAllDefaults()
+
+  target:UnregisterMessage(NS.MSG.PROFILE)
+  assertEqual(NS.GetSetting("general.provider"), "auto", "profile rows are back at their defaults")
+  assertEqual(NS.GetSetting("castbar.height"), 16)
+  -- The console row carries no default (a session window, not a setting), so the walk leaves it.
+  assertTrue(NS.GetSetting("state.debugConsole"), "an open console stays open")
+  NS.SetByPath("state.debugConsole", false)
+  assertEqual(db:GetCurrentProfile(), current, "still on the same profile")
+  assertEqual(profileList(), listBefore, "the profile list is unchanged")
+  assertTrue(profiles >= 1, "every element rebuilds off the PROFILE message")
+  T.mocks.__fireTimers()
+end)
+
 test("optionssetup: without the library, opening the panel prints one honest line", function()
   local NS2, mocks2 = loadDegraded()
   NS2.OpenOptionsPanel()

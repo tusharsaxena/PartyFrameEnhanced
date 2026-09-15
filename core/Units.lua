@@ -26,9 +26,10 @@ U.PET = {
     party3 = "partypet3", party4 = "partypet4",
 }
 
+local L = NS.L
 U.LABEL = {
-    player = "Player",
-    party1 = "Party 1", party2 = "Party 2", party3 = "Party 3", party4 = "Party 4",
+    player = L["Player"],
+    party1 = L["Party 1"], party2 = L["Party 2"], party3 = L["Party 3"], party4 = L["Party 4"],
 }
 
 --- Whether `unit`'s row is wanted at all. The player's row follows the General page's "Include my

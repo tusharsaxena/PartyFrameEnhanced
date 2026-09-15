@@ -6,12 +6,13 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (11)
+### test_loadorder.lua (12)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
 - loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
 - loadorder: OptionsSetup loads before every settings page
+- loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
 - loadorder: every derived path exists on disk
@@ -46,6 +47,11 @@ badge and any count quoted in the docs must agree with it.
 - coresetup: NS.MakeCloseButton hands the library this addon's folder name
 - coresetup: without LibKa0s the printer still prints, and says the library is missing once
 
+### test_envsetup.lua (2)
+
+- envsetup: NS.Version never answers nil — the fallback constant when no reader answers
+- envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
+
 ### test_mediasetup.lua (3)
 
 - mediasetup: the console's monospace face is the library's, under this addon's folder
@@ -58,11 +64,12 @@ badge and any count quoted in the docs must agree with it.
 - debuglog: enabling logging flips NS.State.debug and writes nothing to the profile
 - debuglog: without LibKa0s, `debug on` still sets the flag and acknowledges it
 
-### test_perfsetup.lua (4)
+### test_perfsetup.lua (5)
 
 - perfsetup: every bucket is declared, in report order
 - perfsetup: suspend and resume reach every registered module and republish visibility
 - perfsetup: `/pfe perf` answers lines to print
+- perfsetup: live and stub both carry every Perf member the addon's source reads
 - perfsetup: without LibKa0s the stub carries every member the addon calls
 
 ### test_lifecycle.lua (4)
@@ -182,11 +189,12 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile` with no argument prints the sub-verb list
 - slash: an unknown verb says so and prints help
 
-### test_optionssetup.lua (4)
+### test_optionssetup.lua (5)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
 - optionssetup: the stub publishes every member a page file touches at load
+- optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
 ### test_surface_parity.lua (4)
@@ -210,13 +218,14 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 11 |
+| test_loadorder.lua | 12 |
 | test_schema.lua | 9 |
 | test_database.lua | 4 |
 | test_coresetup.lua | 4 |
+| test_envsetup.lua | 2 |
 | test_mediasetup.lua | 3 |
 | test_debuglog.lua | 3 |
-| test_perfsetup.lua | 4 |
+| test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 3 |
 | test_compat.lua | 7 |
@@ -229,8 +238,8 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 9 |
-| test_optionssetup.lua | 4 |
+| test_optionssetup.lua | 5 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **131** |
+| **Total** | **136** |

@@ -51,6 +51,7 @@ Kit.run{
     "test_schema",
     "test_database",
     "test_coresetup",
+    "test_envsetup",
     "test_mediasetup",
     "test_debuglog",
     "test_perfsetup",

@@ -65,6 +65,7 @@ local function onEvent(btn, event)
         UnitButtons.RenderName(btn, btn.token, cfg.showName)
     else
         paintAll(btn)   -- UNIT_PET: a different pet (or none) behind the token
+        NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
     end
     if t0 then Perf.Note("petEvent", debugprofilestop() - t0) end
 end

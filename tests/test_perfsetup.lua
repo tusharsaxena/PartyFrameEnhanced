@@ -41,6 +41,28 @@ test("perfsetup: `/pfe perf` answers lines to print", function()
   assertTrue(type(lines) == "table" and #lines > 0)
 end)
 
+test("perfsetup: live and stub both carry every Perf member the addon's source reads", function()
+  -- Derived, not typed: every `Perf.<member>` (and `NS.Perf.<member>`) in the files the TOC loads,
+  --   grep -ohE "Perf\.[A-Za-z_]+" $(files in PartyFrameEnhanced.toc)
+  -- so a member a module starts reading joins this case in the commit that reads it.
+  local Loader = dofile("tests/_kit/loader.lua")
+  local used, n = {}, 0
+  for _, path in ipairs(Loader.tocFiles("PartyFrameEnhanced.toc")) do
+    local f = io.open(path, "r")
+    local src = f:read("*a")
+    f:close()
+    for member in src:gmatch("Perf%.([%a_]+)") do
+      if not used[member] then used[member] = true; n = n + 1 end
+    end
+  end
+  assertTrue(n >= 3, "the derivation found only " .. n .. " members")
+  local NS2 = loadDegraded()
+  for member in pairs(used) do
+    assertTrue(NS.Perf[member] ~= nil, "the live instance lacks Perf." .. member)
+    assertTrue(NS2.Perf[member] ~= nil, "the degradation stub lacks Perf." .. member)
+  end
+end)
+
 test("perfsetup: without LibKa0s the stub carries every member the addon calls", function()
   local NS2 = loadDegraded()
   assertEqual(NS2.Perf.on, false)

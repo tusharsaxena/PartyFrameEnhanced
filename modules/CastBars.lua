@@ -68,8 +68,30 @@ local function shouldShow(el)
     return el.state ~= "idle"
 end
 
+-- Which rung hid a casting bar, for the debug trace (debug-logging-§8: the not-shown decision is a
+-- flow worth tracing). Mirrors shouldShow; reached only while debug logging is on.
+local function hiddenReason(el)
+    if NS.Perf.suspended then return "suspended by a perf run" end
+    if NS.GetSetting("enabled") ~= true then return "addon disabled" end
+    if not cfg.enabled then return "cast bars off" end
+    if not Element.VisibilityAllows() then return "General visibility" end
+    if not Units.IsIncluded(el.unit) then return "unit not included" end
+    return "no party frame for the unit"
+end
+
 local function refreshShown(el)
-    if shouldShow(el) then el:Show() else el:Hide() end
+    local show = shouldShow(el)
+    if show then el:Show() else el:Hide() end
+    if show or el.state ~= "casting" then
+        el.__hiddenWhy = nil
+    elseif NS.State.debug then
+        -- Once per reason, not once per event: a cast held hidden would otherwise log every update.
+        local why = hiddenReason(el)
+        if why ~= el.__hiddenWhy then
+            el.__hiddenWhy = why
+            NS.Debug("Cast", "%s is casting but hidden: %s", el.unit, why)
+        end
+    end
 end
 
 -- ── painting ──────────────────────────────────────────────────────────────────────────────────
@@ -165,6 +187,7 @@ local function stop(el, reason)
         el.text:SetText(word)
         el.text2:SetText("")
         NS.CombatStats.castsInterrupted = (NS.CombatStats.castsInterrupted or 0) + 1
+        NS.Debug("Cast", "%s %s", el.unit, reason)
         return
     end
     if cfg.fadeOut then
@@ -302,20 +325,25 @@ end
 -- Registered only while the feature is on and the unit included: a disabled unit costs no dispatch.
 local function syncEvents()
     local on = not suspended and NS.GetSetting("enabled") == true and cfg.enabled
+    local changed, listening = 0, 0
     for _, unit in ipairs(Units.LIST) do
         local el = bars[unit]
         if on and Units.IsIncluded(unit) then
             if not el.__registered then
                 for i = 1, #EVENTS do el:RegisterUnitEvent(EVENTS[i], unit) end
                 el.__registered = true
+                changed = changed + 1
                 start(el)
             end
+            listening = listening + 1
         elseif el.__registered then
             el:UnregisterAllEvents()
             el.__registered = false
+            changed = changed + 1
             idle(el)
         end
     end
+    if changed > 0 then NS.Debug("Cast", "listening for %d unit(s)", listening) end
 end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────

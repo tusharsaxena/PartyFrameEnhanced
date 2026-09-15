@@ -13,7 +13,7 @@ local SPEC = {
     notes = function() return NS.Meta("Notes") or "" end,
     sections = {
         {
-            heading = "Slash Commands",
+            heading = NS.L["Slash Commands"],
             rows    = function() return NS.Slash:LandingRows() end,
         },
     },

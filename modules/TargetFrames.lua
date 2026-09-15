@@ -116,9 +116,11 @@ function TargetFrames.UpdateTicker()
     end
     if want and not ticker then
         ticker = NS.addon:ScheduleRepeatingTimer(tick, cfg.tickInterval or 0.2)
+        NS.Debug("Target", "health ticker started (every %ss)", cfg.tickInterval or 0.2)
     elseif not want and ticker then
         NS.addon:CancelTimer(ticker)
         ticker = nil
+        NS.Debug("Target", "health ticker stopped")
     end
 end
 
@@ -150,6 +152,8 @@ local function onEvent(btn)
     paintAll(btn)
     TargetFrames.UpdateTicker()
     if t0 then Perf.Note("targetEvent", debugprofilestop() - t0) end
+    -- The name may be secret; the sink's stringifier renders it as <secret>.
+    NS.Debug("Target", "%s targets %s", btn.unit, UnitName(btn.token) or "nothing")
 end
 
 local function syncEvents()

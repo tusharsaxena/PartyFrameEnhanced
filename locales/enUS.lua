@@ -88,6 +88,41 @@ for _, key in ipairs({
     "Cast bars", "Target frames", "Pet frames",
 }) do L[key] = key end
 
+-- Slash surface, chat replies and unit labels (settings/Slash.lua, settings/About.lua, core/Units.lua)
+for _, key in ipairs({
+    "List available commands", "Open the settings panel", "List every setting and its current value",
+    "Print a setting's current value \226\128\148 `/pfe get <path>`",
+    "Set a setting \226\128\148 `/pfe set <path> <value>` (try /pfe list)",
+    "Reset one setting to its default \226\128\148 `/pfe reset <path>`",
+    "Reset every setting to defaults",
+    "Move every free-placement stack back to its default position",
+    "Lock the elements in place and leave preview mode",
+    "Unlock the elements to drag them, with placeholder content",
+    "Toggle placeholder content on every element, without unlocking",
+    "Show which party frames were found and what each feature is doing",
+    "Toggle the debug console \226\128\148 `on`/`off` enable/disable logging",
+    "Measure performance \226\128\148 try `/pfe perf` for the workflow",
+    "Print the addon version",
+    "Profile management \226\128\148 try `/pfe profile` for the list",
+    "Positions reset", "Preview on", "Preview off",
+    "All settings reset to defaults", "All settings reset to defaults.",
+    "Cannot reset settings \226\128\148 the settings helpers failed to load",
+    "Cannot reset settings \226\128\148 the settings helpers failed to load.",
+    "Elements locked", "Elements unlocked \226\128\148 drag them into place",
+    "off", "on, free placement", "on, attached", "addon disabled", "visibility %s", "preview on",
+    "suspended by a perf run", "Frame system: %s", "none found", "frame", "Note: %s",
+    "List all profiles", "Show current profile name", "Switch to profile",
+    "Create new profile with defaults", "Copy settings from another profile", "Delete a profile",
+    "Reset current profile to defaults", "Profile commands", "Usage: /pfe profile %s <name>",
+    "Available profiles", "(current)", "Current profile: %s", "Switched to profile '%s'",
+    "Created and switched to new profile '%s'", "Copied settings from profile '%s'",
+    "Cannot delete the current profile", "Deleted profile '%s'", "Profile reset to defaults",
+    "Profile system requires AceDB-3.0", "Unknown profile subcommand '%s'",
+    "is unavailable.", "v%s \226\128\148 slash commands", "unknown command '%s'",
+    "Slash Commands",
+    "Player", "Party 1", "Party 2", "Party 3", "Party 4",
+}) do L[key] = key end
+
 -- Reset confirmation (options-ui-§12, verbatim)
 L["Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."] =
     "Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."

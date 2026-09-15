@@ -7,9 +7,11 @@ local Sl = NS.Slash
 -- The dispatcher, help renderer, formatters, list builder and value parser are the library's. What
 -- stays here is the ordered verb table (positional {name, desc, fn} triples — named fields would be
 -- invisible to the library) and the host verbs that reach into this addon's own state. The table is
--- passed IN: the landing page renders the same one.
+-- passed IN: the landing page renders the same one. Every word a player reads goes through NS.L
+-- (localization-§1).
 
 local print = NS.Print
+local L = NS.L
 
 local SlashLib = LibStub and LibStub("LibKa0s-Slash-1.0", true)
 local cli   -- built at the bottom; every handler reaches it at CALL time
@@ -17,44 +19,44 @@ local cli   -- built at the bottom; every handler reaches it at CALL time
 local runResetAll, runDebug, runPerf, runProfile, runLock, runStatus
 
 NS.COMMANDS = {
-    {"help",     "List available commands",
+    {"help",     L["List available commands"],
         function() cli:PrintHelp() end},
-    {"config",   "Open the settings panel",
+    {"config",   L["Open the settings panel"],
         function() NS.OpenOptionsPanel() end},
-    {"list",     "List every setting and its current value",
+    {"list",     L["List every setting and its current value"],
         function() cli:CliList() end},
-    {"get",      "Print a setting's current value \226\128\148 `/pfe get <path>`",
+    {"get",      L["Print a setting's current value \226\128\148 `/pfe get <path>`"],
         function(rest) cli:CliGet(rest) end},
-    {"set",      "Set a setting \226\128\148 `/pfe set <path> <value>` (try /pfe list)",
+    {"set",      L["Set a setting \226\128\148 `/pfe set <path> <value>` (try /pfe list)"],
         function(rest) cli:CliSet(rest) end},
-    {"reset",    "Reset one setting to its default \226\128\148 `/pfe reset <path>`",
+    {"reset",    L["Reset one setting to its default \226\128\148 `/pfe reset <path>`"],
         function(rest) cli:CliReset(rest) end},
-    {"resetall", "Reset every setting to defaults",
+    {"resetall", L["Reset every setting to defaults"],
         function() runResetAll() end},
-    {"resetposition", "Move every free-placement stack back to its default position",
+    {"resetposition", L["Move every free-placement stack back to its default position"],
         function()
             NS.Anchor.ResetPositions()
-            print("Positions reset")
+            print(L["Positions reset"])
         end},
-    {"lock",     "Lock the elements in place and leave preview mode",
+    {"lock",     L["Lock the elements in place and leave preview mode"],
         function() runLock(true) end},
-    {"unlock",   "Unlock the elements to drag them, with placeholder content",
+    {"unlock",   L["Unlock the elements to drag them, with placeholder content"],
         function() runLock(false) end},
-    {"preview",  "Toggle placeholder content on every element, without unlocking",
+    {"preview",  L["Toggle placeholder content on every element, without unlocking"],
         function()
             if NS.Preview.Toggle() then
-                print(NS.State.preview and "Preview on" or "Preview off")
+                print(NS.State.preview and L["Preview on"] or L["Preview off"])
             end
         end},
-    {"status",   "Show which party frames were found and what each feature is doing",
+    {"status",   L["Show which party frames were found and what each feature is doing"],
         function() runStatus() end},
-    {"debug",    "Toggle the debug console \226\128\148 `on`/`off` enable/disable logging",
+    {"debug",    L["Toggle the debug console \226\128\148 `on`/`off` enable/disable logging"],
         function(rest) runDebug(rest) end},
-    {"perf",     "Measure performance \226\128\148 try `/pfe perf` for the workflow",
+    {"perf",     L["Measure performance \226\128\148 try `/pfe perf` for the workflow"],
         function(rest) runPerf(rest) end},
-    {"version",  "Print the addon version",
+    {"version",  L["Print the addon version"],
         function() print(("v%s"):format(NS.Version())) end},
-    {"profile",  "Profile management \226\128\148 try `/pfe profile` for the list",
+    {"profile",  L["Profile management \226\128\148 try `/pfe profile` for the list"],
         function(rest) runProfile(rest) end},
 }
 
@@ -65,49 +67,58 @@ function runResetAll()
     -- acknowledgment sits inside the guard: printing it when nothing ran would claim a reset.
     if NS.Helpers and NS.Helpers.RestoreAllDefaults then
         NS.Helpers.RestoreAllDefaults()
-        print("All settings reset to defaults")
+        print(L["All settings reset to defaults"])
     else
-        print("Cannot reset settings \226\128\148 the settings helpers failed to load")
+        print(L["Cannot reset settings \226\128\148 the settings helpers failed to load"])
     end
 end
 
--- Through the write seam, so the checkbox, `/pfe set locked` and this verb take one path. The row's
--- onChange may refuse an unlock in combat (modules/Preview.lua), so the reply reads the stored
--- value back rather than assuming.
+-- Through the write seam, so the checkbox, `/pfe set locked` and this verb take one path. The row
+-- may refuse an unlock in combat (modules/Preview.lua), so the reply reads the stored value back
+-- rather than assuming.
 function runLock(locked)
     NS.SetByPath("locked", locked)
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
     if NS.GetSetting("locked") ~= locked then return end
-    print(locked and "Elements locked" or "Elements unlocked \226\128\148 drag them into place")
+    print(locked and L["Elements locked"] or L["Elements unlocked \226\128\148 drag them into place"])
 end
 
 -- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing
 -- showing". Reads only public seams; changes nothing.
-local FEATURES = { { "castbar", "Cast bars" }, { "target", "Target frames" }, { "pet", "Pet frames" } }
+local FEATURES = {
+    { "castbar", L["Cast bars"] }, { "target", L["Target frames"] }, { "pet", L["Pet frames"] },
+}
+
+local function featureState(cfg)
+    if not cfg.enabled then return L["off"] end
+    return cfg.anchorMode == "free" and L["on, free placement"] or L["on, attached"]
+end
+
+local function statusFlags()
+    local flags = {}
+    if NS.GetSetting("enabled") ~= true then flags[#flags + 1] = L["addon disabled"] end
+    if NS.GetSetting("visibility") ~= "always" then
+        flags[#flags + 1] = L["visibility %s"]:format(tostring(NS.GetSetting("visibility")))
+    end
+    if NS.State.preview then flags[#flags + 1] = L["preview on"] end
+    if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end
+    return flags
+end
 
 function runStatus()
-    print("Frame system: " .. (NS.Providers.ActiveLabel() or "none found"))
+    print(L["Frame system: %s"]:format(NS.Providers.ActiveLabel() or L["none found"]))
     local parts = {}
     for _, unit in ipairs(NS.Units.LIST) do
-        local mark = NS.Providers.FrameFor(unit) and "frame" or "\226\128\148"
-        if not NS.Units.IsIncluded(unit) then mark = "off" end
+        local mark = NS.Providers.FrameFor(unit) and L["frame"] or "\226\128\148"
+        if not NS.Units.IsIncluded(unit) then mark = L["off"] end
         parts[#parts + 1] = NS.Units.LABEL[unit] .. ": " .. mark
     end
     print("  " .. table.concat(parts, "  \194\183  "))
     for _, f in ipairs(FEATURES) do
-        local cfg = NS.db.profile[f[1]]
-        local state = cfg.enabled and (cfg.anchorMode == "free" and "on, free placement"
-            or "on, attached") or "off"
-        print("  " .. f[2] .. ": " .. state)
+        print("  " .. f[2] .. ": " .. featureState(NS.db.profile[f[1]]))
     end
-    local flags = {}
-    if NS.GetSetting("enabled") ~= true then flags[#flags + 1] = "addon disabled" end
-    if NS.GetSetting("visibility") ~= "always" then
-        flags[#flags + 1] = "visibility " .. tostring(NS.GetSetting("visibility"))
-    end
-    if NS.State.preview then flags[#flags + 1] = "preview on" end
-    if NS.Perf.suspended then flags[#flags + 1] = "suspended by a perf run" end
-    if #flags > 0 then print("  Note: " .. table.concat(flags, ", ")) end
+    local flags = statusFlags()
+    if #flags > 0 then print("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
 end
 
 -- The guided run lives in LibKa0s-Perf; the library returns lines and this prints them
@@ -129,17 +140,17 @@ end
 -- ── /pfe profile ──────────────────────────────────────────────────────────────────────────────
 
 local PROFILE_HELP = {
-    { "list",          "List all profiles" },
-    { "current",       "Show current profile name" },
-    { "use <name>",    "Switch to profile" },
-    { "new <name>",    "Create new profile with defaults" },
-    { "copy <name>",   "Copy settings from another profile" },
-    { "delete <name>", "Delete a profile" },
-    { "reset",         "Reset current profile to defaults" },
+    { "list",          L["List all profiles"] },
+    { "current",       L["Show current profile name"] },
+    { "use <name>",    L["Switch to profile"] },
+    { "new <name>",    L["Create new profile with defaults"] },
+    { "copy <name>",   L["Copy settings from another profile"] },
+    { "delete <name>", L["Delete a profile"] },
+    { "reset",         L["Reset current profile to defaults"] },
 }
 
 local function printProfileHelp()
-    print("Profile commands")
+    print(L["Profile commands"])
     for _, row in ipairs(PROFILE_HELP) do
         print("  " .. SlashLib.FormatRow("/pfe profile " .. row[1], row[2]))
     end
@@ -147,53 +158,53 @@ end
 
 local function needsName(verb, fn)
     return function(db, name)
-        if name == "" then return print("Usage: /pfe profile " .. verb .. " <name>") end
+        if name == "" then return print(L["Usage: /pfe profile %s <name>"]:format(verb)) end
         return fn(db, name)
     end
 end
 
 local PROFILE_VERBS = {
     list = function(db)
-        print("Available profiles")
+        print(L["Available profiles"])
         local current = db:GetCurrentProfile()
         for _, name in ipairs(db:GetProfiles()) do
-            print("  " .. name .. ((name == current) and " (current)" or ""))
+            print("  " .. name .. ((name == current) and (" " .. L["(current)"]) or ""))
         end
     end,
     current = function(db)
-        print("Current profile: " .. db:GetCurrentProfile())
+        print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
     use = needsName("use", function(db, name)
         db:SetProfile(name)
-        print("Switched to profile '" .. name .. "'")
+        print(L["Switched to profile '%s'"]:format(name))
     end),
     -- SetProfile first, then the reset, so the reset lands on the new profile.
     new = needsName("new", function(db, name)
         db:SetProfile(name)
         NS.ResetProfileCounted(db)
-        print("Created and switched to new profile '" .. name .. "'")
+        print(L["Created and switched to new profile '%s'"]:format(name))
     end),
     copy = needsName("copy", function(db, name)
         db:CopyProfile(name)
-        print("Copied settings from profile '" .. name .. "'")
+        print(L["Copied settings from profile '%s'"]:format(name))
     end),
     delete = needsName("delete", function(db, name)
         if name == db:GetCurrentProfile() then
-            return print("Cannot delete the current profile")
+            return print(L["Cannot delete the current profile"])
         end
         db:DeleteProfile(name, true)
-        print("Deleted profile '" .. name .. "'")
+        print(L["Deleted profile '%s'"]:format(name))
     end),
     reset = function(db)
         NS.ResetProfileCounted(db)
-        print("Profile reset to defaults")
+        print(L["Profile reset to defaults"])
     end,
 }
 
 function runProfile(rest)
     local db = NS.db
     if not db or not db.SetProfile then
-        return print("Profile system requires AceDB-3.0")
+        return print(L["Profile system requires AceDB-3.0"])
     end
     -- Only the verb is lowercased: AceDB profile names are case-sensitive.
     local sub, subarg = (rest or ""):match("^(%S*)%s*(.*)$")
@@ -201,7 +212,7 @@ function runProfile(rest)
     if sub == "" then return printProfileHelp() end
     local handler = PROFILE_VERBS[sub]
     if not handler then
-        print("Unknown profile subcommand '" .. sub .. "'")
+        print(L["Unknown profile subcommand '%s'"]:format(sub))
         return printProfileHelp()
     end
     return handler(db, subarg)
@@ -224,7 +235,7 @@ end
 -- verbs keep working; the schema CLI names the missing library. No formatter, parser or key/value
 -- shape of the library's is copied here.
 if not SlashLib then
-    local missing = " is unavailable. " .. NS.LIBKA0S_MISSING .. "."
+    local missing = " " .. L["is unavailable."] .. " " .. NS.LIBKA0S_MISSING .. "."
     SlashLib = { FormatRow = function(cmd, desc) return cmd .. " \226\128\148 " .. desc end }
 
     function SlashLib:New(d)
@@ -243,7 +254,7 @@ if not SlashLib then
             return out
         end
         stub.PrintHelp = function()
-            print(("v%s \226\128\148 slash commands"):format(d.version()))
+            print(L["v%s \226\128\148 slash commands"]:format(d.version()))
             for _, row in ipairs(stub.LandingRows()) do print("  " .. row) end
         end
         stub.OnSlash = function(_, msg)
@@ -255,7 +266,7 @@ if not SlashLib then
             for _, e in ipairs(d.commands) do
                 if e[1] == cmd then return e[3](rest or "") end
             end
-            print("unknown command '" .. cmd .. "'")
+            print(L["unknown command '%s'"]:format(cmd))
             stub.PrintHelp()
         end
         return stub

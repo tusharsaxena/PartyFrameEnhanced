@@ -48,7 +48,9 @@ feature enable → preview (show placeholders, stop) → General visibility vs. 
 included and exists → attached: a frame for the unit → the feature's own condition (casting / has a
 target / has a pet). The secure target and pet frames express the later rungs as a state driver.
 
-## Build status
+## Where each stage lives
 
-Stage 1 of the addon — the lifecycle, the settings seam and the bus that every arrow above uses — is
-in the tree. The providers, the anchor engine and the three features land in plan P2–P5.
+Stage 1 is `modules/Providers.lua`, stage 2 `modules/Anchor.lua`, stage 3 `modules/CastBars.lua`,
+`modules/TargetFrames.lua` and `modules/PetFrames.lua` (the last two over `modules/UnitButtons.lua`),
+and stage 4 is each feature's `shouldShow` / state driver over `modules/Element.lua`'s shared rungs.
+Preview mode (`modules/Preview.lua`) is rung 3 of stage 4.

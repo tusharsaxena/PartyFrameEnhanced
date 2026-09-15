@@ -59,7 +59,7 @@ them). The target frames:
   so a secret health is always pushed.
 
 Compound tokens also get **no unit events**: `UNIT_HEALTH` never fires for `party1target`. Health is a
-gated repeating timer (`target.tickInterval`, default 0.2 s) that runs only while at least one target
+gated repeating timer (`general.tickInterval`, default 0.2 s) that runs only while at least one target
 button is **shown**, and repaints only the shown ones. Lua never asks `UnitExists` about the token:
 in combat that answer can be secret, and reading a secret as "exists" repainted every hidden button
 five times a second (the first in-game capture, `perf-analysis/20260915-161824`: 4.89 renders per

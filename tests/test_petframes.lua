@@ -63,7 +63,7 @@ end)
 test("petframes: Update health off drops the health events and draws the bar full", function()
   prep()
   local btn = buttons.party2
-  NS.SetByPath("pet.updateHealth", false)
+  NS.SetByPath("general.updateHealth", false)
   assertTrue(btn.__unitEvents.UNIT_HEALTH == nil, "no UNIT_HEALTH")
   assertTrue(btn.__unitEvents.UNIT_MAXHEALTH == nil, "no UNIT_MAXHEALTH")
   assertEqual(btn.__unitEvents.UNIT_PET[1], "party2", "the owner event stays")
@@ -72,7 +72,7 @@ test("petframes: Update health off drops the health events and draws the bar ful
   btn:__fire("OnEvent", "UNIT_PET", "party2")
   assertEqual(btn.bar.__max, 1)
   assertEqual(btn.bar.__value, 1, "a full bar")
-  NS.SetByPath("pet.updateHealth", true)
+  NS.SetByPath("general.updateHealth", true)
   assertEqual(btn.__unitEvents.UNIT_HEALTH[1], "partypet2", "back on, re-registered")
   assertEqual(btn.bar.__value, 10, "and the real health is painted")
   mocks.__units.partypet2 = nil

@@ -3,7 +3,7 @@
 --     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
 --
 --     General          [Enable target frames] (solo)   [Click to target]
---                      [Update health] · [Health refresh] (dimmed while health updates are off)
+--                      (health updates are shared with pet frames: General page → Health updates)
 --     Size & Position  settings/ElementRows.lua's Size & Position rows
 --     Bar              -- Fill --             the canonical bar block
 --                      -- Reaction colors --  Color NPCs by reaction · Hostile / Neutral · Friendly
@@ -29,7 +29,7 @@ local function row(t)
     return t
 end
 
-local function healthOff() return NS.GetSetting(P .. "updateHealth") ~= true end
+local function healthOff() return NS.GetSetting("general.updateHealth") ~= true end
 local function markerOff() return NS.GetSetting(P .. "showMarker") ~= true end
 
 local rows = {
@@ -41,14 +41,6 @@ local rows = {
          label = L["Click to target"],
          desc = L["Left-click a target frame to target that unit yourself. Applied out of combat."],
          default = D.clickToTarget },
-    row{ path = "updateHealth", group = L["General"], order = 30, type = "bool", startsLine = true,
-         label = L["Update health"],
-         desc = L["Track the target's health on the bar. Off: the bar stays full with no percent, and the health refresh never runs."],
-         default = D.updateHealth },
-    row{ path = "tickInterval", group = L["General"], order = 40, type = "number",
-         label = L["Health refresh (seconds)"],
-         desc = L["How often a shown target frame's health updates. Lower is smoother and costs more."],
-         default = D.tickInterval, min = 0.1, max = 1.0, step = 0.05, disabledIf = healthOff },
 }
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))

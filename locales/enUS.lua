@@ -66,7 +66,7 @@ for _, key in ipairs({
 for _, key in ipairs({
     "Enable target frames", "Show what each party member is targeting, beside their party frame.",
     "Click to target", "Left-click a target frame to target that unit yourself. Applied out of combat.",
-    "Health refresh (seconds)", "How often a shown target frame's health updates. Lower is smoother and costs more.",
+    "Health refresh (seconds)",
     "Reaction colors", "Color NPCs by reaction",
     "Color a non-player target by how it feels about you. When the game hides that, the hostile color is used.",
     "Hostile color", "Bar color for a hostile NPC.",
@@ -91,9 +91,9 @@ for _, key in ipairs({
 -- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
 -- Pet pages)
 for _, key in ipairs({
-    "Size & Position", "Update health",
-    "Track the target's health on the bar. Off: the bar stays full with no percent, and the health refresh never runs.",
-    "Track the pet's health on the bar. Off: the bar stays full with no percent, and no health events are listened for.",
+    "Size & Position", "Update health", "Health updates",
+    "Track health on target and pet frames. Off: their bars stay full with no percent, and no health updates run.",
+    "How often a shown target frame's health updates. Lower is smoother and costs more. Pet frames update on the game's own health events.",
     "The point on the bar the marker's center sits on.",
     "Horizontal nudge of the marker, in pixels.", "Vertical nudge of the marker, in pixels.",
 }) do L[key] = key end

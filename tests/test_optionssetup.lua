@@ -58,15 +58,17 @@ test("optionssetup: the degraded load registers every host-declared row; the gap
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 120, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 63, "the library-absent schema")
+  assertEqual(#NS.Schema, 119, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 62, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 
 -- A row's dimming as the library evaluates it: `disabledIf(row)`, absent meaning never dimmed.
 local function rowsByPath(page)
   local out = {}
-  for _, row in ipairs(NS.SchemaForPage(page)) do out[row.path] = row end
+  for _, row in ipairs(NS.SchemaForPage(page)) do
+    if row.path then out[row.path] = row end
+  end
   return out
 end
 
@@ -116,16 +118,20 @@ test("optionssetup: the placement block the anchor mode does not use is dimmed, 
   T.mocks.__fireTimers()
 end)
 
-test("optionssetup: health rows dim with Update health off, marker rows with Show raid marker off", function()
-  local target, pet = rowsByPath("target"), rowsByPath("pet")
-  NS.SetByPath("target.updateHealth", false)
-  NS.SetByPath("pet.updateHealth", false)
-  T.assertTrue(dimmed(target, "target.tickInterval"))
+test("optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker", function()
+  local L = NS.L
+  local general, target, pet = rowsByPath("general"), rowsByPath("target"), rowsByPath("pet")
+  T.assertEqual(general["general.updateHealth"].group, L["Health updates"], "on the General page's own tab")
+  T.assertEqual(general["general.tickInterval"].group, L["Health updates"])
+  for _, path in ipairs({ "target.updateHealth", "target.tickInterval", "pet.updateHealth" }) do
+    T.assertTrue(NS.FindSchemaRow(path) == nil, path .. " is gone: one shared setting, not one per page")
+  end
+  NS.SetByPath("general.updateHealth", false)
+  T.assertTrue(dimmed(general, "general.tickInterval"))
   T.assertTrue(dimmed(target, "target.showPercent"))
   T.assertTrue(dimmed(pet, "pet.showPercent"))
-  NS.SetByPath("target.updateHealth", true)
-  NS.SetByPath("pet.updateHealth", true)
-  T.assertFalse(dimmed(target, "target.tickInterval"))
+  NS.SetByPath("general.updateHealth", true)
+  T.assertFalse(dimmed(general, "general.tickInterval"))
   T.assertFalse(dimmed(pet, "pet.showPercent"))
 
   NS.SetByPath("target.showMarker", false)

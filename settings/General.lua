@@ -96,6 +96,39 @@ NS.RegisterSchemaRows({
     },
 })
 
+-- The Health updates tab: one switch and one pace for both unit-button features, so target and pet
+-- frames can never disagree. Pet frames follow the switch only; their health comes from the game's
+-- own events, so the pace is the target ticker's.
+local HEALTH_GROUP = L["Health updates"]
+local function healthOff() return NS.GetSetting("general.updateHealth") ~= true end
+
+NS.RegisterSchemaRows({
+    {
+        path    = "general.updateHealth",
+        page    = PAGE,
+        group   = HEALTH_GROUP,
+        order   = 10,
+        type    = "bool",
+        label   = L["Update health"],
+        desc    = L["Track health on target and pet frames. Off: their bars stay full with no percent, and no health updates run."],
+        default = D.general.updateHealth,
+    },
+    {
+        path       = "general.tickInterval",
+        page       = PAGE,
+        group      = HEALTH_GROUP,
+        order      = 20,
+        type       = "number",
+        label      = L["Health refresh (seconds)"],
+        desc       = L["How often a shown target frame's health updates. Lower is smoother and costs more. Pet frames update on the game's own health events."],
+        default    = D.general.tickInterval,
+        min        = 0.1,
+        max        = 1.0,
+        step       = 0.05,
+        disabledIf = healthOff,
+    },
+})
+
 -- The global reset's confirmation (options-ui-§12): the collection's one wording, verbatim.
 StaticPopupDialogs["PARTYFRAMEENHANCED_RESET_ALL"] = {
     text         = L["Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."],

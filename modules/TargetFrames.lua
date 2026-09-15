@@ -31,9 +31,9 @@ NS.TargetFrames = TargetFrames
 
 local buttons = {}
 TargetFrames.__buttons = buttons
-local cfg
+local cfg, gen        -- the target section, and the general one (shared health updates)
 local suspended = false
-local ticker
+local ticker, tickerInterval
 
 local PREVIEW_MARKER = 8   -- skull
 
@@ -68,7 +68,7 @@ local function paintAll(btn)
     local token = btn.token
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, token, cfg.showName)
-    if cfg.updateHealth then
+    if gen.updateHealth then
         UnitButtons.RenderHealth(btn, token, cfg.showPercent)
     else
         UnitButtons.RenderFull(btn)
@@ -78,7 +78,7 @@ local function paintAll(btn)
 end
 
 local function paintPreview(btn)
-    local health = cfg.updateHealth
+    local health = gen.updateHealth
     UnitButtons.RenderPreview(btn, L["Preview target"], health and 65 or 100, cfg.showName,
         health and cfg.showPercent)
     local r, g, b, a = Element.Stored(cfg.colorReaction and cfg.hostileColor or cfg.barColor)
@@ -115,28 +115,40 @@ local function tick()
     if not any then TargetFrames.UpdateTicker() end
 end
 
---- Run the ticker exactly while it has something to do: the feature on, health updates on, not
---- previewing, and at least one allowed button shown by its state driver.
+-- Whether the ticker has something to do: the feature on, health updates on, not previewing, and at
+-- least one allowed button shown by its state driver.
+local function tickerWanted()
+    if not (featureOn() and gen.updateHealth and not NS.State.preview) then return false end
+    for _, unit in ipairs(Units.LIST) do
+        local btn = buttons[unit]
+        if btn.__allowed and btn:IsVisible() then return true end
+    end
+    return false
+end
+
+--- Run the ticker exactly while it has something to do, at the shared Health refresh pace. A new
+--- pace restarts a running ticker at it; before, it only took effect on the next start.
 function TargetFrames.UpdateTicker()
-    local want = false
-    if featureOn() and cfg.updateHealth and not NS.State.preview then
-        for _, unit in ipairs(Units.LIST) do
-            local btn = buttons[unit]
-            if btn.__allowed and btn:IsVisible() then want = true; break end
-        end
+    local want = tickerWanted()
+    local interval = gen.tickInterval or 0.2
+    if ticker and (not want or tickerInterval ~= interval) then
+        NS.addon:CancelTimer(ticker)
+        ticker, tickerInterval = nil, nil
+        if not want then NS.Debug("Target", "health ticker stopped") end
     end
     if want and not ticker then
-        ticker = NS.addon:ScheduleRepeatingTimer(tick, cfg.tickInterval or 0.2)
-        NS.Debug("Target", "health ticker started (every %ss)", cfg.tickInterval or 0.2)
-    elseif not want and ticker then
-        NS.addon:CancelTimer(ticker)
-        ticker = nil
-        NS.Debug("Target", "health ticker stopped")
+        ticker, tickerInterval = NS.addon:ScheduleRepeatingTimer(tick, interval), interval
+        NS.Debug("Target", "health ticker started (every %ss)", interval)
     end
 end
 
 function TargetFrames.TickerRunning()
     return ticker ~= nil
+end
+
+--- The running ticker's pace in seconds, or nil when it is not running.
+function TargetFrames.TickerInterval()
+    return tickerInterval
 end
 
 -- One pass of the ticker, for tests/perf.lua to measure without the timer library around it.
@@ -207,7 +219,7 @@ local function onVisibility()
 end
 
 function TargetFrames:OnEnable()
-    cfg = NS.db.profile.target
+    cfg, gen = NS.db.profile.target, NS.db.profile.general
     for _, unit in ipairs(Units.LIST) do
         local btn = UnitButtons.Create("Target", unit, Units.TARGET[unit])
         btn:SetScript("OnEvent", onEvent)
@@ -256,7 +268,7 @@ ev:RegisterMessage(NS.MSG.CONFIG, whenReady(function(_, section)
     end
 end))
 ev:RegisterMessage(NS.MSG.PROFILE, whenReady(function()
-    cfg = NS.db.profile.target
+    cfg, gen = NS.db.profile.target, NS.db.profile.general
     reconfigure()
 end))
 ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(refreshAll))

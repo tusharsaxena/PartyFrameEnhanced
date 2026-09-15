@@ -150,10 +150,12 @@ EllesmereUI's, where noted.
     Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right end;
     drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes and
     the three placement controls gray out. *Failure:* the skull stays put until `/reload`.
-35b. **Health updates off.** Target Frames → General: untick *Update health* → *Health refresh* and Text
-    → *Show health percent* gray out; with a member targeting a mob, its bar sits full with no percent
-    while the mob takes damage, and `/pfe debug on` shows no `[Target] health ticker started` line.
-    Tick it back → the real health and percent return at once.
+35b. **Health updates off.** General page → Health updates: untick *Update health* → *Health refresh*
+    grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames. With a
+    member targeting a mob, its bar sits full with no percent while the mob takes damage, and
+    `/pfe debug on` shows no `[Target] health ticker started` line. Tick it back → the real health and
+    percent return at once. With a target up, drag *Health refresh* to 1 → the bar updates about once
+    a second straight away, with no need to retarget.
 36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
     target* → clicks pass through; ticking it back in combat applies when combat ends.
 37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
@@ -174,9 +176,8 @@ EllesmereUI's, where noted.
 41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
     green, a warlock's warlock purple.
 42. **Click to target.** Click a pet frame → you target the pet.
-42a. **Health updates off.** Pet Frames → General: untick *Update health* → a pet's bar sits full with no
-    percent while the pet takes damage, and Text → *Show health percent* is grayed. Tick it back → the
-    real health returns.
+42a. **Health updates off, pets.** With the same General → Health updates switch off, a pet's bar sits
+    full with no percent while the pet takes damage. Tick it back → the real health returns.
 
 ## I. Preview, placement and status
 

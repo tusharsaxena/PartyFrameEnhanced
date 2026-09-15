@@ -135,7 +135,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (15)
+### test_targetframes.lua (16)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -149,6 +149,7 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: a secret UnitExists never makes the tick repaint a hidden button
 - targetframes: an unchanged plain health is not repainted by the tick
 - targetframes: Update health off draws the bar full with no percent, and the ticker never runs
+- targetframes: a new Health refresh pace restarts a running ticker at it
 - targetframes: the marker sits on its configured point of the bar, nudged by its offsets
 - targetframes: preview shows every allowed button with placeholder content
 - targetframes: suspended, no events, no ticker, every driver hide
@@ -199,7 +200,7 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
 - optionssetup: every feature page has a Size & Position tab that opens with Size
 - optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width
-- optionssetup: health rows dim with Update health off, marker rows with Show raid marker off
+- optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
@@ -239,7 +240,7 @@ badge and any count quoted in the docs must agree with it.
 | test_providers.lua | 11 |
 | test_anchor.lua | 7 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 15 |
+| test_targetframes.lua | 16 |
 | test_petframes.lua | 6 |
 | test_preview.lua | 5 |
 | test_perf_buckets.lua | 3 |
@@ -249,4 +250,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **143** |
+| **Total** | **144** |

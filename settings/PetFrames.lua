@@ -2,7 +2,8 @@
 --
 --     [ General ][ Size & Position ][ Bar ][ Border ][ Text ]
 --
---     General          [Enable pet frames] (solo)   [Click to target] · [Update health]
+--     General          [Enable pet frames] (solo)   [Click to target]
+--                      (health updates are shared with target frames: General page → Health updates)
 --     Size & Position  settings/ElementRows.lua's Size & Position rows
 --     Bar              -- Fill --        the canonical bar block (Use class color = the OWNER's class)
 --                      -- Background --  the background swatch and its class-color companion
@@ -23,7 +24,7 @@ local function row(t)
     return t
 end
 
-local function healthOff() return NS.GetSetting(P .. "updateHealth") ~= true end
+local function healthOff() return NS.GetSetting("general.updateHealth") ~= true end
 
 local rows = {
     row{ path = "enabled", group = L["General"], order = 10, type = "bool", solo = true,
@@ -33,10 +34,6 @@ local rows = {
          label = L["Click to target"],
          desc = L["Left-click a pet frame to target that pet. Applied out of combat."],
          default = D.clickToTarget },
-    row{ path = "updateHealth", group = L["General"], order = 30, type = "bool",
-         label = L["Update health"],
-         desc = L["Track the pet's health on the bar. Off: the bar stays full with no percent, and no health events are listened for."],
-         default = D.updateHealth },
 }
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))

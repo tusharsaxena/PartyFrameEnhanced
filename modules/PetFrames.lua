@@ -23,7 +23,7 @@ NS.PetFrames = PetFrames
 
 local buttons = {}
 PetFrames.__buttons = buttons
-local cfg
+local cfg, gen        -- the pet section, and the general one (shared health updates)
 local suspended = false
 
 local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
@@ -31,7 +31,7 @@ local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
 local function paintAll(btn)
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, btn.token, cfg.showName)
-    if cfg.updateHealth then
+    if gen.updateHealth then
         UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
     else
         UnitButtons.RenderFull(btn)
@@ -42,7 +42,7 @@ local function paintAll(btn)
 end
 
 local function paintPreview(btn)
-    local health = cfg.updateHealth
+    local health = gen.updateHealth
     UnitButtons.RenderPreview(btn, L["Preview pet"], health and 80 or 100, cfg.showName,
         health and cfg.showPercent)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
@@ -80,7 +80,7 @@ end
 -- health ("health"). Re-registered only when that answer changes.
 local function wantedEvents(on, unit)
     if not (on and Units.IsIncluded(unit)) then return false end
-    return cfg.updateHealth and "health" or "name"
+    return gen.updateHealth and "health" or "name"
 end
 
 local function syncEvents()
@@ -119,7 +119,7 @@ local function reconfigure()
 end
 
 function PetFrames:OnEnable()
-    cfg = NS.db.profile.pet
+    cfg, gen = NS.db.profile.pet, NS.db.profile.general
     for _, unit in ipairs(Units.LIST) do
         local btn = UnitButtons.Create("Pet", unit, Units.PET[unit])
         btn:SetScript("OnEvent", onEvent)
@@ -166,7 +166,7 @@ ev:RegisterMessage(NS.MSG.CONFIG, whenReady(function(_, section)
     end
 end))
 ev:RegisterMessage(NS.MSG.PROFILE, whenReady(function()
-    cfg = NS.db.profile.pet
+    cfg, gen = NS.db.profile.pet, NS.db.profile.general
     reconfigure()
 end))
 ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(refreshAll))

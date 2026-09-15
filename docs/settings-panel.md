@@ -13,6 +13,7 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Ka0s Party Frame Enhanced | — (landing page) | logo, the TOC Notes line, the slash command list |
 | General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, reset position, reset all |
 | General | Party frames | which frame system elements attach to; whether your own row is included |
+| General | Health updates | one *Update health* switch and *Health refresh* pace, shared by target and pet frames |
 | Cast Bars | General | enable, fade out |
 | Cast Bars | Size & Position | size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); the block the anchor mode does not use is dimmed |
 | Cast Bars | Bar | the fill block, the cast-state palette, the background |
@@ -55,6 +56,15 @@ free-placement stacks are movable, so every row applies.
 | Frame system | `general.provider` | Automatic / Blizzard / EllesmereUI; Providers re-resolves (CONFIG "general") |
 | Include my own row | `general.includePlayer` | the player's elements, wherever the frame system shows the player and always in free placement |
 
+## General → Health updates
+
+One switch and one pace for both unit-button features, so target and pet frames cannot disagree.
+
+| Control | Schema path | Behavior |
+|---|---|---|
+| Update health | `general.updateHealth` | off: target and pet bars are drawn full with no percent; the target ticker never runs and no pet health event is registered. *Show health percent* on both Text tabs dims with it |
+| Health refresh (seconds) | `general.tickInterval` | the target health ticker's pace (0.1–1.0); a new pace restarts a running ticker. Pets update from the game's own health events, so it does not apply to them. Dimmed while *Update health* is off |
+
 ## Cast Bars
 
 Every path is under `castbar.`. The Size & Position tab is shared by all three feature pages
@@ -85,14 +95,15 @@ Paths under `target.`. Size & Position, Border and Text-font as on Cast Bars.
 
 | Tab | Subgroup | Controls → path |
 |---|---|---|
-| General | — | Enable target frames → `enabled` · Click to target → `clickToTarget` · Update health → `updateHealth` · Health refresh (seconds) → `tickInterval` (dimmed while Update health is off) |
+| General | — | Enable target frames → `enabled` · Click to target → `clickToTarget` |
 | Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) |
 | Bar | Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion) |
 | Bar | Background | Background color · Use class color |
 | Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
 | Marker | — | Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` (the last three dimmed while the marker is off) |
 
-*Update health* off draws the bar full with no percent and never starts the health ticker. The marker's
+With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
+and the health ticker never starts. The marker's
 center sits on *Anchor point* of the bar; the default, *Left*, is half over the bar's left end.
 
 *Click to target* and every size or position change are secure writes: made in combat, they apply
@@ -104,12 +115,13 @@ Paths under `pet.`. Size & Position, Border and Text-font as on Cast Bars.
 
 | Tab | Subgroup | Controls → path |
 |---|---|---|
-| General | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` · Update health → `updateHealth` |
+| General | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` |
 | Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
 | Bar | Background | Background color · Use class color |
 | Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
 
-*Update health* off draws the bar full with no percent and unregisters the pet's health events.
+With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
+and the pet's health events are unregistered.
 
 ## Resets
 

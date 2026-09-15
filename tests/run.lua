@@ -71,6 +71,7 @@ Kit.run{
     "test_party",
     "test_preview",
     "test_standin",
+    "test_testmode",
     "test_perf_buckets",
     "test_spelling",
     "test_slash",

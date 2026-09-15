@@ -86,6 +86,13 @@ test("loadorder: PerfSetup loads before every module", function()
   end
 end)
 
+test("loadorder: StandIn and TestMode load after Preview, StandIn first, and the TOC says why", function()
+  assertBefore("modules/preview.lua", "modules/testmode.lua", "TestMode captures NS.Preview at file scope")
+  assertBefore("modules/standin.lua", "modules/testmode.lua", "TestMode captures NS.StandIn at file scope")
+  assertTrue(readFile(TOC):find("TestMode captures NS.Preview and NS.StandIn", 1, true) ~= nil,
+    "the TOC line must say TestMode's position is load-bearing")
+end)
+
 test("loadorder: tocFiles skips libs, directives and comments, and uses forward slashes", function()
   for _, p in ipairs(Loader.tocFiles(TOC)) do
     assertFalse(p:lower():match("^libs/"), "a libs/ path leaked into the derived list: " .. p)

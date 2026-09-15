@@ -91,6 +91,17 @@ for _, key in ipairs({
 -- Test mode and its stand-in party frame (modules/TestMode.lua, modules/StandIn.lua)
 for _, key in ipairs({
     "Test",
+    "Toggle test mode \226\128\148 placeholders on every element, on a stand-in party frame when you're not in a party",
+    "Test mode off",
+    "Test mode on \226\128\148 a stand-in party frame is up; drag it to move it",
+    "Test mode on \226\128\148 placeholders on your party frames",
+    "cannot start test mode during combat",
+    "cannot start test mode \226\128\148 the addon is disabled",
+    "cannot start test mode \226\128\148 a perf run has the addon suspended",
+    "Test mode off \226\128\148 combat started",
+    "Test mode off \226\128\148 the addon was disabled",
+    "Test mode off \226\128\148 a perf run suspended the addon",
+    "test mode on (stand-in)", "test mode on (your party frames)",
 }) do L[key] = key end
 
 -- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and

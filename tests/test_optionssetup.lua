@@ -46,14 +46,18 @@ end)
 -- composer by composer. A page file that raised at load would show up as a larger gap.
 local COMPOSED = {
   MasterControls = 6,   -- settings/General.lua
+  CastBarsBar    = 4,   -- settings/CastBars.lua: BarGroup (Fill)
+  CastBarsBg     = 2,   --   ColorPair (Background)
+  CastBarsBorder = 5,   --   BorderGroup, with Show border
+  CastBarsFont   = 6,   --   FontGroup
 }
 
 test("optionssetup: the degraded load registers every host-declared row; the gap is the composers'", function()
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 8, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 2, "the library-absent schema")
+  assertEqual(#NS.Schema, 47, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 24, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 

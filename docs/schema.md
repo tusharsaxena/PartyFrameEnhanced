@@ -21,8 +21,26 @@ general.provider      = "auto"   "auto" | "blizzard" | "ellesmere"
 general.includePlayer = true     the player's own row
 ```
 
-Feature sections — `castbar.*`, `target.*`, `pet.*` — are added by the phases that build them (plan
-P3–P5); the shapes are in the spec's §8.
+```text
+castbar.enabled = true                       castbar.fadeOut = true
+castbar.anchorMode = "attached"              "attached" | "free"
+castbar.point = "TOP"  castbar.relativePoint = "BOTTOM"  castbar.offsetX = 0  castbar.offsetY = -2
+castbar.matchWidth = true  castbar.width = 140  castbar.height = 16
+castbar.growth = "DOWN"  castbar.spacing = 4  castbar.position = nil (named non-setting state)
+castbar.barTexture = "Blizzard"  castbar.barAlpha = 1.0
+castbar.barColor = {1, 0.7, 0, 1}  castbar.useClassColorBar = false        (the plain-cast fill)
+castbar.channelColor / empowerColor / uninterruptibleColor / failedColor   (palette, no companion)
+castbar.bgColor = {0, 0, 0, 0.6}  castbar.useClassColorBg = false
+castbar.borderShow = false  borderStyle = "Blizzard Tooltip"  borderSize = 8
+castbar.borderColor = {0, 0, 0, 1}  castbar.useClassColorBorder = false
+castbar.font = "Friz Quadrata TT"  fontSize = 11  fontColor = {1, 1, 1, 1}
+castbar.useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
+castbar.showName = true  showTime = true  showIcon = true  iconSide = "LEFT"
+castbar.showShield = true  showSpark = true
+```
+
+The target and pet sections are added by the phases that build them (plan P4–P5); their shapes are
+in the spec's §8.
 
 The Master controls tab's **Debug console** row is `sessionOnly` at `state.debugConsole`: its value is
 the console window's own visibility and never reaches the profile.

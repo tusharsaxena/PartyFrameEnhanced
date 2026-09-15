@@ -22,6 +22,8 @@ read_globals = {
   "UnitEmpoweredChannelDuration", "GetRaidTargetIndex", "SetRaidTargetIconTexture",
   "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_Secrets", "C_CurveUtil",
   "Enum", "GetCVarBool",
+  -- The client's own localized words for a stopped cast, displayed only.
+  "INTERRUPTED", "FAILED",
   -- Secure frames (target and pet frames).
   "RegisterStateDriver", "UnregisterStateDriver", "RegisterUnitWatch", "UnregisterUnitWatch",
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
@@ -59,6 +61,7 @@ files["core/Database.lua"] = { ignore = { "212/self" } }
 -- (core/PartyFrameEnhanced.lua's `each`); a module whose state is file-local does not read the
 -- receiver.
 files["modules/Providers.lua"] = { ignore = { "212/self" } }
+files["modules/CastBars.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /
 -- Sl:OnSlash / Sl:Register mirror the instance's colon methods; a stub that narrows a signature

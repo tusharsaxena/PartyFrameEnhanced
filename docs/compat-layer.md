@@ -15,8 +15,14 @@ library's and are not documented here.
 | `UnitIsUnit(a, b)` | `C_Secrets.CanCompareUnitTokens`, then `UnitIsUnit` | `true` / `false` / **nil = unknown** | 12.1 refuses to compare secret identities, and the answer itself can be secret |
 | `UseRaidStyleParty()` | `EditModeManagerFrame:UseRaidStylePartyFrames()`, then CVar `useCompactPartyFrames` | boolean | 12.x stores the layout choice per Edit Mode layout |
 
-Arriving with the features: the cast-duration and timer shims (P3), and the health-percent and
-raid-marker shims (P4). Each is added here in the change that adds it.
+| `CastInfo(unit, hint)` | `UnitCastingInfo`, then `UnitChannelInfo` | kind, name, texture, notInterruptible (the last three possibly secret), or nil | one place that knows the two returns' positions; empower decided by `isEmpowered` only when plain |
+| `CastDuration(unit, kind)` | `UnitCastingDuration` / `UnitChannelDuration` / `UnitEmpoweredChannelDuration` | the duration object, or nil | 12.0 API; opaque, passed only to C methods |
+| `ApplyTimer(bar, duration, kind)` | `StatusBar:SetTimerDuration` + `Enum.StatusBarTimerDirection` | true when the engine animates the bar | casts fill, channels drain; false sends the caller to the manual fill |
+| `BoolValue(flag, a, b)` | `C_CurveUtil.EvaluateColorValueFromBoolean` | `a` or `b` (possibly secret) | picks a value by a secret boolean without an `if` |
+| `AlphaFromBool(region, flag, a, b)` | `Region:SetAlphaFromBoolean` | — | the one alpha setter that takes a secret boolean |
+
+Arriving with the target and pet frames: the health-percent and raid-marker shims (P4). Each is added
+here in the change that adds it. Why each secret rule exists: [midnight-quirks.md](midnight-quirks.md).
 
 Tests: `tests/test_compat.lua` drives each shim through a mock `issecretvalue` that marks one sentinel
 secret.

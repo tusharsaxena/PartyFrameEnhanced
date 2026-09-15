@@ -22,9 +22,11 @@ local ADDON_FILES = Loader.tocFiles("PartyFrameEnhanced.toc")
 Loader.loadAll(LIB_FILES, NS, mocks)
 Loader.loadAll(ADDON_FILES, NS, mocks)
 
--- Mirror the in-game lifecycle: OnInitialize opens the DB, OnEnable builds the settings panel.
+-- Mirror the in-game lifecycle: OnInitialize opens the DB; OnEnable enables every module (the
+-- features build their elements) and registers the settings panel.
 NS:InitDB()
-NS.CreateOptionsPanel()
+NS.addon:OnEnable()
+while mocks.__fireTimers() > 0 do end
 
 -- The live halves of the degradation-stub parity checks. The Options, DebugLog and Slash stubs
 -- mirror INSTANCES (what lib:New returned), not the library tables LibStub answers, so they are
@@ -57,6 +59,7 @@ Kit.run{
     "test_compat",
     "test_providers",
     "test_anchor",
+    "test_castbars",
     "test_slash",
     "test_optionssetup",
     "test_surface_parity",

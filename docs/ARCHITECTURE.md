@@ -85,10 +85,9 @@ and behavior: [slash-dispatch.md](slash-dispatch.md).
 | `UNIT_TARGET`, `RAID_TARGET_UPDATE` | `modules/TargetFrames.lua` (P4) | target frames |
 | `UNIT_PET`, pet `UNIT_HEALTH`/`UNIT_MAXHEALTH`/`UNIT_NAME_UPDATE` | `modules/PetFrames.lua` (P5) | pet frames |
 
-Lifecycle events use AceEvent. The per-unit game events will use one small frame per unit with
-`RegisterUnitEvent`, so the client filters by unit in C rather than dispatching every unit's event into
-Lua; that is recorded under *Documented deviations* when it lands, as the other addons in the
-collection record it.
+Lifecycle, roster and Edit Mode events use AceEvent, each module on its own target. The per-unit
+game events are registered with `RegisterUnitEvent` on each element's own frame, so the client filters
+by unit in C rather than dispatching every unit's event into Lua — a recorded deviation, below.
 
 ## Taint Notes
 
@@ -134,8 +133,8 @@ collection record it.
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
 | `slash-dispatch.md` | Present | 14 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
-| `midnight-quirks.md` | Not applicable | No client-version workaround of the addon's own yet; the cast bars' secret-value handling (P3) fires it |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 6 shims (trigger: three or more) |
+| `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 11 shims (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 
@@ -161,4 +160,6 @@ Frozen material named once as directories, never row by row: `automated-tests/<r
 
 ## Documented deviations
 
-None.
+| Rule | What differs | Why | Decided | Re-check trigger |
+|---|---|---|---|---|
+| `events-frames-taint-§1` | `UNIT_SPELLCAST_*` (and, from P4–P5, `UNIT_TARGET` and the pet unit events) are registered with `RegisterUnitEvent` on each element's own frame, not through AceEvent | AceEvent-3.0 has no unit filter: routed through it, every cast by every unit the client knows (nameplates, raid, target, focus) is dispatched into Lua to be discarded. `RegisterUnitEvent` filters in C, so a disabled or excluded unit costs nothing. The frames are the elements themselves, not frames made for events. | 2026-09-15 | AceEvent or LibKa0s gains a unit-filtered registration |

@@ -112,6 +112,22 @@ badge and any count quoted in the docs must agree with it.
 - anchor: a drag saves the holder's position and ResetPositions clears it
 - anchor: LAYOUT re-applies every registered feature
 
+### test_castbars.lua (13)
+
+- castbars: each included unit's bar registers exactly the cast events, for its own unit
+- castbars: nothing in the addon registers a UNIT_SPELLCAST event globally
+- castbars: turning the feature off unregisters every unit; on registers them again
+- castbars: a cast start shows the bar with the name, icon and an engine-driven fill timer
+- castbars: a channel drains, and without the engine timer the bar is driven from the same object
+- castbars: the time text shows seconds left, refreshed at most ten times a second
+- castbars: an interrupt holds the bar in the failed color with the client's word, then hides
+- castbars: a stop that arrives after the next cast began keeps the bar on the new cast
+- castbars: a stop the client never sent is caught by the tick
+- castbars: a secret notInterruptible picks the fill and the shield on the C side
+- castbars: the show decision hides a casting bar for master off, Never, and a missing frame
+- castbars: preview shows every included bar with placeholder content, and clears on exit
+- castbars: suspended, every bar unregisters and hides; resumed, they come back
+
 ### test_slash.lua (9)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
@@ -164,9 +180,10 @@ badge and any count quoted in the docs must agree with it.
 | test_compat.lua | 7 |
 | test_providers.lua | 11 |
 | test_anchor.lua | 7 |
+| test_castbars.lua | 13 |
 | test_slash.lua | 9 |
 | test_optionssetup.lua | 4 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **91** |
+| **Total** | **104** |

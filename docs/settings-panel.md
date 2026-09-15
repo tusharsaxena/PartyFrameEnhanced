@@ -13,7 +13,12 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Ka0s Party Frame Enhanced | — (landing page) | logo, the TOC Notes line, the slash command list |
 | General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, reset position, reset all |
 | General | Party frames | which frame system elements attach to; whether your own row is included |
-| Cast Bars | *(plan P3)* | General · Position · Bar · Border · Text · Icon |
+| Cast Bars | General | enable, fade out |
+| Cast Bars | Position | anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing), size |
+| Cast Bars | Bar | the fill block, the cast-state palette, the background |
+| Cast Bars | Border | the border block with *Show border* |
+| Cast Bars | Text | the font block, spell name, time left |
+| Cast Bars | Icon | spell icon and its side, the shield, the spark |
 | Target Frames | *(plan P4)* | General · Position · Bar · Border · Text · Marker |
 | Pet Frames | *(plan P5)* | General · Position · Bar · Border · Text |
 | Profiles | — (AceDBOptions) | create, switch, copy, reset, delete profiles |
@@ -40,6 +45,27 @@ free-placement stacks are movable, so every row applies.
 |---|---|---|
 | Frame system | `general.provider` | Automatic / Blizzard / EllesmereUI; Providers re-resolves (CONFIG "general") |
 | Include my own row | `general.includePlayer` | the player's elements, wherever the frame system shows the player and always in free placement |
+
+## Cast Bars
+
+Every path is under `castbar.`. The Position tab is shared by all three feature pages
+(`settings/ElementRows.lua`); the Border, Text-font and Bar-fill blocks come from the library's
+composers, and every companion there resolves to the **tracked unit's** class
+(`classColorSource = "unit"`).
+
+| Tab | Subgroup | Controls → path |
+|---|---|---|
+| General | — | Enable cast bars → `enabled` · Fade out → `fadeOut` |
+| Position | Placement | Anchor mode → `anchorMode` · Match party frame width → `matchWidth` |
+| Position | Attached to party frames | Anchor point → `point` · Party frame point → `relativePoint` · X/Y offset → `offsetX`/`offsetY` |
+| Position | Free placement | Growth direction → `growth` · Spacing → `spacing` |
+| Position | Size | Width → `width` · Height → `height` |
+| Bar | Fill | Bar texture · Bar opacity · Cast color (`barColor`) · Use class color |
+| Bar | Cast colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
+| Bar | Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
+| Border | — | Show border · Border style · Border thickness (px) · Border color · Use class color |
+| Text | Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Show spell name → `showName` · Show time left → `showTime` |
+| Icon | — | Show spell icon → `showIcon` · Icon side → `iconSide` · Show shield → `showShield` · Show spark → `showSpark` |
 
 ## Resets
 

@@ -19,6 +19,7 @@ mode are added by the phases that build them (plan P2–P6).
 | C | Settings panel and the combat gate | any Retail, a target dummy |
 | D | Resets and profiles | any Retail |
 | E | Debug console and perf harness | any Retail |
+| F | Cast bars | a party (a follower dungeon works), a target dummy |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -88,12 +89,43 @@ mode are added by the phases that build them (plan P2–P6).
     `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump` without a Lua error.
     During arm B the addon is inert; after `finish` it is active again without a `/reload`.
 
+## F. Cast bars
+
+Run each step once on Blizzard's raid-style party frames, once on the classic layout and once on
+EllesmereUI's, where noted.
+
+24. **Attached under each frame.** In a party (a follower dungeon is enough), watch a healer cast → a
+    bar appears **under that member's own party frame**, as wide as the frame, with the spell's icon
+    at the left, its name, and seconds counting down at the right. It fills left to right and hides
+    when the cast lands. *Failure:* a bar under the wrong member (the unit → frame map is wrong), or a
+    bar that never hides.
+25. **Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears under
+    your own frame. Classic layout: **no** player bar (the layout never shows you) — switch Cast Bars →
+    Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
+26. **Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and drains.
+27. **Interrupt.** Interrupt a dummy-adjacent party member's cast or have a mob interrupt one → the bar
+    turns the interrupted color, shows the client's own word for *Interrupted*, holds about half a
+    second, then fades.
+28. **Can't be interrupted.** A cast flagged uninterruptible shows the gray fill and the shield icon.
+    In a dungeon, in combat, **zero Lua errors** throughout (the flag is secret there). *Failure:* an
+    error mentioning `secret` or `compare` from `CastBars.lua`.
+29. **Frame system switches.** With EllesmereUI loaded, set General → *Frame system* to *Blizzard*
+    while EllesmereUI hides Blizzard's frames → the bars disappear (no Blizzard frames on screen); back
+    to *Automatic* → they return under EllesmereUI's frames.
+30. **Re-sort in combat.** Raid-style or EllesmereUI sorted by role: have someone leave or join during
+    combat → the cast bars follow the members to their new frames straight away.
+31. **Settings.** Cast Bars page → six tabs (General, Position, Bar, Border, Text, Icon). Change *Cast
+    color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no bar
+    appears on the next cast.
+
 ## T. Non-English client (locale)
 
 What this addon touches that a client translates, enumerated from the code rather than assumed:
 
-- **Localized `_G` reads:** none. `grep -rn "_G\[" core modules settings` returns nothing, and no
-  `ITEM_*`, chat format or tooltip constant is read.
+- **Localized `_G` reads:** two, both display-only — the client's `INTERRUPTED` and `FAILED` words
+  on a stopped cast bar (`modules/CastBars.lua`), with `NS.L` English fallbacks. Nothing parses them.
+  The only other `_G[...]` reads are frame names (`ERFPartyHeaderUnitButtonN`,
+  `CompactPartyFrameMemberN`), which the client does not translate.
 - **Tooltip lines:** none parsed.
 - **Display strings where an id exists:** class colors are keyed on `UnitClass`'s second return (the
   class **token**, `MAGE`), never on the localized name; reaction is `UnitReaction`'s number; the frame
@@ -115,11 +147,13 @@ Steps, each naming its failure:
   the stored swatch color instead of the class color on deDE only — the class was keyed on the localized
   name. *Headless stand-in:* `tests/test_targetframes.lua` feeds `UnitClass` a localized first return
   and asserts the token decides (P4).
-- **T3. Spell names render whole** (arrives with cast bars, P3). Watch a party member cast a spell whose
-  German name has an umlaut or ß (*Blitzschlag*, *Gedankenschlag*) → the name renders without a `?` or
-  replacement box at its end, and the time text has no stray `%s`/`%.1f`. *Failure:* a truncated
-  multi-byte character at the end of the name. **The client is the only witness here**: the English
-  client has no multi-byte spell names.
+- **T3. Spell names and the stop word render whole.** Watch a party member cast a spell whose German
+  name has an umlaut or ß (*Blitzschlag*, *Gedankenschlag*) → the name renders without a `?` or
+  replacement box at its end, and the time text has no stray `%s`/`%.1f`. Interrupt a cast → the bar
+  shows *Unterbrochen*, not *Interrupted*. *Failure:* a truncated multi-byte character at the end of
+  the name (the bar clips by width, never by byte count, so this should not happen), or the English
+  word on a German client (the client global was not read). **The client is the only witness here**:
+  the English client has no multi-byte spell names and its global is the English word.
 - **T4. Frame-system detection.** With party frames shown, `/pfe debug on` → the `[Init]` line names
   the detected system, the same as on English. *Failure:* `frames 'none'` on deDE with party frames
   visibly on screen. *May be signed off on English:* detection reads no localized string.

@@ -23,6 +23,45 @@ L["Include my own row"] = "Include my own row"
 L["Show a cast bar, target frame and pet frame for yourself too, wherever your party frames show you (and always in free placement)."] =
     "Show a cast bar, target frame and pet frame for yourself too, wherever your party frames show you (and always in free placement)."
 
+-- Shared element rows (settings/ElementRows.lua)
+for _, key in ipairs({
+    "General", "Position", "Placement", "Attached to party frames", "Free placement", "Size",
+    "Border", "Text", "Font", "Bar", "Fill", "Background", "Background color", "Icon",
+    "Top left", "Top", "Top right", "Left", "Center", "Right", "Bottom left", "Bottom", "Bottom right",
+    "Attach to party frames", "Down", "Up",
+    "Anchor mode", "Attach each element to its party member's frame, or keep all five in one stack you place yourself.",
+    "Match party frame width", "Attached: stretch each element across its party frame, edge to edge. Its Width setting is then ignored.",
+    "Anchor point", "The point on the element that is pinned.",
+    "Party frame point", "The point on the party frame it is pinned to.",
+    "X offset", "Horizontal nudge from the pin, in pixels.",
+    "Y offset", "Vertical nudge from the pin, in pixels.",
+    "Growth direction", "Which way the stack grows from its first element.",
+    "Spacing", "Gap between elements in the stack, in pixels.",
+    "Width", "Element width in pixels, before Master scale.",
+    "Height", "Element height in pixels, before Master scale.",
+}) do L[key] = key end
+
+-- Cast bars (settings/CastBars.lua, modules/CastBars.lua)
+for _, key in ipairs({
+    "Enable cast bars", "Show a cast bar for each party member (and for you, when your own row is included).",
+    "Fade out", "Fade a finished cast out instead of hiding it at once.",
+    "Cast color", "Cast colors",
+    "Channel color", "Fill color while channeling.",
+    "Empowered color", "Fill color while charging an empowered spell.",
+    "Can't be interrupted color", "Fill color for a cast that cannot be interrupted.",
+    "Interrupted color", "Fill color while an interrupted or failed cast is held.",
+    "Show spell name", "The spell's name on the bar.",
+    "Show time left", "Seconds left on the cast, at the bar's right end.",
+    "Show spell icon", "The spell's icon at one end of the bar.",
+    "Icon side", "Which end of the bar the icon sits at.",
+    "Show shield", "A small shield on a cast that cannot be interrupted.",
+    "Show spark", "A bright edge riding the fill.",
+    "Restore every Cast Bars setting on this profile to its addon default.",
+    -- Fallbacks for the client's own localized INTERRUPTED / FAILED globals.
+    "Interrupted", "Failed",
+    "Preview cast",
+}) do L[key] = key end
+
 -- Reset confirmation (options-ui-§12, verbatim)
 L["Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."] =
     "Reset this profile to the addon's defaults? Everything you have configured or added in it is discarded \226\128\148 your other profiles are not affected."

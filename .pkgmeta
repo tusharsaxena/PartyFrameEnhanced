@@ -1,0 +1,22 @@
+package-as: PartyFrameEnhanced
+
+enable-nolib-creation: no
+
+# Libraries are vendored in libs/ and committed to git — NOT fetched as externals.
+
+ignore:
+  - .luacheckrc
+  - .pkgmeta         # dev-only: this file configures the packager; it is not part of the package
+  - .gitignore
+  - .gitattributes   # dev-only: the repo's line-ending policy (line-endings)
+  - .claude          # dev-only: agent tooling; never loaded by the client
+  - .superpowers     # dev-only: agent tooling; never loaded by the client
+  - docs             # holds docs/audits/ and docs/reviews/ too — all dev-only
+  - tests
+  - _dev
+  - "*.bak"
+  # Developer documentation. README.md and LICENSE stay, because players read those.
+  - CLAUDE.md
+  - DEPENDENCIES.md
+  # WoW cannot load .png at all; the master .png exists to regenerate the .tga.
+  - media/logos/*.png

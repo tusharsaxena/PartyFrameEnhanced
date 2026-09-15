@@ -28,10 +28,17 @@ local function modeFor()
     return NS.Units.InParty() and "party" or "standin"
 end
 
-local function raiseStandIn()
-    local id, source = Providers.StandInSource()
-    StandIn.Place(id, source)
+-- Dress the stand-in for the frame system it imitates, and say where its size came from: `frame`,
+-- `settings` (the system's configured size) or `fallback` — the line a smoke step reads.
+local function dress()
+    local id, source, configured = Providers.StandInSource()
+    local p = StandIn.Place(id, source, configured).__placed
     placedId = id
+    NS.Debug("Test", "stand-in as %s, %.0f x %.0f from %s", id, p.w, p.h, p.from)
+end
+
+local function raiseStandIn()
+    dress()
     StandIn.Show()
     Providers.SetStandIn(StandIn.Frame())
 end
@@ -128,11 +135,7 @@ ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
         exit("disabled", DISABLED)
     elseif section == "general" and NS.State.test == "standin" then
         -- A Frame system change: the stand-in takes the new system's look and size.
-        local id, source = Providers.StandInSource()
-        if id ~= placedId then
-            StandIn.Place(id, source)
-            placedId = id
-        end
+        if (Providers.StandInSource()) ~= placedId then dress() end
     end
 end)
 

@@ -56,7 +56,8 @@ mode are added by the phases that build them (plan P2–P6).
     the Notes line and the slash-command list show (the same rows as `/pfe help`).
 12. **General** → a two-tab strip, **Master controls** then **Party frames**. Master controls holds, in
     order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
-    *Lock frame* · *Debug console*, then the button pair *Reset position* · *Reset all settings*.
+    *Lock frame* · *Debug console*, then a *Test mode* button on its own row, then the button pair
+    *Reset position* · *Reset all settings*.
     *General visibility* is a dropdown of four: Always, Only in combat, Only out of combat, Never.
 13. **Party frames** tab → *Frame system* (Automatic / Blizzard / EllesmereUI) and *Include my own row*.
 14. **The Defaults button** renders in the dark/gold options style, not as a red stone button (it is
@@ -183,7 +184,7 @@ EllesmereUI's, where noted.
 ## I. Preview, placement and status
 
 43. **Unlock previews.** `/pfe unlock` → every enabled element shows placeholder content: a cast bar
-    mid-cast, a target frame at 65% with a skull, a pet frame at 80%. `/pfe lock` → all of it goes;
+    drawn full (its whole size shows), a target frame at 65% with a skull, a pet frame at 80%. `/pfe lock` → all of it goes;
     live data returns. *Failure:* a placeholder left behind after locking (preview-mode MUST).
 44. **Unlock refused in combat.** On a dummy, in combat: `/pfe unlock` → a gray *cannot unlock during
     combat* line, nothing previews, and *Lock frame* stays ticked on an open General page.
@@ -203,10 +204,13 @@ EllesmereUI's, where noted.
     Convert to a raid → it all goes again.
 49. **Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, Frame system Automatic: `/pfe test` → one
     stand-in party frame where EllesmereUI's first party frame sits, at its size, with a flat
-    class-colored bar and a gray *Test* tag. Party1's cast bar, target frame (skull) and pet frame
-    attach to it, and the Size & Position offsets move them. Drag it → they follow. *Failure:* the
-    stand-in at screen center while EllesmereUI's frames are laid out (the size and position copy
-    missed).
+    class-colored bar and a gray *(test)* after your name. The stand-in draws beneath what attaches
+    to it: the cast bar's spell icon shows whole. Party1's cast bar, target frame (skull) and pet frame
+    attach to it, and the Size & Position offsets move them. Drag it → they follow. *Failure:* a
+    stand-in of a different size from your EllesmereUI party frames. `/pfe debug on`, then
+    `/pfe test`, logs a `[Test]` line naming where the size came from. For EllesmereUI it should
+    read `settings` (your EllesmereUI party frame width and height); `frame` or `fallback` means
+    EllesmereUI's settings could not be read.
 50. **Stand-in, Blizzard raid-style.** Blizzard frames, Edit Mode raid-style party frames on: the same
     as 49 in the raid-bar look. Note whether the 72 × 36 fallback matched if the stand-in came up at
     screen center.

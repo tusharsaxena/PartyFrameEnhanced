@@ -31,6 +31,8 @@ read_globals = {
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
   "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "EllesmereUI", "ERFPartyHeader",
   "ERFPartySelfButton", "EventRegistry",
+  -- EllesmereUI's saved settings: the stand-in's party frame size (modules/Providers.lua), read-only.
+  "EllesmereUIDB",
   -- The perf bracket's clock (performance-§2).
   "debugprofilestop",
 }

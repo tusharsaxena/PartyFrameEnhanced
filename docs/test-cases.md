@@ -183,7 +183,7 @@ badge and any count quoted in the docs must agree with it.
 - preview: a profile saved unlocked comes back in preview
 - status: names the frame system, each unit, each feature, and anything switched off
 
-### test_standin.lua (10)
+### test_standin.lua (12)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -191,12 +191,14 @@ badge and any count quoted in the docs must agree with it.
 - standin: copies the source's size and top-left through the effective-scale ratio
 - standin: a zero size takes the system's fallback, and no position goes to the center
 - standin: a secret size or position is never compared — fallback and center
-- standin: shows the player's name and a Test tag, and drags
+- standin: draws beneath what attaches to it (LOW strata), as a real party frame does
+- standin: marks the player's name (test), with no corner tag for an element to cover, and drags
+- standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
 - standin: setting and clearing it resolve at once, each sending LAYOUT
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
 
-### test_testmode.lua (13)
+### test_testmode.lua (16)
 
 - testmode: solo, /pfe test raises the stand-in in party1's place with placeholders; again ends it
 - testmode: in a party, /pfe test is placeholders on the real frames and no stand-in
@@ -210,6 +212,9 @@ badge and any count quoted in the docs must agree with it.
 - testmode: party1's target button pins to the stand-in, and after the stop its driver hides it
 - testmode: unlock creates no stand-in
 - testmode: a Frame system change re-dresses the stand-in
+- testmode: with Match party frame width, party1's cast bar pins both edges to the stand-in
+- testmode: the placeholder cast is drawn full, so the whole bar shows
+- testmode: General → Master controls carries a Test mode button, above the resets, that toggles it
 - testmode: status names the mode, and the verb is in NS.COMMANDS
 
 ### test_perf_buckets.lua (3)
@@ -285,8 +290,8 @@ badge and any count quoted in the docs must agree with it.
 | test_petframes.lua | 6 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
-| test_standin.lua | 10 |
-| test_testmode.lua | 13 |
+| test_standin.lua | 12 |
+| test_testmode.lua | 16 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 9 |
@@ -294,4 +299,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **176** |
+| **Total** | **181** |

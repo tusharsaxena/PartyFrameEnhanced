@@ -103,7 +103,10 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 - **Never touch the frames we attach to.** No `Hide`, `SetParent`, `SetPoint` or call into a Blizzard
   or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only. Test mode's
   stand-in (`modules/StandIn.lua`) reads another frame's size and position through getters only and
-  is never anchored, parented or hooked to one.
+  is never anchored, parented or hooked to one. Imitating EllesmereUI, it takes EllesmereUI's
+  configured party frame size, which `modules/Providers.lua` reads from EllesmereUI's saved settings
+  (read-only, nil-guarded at every step): EllesmereUI's hidden party buttons carry its raid size
+  until it lays out a party, so measuring one copies the wrong frame.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`).
 - **Their visibility is a state driver**, not Lua: `[@party1target,exists] show; hide`, with General

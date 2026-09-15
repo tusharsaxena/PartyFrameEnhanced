@@ -49,7 +49,8 @@ local HOLD_TIME = 0.5    -- an interrupted/failed bar stays up this long
 local FADE_TIME = 0.3
 local FALLBACK_ICON = 136243
 
--- Placeholder content for preview mode (preview-mode): a plain cast, mid-way.
+-- Placeholder content for preview mode (preview-mode): a plain cast, drawn full so the bar's whole
+-- size shows (a part-filled one read in game as a bar shorter than its frame).
 local PREVIEW_ICON = 135907
 
 local bars = {}          -- unit → element
@@ -286,7 +287,7 @@ local function renderPreview(el)
     el.duration = nil
     setTicking(el, false)
     el.bar:SetMinMaxValues(0, 1)
-    el.bar:SetValue(0.6)
+    el.bar:SetValue(1)
     el.text:SetText(cfg.showName and L["Preview cast"] or "")
     el.text2:SetText(cfg.showTime and "1.2" or "")
     if el.icon then el.icon:SetTexture(PREVIEW_ICON) end

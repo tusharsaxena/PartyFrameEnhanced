@@ -118,15 +118,61 @@ test("standin: a secret size or position is never compared — fallback and cent
   assertEqual(p.point, "CENTER")
 end)
 
-test("standin: shows the player's name and a Test tag, and drags", function()
+test("standin: draws beneath what attaches to it (LOW strata), as a real party frame does", function()
+  -- red under: the stand-in on the elements' own strata, where its health bar covered the cast
+  -- bar's icon and left a 1px rim of it showing.
+  local f = StandIn.Frame()
+  local strata
+  rawset(f, "SetFrameStrata", function(_, s) strata = s end)
+  StandIn.Place("ellesmere", nil)
+  rawset(f, "SetFrameStrata", nil)
+  assertEqual(strata, "LOW")
+end)
+
+test("standin: marks the player's name (test), with no corner tag for an element to cover, and drags", function()
   local f = StandIn.Place("ellesmere", nil)
-  assertEqual(f.name.__text, "Testchar")
-  assertEqual(f.tag.__text, "Test")
+  assertTrue(f.name.__text:find("Testchar", 1, true) ~= nil)
+  assertTrue(f.name.__text:find("(test)", 1, true) ~= nil)
+  assertNil(rawget(f, "tag"), "a top-right tag sat under the cast bar's time text")
   assertTrue(f:GetScript("OnDragStart") ~= nil and f:GetScript("OnDragStop") ~= nil)
   StandIn.Show()
   assertTrue(StandIn.IsShown())
   StandIn.Hide()
   assertTrue(not StandIn.IsShown())
+end)
+
+test("standin: imitating EllesmereUI, its configured party size beats what the hidden button measures", function()
+  -- red under: copying the hidden first party button, which EllesmereUI styles at its RAID size
+  -- (_StyleButtonSecure) until ReloadPartyFrames gives it the party size. Seen in game as a stand-in
+  -- of the wrong shape against real 200 × 80 party frames.
+  mocks.C_AddOns = { IsAddOnLoaded = function(name) return name == "EllesmereUIRaidFrames" end }
+  local header = mocks.CreateFrame("Frame")
+  header[1] = source(100, 46, 10, 500)   -- the raid size, as the hidden button carries it solo
+  mocks.ERFPartyHeader = header
+  mocks.EllesmereUIDB = { activeProfile = "Default", profiles = { Default = { addons = {
+    EllesmereUIRaidFrames = { partyFrameWidth = 200, partyFrameHeight = 80 } } } } }
+  local p = StandIn.Place(Providers.StandInSource()).__placed
+  assertEqual(p.w, 200)
+  assertEqual(p.h, 80)
+  assertEqual(p.from, "settings")
+  assertEqual(p.left, 10, "the position still comes from the button")
+  -- Never changed in EllesmereUI: its own defaults, 125 × 60.
+  mocks.EllesmereUIDB.profiles.Default.addons.EllesmereUIRaidFrames = {}
+  p = StandIn.Place(Providers.StandInSource()).__placed
+  assertEqual(p.w, 125)
+  assertEqual(p.h, 60)
+  assertEqual(p.from, "settings")
+  -- EllesmereUI's settings unreadable: the button's measured size, then the fallback.
+  mocks.EllesmereUIDB = nil
+  assertEqual(StandIn.Place(Providers.StandInSource()).__placed.from, "frame")
+  mocks.ERFPartyHeader = nil
+  assertEqual(StandIn.Place(Providers.StandInSource()).__placed.from, "fallback")
+  -- A size that is not a number is not trusted.
+  mocks.EllesmereUIDB = { activeProfile = "Default", profiles = { Default = { addons = {
+    EllesmereUIRaidFrames = { partyFrameWidth = "wide", partyFrameHeight = 80 } } } } }
+  assertEqual(StandIn.Place(Providers.StandInSource()).__placed.from, "fallback")
+  mocks.EllesmereUIDB = nil
+  reset()
 end)
 
 test("standin: fills party1 only when no real frame holds it, and clearing it restores the real map", function()

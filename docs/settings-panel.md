@@ -46,6 +46,7 @@ free-placement stacks are movable, so every row applies.
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
 | Lock frame | `locked` | off = unlocked = preview mode and grabbable free-placement stacks (`NS.OnLockChanged` holds preview for `unlock`, `modules/Preview.lua`); unlocking in combat is refused and the box snaps back |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
+| Test mode | — (button, its own row) | the composer's `leadButton`: `NS.TestMode.Toggle()`, the same act as `/pfe test` (a button, because §15's rows are a fixed set) |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |
 

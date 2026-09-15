@@ -197,6 +197,51 @@ test("testmode: a Frame system change re-dresses the stand-in", function()
   off()
 end)
 
+test("testmode: with Match party frame width, party1's cast bar pins both edges to the stand-in", function()
+  -- Evidence for the in-game report that the preview bar looked narrower than the frame: the width
+  -- comes from the two edge anchors, so the whole bar spans the stand-in.
+  prep()
+  NS.db.profile.castbar.matchWidth = true
+  NS.bus:SendMessage(NS.MSG.PROFILE)
+  world(false, false)
+  slash("test")
+  local bar = NS.CastBars.__bars.party1
+  assertEqual(bar.__aTarget, StandIn.Frame())
+  assertTrue(bar.__aMatch, "both edges pinned: the width is the stand-in's")
+  off()
+  NS.db.profile.castbar.matchWidth = nil
+end)
+
+test("testmode: the placeholder cast is drawn full, so the whole bar shows", function()
+  -- red under: a part-filled placeholder, whose dark remainder reads as "not the bar".
+  prep()
+  world(false, false)
+  slash("test")
+  assertEqual(NS.CastBars.__bars.party1.bar.__value, 1)
+  off()
+end)
+
+test("testmode: General → Master controls carries a Test mode button, above the resets, that toggles it", function()
+  -- The composer's leadButton (options-ui-§15): drawn on its own row, then the canonical pair.
+  prep()
+  world(false, false)
+  local H, drawn = NS.Helpers, {}
+  local orig = rawget(H, "InlineButtonPair")
+  rawset(H, "InlineButtonPair", function(_, left, right) drawn[#drawn + 1] = { left, right } end)
+  local ok, err = pcall(NS.__generalMasterTail, {})
+  rawset(H, "InlineButtonPair", orig)
+  if not ok then error(err, 0) end
+  local lead = drawn[1] and drawn[1][1]
+  assertTrue(lead ~= nil and lead.text == "Test mode", "the lead button comes first")
+  assertNil(drawn[1][2], "on its own row")
+  assertEqual(drawn[2][1].text, "Reset position", "the canonical pair still closes the tab")
+  lead.onClick()
+  assertEqual(NS.State.test, "standin")
+  lead.onClick()
+  assertNil(NS.State.test)
+  off()
+end)
+
 test("testmode: status names the mode, and the verb is in NS.COMMANDS", function()
   prep()
   world(false, false)

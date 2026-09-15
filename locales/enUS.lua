@@ -90,7 +90,8 @@ for _, key in ipairs({
 
 -- Test mode and its stand-in party frame (modules/TestMode.lua, modules/StandIn.lua)
 for _, key in ipairs({
-    "Test",
+    "(test)", "Test mode",
+    "Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Click again, or enter combat, to end it. The same as /pfe test.",
     "Toggle test mode \226\128\148 placeholders on every element, on a stand-in party frame when you're not in a party",
     "Test mode off",
     "Test mode on \226\128\148 a stand-in party frame is up; drag it to move it",

@@ -90,6 +90,10 @@ already re-resolve on the same event.
   - when the master **Enable** switch goes off (`CONFIG("master")`, or a new profile that is off);
   - when a `/pfe perf` run suspends the addon (its `Suspend` hook).
 - `/pfe test` while on turns it off.
+- **General → Master controls carries a *Test mode* button** (added after the first in-game walk):
+  the `MasterControls` composer's `leadButton`, on its own row above the two resets. A button rather
+  than a checkbox, because options-ui-§15 fixes the tab's rows and a host act has this slot and no
+  other. It calls the same `TestMode.Toggle` as the verb.
 - **`/pfe unlock` is unchanged:** placeholders plus draggable free-placement stacks. It creates no
   stand-in, so solo an unlocked attached feature has nothing to show. Unlock and test combine.
 - `/pfe status` shows **"test mode on (stand-in)"** or **"test mode on (your party frames)"** in its
@@ -110,11 +114,17 @@ already re-resolve on the same event.
 
   | Frame system | Source frame (first that exists) | Fallback size |
   |---|---|---|
-  | EllesmereUI | `ERFPartyHeader[1]`, `ERFPartyHeaderUnitButton1`, `ERFPartySelfButton` | 125 × 60 (EllesmereUI's default) |
+  | EllesmereUI | `ERFPartyHeader[1]`, `ERFPartyHeaderUnitButton1`, `ERFPartySelfButton` | EllesmereUI's configured party frame size (`partyFrameWidth` × `partyFrameHeight` in `EllesmereUIDB.profiles[activeProfile].addons.EllesmereUIRaidFrames`), else 125 × 60 |
   | Blizzard raid-style | `CompactPartyFrame.memberUnitFrames[1]`, `CompactPartyFrameMember1` | 72 × 36 (a guess, checked in the smoke step) |
   | Blizzard classic | `PartyFrame.MemberFrame1` | 120 × 53 (a guess, checked in the smoke step) |
 
-  - Size: `GetSize()` when both sides are numbers above 0, otherwise the fallback.
+  - Size: for EllesmereUI, its configured party frame size first (`partyFrameWidth` ×
+    `partyFrameHeight`, or its own defaults of 125 × 60). Its five party buttons exist solo, but it
+    styles them at the **raid** frame size (`_StyleButtonSecure`) and gives them the party size only
+    in `ReloadPartyFrames`, so measuring the hidden button copied the raid size (found in game:
+    the stand-in came up the wrong shape against real 200 × 80 frames). Otherwise, and for both
+    Blizzard systems, `GetSize()` when both sides are numbers above 0; otherwise the fallback. A
+    `[Test]` debug line says which of the three it used.
   - Position: `GetLeft()`/`GetTop()`, converted by the ratio of the two frames' effective scales, as a
     `TOPLEFT` → `UIParent` `BOTTOMLEFT` offset. When either is not a number (a frame never laid out),
     the stand-in goes to the screen center.
@@ -284,7 +294,6 @@ Plus a party-only step: solo and in a raid nothing shows; in a party everything 
 
 ## Out of scope
 
-- A settings-panel button for test mode. Slash only.
 - Saving the stand-in's dragged position.
 - More than one stand-in member.
 - Driving EllesmereUI's own options preview.

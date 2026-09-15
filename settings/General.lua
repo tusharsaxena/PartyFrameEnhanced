@@ -5,6 +5,7 @@
 --     Master controls  [Enable Party Frame Enhanced]  [General visibility]
 --                      [Master scale]                 [Master alpha]
 --                      [Lock frame]                   [Debug console]
+--                      [Test mode]                                           <- leadButton, own row
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
 --     Party frames     [Frame system]                 [Include my own row]
 --
@@ -28,6 +29,15 @@ if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
     NS.RegisterSessionSetting(DEBUG_CONSOLE_PATH, NS.DebugLog:ConsoleCheckbox())
 end
 
+-- `/pfe test` as the tab's one host act (the composer's leadButton, options-ui-§15). A button rather
+-- than a checkbox: §15's rows are a fixed set, and a host act has this slot and no other. Resolved at
+-- click time; the settings panel itself refuses to open in combat.
+local testModeButton = {
+    text    = L["Test mode"],
+    tooltip = L["Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Click again, or enter combat, to end it. The same as /pfe test."],
+    onClick = function() print(NS.TestMode.Toggle()) end,
+}
+
 local masterRows, masterTail = H.MasterControls({
     prefix           = "",
     page             = PAGE,
@@ -46,7 +56,10 @@ local masterRows, masterTail = H.MasterControls({
         if NS.Anchor and NS.Anchor.ResetPositions then NS.Anchor.ResetPositions() end
     end,
     onResetAll       = function() StaticPopup_Show("PARTYFRAMEENHANCED_RESET_ALL") end,
+    leadButton       = testModeButton,
 })
+-- Published for introspection only: tests/test_testmode.lua draws the tab's closing rows through it.
+NS.__generalMasterTail = masterTail
 
 -- The composer emits data; the host's onChange is attached by PATH, so an upstream reorder cannot
 -- move a handler onto the wrong row. Scale and alpha need nothing extra: the seam publishes CONFIG

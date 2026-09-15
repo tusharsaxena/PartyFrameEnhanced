@@ -20,6 +20,10 @@ local L      = NS.L
 local StandIn = {}
 NS.StandIn = StandIn
 
+-- After the player's name, in gray: a corner tag sat under whatever the player attached there (the
+-- cast bar's time text, in game), and the name line is the one place nothing attaches over.
+local TEST_MARK = "|cff999999" .. L["(test)"] .. "|r"
+
 local WHITE     = "Interface\\Buttons\\WHITE8X8"
 local RAID_FILL = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
 local RAID_BG   = "Interface\\RaidFrame\\Raid-Bar-Hp-Bg"
@@ -144,7 +148,6 @@ end
 
 local function build()
     local f = CreateFrame("Frame", "PartyFrameEnhancedStandIn", UIParent, "BackdropTemplate")
-    f:SetFrameStrata("MEDIUM")
     f:SetMovable(true)
     f:SetClampedToScreen(true)
     f:EnableMouse(true)
@@ -159,30 +162,40 @@ local function build()
     f.health = bar(f)
     f.power = bar(f)
     f.name = f.health:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    f.tag = f.health:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    f.tag:SetText(L["Test"])
-    f.tag:SetTextColor(0.6, 0.6, 0.6, 1)
     f:Hide()
     return f
 end
 
--- Size and top-left from `source`, converted by the two frames' effective-scale ratio. A missing or
--- unusable size takes the fallback; a missing position goes to the screen center.
-local function place(f, id, source)
-    local ratio = 1
-    local theirs, ours = plain(read(source, "GetEffectiveScale")), plain(f:GetEffectiveScale())
-    if theirs and ours and theirs > 0 and ours > 0 then ratio = theirs / ours end
+-- What converts `other`'s units into the stand-in's: the ratio of their effective scales when both
+-- are plain numbers above 0, and 1 otherwise.
+local function ratioTo(other, ours)
+    local theirs = plain(read(other, "GetEffectiveScale"))
+    if theirs and ours and theirs > 0 and ours > 0 then return theirs / ours end
+    return 1
+end
+
+-- Size: the frame system's configured size when it has one (Providers.StandInSource: EllesmereUI,
+-- whose hidden buttons carry its raid size), then `source`'s measured size, then the fallback. The
+-- top-left always comes from `source`, or the screen center. Both convert by the effective-scale
+-- ratio. `placed.from` names which size was used.
+local function place(f, id, source, configured)
+    local ours = plain(f:GetEffectiveScale())
+    local ratio = ratioTo(source, ours)
     local w, h = read(source, "GetSize")
     w, h = plain(w), plain(h)
-    if w and h and w > 0 and h > 0 then
-        w, h = w * ratio, h * ratio
+    local from
+    if configured then
+        local cr = ratioTo(configured.scaleFrame, ours)
+        w, h, from = configured.w * cr, configured.h * cr, "settings"
+    elseif w and h and w > 0 and h > 0 then
+        w, h, from = w * ratio, h * ratio, "frame"
     else
-        w, h = FALLBACK[id][1], FALLBACK[id][2]
+        w, h, from = FALLBACK[id][1], FALLBACK[id][2], "fallback"
     end
     f:SetSize(w, h)
     f:ClearAllPoints()
     local left, top = plain(read(source, "GetLeft")), plain(read(source, "GetTop"))
-    local placed = { id = id, w = w, h = h }
+    local placed = { id = id, w = w, h = h, from = from }
     if left and top then
         placed.point, placed.left, placed.top = "TOPLEFT", left * ratio, top * ratio
         f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", placed.left, placed.top)
@@ -201,16 +214,18 @@ function StandIn.Frame()
 end
 
 --- Dress the stand-in as frame system `id` ("ellesmere", "blizzard-raid", "blizzard-party") and copy
---- `source`'s size and position; a nil source takes the fallback size at the screen center.
-function StandIn.Place(id, source)
+--- `source`'s size and position. With no usable size on the source, `configured` ({ w, h,
+--- scaleFrame }, or nil) is next, then the fallback; with no position, the screen center.
+function StandIn.Place(id, source, configured)
     local f = StandIn.Frame()
     if not FALLBACK[id] then id = "blizzard-party" end
-    local w, h = place(f, id, source)
+    -- Beneath what attaches to it, as a real party frame is: the elements are MEDIUM, and on their
+    -- own strata the stand-in's health bar covered the cast bar's icon but for a 1px rim.
+    f:SetFrameStrata("LOW")
+    local w, h = place(f, id, source, configured)
     local r, g, b = classColor()
     PRESETS[id](f, w, h, r, g, b)
-    f.name:SetText(UnitName("player") or "")
-    f.tag:ClearAllPoints()
-    f.tag:SetPoint("TOPRIGHT", f, "TOPRIGHT", -3, -2)
+    f.name:SetText((UnitName("player") or "") .. " " .. TEST_MARK)
     return f
 end
 

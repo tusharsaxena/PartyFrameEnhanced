@@ -272,10 +272,29 @@ local function firstMember(id)
     return PartyFrame and PartyFrame[PF_MEMBER[1]]
 end
 
---- Which frame system the stand-in imitates, and that system's first member frame (or nil). The
---- resolve can't answer this out of a party, where no system is on screen: pinned to EllesmereUI it
---- is EllesmereUI; pinned to Blizzard, or Automatic without EllesmereUI's raid frames loaded, it is
---- raid-style when Edit Mode uses it and classic otherwise. Read-only, like everything here.
+-- EllesmereUI's configured party frame size, from its saved settings. Its five party buttons exist
+-- solo, but it styles them at the RAID frame size (_StyleButtonSecure) and gives them the party size
+-- only in ReloadPartyFrames, so a hidden button measures the wrong frame (seen in game: a stand-in
+-- the shape of 100 × 50 raid frames against 200 × 80 party frames). The size EllesmereUI applies is
+-- partyFrameWidth × partyFrameHeight, or its own defaults of 125 × 60. Read-only; every step is
+-- nil-guarded, and the keys are EllesmereUI's own. The header rides along for its effective scale.
+local function ellesmereConfiguredSize()
+    local db = EllesmereUIDB
+    local profiles = type(db) == "table" and db.profiles
+    local profile = type(profiles) == "table" and profiles[db.activeProfile]
+    local addons = type(profile) == "table" and profile.addons
+    local rf = type(addons) == "table" and addons.EllesmereUIRaidFrames
+    if type(rf) ~= "table" then return nil end
+    local w, h = rf.partyFrameWidth or 125, rf.partyFrameHeight or 60
+    if type(w) ~= "number" or type(h) ~= "number" or w <= 0 or h <= 0 then return nil end
+    return { w = w, h = h, scaleFrame = ERFPartyHeader }
+end
+
+--- Which frame system the stand-in imitates, that system's first member frame (or nil), and — for
+--- EllesmereUI — its configured party frame size { w, h, scaleFrame } (or nil). The resolve can't
+--- answer this out of a party, where no system is on screen: pinned to EllesmereUI it is EllesmereUI;
+--- pinned to Blizzard, or Automatic without EllesmereUI's raid frames loaded, it is raid-style when
+--- Edit Mode uses it and classic otherwise. Read-only, like everything here.
 function Providers.StandInSource()
     local choice = NS.GetSetting("general.provider")
     local id
@@ -286,7 +305,7 @@ function Providers.StandInSource()
     else
         id = "blizzard-party"
     end
-    return id, firstMember(id)
+    return id, firstMember(id), id == "ellesmere" and ellesmereConfiguredSize() or nil
 end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────

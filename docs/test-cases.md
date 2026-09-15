@@ -6,7 +6,7 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (12)
+### test_loadorder.lua (13)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
@@ -14,6 +14,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
+- loadorder: StandIn and TestMode load after Preview, StandIn first, and the TOC says why
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
 - loadorder: every derived path exists on disk
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
@@ -85,25 +86,25 @@ badge and any count quoted in the docs must agree with it.
 - bus: every message is prefixed Ka0s_PartyFrameEnhanced_
 - bus: no message has more than one sending file
 
-### test_compat.lua (7)
+### test_compat.lua (6)
 
 - compat: IsSecret answers false without the client's issecretvalue
 - compat: FrameUnit prefers displayedUnit, then unit, then unitToken, then the attribute
 - compat: FrameUnit rejects a secret, an empty string and a non-string, and moves on
 - compat: FrameVisible fails open on a secret and closed on nil or an error
-- compat: UnitIsUnit answers nil when the comparison is refused or secret
 - compat: UseRaidStyleParty reads Edit Mode first and the CVar second
 - compat: IsAddOnLoaded goes through C_AddOns and answers false without it
 
-### test_providers.lua (11)
+### test_providers.lua (12)
 
 - providers: Blizzard classic maps party1..4 by unitToken and never the player
 - providers: Blizzard raid-style maps the player too, and follows a re-sort
 - providers: EllesmereUI outranks Blizzard in Automatic, and reads the secure unit attribute
 - providers: the General page can pin Blizzard even with EllesmereUI on screen
 - providers: EllesmereUI's frames are ignored unless the addon is loaded
-- providers: hidden member frames and raid tokens that cannot be compared are skipped
+- providers: hidden member frames and raid tokens are skipped
 - providers: a raid group puts the map to sleep
+- providers: solo puts the map to sleep
 - providers: a resolve that finds what it already had sends no LAYOUT
 - providers: any number of requests before the next frame cost one resolve
 - providers: a hooked member frame's unit change requests a resolve
@@ -163,13 +164,53 @@ badge and any count quoted in the docs must agree with it.
 - petframes: Update health off drops the health events and draws the bar full
 - petframes: suspended, events come off and every driver is hide
 
-### test_preview.lua (5)
+### test_party.lua (6)
+
+- party: InParty is a party of 2-5 — not solo, not a raid
+- party: solo, nothing shows — free placement included — and no unit events are registered
+- party: in a raid, nothing shows — free placement included — and no unit events are registered
+- party: a roster change republishes VISIBILITY only when the party answer flips
+- party: preview skips the rule — unlocked solo, the free-placement placeholders show
+- party: /pfe status says so when you're not in a party
+
+### test_preview.lua (7)
 
 - preview: unlocking turns preview on and makes free-placement holders grabbable
 - preview: unlocking in combat is refused, the stored lock stays, and the player is told why
-- preview: `/pfe preview` toggles the placeholders and leaves the lock alone
+- preview: holds combine — unlocked plus a test hold, the test hold released, preview stays
+- preview: one hold turns it on and its release turns it off, one VISIBILITY each way
+- preview: the preview verb is gone — /pfe test replaces it
 - preview: a profile saved unlocked comes back in preview
 - status: names the frame system, each unit, each feature, and anything switched off
+
+### test_standin.lua (10)
+
+- standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
+- standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
+- standin: the source is the imitated system's first member frame
+- standin: copies the source's size and top-left through the effective-scale ratio
+- standin: a zero size takes the system's fallback, and no position goes to the center
+- standin: a secret size or position is never compared — fallback and center
+- standin: shows the player's name and a Test tag, and drags
+- standin: fills party1 only when no real frame holds it, and clearing it restores the real map
+- standin: setting and clearing it resolve at once, each sending LAYOUT
+- standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
+
+### test_testmode.lua (13)
+
+- testmode: solo, /pfe test raises the stand-in in party1's place with placeholders; again ends it
+- testmode: in a party, /pfe test is placeholders on the real frames and no stand-in
+- testmode: in a raid it is the stand-in too
+- testmode: it switches live — joining hides the stand-in, leaving brings it back, it stays on
+- testmode: refused in combat, disabled or suspended — one gray line each, nothing changes
+- testmode: combat ends it at PLAYER_REGEN_DISABLED (stand-in)
+- testmode: combat ends it at PLAYER_REGEN_DISABLED (party)
+- testmode: the master switch going off ends it
+- testmode: a perf-run suspend ends it, and the stand-in leaves the map at once
+- testmode: party1's target button pins to the stand-in, and after the stop its driver hides it
+- testmode: unlock creates no stand-in
+- testmode: a Frame system change re-dresses the stand-in
+- testmode: status names the mode, and the verb is in NS.COMMANDS
 
 ### test_perf_buckets.lua (3)
 
@@ -226,7 +267,7 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 12 |
+| test_loadorder.lua | 13 |
 | test_schema.lua | 9 |
 | test_database.lua | 4 |
 | test_coresetup.lua | 4 |
@@ -236,13 +277,16 @@ badge and any count quoted in the docs must agree with it.
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 3 |
-| test_compat.lua | 7 |
-| test_providers.lua | 11 |
+| test_compat.lua | 6 |
+| test_providers.lua | 12 |
 | test_anchor.lua | 7 |
 | test_castbars.lua | 13 |
 | test_targetframes.lua | 16 |
 | test_petframes.lua | 6 |
-| test_preview.lua | 5 |
+| test_party.lua | 6 |
+| test_preview.lua | 7 |
+| test_standin.lua | 10 |
+| test_testmode.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 9 |
@@ -250,4 +294,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **144** |
+| **Total** | **176** |

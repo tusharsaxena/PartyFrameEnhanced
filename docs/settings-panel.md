@@ -44,7 +44,7 @@ free-placement stacks are movable, so every row applies.
 | General visibility | `visibility` | Always / Only in combat / Only out of combat / Never; publishes VISIBILITY |
 | Master scale | `scale` | multiplies every element's size (CONFIG "master") |
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
-| Lock frame | `locked` | off = unlocked = preview mode and grabbable free-placement stacks (`NS.OnLockChanged`, `modules/Preview.lua`); unlocking in combat is refused and the box snaps back |
+| Lock frame | `locked` | off = unlocked = preview mode and grabbable free-placement stacks (`NS.OnLockChanged` holds preview for `unlock`, `modules/Preview.lua`); unlocking in combat is refused and the box snaps back |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |

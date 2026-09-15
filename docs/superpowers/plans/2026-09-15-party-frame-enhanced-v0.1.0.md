@@ -35,7 +35,8 @@ Ground rules for whoever resumes:
 | P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | done | release-candidate bundle `docs/automated-tests/20260915-150853/` (green, commit 275f786); spelling gate added; first audit bundle from `/wow-addon:standards-audit` |
 | P9 | GitHub issues for deferred work; roster row in WowAddonStandards | done | issues #1–#12 (`state:triaged`); roster row WowAddonStandards cb97a3a |
 | P9b | Standards-audit fixes (`docs/audits/2026-09-15/` PFE-01…07, 09, 11) + fresh release-candidate run | done | fixes 89d30b0; bundle `docs/automated-tests/20260915-154839/` (green) f76510f |
-| P10 | In-game smoke + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |
+| P9c | `/pfe test` and the party-only rule (spec `specs/2026-09-15-test-mode-design.md`, plan `plans/2026-09-15-test-mode.md`) | done | dc0b37a…bb289bb, then the docs commit |
+| P10 | In-game smoke (sections A–J and T; J is the test mode) + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |
 
 ## P1 — Standards scaffold
 

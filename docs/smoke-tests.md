@@ -23,6 +23,7 @@ mode are added by the phases that build them (plan P2–P6).
 | G | Target frames | a party, mobs to target |
 | H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
 | I | Preview, placement and status | any Retail; a party for the attached steps |
+| J | Test mode and the party-only rule | solo; a party; each of the three frame systems |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -37,7 +38,7 @@ mode are added by the phases that build them (plan P2–P6).
 ## B. Slash surface
 
 4. `/pfe` alone → the help block: a version line and sixteen verbs (help, config, list, get, set,
-   reset, resetall, resetposition, lock, unlock, preview, status, debug, perf, version, profile), each
+   reset, resetall, resetposition, lock, unlock, test, status, debug, perf, version, profile), each
    a gold `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` → the identical block.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
@@ -189,11 +190,33 @@ EllesmereUI's, where noted.
 45. **Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free placement*, unlock → a
     translucent plate labeled *Cast bars* appears over the stack. Drag it; lock; `/reload` → the stack
     is where you left it. General → *Reset position* (or `/pfe resetposition`) → back to its default.
-46. **Preview without unlocking.** `/pfe preview` → placeholders, but no plate and nothing draggable;
-    again → gone.
+46. **Test mode in a party.** In a party, `/pfe test` → placeholders on every element at the real
+    party frames, no stand-in, no plate and nothing draggable; again → gone.
 47. **Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
     feature's state, and a *Note:* line when something is switched off (set General visibility to
     *Never* and run it again).
+
+## J. Test mode and the party-only rule
+
+48. **Party-only.** Solo: nothing shows, attached or free placement, and `/pfe status` ends with *not
+    in a party — nothing shows until you join one (try /pfe test)*. Join a party → everything shows.
+    Convert to a raid → it all goes again.
+49. **Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, Frame system Automatic: `/pfe test` → one
+    stand-in party frame where EllesmereUI's first party frame sits, at its size, with a flat
+    class-colored bar and a gray *Test* tag. Party1's cast bar, target frame (skull) and pet frame
+    attach to it, and the Size & Position offsets move them. Drag it → they follow. *Failure:* the
+    stand-in at screen center while EllesmereUI's frames are laid out (the size and position copy
+    missed).
+50. **Stand-in, Blizzard raid-style.** Blizzard frames, Edit Mode raid-style party frames on: the same
+    as 49 in the raid-bar look. Note whether the 72 × 36 fallback matched if the stand-in came up at
+    screen center.
+51. **Stand-in, Blizzard classic.** Raid-style off: the same as 49 with a portrait, a green health bar
+    and a mana bar. Note whether the 120 × 53 fallback matched if the stand-in came up at screen
+    center.
+52. **Live switch and exits.** With the stand-in up, join a party → it goes and the placeholders move
+    to the real frames; leave → it comes back. Pull a dummy → *Test mode off — combat started*,
+    nothing stuck on screen, no `ADDON_ACTION_BLOCKED` in `/pfe debug`. During test mode `/pfe status`
+    reads *test mode on (stand-in)* or *test mode on (your party frames)*.
 
 ## T. Non-English client (locale)
 

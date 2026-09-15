@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-144%2F144_passing-green)
+![Tests](https://img.shields.io/badge/Tests-176%2F176_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -29,16 +29,21 @@ None yet. They'll arrive with the first release.
 
 ## Usage
 
-There's nothing to turn on. Join a group and the cast bars show up under each member's frame, target
+There's nothing to turn on. Join a party and the cast bars show up under each member's frame, target
 frames to the right, pets underneath. A unit with no party frame on screen gets nothing until it has
 one, which is why your own row doesn't appear in Blizzard's classic party layout: that layout never
 shows you.
 
 To move things, type `/pfe unlock` or untick **Lock frame** on the **General** page. Everything
-switches to preview mode, with a fake cast on every bar, a fake enemy in every target frame and a fake
+switches to placeholders, with a fake cast on every bar, a fake enemy in every target frame and a fake
 pet in every pet frame, so you can arrange it all without waiting for a pull. Attached elements are
 nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
 just drag. Lock again and the real data comes back.
+
+Not in a party? Type `/pfe test`. You get a stand-in frame dressed like your usual party frames,
+with a cast bar, target frame and pet frame hanging off it, so you can set the offsets solo. Drag it
+wherever you like. In a party, the same command puts the placeholders on your real frames. Combat ends
+it, and so does typing it again.
 
 **Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
 size and position, the bar, the border and the text. That's also where you switch a feature to
@@ -69,7 +74,7 @@ Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and
 | Question | Answer |
 |---|---|
 | Does it replace my party frames? | No. It adds to them and never moves, hides or restyles them. |
-| Does it work in raids? | Not yet. In a raid group it stays quiet. |
+| Does it work in raids? | No, and that's on purpose. It's party-only: in a raid, or solo, it shows nothing. |
 | Does it work with ElvUI, Cell or Grid2? | Not as an attachment yet. Use free placement, which works with any setup. |
 | Why can't it hide the target frame when a party member targets me? | The game hides "is that you?" from addons in combat, so the addon has no way to tell. |
 | Do I need EllesmereUI? | No. It's optional; without it the addon uses Blizzard's frames. |
@@ -78,7 +83,7 @@ Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and
 
 | Symptom | Fix |
 |---|---|
-| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. |
+| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe test` shows you what it would look like. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
 | The settings panel won't open | It refuses in combat on purpose. Try again once combat ends. |

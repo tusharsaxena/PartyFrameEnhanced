@@ -13,6 +13,10 @@ each unit — Blizzard classic, Blizzard raid-style or EllesmereUI, detected by 
 stacks them in one movable free-placement group. What it deliberately leaves out is
 [scope.md](scope.md).
 
+It is **party-only**: solo or in a raid it shows nothing and registers nothing. `/pfe test` previews
+it anyway, on the real party frames in a party and on a stand-in party frame out of one
+([the design](superpowers/specs/2026-09-15-test-mode-design.md)).
+
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
 and **LibKa0s v1.36.1** vendored whole. The addon consumes seven LibKa0s majors through one setup file
@@ -27,11 +31,12 @@ and the first standards audit done. What remains before the tag is in-game testi
 
 ## Module Map
 
-Thirty-four files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-six files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
 captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
-and UnitButtons before the features that capture them, Preview last among the modules, Schema before
+and UnitButtons before the features that capture them, Preview after every feature, Preview and
+StandIn before TestMode, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
@@ -69,7 +74,7 @@ source to check).
 ## Slash Commands
 
 `/pfe` and `/partyframeenhanced`, sixteen verbs in `NS.COMMANDS` — the ten reserved ones plus
-`resetposition`, `lock`, `unlock`, `preview`, `status` and `profile`. Table and behavior:
+`resetposition`, `lock`, `unlock`, `test`, `status` and `profile`. Table and behavior:
 [slash-dispatch.md](slash-dispatch.md).
 
 ## Event Subscriptions
@@ -79,10 +84,15 @@ source to check).
 | `PLAYER_ENTERING_WORLD` | `core/PartyFrameEnhanced.lua` | republish VISIBILITY |
 | `PLAYER_REGEN_DISABLED` / `_ENABLED` | `core/PartyFrameEnhanced.lua` | the combat flag; ENABLED flushes the secure-write queue |
 | `ADDON_ACTION_BLOCKED` / `_FORBIDDEN` | `core/PartyFrameEnhanced.lua` | log a blocked action blamed on this addon, ungated |
+| `GROUP_ROSTER_UPDATE` | `core/PartyFrameEnhanced.lua` | the party-only flip (`NS.Units.InParty`): republish VISIBILITY |
 | `GROUP_ROSTER_UPDATE`, `PLAYER_ENTERING_WORLD`, `EDIT_MODE_LAYOUTS_UPDATED`, `PLAYER_REGEN_ENABLED`, `ADDON_LOADED` (EllesmereUI) | `modules/Providers.lua` (AceEvent, own target) | re-resolve the unit → frame map |
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
 | `UNIT_TARGET` (per owner, `RegisterUnitEvent`), `RAID_TARGET_UPDATE` (AceEvent) | `modules/TargetFrames.lua` | target frames; health comes from a gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent` | `modules/PetFrames.lua` | pet frames |
+| `PLAYER_REGEN_DISABLED`, `GROUP_ROSTER_UPDATE` (registered only while test mode is on) | `modules/TestMode.lua` (AceEvent, own target) | end test mode before lockdown; switch between the stand-in and the real party frames |
+
+The unit events above are registered only in a party (the party-only rule): each feature's
+`syncEvents` re-runs on VISIBILITY, which the roster flip republishes.
 
 Lifecycle, roster and Edit Mode events use AceEvent, each module on its own target. The per-unit
 game events are registered with `RegisterUnitEvent` on each element's own frame, so the client filters
@@ -91,7 +101,9 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 ## Taint Notes
 
 - **Never touch the frames we attach to.** No `Hide`, `SetParent`, `SetPoint` or call into a Blizzard
-  or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only.
+  or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only. Test mode's
+  stand-in (`modules/StandIn.lua`) reads another frame's size and position through getters only and
+  is never anchored, parented or hooked to one.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`).
 - **Their visibility is a state driver**, not Lua: `[@party1target,exists] show; hide`, with General
@@ -108,7 +120,8 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 
 ## Known Limitations
 
-- Party only; a raid group puts the addon to sleep (#1). Arena frames are not attached to either (#11).
+- Party only, by design: solo or in a raid of any size nothing shows (`/pfe test` previews it). Arena
+  frames are not attached to (#11).
 - Blizzard (both layouts) and EllesmereUI are the only frame systems detected; others use free
   placement (#2).
 - Blizzard's classic party layout never shows the player, so the player's attached elements have no
@@ -143,7 +156,7 @@ they were filed from.
 | `slash-dispatch.md` | Present | 16 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 16 shims (trigger: three or more) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 

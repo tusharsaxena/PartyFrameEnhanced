@@ -1,5 +1,5 @@
 -- tests/test_preview.lua — modules/Preview.lua and the two verbs that arrive with it: unlock ↔
--- preview, the combat refusal, `/pfe preview`, the holders' grab state, and `/pfe status`.
+-- preview, the combat refusal, the named preview holds, the holders' grab state, and `/pfe status`.
 
 local T = _G.PFE_TEST
 local test, assertEqual, assertTrue, assertFalse = T.test, T.assertEqual, T.assertTrue, T.assertFalse

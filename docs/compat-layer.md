@@ -12,7 +12,6 @@ library's and are not documented here.
 | `IsAddOnLoaded(name)` | `C_AddOns.IsAddOnLoaded`, then `IsAddOnLoaded` | boolean | the presence guard for optional integrations (library-stack-§6) |
 | `FrameVisible(frame)` | `frame:IsVisible()` | `true` for a secret answer (fail open), `false` for nil or a raise | other addons' secure frames can answer secrets |
 | `FrameUnit(frame)` | `displayedUnit` → `unit` → `unitToken` → `GetAttribute("unit")` | the unit token, or nil for none or a secret | three frame systems store the unit three ways; the secret check runs before any comparison |
-| `UnitIsUnit(a, b)` | `C_Secrets.CanCompareUnitTokens`, then `UnitIsUnit` | `true` / `false` / **nil = unknown** | 12.1 refuses to compare secret identities, and the answer itself can be secret |
 | `UseRaidStyleParty()` | `EditModeManagerFrame:UseRaidStylePartyFrames()`, then CVar `useCompactPartyFrames` | boolean | 12.x stores the layout choice per Edit Mode layout |
 
 | `CastInfo(unit, hint)` | `UnitCastingInfo`, then `UnitChannelInfo` | kind, name, texture, notInterruptible (the last three possibly secret), or nil | one place that knows the two returns' positions; empower decided by `isEmpowered` only when plain |

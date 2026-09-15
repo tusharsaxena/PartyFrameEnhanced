@@ -1,6 +1,7 @@
 # `/pfe test` and the party-only rule
 
-- **Status:** approved design (brainstorming, 2026-09-15; revised the same day), not yet built
+- **Status:** approved design (brainstorming, 2026-09-15; revised the same day), built the same day
+  (plan `docs/superpowers/plans/2026-09-15-test-mode.md`); the in-game smoke steps are open
 - **Addon:** Ka0s Party Frame Enhanced 0.1.0 (unreleased)
 - **Approach chosen:** a PFE-owned stand-in frame (over "stand-in + Blizzard Edit Mode" and "a real
   Blizzard template instance"; see *Rejected approaches*)

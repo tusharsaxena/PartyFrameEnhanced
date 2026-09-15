@@ -135,7 +135,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (14)
+### test_targetframes.lua (15)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -146,6 +146,7 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise
 - targetframes: a secret class and a secret reaction never reach a table lookup
 - targetframes: the ticker runs only while someone has a target, and repaints health
+- targetframes: a secret UnitExists never makes the tick repaint a hidden button
 - targetframes: an unchanged plain health is not repainted by the tick
 - targetframes: Update health off draws the bar full with no percent, and the ticker never runs
 - targetframes: the marker sits on its configured point of the bar, nudged by its offsets
@@ -238,7 +239,7 @@ badge and any count quoted in the docs must agree with it.
 | test_providers.lua | 11 |
 | test_anchor.lua | 7 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 14 |
+| test_targetframes.lua | 15 |
 | test_petframes.lua | 6 |
 | test_preview.lua | 5 |
 | test_perf_buckets.lua | 3 |
@@ -248,4 +249,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **142** |
+| **Total** | **143** |

@@ -102,13 +102,57 @@ return function()
   end
 
   -- Secure state drivers, recorded on the frame (fidelity rule 3: a driver string is what decides
-  -- whether a target frame ever shows).
+  -- whether a target frame ever shows), and resolved on demand the way the client's state-driver
+  -- manager does: `M.__runStateDrivers()` evaluates every visibility driver against the mocked
+  -- units and combat flag, shows or hides the frame, and fires OnShow/OnHide on a change. A suite
+  -- calls it where the client would re-evaluate — after a unit starts or stops existing.
+  local driven = {}
   M.RegisterStateDriver = function(frame, state, driver)
     frame.__drivers = frame.__drivers or {}
     frame.__drivers[state] = driver
+    driven[frame] = true
   end
   M.UnregisterStateDriver = function(frame, state)
     if frame.__drivers then frame.__drivers[state] = nil end
+  end
+
+  -- One `[...]` block: `@unit` retargets, `exists` / `combat` / `nocombat` must all hold.
+  local function conditionsHold(conds)
+    local unit = "target"
+    for part in conds:gmatch("[^,]+") do
+      part = part:match("^%s*(.-)%s*$")
+      if part:sub(1, 1) == "@" then
+        unit = part:sub(2)
+      elseif part == "exists" then
+        if not M.UnitExists(unit) then return false end
+      elseif part == "combat" then
+        if not M.InCombatLockdown() then return false end
+      elseif part == "nocombat" then
+        if M.InCombatLockdown() then return false end
+      end
+    end
+    return true
+  end
+
+  local function resolveDriver(driver)
+    for clause in driver:gmatch("[^;]+") do
+      local conds, action = clause:match("^%s*%[(.-)%]%s*(%S+)")
+      if not conds then return clause:match("^%s*(%S+)") end
+      if conditionsHold(conds) then return action end
+    end
+  end
+
+  M.__runStateDrivers = function()
+    for frame in pairs(driven) do
+      local driver = frame.__drivers and frame.__drivers.visibility
+      if driver then
+        local show = resolveDriver(driver) == "show"
+        if show ~= frame:IsShown() then
+          if show then frame:Show() else frame:Hide() end
+          frame:__fire(show and "OnShow" or "OnHide")
+        end
+      end
+    end
   end
 
   -- Units a suite can describe by token: M.__units[token] = { exists, name, health, healthMax,

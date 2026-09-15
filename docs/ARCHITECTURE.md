@@ -143,7 +143,7 @@ they were filed from.
 | `slash-dispatch.md` | Present | 16 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 17 shims (trigger: three or more) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 16 shims (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 

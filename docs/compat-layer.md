@@ -26,7 +26,6 @@ library's and are not documented here.
 | `IsPlayer(token)` | `UnitIsPlayer` | `true` / `false` / **nil = unknown** | compound tokens' player-ness can be secret |
 | `Reaction(token)` | `UnitReaction(token, "player")` | 1–8, or nil when secret | the reaction palette is indexed only by a plain number |
 | `RaidMarker(texture, token)` | `GetRaidTargetIndex` + `SetRaidTargetIconTexture` | shows or hides the texture | the index may be secret; only its presence is tested |
-| `UnitExists(token)` | `UnitExists` | boolean; **true** for a secret answer (fail open) | the ticker's "anyone targeting?" gate |
 
 Why each secret rule exists: [midnight-quirks.md](midnight-quirks.md).
 

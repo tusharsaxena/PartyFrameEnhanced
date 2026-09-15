@@ -210,14 +210,10 @@ function Compat.RaidMarker(texture, token)
     return false
 end
 
---- Whether a unit exists: true, false, or true for a secret answer (fail open — a frame shown for a
---- unit that turns out absent draws nothing, a frame hidden for one that exists loses data).
-function Compat.UnitExists(token)
-    local ok, v = pcall(UnitExists, token)
-    if not ok then return false end
-    if Compat.IsSecret(v) then return true end
-    return v and true or false
-end
+-- No UnitExists shim, on purpose. Lua's answer for a compound token can be secret in combat, and
+-- reading that as "exists" repainted every hidden target button five times a second
+-- (docs/perf-analysis/20260915-161824). Whether a target frame's unit exists is its state driver's
+-- `[@token,exists]`, resolved securely; Lua asks the button whether it is shown.
 
 --- Whether Blizzard's party frames are in the raid-style layout. 12.x stores this per Edit Mode
 --- layout; the old `useCompactPartyFrames` CVar is the fallback for a build without the method.

@@ -7,7 +7,11 @@ local _, NS = ...
 -- UPDATES: UNIT_TARGET per owner (RegisterUnitEvent on the button's own frame — the documented
 -- deviation in docs/ARCHITECTURE.md) repaints name, color, marker and health; RAID_TARGET_UPDATE
 -- repaints markers. A compound token gets no UNIT_HEALTH, so health comes from ONE repeating timer
--- that runs only while at least one tracked unit has a target, and cancels itself when none do.
+-- that runs only while at least one button is SHOWN, and repaints only the shown ones. "Shown" is
+-- the state driver's `[@partyNtarget,exists]`, which the client resolves securely; Lua's own
+-- UnitExists on a compound token can come back secret in combat, and reading that as "exists"
+-- repainted every hidden button five times a second (docs/perf-analysis/20260915-161824). The
+-- buttons' OnShow/OnHide post-hooks start and stop the timer; they make no protected call.
 -- With "Update health" off the bar is drawn full and the ticker never starts.
 --
 -- COLOR: a player target in its class color when "Use class color" is on; an NPC by its reaction
@@ -99,7 +103,7 @@ local function tick()
     local any, painted = false, 0
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
-        if btn.__allowed and Compat.UnitExists(btn.token) then
+        if btn.__allowed and btn:IsVisible() then
             any = true
             local t1 = Perf.on and debugprofilestop()
             if UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent) then painted = painted + 1 end
@@ -112,13 +116,13 @@ local function tick()
 end
 
 --- Run the ticker exactly while it has something to do: the feature on, health updates on, not
---- previewing, and at least one allowed unit with a target.
+--- previewing, and at least one allowed button shown by its state driver.
 function TargetFrames.UpdateTicker()
     local want = false
     if featureOn() and cfg.updateHealth and not NS.State.preview then
         for _, unit in ipairs(Units.LIST) do
             local btn = buttons[unit]
-            if btn.__allowed and Compat.UnitExists(btn.token) then want = true; break end
+            if btn.__allowed and btn:IsVisible() then want = true; break end
         end
     end
     if want and not ticker then
@@ -197,11 +201,18 @@ end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
 
+-- A button the state driver shows or hides may start or stop the ticker. Resolved at call time.
+local function onVisibility()
+    if cfg then TargetFrames.UpdateTicker() end
+end
+
 function TargetFrames:OnEnable()
     cfg = NS.db.profile.target
     for _, unit in ipairs(Units.LIST) do
         local btn = UnitButtons.Create("Target", unit, Units.TARGET[unit])
         btn:SetScript("OnEvent", onEvent)
+        btn:HookScript("OnShow", onVisibility)
+        btn:HookScript("OnHide", onVisibility)
         buttons[unit] = btn
     end
     NS.Anchor.Register({

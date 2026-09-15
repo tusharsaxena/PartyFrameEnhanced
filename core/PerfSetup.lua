@@ -39,7 +39,7 @@ NS.Perf = lib:New({
         { key = "anchor" },                              -- Anchor: one feature's placement pass
         { key = "castEvent" },                           -- CastBars: a UNIT_SPELLCAST_* handler
         { key = "castRender",   within = "castEvent" },  -- CastBars: start/update render in it
-        { key = "castTick" },                            -- CastBars: the throttled time-text tick
+        { key = "castTick" },                            -- CastBars: every OnUpdate frame a bar shows
         { key = "targetEvent" },                         -- TargetFrames: UNIT_TARGET / marker handler
         { key = "targetTick" },                          -- TargetFrames: one health-ticker pass
         { key = "targetRender", within = "targetTick" }, -- TargetFrames: one frame inside that pass

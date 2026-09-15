@@ -199,6 +199,8 @@ for _, unit in ipairs(NS.Units.LIST) do
   mocks.__units[NS.Units.TARGET[unit]] = { name = "Boar", health = 50, healthMax = 100, pct = 50, reaction = 2 }
   tbuttons[unit]:__fire("OnEvent", "UNIT_TARGET", unit)
 end
+-- The client's state-driver manager shows the five buttons; the tick paints only shown ones.
+mocks.__runStateDrivers()
 -- The ticker's own pass, called directly: through the kit's AceTimer every repeat also queues a
 -- fresh timer entry, which is the harness's garbage, not the addon's.
 local runTicker = NS.TargetFrames.__tick
@@ -210,6 +212,7 @@ local tickMoving = measure("targetTickMoving", N, function(i)
   runTicker()
 end)
 for _, unit in ipairs(NS.Units.LIST) do mocks.__units[NS.Units.TARGET[unit]] = nil end
+mocks.__runStateDrivers()
 runTicker()
 while mocks.__fireTimers() > 0 do end
 

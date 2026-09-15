@@ -21,7 +21,7 @@ Declared in `core/PerfSetup.lua`, in report order, with nesting declared rather 
 | `anchor` | — | one feature's placement pass (`modules/Anchor.lua`) |
 | `castEvent` | — | one `UNIT_SPELLCAST_*` handler |
 | `castRender` | `castEvent` | the start/update render inside it |
-| `castTick` | — | the throttled cast time-text tick |
+| `castTick` | — | one `OnUpdate` frame while a bar is casting, holding or fading. It counts **frames**, not text refreshes: the 0.1 s time-text throttle sits inside it, so ~40 calls/s at 40–60 fps is normal |
 | `targetEvent` | — | a `UNIT_TARGET` / raid-marker handler |
 | `targetTick` | — | one pass of the target-health ticker |
 | `targetRender` | `targetTick` | one target frame's refresh inside that pass |

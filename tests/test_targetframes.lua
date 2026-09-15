@@ -18,16 +18,20 @@ local function prep()
 end
 
 local function drain()
-  -- The ticker re-queues itself; cancel it first so the drain ends.
+  -- Hide what no longer exists, then cancel the ticker (it re-queues itself) so the drain ends.
+  mocks.__runStateDrivers()
   NS.db.profile.target.enabled = false
   TargetFrames.UpdateTicker()
   NS.db.profile.target.enabled = true
   while mocks.__fireTimers() > 0 do end
 end
 
+-- A member changes target: the client fires UNIT_TARGET and its state-driver manager re-resolves
+-- `[@partyNtarget,exists]`, showing or hiding the button.
 local function target(owner, data)
   mocks.__units[NS.Units.TARGET[owner]] = data
   buttons[owner]:__fire("OnEvent", "UNIT_TARGET", owner)
+  mocks.__runStateDrivers()
 end
 
 test("targetframes: every button is a secure unit button acting on its owner's target", function()
@@ -146,8 +150,37 @@ test("targetframes: the ticker runs only while someone has a target, and repaint
   mocks.__fireTimers()
   assertEqual(buttons.party3.bar.__value, 20, "the tick repainted health")
   mocks.__units.party3target = nil
-  mocks.__fireTimers()
-  assertFalse(TargetFrames.TickerRunning(), "the last target gone, the ticker cancels itself")
+  mocks.__runStateDrivers()
+  assertFalse(TargetFrames.TickerRunning(), "the last button hidden, the ticker stops")
+end)
+
+test("targetframes: a secret UnitExists never makes the tick repaint a hidden button", function()
+  -- red under: the tick asking Compat.UnitExists, which reads a secret as "exists" — in combat
+  -- every hidden button was repainted five times a second (docs/perf-analysis/20260915-161824).
+  prep()
+  drain()
+  target("party1", { name = "Boar", health = 50, healthMax = 100, reaction = 2 })
+  assertTrue(buttons.party1:IsVisible(), "the driver showed the one real target")
+  assertFalse(buttons.party2:IsVisible(), "and nothing else")
+  local SECRET = {}
+  local origExists, origSecret = mocks.UnitExists, mocks.issecretvalue
+  mocks.issecretvalue = function(v) return v == SECRET end
+  mocks.UnitExists = function() return SECRET end
+  local writes, origs = 0, {}
+  for _, unit in ipairs({ "party2", "party3", "party4" }) do
+    local bar = buttons[unit].bar
+    origs[unit] = bar.SetValue
+    rawset(bar, "SetValue", function(self, v) writes = writes + 1; origs[unit](self, v) end)
+  end
+  TargetFrames.__tick()
+  assertEqual(writes, 0, "no hidden button was repainted")
+  assertTrue(TargetFrames.TickerRunning(), "the visible one keeps the ticker alive")
+  for unit, fn in pairs(origs) do rawset(buttons[unit].bar, "SetValue", fn) end
+  mocks.UnitExists, mocks.issecretvalue = origExists, origSecret
+  mocks.__units.party1target = nil
+  mocks.__runStateDrivers()
+  assertFalse(TargetFrames.TickerRunning(), "its button hidden, the ticker stops")
+  drain()
 end)
 
 test("targetframes: an unchanged plain health is not repainted by the tick", function()

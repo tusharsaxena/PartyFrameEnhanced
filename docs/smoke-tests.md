@@ -91,6 +91,12 @@ mode are added by the phases that build them (plan P2–P6).
 23. `/pfe perf` → a status line and the step panel, whose close mark matches the console's. Walk
     `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump` without a Lua error.
     During arm B the addon is inert; after `finish` it is active again without a `/reload`.
+23a. **The capture worth recording.** In a party with at least one pet class, somewhere quiet (an
+    instance, not a city), start with the setup in the label — `/pfe perf start party <frame system>
+    <anchor mode>` — and pull the same pack for both arms. In the report, `petEvent` has calls and
+    `targetRender` per `targetTick` pass is **at most the number of members with a target**. Paste the
+    buffer into `/wow-addon:perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer
+    members have targets (hidden buttons being repainted), or no `petEvent` row with a pet out.
 
 ## F. Cast bars
 

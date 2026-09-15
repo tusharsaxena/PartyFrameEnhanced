@@ -42,9 +42,11 @@ local function drive()
 
   mocks.__units.party2target = { name = "Boar", health = 5, healthMax = 10, reaction = 2 }
   NS.TargetFrames.__buttons.party2:__fire("OnEvent", "UNIT_TARGET", "party2")   -- targetEvent
+  mocks.__runStateDrivers()                                         -- the driver shows it
   mocks.__units.party2target.health = 4
   mocks.__fireTimers()                                              -- targetTick, targetRender
   mocks.__units.party2target = nil
+  mocks.__runStateDrivers()
   mocks.__fireTimers()                                              -- the ticker cancels itself
 
   NS.PetFrames.__buttons.party3:__fire("OnEvent", "UNIT_HEALTH", "partypet3")    -- petEvent

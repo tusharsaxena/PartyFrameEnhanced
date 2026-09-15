@@ -268,11 +268,18 @@ end
 print(("Ka0s Party Frame Enhanced \226\128\148 offline perf  (v%s, label '%s')"):format(NS.version, opts.label))
 print(("40 layout requests coalesced into %d resolve%s"):format(coalesced, coalesced == 1 and "" or "s"))
 print()
-print(("%-20s %8s %11s %9s %10s %11s"):format("scenario", "iters", "ms/iter", "api/iter", "setPoint", "bytes/iter"))
+-- Five columns, exactly: tests/_kit/run-automated-tests.sh counts scenarios structurally as the
+-- five-field rows under this header, so a sixth column makes every row invisible to it (the first
+-- release-candidate run recorded "0 scenarios" for that reason). SetPoint counts get their own line.
+print(("%-20s %8s %11s %9s %11s"):format("scenario", "iters", "ms/iter", "api/iter", "bytes/iter"))
 for _, r in ipairs(results) do
-  print(("%-20s %8d %11.5f %9.1f %10.1f %11.1f"):format(
-    r.name, r.iterations, r.msPerIter, r.apiPerIter, r.setPointsPerIter, r.bytesPerIter))
+  print(("%-20s %8d %11.5f %9.1f %11.1f"):format(
+    r.name, r.iterations, r.msPerIter, r.apiPerIter, r.bytesPerIter))
 end
+print()
+local sp = {}
+for _, r in ipairs(results) do sp[#sp + 1] = ("%s %.1f"):format(r.name, r.setPointsPerIter) end
+print("SetPoint calls/iter: " .. table.concat(sp, ", "))
 print()
 print("timings are for orientation only \226\128\148 compare scenarios within a run, never across machines")
 if #failures > 0 then

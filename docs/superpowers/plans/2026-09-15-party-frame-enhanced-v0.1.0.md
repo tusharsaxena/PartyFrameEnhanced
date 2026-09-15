@@ -25,7 +25,7 @@ Ground rules for whoever resumes:
 | Phase | What | Status | Commit |
 |---|---|---|---|
 | P0 | Research, spec, this plan, repo + `.gitattributes` | done | see git log |
-| P1 | Standards scaffold: TOC, libs, core seams, schema/slash/options skeleton, tests harness, doc set | pending | |
+| P1 | Standards scaffold: TOC, libs, core seams, schema/slash/options skeleton, tests harness, doc set | done | 246dba6 (code), next commit (docs + first automated-test bundle) |
 | P2 | Units, Compat, Providers (Blizzard raid-style, Blizzard classic, EllesmereUI), Anchor engine | pending | |
 | P3 | Cast bars | pending | |
 | P4 | Target frames (secure) + health ticker | pending | |

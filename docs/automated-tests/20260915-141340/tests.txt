@@ -1,0 +1,68 @@
+  PASS  loadorder: tocFiles returns the addon's files, locale first and settings last
+  PASS  loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
+  PASS  loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
+  PASS  loadorder: OptionsSetup loads before every settings page
+  PASS  loadorder: PerfSetup loads before every module
+  PASS  loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
+  PASS  loadorder: every derived path exists on disk
+  PASS  loadorder: the runner loaded exactly the TOC's files, in the TOC's order
+  PASS  loadorder: the runner loaded exactly the vendored XML's library files, in its order
+  PASS  loadorder: tests/perf.lua derives both halves of its list too
+  PASS  loadorder: the loaded library registered — NS.Perf is the lib, not the stub
+  PASS  schema: validates with no shape errors and no unresolved paths
+  PASS  schema: the General page opens on the Master controls tab, in the canonical order
+  PASS  schema: General visibility is the four-value dropdown, not a boolean
+  PASS  schema: a write through the seam stores the value and publishes CONFIG once, by section
+  PASS  schema: a flat Master controls row publishes the master section
+  PASS  schema: the session-only debug console row publishes nothing and stores nothing
+  PASS  schema: GetSetting falls back to the shipped default when the profile lacks the key
+  PASS  schema: ApplyDefault writes a COPY of a table default
+  PASS  schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
+  PASS  database: InitDB opens the store with the shipped defaults and schema v1
+  PASS  database: RunMigrations is idempotent
+  PASS  database: a counted profile reset restores defaults and publishes PROFILE once
+  PASS  database: a profile switch publishes PROFILE and VISIBILITY
+  PASS  coresetup: NS.Print is the library printer, reclaimed from AceConsole's embed
+  PASS  coresetup: printed lines carry the cyan [PFE] tag
+  PASS  coresetup: NS.MakeCloseButton hands the library this addon's folder name
+  PASS  coresetup: without LibKa0s the printer still prints, and says the library is missing once
+  PASS  mediasetup: the console's monospace face is the library's, under this addon's folder
+  PASS  mediasetup: NS.Icon builds catalog paths from this addon's folder
+  PASS  mediasetup: without LibKa0s the face falls back to a real client font and icons answer nil
+  PASS  debuglog: NS.Debug is the instance's gated sink, bound bare
+  PASS  debuglog: enabling logging flips NS.State.debug and writes nothing to the profile
+  PASS  debuglog: without LibKa0s, `debug on` still sets the flag and acknowledges it
+  PASS  perfsetup: every bucket is declared, in report order
+  PASS  perfsetup: suspend and resume reach every registered module and republish visibility
+  PASS  perfsetup: `/pfe perf` answers lines to print
+  PASS  perfsetup: without LibKa0s the stub carries every member the addon calls
+  PASS  lifecycle: a secure write out of combat runs at once
+  PASS  lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
+  PASS  lifecycle: the regen events drive NS.State.inCombat and republish visibility
+  PASS  lifecycle: a blocked action blamed on this addon is logged, ungated
+  PASS  bus: two receivers of one message on their own targets both fire
+  PASS  bus: every message is prefixed Ka0s_PartyFrameEnhanced_
+  PASS  bus: no message has more than one sending file
+  PASS  slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
+  PASS  slash: the reserved verbs are all present
+  PASS  slash: /pfe and /partyframeenhanced are both registered through AceConsole
+  PASS  slash: `version` prints the TOC version
+  PASS  slash: `unlock` and `lock` write `locked` through the seam
+  PASS  slash: `set` parses and stores a schema value, `reset` puts it back
+  PASS  slash: `perf` prints what the harness returns
+  PASS  slash: `profile` with no argument prints the sub-verb list
+  PASS  slash: an unknown verb says so and prints help
+  PASS  optionssetup: the live and degraded builds veto the same rows from Reset All
+  PASS  optionssetup: the degraded load registers every host-declared row; the gap is the composers'
+  PASS  optionssetup: the stub publishes every member a page file touches at load
+  PASS  optionssetup: without the library, opening the panel prints one honest line
+  PASS  parity: the Core stub publishes everything core/CoreSetup.lua publishes live
+  PASS  parity: the DebugLog stub carries the whole live surface
+  PASS  parity: the Options stub carries every helper the degraded build can reach
+  PASS  parity: the Slash stub carries every dispatcher member the addon calls
+  PASS  libs/LibKa0s is the LibKa0s release CLAUDE.md says this addon bundles
+  PASS  tests/_kit is the test kit that shipped with that release
+  PASS  the automated-test runner is recorded executable (100755)
+  PASS  eol: every tracked file carries the terminator .gitattributes declares for it
+
+66 passed, 0 failed, 0 skipped, 66 total

@@ -29,7 +29,7 @@ test("schema: the General page opens on the Master controls tab, in the canonica
   for _, row in ipairs(rows) do
     if row.group == "Master controls" then paths[#paths + 1] = row.path end
   end
-  assertEqual(table.concat(paths, ","), "enabled,visibility,scale,alpha,locked,state.debugConsole",
+  assertEqual(table.concat(paths, ","), "enabled,visibility,scale,alpha,locked,state.debugConsole,state.testMode",
     "the canonical Master controls rows, in order, with nothing omitted")
 end)
 

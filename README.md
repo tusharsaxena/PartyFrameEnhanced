@@ -40,7 +40,7 @@ pet in every pet frame, so you can arrange it all without waiting for a pull. At
 nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
 just drag. Lock again and the real data comes back.
 
-Not in a party? Type `/pfe test`, or click **Test mode** on the **General** page. You get a stand-in frame dressed like your usual party frames,
+Not in a party? Type `/pfe test`, or tick **Test mode** on the **General** page. You get a stand-in frame dressed like your usual party frames,
 with a cast bar, target frame and pet frame hanging off it, so you can set the offsets solo. Drag it
 wherever you like. In a party, the same command puts the placeholders on your real frames. Combat ends
 it, and so does typing it again.

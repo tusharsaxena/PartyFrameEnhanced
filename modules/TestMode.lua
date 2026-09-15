@@ -66,6 +66,8 @@ local function stop(why)
     NS.State.test = nil
     Preview.Hold("test", false)
     NS.Debug("Test", "off (%s)", why)
+    -- Master controls' Test mode checkbox reads NS.State.test (settings/General.lua).
+    if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
     return true
 end
 
@@ -100,6 +102,7 @@ local function start()
     enter(modeFor())
     listen(true)
     NS.Debug("Test", "on (%s)", NS.State.test)
+    if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
 end
 
 --- `/pfe test`: on (refused in combat, with the addon disabled, or during a perf-run suspend) or off.

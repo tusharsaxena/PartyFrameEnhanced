@@ -56,7 +56,8 @@ mode are added by the phases that build them (plan P2–P6).
     the Notes line and the slash-command list show (the same rows as `/pfe help`).
 12. **General** → a two-tab strip, **Master controls** then **Party frames**. Master controls holds, in
     order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
-    *Lock frame* · *Debug console*, then a *Test mode* button on its own row, then the button pair
+    *Lock frame* · *Debug console*, then a *Test mode* checkbox on its own line (tick it → test mode
+    starts; `/pfe test` or combat ends it and the box unticks), then the button pair
     *Reset position* · *Reset all settings*.
     *General visibility* is a dropdown of four: Always, Only in combat, Only out of combat, Never.
 13. **Party frames** tab → *Frame system* (Automatic / Blizzard / EllesmereUI) and *Include my own row*.

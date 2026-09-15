@@ -90,10 +90,12 @@ already re-resolve on the same event.
   - when the master **Enable** switch goes off (`CONFIG("master")`, or a new profile that is off);
   - when a `/pfe perf` run suspends the addon (its `Suspend` hook).
 - `/pfe test` while on turns it off.
-- **General → Master controls carries a *Test mode* button** (added after the first in-game walk):
-  the `MasterControls` composer's `leadButton`, on its own row above the two resets. A button rather
-  than a checkbox, because options-ui-§15 fixes the tab's rows and a host act has this slot and no
-  other. It calls the same `TestMode.Toggle` as the verb.
+- **General → Master controls carries a *Test mode* checkbox** (after the first in-game walk; first
+  drawn as a `leadButton`, then made a checkbox on the owner's call): the session-only row
+  `state.testMode`, on its own line below *Lock frame* / *Debug console*. The standard made that row
+  canonical at v2.46.0 (`options-ui-§15`, anti-pattern #80) and LibKa0s composes it from
+  `testModePath` since v1.37.0. Its set calls the same `TestMode.Toggle` as the verb; TestMode refreshes
+  the panel on every start and stop, so the box follows combat and `/pfe test`.
 - **`/pfe unlock` is unchanged:** placeholders plus draggable free-placement stacks. It creates no
   stand-in, so solo an unlocked attached feature has nothing to show. Unlock and test combine.
 - `/pfe status` shows **"test mode on (stand-in)"** or **"test mode on (your party frames)"** in its

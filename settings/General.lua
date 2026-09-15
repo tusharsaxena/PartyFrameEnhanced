@@ -5,7 +5,7 @@
 --     Master controls  [Enable Party Frame Enhanced]  [General visibility]
 --                      [Master scale]                 [Master alpha]
 --                      [Lock frame]                   [Debug console]
---                      [Test mode]                                           <- leadButton, own row
+--                      [Test mode]                                           <- session-only checkbox
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
 --     Party frames     [Frame system]                 [Include my own row]
 --
@@ -29,14 +29,19 @@ if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
     NS.RegisterSessionSetting(DEBUG_CONSOLE_PATH, NS.DebugLog:ConsoleCheckbox())
 end
 
--- `/pfe test` as the tab's one host act (the composer's leadButton, options-ui-§15). A button rather
--- than a checkbox: §15's rows are a fixed set, and a host act has this slot and no other. Resolved at
--- click time; the settings panel itself refuses to open in combat.
-local testModeButton = {
-    text    = L["Test mode"],
-    tooltip = L["Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Click again, or enter combat, to end it. The same as /pfe test."],
-    onClick = function() print(NS.TestMode.Toggle()) end,
-}
+-- Test mode is Master controls' own row (options-ui-§15, standard v2.46.0): a session-only checkbox
+-- the composer emits from `testModePath` (LibKa0s v1.37.0), ticked exactly while test mode is on. Its
+-- set goes through TestMode.Toggle, so a refused start (combat, disabled, suspended) prints why and the
+-- panel redraws the box unticked; modules/TestMode.lua refreshes the panel on every start and stop.
+local TEST_MODE_PATH = "state.testMode"
+NS.RegisterSessionSetting(TEST_MODE_PATH, {
+    get = function() return NS.State.test ~= nil end,
+    set = function(v)
+        if (NS.State.test ~= nil) ~= (v and true or false) then print(NS.TestMode.Toggle()) end
+        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+    end,
+})
+local TEST_MODE_TIP = L["Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Combat ends it. The same as /pfe test."]
 
 local masterRows, masterTail = H.MasterControls({
     prefix           = "",
@@ -44,6 +49,7 @@ local masterRows, masterTail = H.MasterControls({
     addonName        = "Party Frame Enhanced",
     frameless        = false,
     debugConsolePath = DEBUG_CONSOLE_PATH,
+    testModePath     = TEST_MODE_PATH,
     defaults         = {
         enabled    = D.enabled,
         visibility = D.visibility,
@@ -56,10 +62,7 @@ local masterRows, masterTail = H.MasterControls({
         if NS.Anchor and NS.Anchor.ResetPositions then NS.Anchor.ResetPositions() end
     end,
     onResetAll       = function() StaticPopup_Show("PARTYFRAMEENHANCED_RESET_ALL") end,
-    leadButton       = testModeButton,
 })
--- Published for introspection only: tests/test_testmode.lua draws the tab's closing rows through it.
-NS.__generalMasterTail = masterTail
 
 -- The composer emits data; the host's onChange is attached by PATH, so an upstream reorder cannot
 -- move a handler onto the wrong row. Scale and alpha need nothing extra: the seam publishes CONFIG
@@ -71,11 +74,15 @@ local masterOnChange = {
     locked     = function(v) if NS.OnLockChanged then NS.OnLockChanged(v) end end,
     -- Declared empty on purpose: the console's own set() is the whole act.
     [DEBUG_CONSOLE_PATH] = function() end,
+    -- The same for test mode: the session setting's set() is TestMode.Toggle.
+    [TEST_MODE_PATH] = function() end,
 }
 
 for _, row in ipairs(masterRows) do
     local fn = masterOnChange[row.path]
     if fn then row.onChange = fn end
+    -- The composer's tooltip is generic; this addon's says what test mode shows.
+    if row.path == TEST_MODE_PATH then row.tooltip = TEST_MODE_TIP end
     if not row.sessionOnly then row.section = "master" end
     -- An unlock in combat is refused at the seam, before it is stored (modules/Preview.lua).
     if row.path == "locked" then

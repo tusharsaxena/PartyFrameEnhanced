@@ -214,7 +214,7 @@ badge and any count quoted in the docs must agree with it.
 - testmode: a Frame system change re-dresses the stand-in
 - testmode: with Match party frame width, party1's cast bar pins both edges to the stand-in
 - testmode: the placeholder cast is drawn full, so the whole bar shows
-- testmode: General → Master controls carries a Test mode button, above the resets, that toggles it
+- testmode: General → Master controls' Test mode checkbox is in step with /pfe test
 - testmode: status names the mode, and the verb is in NS.COMMANDS
 
 ### test_perf_buckets.lua (3)

@@ -221,23 +221,25 @@ test("testmode: the placeholder cast is drawn full, so the whole bar shows", fun
   off()
 end)
 
-test("testmode: General → Master controls carries a Test mode button, above the resets, that toggles it", function()
-  -- The composer's leadButton (options-ui-§15): drawn on its own row, then the canonical pair.
+test("testmode: General → Master controls' Test mode checkbox is in step with /pfe test", function()
+  -- options-ui-§15 (standard v2.46.0): a session-only row the composer emits from testModePath,
+  -- below Lock frame / Debug console, not a button. red under: the leadButton it replaced.
   prep()
   world(false, false)
-  local H, drawn = NS.Helpers, {}
-  local orig = rawget(H, "InlineButtonPair")
-  rawset(H, "InlineButtonPair", function(_, left, right) drawn[#drawn + 1] = { left, right } end)
-  local ok, err = pcall(NS.__generalMasterTail, {})
-  rawset(H, "InlineButtonPair", orig)
-  if not ok then error(err, 0) end
-  local lead = drawn[1] and drawn[1][1]
-  assertTrue(lead ~= nil and lead.text == "Test mode", "the lead button comes first")
-  assertNil(drawn[1][2], "on its own row")
-  assertEqual(drawn[2][1].text, "Reset position", "the canonical pair still closes the tab")
-  lead.onClick()
+  local row = NS.FindSchemaRow("state.testMode")
+  assertTrue(row ~= nil, "the composed Test mode row is registered")
+  assertEqual(row.group, "Master controls")
+  assertTrue(row.sessionOnly, "session state, never the profile")
+  NS.SetByPath("state.testMode", true)
   assertEqual(NS.State.test, "standin")
-  lead.onClick()
+  assertTrue(NS.GetSetting("state.testMode"))
+  slash("test")
+  assertFalse(NS.GetSetting("state.testMode"), "the verb turned it off and the box follows")
+  -- A refused start leaves the box unticked.
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("state.testMode", true)
+  mocks.InCombatLockdown = function() return false end
+  assertFalse(NS.GetSetting("state.testMode"))
   assertNil(NS.State.test)
   off()
 end)

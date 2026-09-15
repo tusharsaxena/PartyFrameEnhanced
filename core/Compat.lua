@@ -4,7 +4,7 @@ local _, NS = ...
 -- secret-value guards around them (design spec §7). Retail only: these shim cross-patch differences, never
 -- game flavors. Feature modules call NS.Compat.X and never the raw API, so a patch that renames or
 -- removes one is a one-file fix. Every global is read at CALL time: 12.0 and 12.1 differ in which
--- members exist (C_Secrets.CanCompareUnitTokens is 12.1), and a headless run has none of them.
+-- members exist, and a headless run has none of them.
 NS.Compat = NS.Compat or {}
 local Compat = NS.Compat
 
@@ -60,21 +60,6 @@ function Compat.FrameUnit(frame)
         if ok then return plainUnit(u) end
     end
     return nil
-end
-
---- Whether two unit tokens name the same unit: true, false, or nil for UNKNOWN. 12.1 refuses to
---- compare tokens whose identity is secret, and UnitIsUnit itself can answer a secret boolean; both
---- are unknown, never a guess.
-function Compat.UnitIsUnit(a, b)
-    local secrets = C_Secrets
-    if secrets and secrets.CanCompareUnitTokens then
-        local ok, can = pcall(secrets.CanCompareUnitTokens, a, b)
-        if not ok or Compat.IsSecret(can) or not can then return nil end
-    end
-    if not UnitIsUnit then return nil end
-    local ok, same = pcall(UnitIsUnit, a, b)
-    if not ok or Compat.IsSecret(same) then return nil end
-    return same and true or false
 end
 
 -- ── casts (design spec §6.2) ─────────────────────────────────────────────────────────────────────────

@@ -39,6 +39,9 @@ end
 local mocks = buildMocks()
 local NS = {}
 
+-- A party: the addon is party-only, and the scenarios below measure it active.
+mocks.__context.inGroup, mocks.__context.inRaid = true, false
+
 -- Both halves derived, never copied (tests/test_loadorder.lua checks).
 Loader.loadAll(Loader.xmlFiles("libs/LibKa0s/LibKa0s.xml"), NS, mocks)
 Loader.loadAll(Loader.tocFiles("PartyFrameEnhanced.toc"), NS, mocks)

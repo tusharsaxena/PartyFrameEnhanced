@@ -11,6 +11,11 @@ local buildMocks = dofile("tests/wow_mock.lua")
 local mocks = buildMocks()
 local NS = {}
 
+-- The test world is a party. The addon is party-only (docs/superpowers/specs/2026-09-15-test-mode-design.md
+-- §1), and the kit's mock starts solo, which would hide every element every feature suite asserts on.
+-- Suites that need solo or a raid set these two fields and put them back.
+mocks.__context.inGroup, mocks.__context.inRaid = true, false
+
 Loader.addonName = "PartyFrameEnhanced"
 
 -- The vendored library files come from the XML the TOC loads them through (Loader.tocFiles cannot
@@ -63,6 +68,7 @@ Kit.run{
     "test_castbars",
     "test_targetframes",
     "test_petframes",
+    "test_party",
     "test_preview",
     "test_perf_buckets",
     "test_spelling",

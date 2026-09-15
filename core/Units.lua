@@ -41,3 +41,10 @@ function U.IsIncluded(unit)
     end
     return U.INDEX[unit] ~= nil
 end
+
+--- The party-only rule (docs/superpowers/specs/2026-09-15-test-mode-design.md §1): active only in a
+--- party of 2–5. Solo or in a raid of any size the addon shows nothing and registers nothing. Read live
+--- — two C calls, no allocation — so no caller sees a stale answer. The one place the rule is written.
+function U.InParty()
+    return (IsInGroup() and not IsInRaid()) and true or false
+end

@@ -157,24 +157,13 @@ Providers.__list = PROVIDERS
 
 -- ── resolving ─────────────────────────────────────────────────────────────────────────────────
 
--- `raidN` → the player/partyN token it is, where a frame system shows raid tokens in a party-sized
--- group (arena, EllesmereUI's small-raid mode). Unknown comparisons leave it unresolved.
-local function normalize(unit)
-    if unit == nil then return nil end
-    if Units.INDEX[unit] then return unit end
-    if unit:find("^raid%d") then
-        for _, candidate in ipairs(UNITS) do
-            if Compat.UnitIsUnit(unit, candidate) then return candidate end
-        end
-    end
-    return nil
-end
-
 local function collect(frame)
     hookFrame(frame)
     if not Compat.FrameVisible(frame) then return end
-    local unit = normalize(Compat.FrameUnit(frame))
-    if unit and scratch[unit] == nil then scratch[unit] = frame end
+    -- Only the five tracked tokens map. A raidN token means a raid-shaped group, which the
+    -- party-only rule excludes.
+    local unit = Compat.FrameUnit(frame)
+    if unit and Units.INDEX[unit] and scratch[unit] == nil then scratch[unit] = frame end
 end
 
 local function pick()
@@ -187,10 +176,10 @@ local function pick()
     return nil
 end
 
--- Asleep in a raid group, and while the addon is switched off: the map empties and every attached
--- element loses its frame.
+-- Asleep out of a party (solo, or in a raid: the party-only rule, NS.Units.InParty) and while the
+-- addon is switched off: the map empties and every attached element loses its frame.
 local function asleep()
-    return IsInRaid() or NS.GetSetting("enabled") ~= true
+    return not Units.InParty() or NS.GetSetting("enabled") ~= true
 end
 
 local function logResolve(p)

@@ -62,6 +62,7 @@ local function installClassic(units)
 end
 
 local function reset()
+  mocks.__context.inGroup = true
   mocks.ERFPartyHeader, mocks.ERFPartySelfButton = nil, nil
   mocks.CompactPartyFrame, mocks.PartyFrame, mocks.EditModeManagerFrame = nil, nil, nil
   mocks.C_AddOns, mocks.UnitIsUnit = nil, nil
@@ -131,25 +132,31 @@ test("providers: EllesmereUI's frames are ignored unless the addon is loaded", f
   reset()
 end)
 
-test("providers: hidden member frames and raid tokens that cannot be compared are skipped", function()
+test("providers: hidden member frames and raid tokens are skipped", function()
   local container = mocks.CreateFrame("Frame")
   container:Show()
   container.memberUnitFrames = { member("party1", { shown = false }), member("raid3") }
   mocks.CompactPartyFrame = container
   mocks.EditModeManagerFrame = { UseRaidStylePartyFrames = function() return true end }
-  Providers.Resolve()
-  assertNil(Providers.FrameFor("party1"), "a hidden frame shows nobody")
-  assertNil(Providers.FrameFor("party2"), "an unresolvable raid token maps to no unit")
-  -- Once the comparison is answerable, raid3 resolves to the party token it is.
+  -- red under: the old raidN → partyN normalization, which mapped raid3 once it was comparable.
   mocks.UnitIsUnit = function(a, b) return a == "raid3" and b == "party2" end
   Providers.Resolve()
-  assertEqual(Providers.FrameFor("party2"), container.memberUnitFrames[2])
+  assertNil(Providers.FrameFor("party1"), "a hidden frame shows nobody")
+  assertNil(Providers.FrameFor("party2"), "a raid token maps to no unit: the addon is party-only")
   reset()
 end)
 
 test("providers: a raid group puts the map to sleep", function()
   installClassic({ "party1" })
   mocks.__context.inRaid = true
+  Providers.Resolve()
+  assertNil(Providers.FrameFor("party1"))
+  reset()
+end)
+
+test("providers: solo puts the map to sleep", function()
+  installClassic({ "party1" })
+  mocks.__context.inGroup = false
   Providers.Resolve()
   assertNil(Providers.FrameFor("party1"))
   reset()

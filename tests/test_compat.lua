@@ -64,20 +64,6 @@ test("compat: FrameVisible fails open on a secret and closed on nil or an error"
   assertFalse(Compat.FrameVisible(nil))
 end)
 
-test("compat: UnitIsUnit answers nil when the comparison is refused or secret", function()
-  mocks.UnitIsUnit = function(a, b) return a == b end
-  assertTrue(Compat.UnitIsUnit("party1", "party1"))
-  assertFalse(Compat.UnitIsUnit("party1", "party2"))
-  mocks.C_Secrets = { CanCompareUnitTokens = function() return false end }
-  assertNil(Compat.UnitIsUnit("party1", "party1"), "a refused comparison is unknown, not false")
-  mocks.C_Secrets = nil
-  withSecrets(function()
-    mocks.UnitIsUnit = function() return SECRET end
-    assertNil(Compat.UnitIsUnit("party1target", "target"))
-  end)
-  mocks.UnitIsUnit = nil
-end)
-
 test("compat: UseRaidStyleParty reads Edit Mode first and the CVar second", function()
   mocks.EditModeManagerFrame = { UseRaidStylePartyFrames = function() return true end }
   assertTrue(Compat.UseRaidStyleParty())

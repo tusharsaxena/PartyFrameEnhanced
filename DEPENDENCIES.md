@@ -67,7 +67,7 @@ nothing is generated at build time.
 
 The in-game logo (`media/logos/partyframeenhanced.logo.tga`, 512×512 RGBA, uncompressed) is converted
 from the 2000×2000 `.png` beside it with Python 3 + Pillow (Lanczos downscale). The client loads only
-the `.tga` and needs power-of-two sides; the `.png` (the README's image) and the `.jpg` are dev-only
+the `.tga` and needs power-of-two sides; the `.png` (the source art) and the `.jpg` are dev-only
 and ignored by `.pkgmeta`. Regenerate it only when the art changes:
 
 ```sh

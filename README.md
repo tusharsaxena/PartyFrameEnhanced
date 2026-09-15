@@ -5,8 +5,6 @@
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
 ![Tests](https://img.shields.io/badge/Tests-143%2F143_passing-green)
 
-![Ka0s Party Frame Enhanced](media/logos/partyframeenhanced.logo.png)
-
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
 party member's frame: a cast bar, a small frame for whatever they're targeting, and one for their pet.
@@ -22,10 +20,12 @@ frames show you.
   by hostility for everything else. Clicking one targets that unit.
 - **Pet frames** show the pet's name and health, and a click targets the pet.
 
-Everything is set up under **Settings → AddOns → Ka0s Party Frame Enhanced**, or with `/pfe`.
-
 > This is a pre-release. Everything described here is built, but it hasn't been through in-game
 > testing yet, so expect rough edges until 0.1.0 is tagged.
+
+## Screenshots
+
+None yet. They'll arrive with the first release.
 
 ## Usage
 
@@ -34,15 +34,16 @@ frames to the right, pets underneath. A unit with no party frame on screen gets 
 one, which is why your own row doesn't appear in Blizzard's classic party layout: that layout never
 shows you.
 
-To move things, type `/pfe unlock` or untick *Lock frame* on the General page. Everything switches to
-preview mode, with a fake cast on every bar, a fake enemy in every target frame and a fake pet in every
-pet frame, so you can arrange it all without waiting for a pull. Attached elements are nudged with the
-offset sliders on each feature's *Size & Position* tab; free-placement stacks you just drag. Lock again and the
-real data comes back.
+To move things, type `/pfe unlock` or untick **Lock frame** on the **General** page. Everything
+switches to preview mode, with a fake cast on every bar, a fake enemy in every target frame and a fake
+pet in every pet frame, so you can arrange it all without waiting for a pull. Attached elements are
+nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
+just drag. Lock again and the real data comes back.
 
-Cast Bars, Target Frames and Pet Frames each get their own settings page, with tabs for position, the
-bar, the border and the text. That's also where you switch a feature to *Free placement*. The General
-page picks which party frames to attach to. Leave it on *Automatic* unless you run both UIs.
+**Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
+size and position, the bar, the border and the text. That's also where you switch a feature to
+**Free placement**; whichever placement you aren't using grays out. The **General** page picks which
+party frames to attach to. Leave it on **Automatic** unless you run both UIs.
 
 Target and pet frames are secure buttons, the same kind Blizzard's own unit frames are made of, so
 clicking them works in combat. The game also refuses to let any addon move one mid-fight. If someone
@@ -77,7 +78,7 @@ Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and
 
 | Symptom | Fix |
 |---|---|
-| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are *General visibility* set to *Never* or the wrong *Frame system* on the General page. |
+| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
 | The settings panel won't open | It refuses in combat on purpose. Try again once combat ends. |
@@ -85,9 +86,10 @@ Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and
 
 ## Issues and feature requests
 
-Please file bugs and ideas on the [GitHub issue tracker](https://github.com/tusharsaxena/PartyFrameEnhanced/issues)
-rather than in comments. The issue list is the addon's whole backlog, so a request filed there is one
-that gets seen.
+Bugs and feature requests are tracked at
+[https://github.com/tusharsaxena/PartyFrameEnhanced/issues](https://github.com/tusharsaxena/PartyFrameEnhanced/issues).
+Please file them there rather than in comments. That list is the addon's whole backlog, so anything
+filed there gets seen.
 
 ## Version History
 

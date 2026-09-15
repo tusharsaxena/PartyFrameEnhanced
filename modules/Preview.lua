@@ -4,10 +4,11 @@ local _, NS = ...
 -- fed through each feature's real render path, so a player can style and place things without
 -- waiting for a pull.
 --
--- Two ways in, one state (NS.State.preview, session-only):
---   * unlocking — the Master controls tab's *Lock frame*, `/pfe unlock`, `/pfe set locked false` —
---     turns preview on AND makes the free-placement holders draggable; locking turns both off;
---   * `/pfe preview` toggles the placeholders alone, leaving the lock where it is.
+-- Preview is HELD: on while any reason holds it (NS.State.preview, session-only), so the two ways in
+-- combine and leaving one keeps the placeholders while the other still wants them:
+--   * "unlock" — the Master controls tab's *Lock frame*, `/pfe unlock`, `/pfe set locked false` —
+--     also makes the free-placement holders draggable; locking releases it;
+--   * "test" — `/pfe test` (modules/TestMode.lua).
 --
 -- UNLOCKING IS REFUSED IN COMBAT. The clickable target and pet frames are secure: their state
 -- drivers cannot switch to "show" and nothing can be dragged until combat ends, so an unlock there
@@ -22,11 +23,15 @@ NS.Preview = Preview
 local REFUSED = "|cff808080" ..
     L["cannot unlock during combat \226\128\148 the clickable frames cannot move until it ends"] .. "|r"
 
-local function setPreview(on, why)
-    on = on and true or false
-    if NS.State.preview == on then return end
-    NS.State.preview = on
-    NS.Debug("Preview", "%s (%s)", on and "on" or "off", why)
+local held = {}   -- reason → true
+
+--- Hold or release preview for `reason`. VISIBILITY goes out only when the overall answer changes.
+function Preview.Hold(reason, on)
+    held[reason] = on and true or nil
+    local now = next(held) ~= nil
+    if NS.State.preview == now then return end
+    NS.State.preview = now
+    NS.Debug("Preview", "%s (%s %s)", now and "on" or "off", reason, on and "held" or "released")
     NS.PublishVisibility()
 end
 
@@ -42,28 +47,20 @@ function NS.AcceptLock(locked)
     return true
 end
 
---- The `locked` row's onChange, reached from every writer of that row once the value is stored.
-function NS.OnLockChanged(locked)
-    NS.Anchor.SetUnlocked(not locked)
-    setPreview(not locked, locked and "locked" or "unlocked")
+-- The lock's two halves: grabbable holders, and the "unlock" hold.
+local function applyLock(unlocked)
+    NS.Anchor.SetUnlocked(unlocked)
+    Preview.Hold("unlock", unlocked)
 end
 
---- `/pfe preview`: placeholders on or off, the lock untouched. Refused in combat for the same
---- reason unlocking is.
-function Preview.Toggle()
-    if not NS.State.preview and InCombatLockdown() then
-        NS.Print(REFUSED)
-        return false
-    end
-    setPreview(not NS.State.preview, "command")
-    return true
+--- The `locked` row's onChange, reached from every writer of that row once the value is stored.
+function NS.OnLockChanged(locked)
+    applyLock(not locked)
 end
 
 function Preview:OnEnable()
     -- A profile saved unlocked comes back unlocked. Everything else resets with the session.
-    local unlocked = NS.GetSetting("locked") == false
-    NS.Anchor.SetUnlocked(unlocked)
-    setPreview(unlocked, "login")
+    applyLock(NS.GetSetting("locked") == false)
 end
 
 local ev = NS.NewBusTarget()
@@ -71,7 +68,5 @@ Preview.__ev = ev
 
 -- A new profile carries its own lock state.
 ev:RegisterMessage(NS.MSG.PROFILE, function()
-    local unlocked = NS.GetSetting("locked") == false
-    NS.Anchor.SetUnlocked(unlocked)
-    setPreview(unlocked, "profile")
+    applyLock(NS.GetSetting("locked") == false)
 end)

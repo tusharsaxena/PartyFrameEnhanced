@@ -40,12 +40,30 @@ test("preview: unlocking in combat is refused, the stored lock stays, and the pl
   assertFalse(out:find("Elements unlocked", 1, true) ~= nil, "no false acknowledgment")
 end)
 
-test("preview: `/pfe preview` toggles the placeholders and leaves the lock alone", function()
-  assertTrue(slash("preview"):find("Preview on", 1, true) ~= nil)
-  assertTrue(NS.State.preview)
-  assertEqual(NS.GetSetting("locked"), true)
-  slash("preview")
+test("preview: holds combine — unlocked plus a test hold, the test hold released, preview stays", function()
+  NS.SetByPath("locked", false)
+  NS.Preview.Hold("test", true)
+  NS.Preview.Hold("test", false)
+  assertTrue(NS.State.preview, "still unlocked")
+  NS.SetByPath("locked", true)
   assertFalse(NS.State.preview)
+end)
+
+test("preview: one hold turns it on and its release turns it off, one VISIBILITY each way", function()
+  local n = 0
+  local t = NS.NewBusTarget()
+  t:RegisterMessage(NS.MSG.VISIBILITY, function() n = n + 1 end)
+  NS.Preview.Hold("test", true)
+  NS.Preview.Hold("test", true)
+  assertTrue(NS.State.preview)
+  NS.Preview.Hold("test", false)
+  t:UnregisterMessage(NS.MSG.VISIBILITY)
+  assertFalse(NS.State.preview)
+  assertEqual(n, 2, "a repeated hold changes nothing and sends nothing")
+end)
+
+test("preview: the preview verb is gone — /pfe test replaces it", function()
+  for _, e in ipairs(NS.COMMANDS) do assertTrue(e[1] ~= "preview", "/pfe preview must be removed") end
 end)
 
 test("preview: a profile saved unlocked comes back in preview", function()
@@ -65,4 +83,7 @@ test("status: names the frame system, each unit, each feature, and anything swit
   assertTrue(out:find("Party 1", 1, true) ~= nil)
   assertTrue(out:find("Cast bars: on", 1, true) ~= nil)
   assertTrue(out:find("visibility never", 1, true) ~= nil)
+  slash("unlock")
+  assertTrue(slash("status"):find("unlocked", 1, true) ~= nil)
+  slash("lock")
 end)

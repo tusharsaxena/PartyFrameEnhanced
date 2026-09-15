@@ -42,12 +42,6 @@ NS.COMMANDS = {
         function() runLock(true) end},
     {"unlock",   L["Unlock the elements to drag them, with placeholder content"],
         function() runLock(false) end},
-    {"preview",  L["Toggle placeholder content on every element, without unlocking"],
-        function()
-            if NS.Preview.Toggle() then
-                print(NS.State.preview and L["Preview on"] or L["Preview off"])
-            end
-        end},
     {"status",   L["Show which party frames were found and what each feature is doing"],
         function() runStatus() end},
     {"debug",    L["Toggle the debug console \226\128\148 `on`/`off` enable/disable logging"],
@@ -103,7 +97,7 @@ local function statusFlags()
     if not NS.Units.InParty() then
         flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe test)"]
     end
-    if NS.State.preview then flags[#flags + 1] = L["preview on"] end
+    if NS.Anchor.IsUnlocked() then flags[#flags + 1] = L["unlocked"] end
     if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end
     return flags
 end

@@ -165,6 +165,43 @@ test("targetframes: an unchanged plain health is not repainted by the tick", fun
   drain()
 end)
 
+test("targetframes: Update health off draws the bar full with no percent, and the ticker never runs", function()
+  prep()
+  drain()
+  NS.SetByPath("target.updateHealth", false)
+  target("party3", { name = "Boar", health = 50, healthMax = 100, pct = 50, reaction = 2 })
+  local btn = buttons.party3
+  assertEqual(btn.bar.__max, 1)
+  assertEqual(btn.bar.__value, 1, "a full bar")
+  assertEqual(btn.text2.__text, "", "no percent")
+  assertFalse(TargetFrames.TickerRunning(), "nothing to refresh, so no ticker")
+  NS.SetByPath("target.updateHealth", true)
+  assertTrue(TargetFrames.TickerRunning(), "back on, the ticker resumes")
+  assertEqual(btn.bar.__value, 50, "and the real health is painted again")
+  assertEqual(btn.text2.__text, "50%")
+  mocks.__units.party3target = nil
+  drain()
+end)
+
+test("targetframes: the marker sits on its configured point of the bar, nudged by its offsets", function()
+  prep()
+  local btn = buttons.party1
+  local orig, got = btn.marker.SetPoint, nil
+  rawset(btn.marker, "SetPoint", function(_, ...) got = { ... } end)
+  NS.SetByPath("target.markerPoint", "TOPRIGHT")
+  NS.SetByPath("target.markerOffsetX", 5)
+  NS.SetByPath("target.markerOffsetY", -3)
+  assertEqual(got[1], "CENTER")
+  assertTrue(got[2] == btn.bar, "relative to the bar")
+  assertEqual(got[3], "TOPRIGHT")
+  assertEqual(got[4], 5 * (NS.GetSetting("scale") or 1))
+  assertEqual(got[5], -3 * (NS.GetSetting("scale") or 1))
+  rawset(btn.marker, "SetPoint", orig)
+  for _, key in ipairs({ "markerPoint", "markerOffsetX", "markerOffsetY" }) do
+    NS.SetByPath("target." .. key, NS.defaults.profile.target[key])
+  end
+end)
+
 test("targetframes: preview shows every allowed button with placeholder content", function()
   prep()
   NS.State.preview = true

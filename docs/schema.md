@@ -40,7 +40,7 @@ castbar.showShield = true  showSpark = true
 ```
 
 ```text
-target.enabled = true  target.clickToTarget = true  target.tickInterval = 0.2
+target.enabled = true  target.clickToTarget = true  target.updateHealth = true  target.tickInterval = 0.2
 target.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = 0
 target.matchWidth = false  width = 110  height = 20  growth = "DOWN"  spacing = 4  position = nil
 target.barTexture = "Blizzard"  barAlpha = 1.0  barColor = {0.25, 0.75, 0.25, 1}  useClassColorBar = false
@@ -49,8 +49,9 @@ target.bgColor = {0, 0, 0, 0.6}  useClassColorBg = false
 target.borderShow = false  borderStyle  borderSize = 8  borderColor  useClassColorBorder = false
 target.font  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
 target.showName = true  showPercent = true  showMarker = true
+target.markerPoint = "LEFT"  markerOffsetX = 0  markerOffsetY = 0
 
-pet.enabled = true  pet.clickToTarget = true
+pet.enabled = true  pet.clickToTarget = true  pet.updateHealth = true
 pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "BOTTOMLEFT"  offsetX = 0  offsetY = -20
 pet.matchWidth = false  width = 80  height = 14  growth = "DOWN"  spacing = 4  position = nil
 pet.barTexture  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)

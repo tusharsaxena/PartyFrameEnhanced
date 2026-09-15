@@ -60,6 +60,24 @@ test("petframes: Use class color takes the OWNER's class", function()
   mocks.__units.partypet1 = nil
 end)
 
+test("petframes: Update health off drops the health events and draws the bar full", function()
+  prep()
+  local btn = buttons.party2
+  NS.SetByPath("pet.updateHealth", false)
+  assertTrue(btn.__unitEvents.UNIT_HEALTH == nil, "no UNIT_HEALTH")
+  assertTrue(btn.__unitEvents.UNIT_MAXHEALTH == nil, "no UNIT_MAXHEALTH")
+  assertEqual(btn.__unitEvents.UNIT_PET[1], "party2", "the owner event stays")
+  assertEqual(btn.__unitEvents.UNIT_NAME_UPDATE[1], "partypet2", "and the name event")
+  mocks.__units.partypet2 = { name = "Cat", health = 10, healthMax = 80 }
+  btn:__fire("OnEvent", "UNIT_PET", "party2")
+  assertEqual(btn.bar.__max, 1)
+  assertEqual(btn.bar.__value, 1, "a full bar")
+  NS.SetByPath("pet.updateHealth", true)
+  assertEqual(btn.__unitEvents.UNIT_HEALTH[1], "partypet2", "back on, re-registered")
+  assertEqual(btn.bar.__value, 10, "and the real health is painted")
+  mocks.__units.partypet2 = nil
+end)
+
 test("petframes: suspended, events come off and every driver is hide", function()
   prep()
   NS.SuspendAll()

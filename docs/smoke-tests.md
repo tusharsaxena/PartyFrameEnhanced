@@ -104,7 +104,7 @@ EllesmereUI's, where noted.
     bar that never hides.
 25. **Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears under
     your own frame. Classic layout: **no** player bar (the layout never shows you) — switch Cast Bars →
-    Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
+    Size & Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
 26. **Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and drains.
 27. **Interrupt.** Interrupt a dummy-adjacent party member's cast or have a mob interrupt one → the bar
     turns the interrupted color, shows the client's own word for *Interrupted*, holds about half a
@@ -117,9 +117,16 @@ EllesmereUI's, where noted.
     to *Automatic* → they return under EllesmereUI's frames.
 30. **Re-sort in combat.** Raid-style or EllesmereUI sorted by role: have someone leave or join during
     combat → the cast bars follow the members to their new frames straight away.
-31. **Settings.** Cast Bars page → six tabs (General, Position, Bar, Border, Text, Icon). Change *Cast
-    color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no bar
-    appears on the next cast.
+31. **Settings.** Cast Bars page → six tabs (General, Size & Position, Bar, Border, Text, Icon). Change
+    *Cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no
+    bar appears on the next cast.
+31a. **Size & Position dims what does not apply.** Cast Bars → Size & Position opens with the *Size*
+    block (Width, Height), then *Placement*. With *Attach to party frames*: the *Free placement* block
+    (Growth direction, Spacing) is grayed out and ignores clicks, and with *Match party frame width*
+    ticked, *Width* is grayed too. Switch to *Free placement* → on the same frame the *Attached to party
+    frames* block and *Match party frame width* gray out and the free block comes alive. Repeat on the
+    Target Frames and Pet Frames pages. *Failure:* the dimming lags one click behind, or a grayed
+    control still changes the frames.
 
 ## G. Target frames
 
@@ -133,6 +140,14 @@ EllesmereUI's, where noted.
 34. **Colors.** A friendly NPC target → green; a neutral one → yellow. Tick *Use class color* on the
     Bar tab, have a member target a player → the player's class color.
 35. **Raid marker.** Mark a member's target with a skull → the skull appears on that target frame.
+35a. **Marker placement.** `/pfe unlock` (the preview shows a skull on every target frame). Target
+    Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right end;
+    drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes and
+    the three placement controls gray out. *Failure:* the skull stays put until `/reload`.
+35b. **Health updates off.** Target Frames → General: untick *Update health* → *Health refresh* and Text
+    → *Show health percent* gray out; with a member targeting a mob, its bar sits full with no percent
+    while the mob takes damage, and `/pfe debug on` shows no `[Target] health ticker started` line.
+    Tick it back → the real health and percent return at once.
 36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
     target* → clicks pass through; ticking it back in combat applies when combat ends.
 37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
@@ -153,6 +168,9 @@ EllesmereUI's, where noted.
 41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
     green, a warlock's warlock purple.
 42. **Click to target.** Click a pet frame → you target the pet.
+42a. **Health updates off.** Pet Frames → General: untick *Update health* → a pet's bar sits full with no
+    percent while the pet takes damage, and Text → *Show health percent* is grayed. Tick it back → the
+    real health returns.
 
 ## I. Preview, placement and status
 
@@ -161,7 +179,7 @@ EllesmereUI's, where noted.
     live data returns. *Failure:* a placeholder left behind after locking (preview-mode MUST).
 44. **Unlock refused in combat.** On a dummy, in combat: `/pfe unlock` → a gray *cannot unlock during
     combat* line, nothing previews, and *Lock frame* stays ticked on an open General page.
-45. **Free placement drags.** Set Cast Bars → Position → *Anchor mode* to *Free placement*, unlock → a
+45. **Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free placement*, unlock → a
     translucent plate labeled *Cast bars* appears over the stack. Drag it; lock; `/reload` → the stack
     is where you left it. General → *Reset position* (or `/pfe resetposition`) → back to its default.
 46. **Preview without unlocking.** `/pfe preview` → placeholders, but no plate and nothing draggable;

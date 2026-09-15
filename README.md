@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-136%2F136_passing-green)
+![Tests](https://img.shields.io/badge/Tests-142%2F142_passing-green)
 
 ![Ka0s Party Frame Enhanced](media/logos/partyframeenhanced.logo.png)
 
@@ -37,7 +37,7 @@ shows you.
 To move things, type `/pfe unlock` or untick *Lock frame* on the General page. Everything switches to
 preview mode, with a fake cast on every bar, a fake enemy in every target frame and a fake pet in every
 pet frame, so you can arrange it all without waiting for a pull. Attached elements are nudged with the
-offset sliders on each feature's *Position* tab; free-placement stacks you just drag. Lock again and the
+offset sliders on each feature's *Size & Position* tab; free-placement stacks you just drag. Lock again and the
 real data comes back.
 
 Cast Bars, Target Frames and Pet Frames each get their own settings page, with tabs for position, the

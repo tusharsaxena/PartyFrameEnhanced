@@ -135,7 +135,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (12)
+### test_targetframes.lua (14)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -147,15 +147,18 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: a secret class and a secret reaction never reach a table lookup
 - targetframes: the ticker runs only while someone has a target, and repaints health
 - targetframes: an unchanged plain health is not repainted by the tick
+- targetframes: Update health off draws the bar full with no percent, and the ticker never runs
+- targetframes: the marker sits on its configured point of the bar, nudged by its offsets
 - targetframes: preview shows every allowed button with placeholder content
 - targetframes: suspended, no events, no ticker, every driver hide
 
-### test_petframes.lua (5)
+### test_petframes.lua (6)
 
 - petframes: each button acts on its owner's pet token
 - petframes: UNIT_PET listens on the owner, the health events on the pet token
 - petframes: a new pet paints fully; a health event repaints health only
 - petframes: Use class color takes the OWNER's class
+- petframes: Update health off drops the health events and draws the bar full
 - petframes: suspended, events come off and every driver is hide
 
 ### test_preview.lua (5)
@@ -189,10 +192,13 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile` with no argument prints the sub-verb list
 - slash: an unknown verb says so and prints help
 
-### test_optionssetup.lua (5)
+### test_optionssetup.lua (8)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
+- optionssetup: every feature page has a Size & Position tab that opens with Size
+- optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width
+- optionssetup: health rows dim with Update health off, marker rows with Show raid marker off
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
@@ -232,14 +238,14 @@ badge and any count quoted in the docs must agree with it.
 | test_providers.lua | 11 |
 | test_anchor.lua | 7 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 12 |
-| test_petframes.lua | 5 |
+| test_targetframes.lua | 14 |
+| test_petframes.lua | 6 |
 | test_preview.lua | 5 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 9 |
-| test_optionssetup.lua | 5 |
+| test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **136** |
+| **Total** | **142** |

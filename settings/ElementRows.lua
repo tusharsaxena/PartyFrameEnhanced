@@ -1,4 +1,4 @@
--- settings/ElementRows.lua — the row sets the three feature pages share: the Position tab, and thin
+-- settings/ElementRows.lua — the row sets the three feature pages share: the Size & Position tab, and thin
 -- wrappers over the library's border and font composers so every page declares them the same way.
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
 
@@ -25,47 +25,58 @@ local GROWTH = { DOWN = L["Down"], UP = L["Up"], RIGHT = L["Right"], LEFT = L["L
 local UNIT_CLASS = { source = "unit" }
 ElementRows.UNIT_CLASS = UNIT_CLASS
 
---- The Position tab: the anchor mode, the attached pin, the free stack, and the size.
+ElementRows.POINT_LABELS = POINT_LABELS
+
+--- The Size & Position tab: the size first, then the anchor mode, the attached pin and the free
+--- stack. The placement block the current anchor mode does not use is drawn disabled, and so is
+--- Width while Match party frame width sets it; the values stay stored, and `/pfe set` still
+--- reaches them. The library re-evaluates `disabledIf` on every write, so flipping the mode dims
+--- the other block on the same frame.
 function ElementRows.Position(page, prefix, D)
-    local group = L["Position"]
+    local group = L["Size & Position"]
+    local modePath, matchPath = prefix .. "anchorMode", prefix .. "matchWidth"
+    local function free() return NS.GetSetting(modePath) == "free" end
+    local function attached() return not free() end
+    local function widthFromFrame() return attached() and NS.GetSetting(matchPath) == true end
     local function row(t)
         t.page, t.group = page, group
         t.path = prefix .. t.path
         return t
     end
     return {
-        row{ path = "anchorMode", subgroup = L["Placement"], order = 10, type = "string",
+        row{ path = "width", subgroup = L["Size"], order = 10, type = "number",
+             label = L["Width"], desc = L["Element width in pixels, before Master scale."],
+             default = D.width, min = 40, max = 400, step = 1, disabledIf = widthFromFrame },
+        row{ path = "height", subgroup = L["Size"], order = 20, type = "number",
+             label = L["Height"], desc = L["Element height in pixels, before Master scale."],
+             default = D.height, min = 8, max = 60, step = 1 },
+        row{ path = "anchorMode", subgroup = L["Placement"], order = 30, type = "string",
              label = L["Anchor mode"],
              desc = L["Attach each element to its party member's frame, or keep all five in one stack you place yourself."],
              default = D.anchorMode, values = ANCHOR_MODES, sorting = { "attached", "free" } },
-        row{ path = "matchWidth", subgroup = L["Placement"], order = 20, type = "bool",
+        row{ path = "matchWidth", subgroup = L["Placement"], order = 40, type = "bool",
              label = L["Match party frame width"],
              desc = L["Attached: stretch each element across its party frame, edge to edge. Its Width setting is then ignored."],
-             default = D.matchWidth },
-        row{ path = "point", subgroup = L["Attached to party frames"], order = 30, type = "string",
+             default = D.matchWidth, disabledIf = free },
+        row{ path = "point", subgroup = L["Attached to party frames"], order = 50, type = "string",
              label = L["Anchor point"], desc = L["The point on the element that is pinned."],
-             default = D.point, values = POINT_LABELS, sorting = C.POINTS },
-        row{ path = "relativePoint", subgroup = L["Attached to party frames"], order = 40, type = "string",
+             default = D.point, values = POINT_LABELS, sorting = C.POINTS, disabledIf = free },
+        row{ path = "relativePoint", subgroup = L["Attached to party frames"], order = 60, type = "string",
              label = L["Party frame point"], desc = L["The point on the party frame it is pinned to."],
-             default = D.relativePoint, values = POINT_LABELS, sorting = C.POINTS },
-        row{ path = "offsetX", subgroup = L["Attached to party frames"], order = 50, type = "number",
+             default = D.relativePoint, values = POINT_LABELS, sorting = C.POINTS, disabledIf = free },
+        row{ path = "offsetX", subgroup = L["Attached to party frames"], order = 70, type = "number",
              label = L["X offset"], desc = L["Horizontal nudge from the pin, in pixels."],
-             default = D.offsetX, min = -200, max = 200, step = 1 },
-        row{ path = "offsetY", subgroup = L["Attached to party frames"], order = 60, type = "number",
+             default = D.offsetX, min = -200, max = 200, step = 1, disabledIf = free },
+        row{ path = "offsetY", subgroup = L["Attached to party frames"], order = 80, type = "number",
              label = L["Y offset"], desc = L["Vertical nudge from the pin, in pixels."],
-             default = D.offsetY, min = -200, max = 200, step = 1 },
-        row{ path = "growth", subgroup = L["Free placement"], order = 70, type = "string",
+             default = D.offsetY, min = -200, max = 200, step = 1, disabledIf = free },
+        row{ path = "growth", subgroup = L["Free placement"], order = 90, type = "string",
              label = L["Growth direction"], desc = L["Which way the stack grows from its first element."],
-             default = D.growth, values = GROWTH, sorting = { "DOWN", "UP", "RIGHT", "LEFT" } },
-        row{ path = "spacing", subgroup = L["Free placement"], order = 80, type = "number",
+             default = D.growth, values = GROWTH, sorting = { "DOWN", "UP", "RIGHT", "LEFT" },
+             disabledIf = attached },
+        row{ path = "spacing", subgroup = L["Free placement"], order = 100, type = "number",
              label = L["Spacing"], desc = L["Gap between elements in the stack, in pixels."],
-             default = D.spacing, min = 0, max = 40, step = 1 },
-        row{ path = "width", subgroup = L["Size"], order = 90, type = "number",
-             label = L["Width"], desc = L["Element width in pixels, before Master scale."],
-             default = D.width, min = 40, max = 400, step = 1 },
-        row{ path = "height", subgroup = L["Size"], order = 100, type = "number",
-             label = L["Height"], desc = L["Element height in pixels, before Master scale."],
-             default = D.height, min = 8, max = 60, step = 1 },
+             default = D.spacing, min = 0, max = 40, step = 1, disabledIf = attached },
     }
 end
 

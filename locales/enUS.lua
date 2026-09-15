@@ -88,6 +88,16 @@ for _, key in ipairs({
     "Cast bars", "Target frames", "Pet frames",
 }) do L[key] = key end
 
+-- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
+-- Pet pages)
+for _, key in ipairs({
+    "Size & Position", "Update health",
+    "Track the target's health on the bar. Off: the bar stays full with no percent, and the health refresh never runs.",
+    "Track the pet's health on the bar. Off: the bar stays full with no percent, and no health events are listened for.",
+    "The point on the bar the marker's center sits on.",
+    "Horizontal nudge of the marker, in pixels.", "Vertical nudge of the marker, in pixels.",
+}) do L[key] = key end
+
 -- Slash surface, chat replies and unit labels (settings/Slash.lua, settings/About.lua, core/Units.lua)
 for _, key in ipairs({
     "List available commands", "Open the settings panel", "List every setting and its current value",

@@ -94,6 +94,15 @@ function UnitButtons.RenderHealth(btn, token, showPercent)
     return true
 end
 
+--- Health updates off: the bar drawn full with no percent. Painted once per repaint and never
+--- refreshed, so nothing reads the unit's health at all.
+function UnitButtons.RenderFull(btn)
+    btn.bar:SetMinMaxValues(0, 1)
+    btn.bar:SetValue(1)
+    btn.text2:SetText("")
+    UnitButtons.Invalidate(btn)
+end
+
 --- The unit's name (possibly secret — SetText takes it as is), or nothing.
 function UnitButtons.RenderName(btn, token, showName)
     if showName then

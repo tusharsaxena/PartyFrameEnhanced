@@ -60,7 +60,8 @@ NS.defaults.profile = {
         enabled = true, clickToTarget = true,
         -- How often the health of shown target frames refreshes, seconds. Compound tokens
         -- (partyNtarget) get no UNIT_HEALTH, so a gated ticker does it (design spec §6.3).
-        tickInterval = 0.2,
+        -- updateHealth off: the bar is drawn full, no percent, and the ticker never runs.
+        updateHealth = true, tickInterval = 0.2,
 
         -- Attached: to the right of the party frame, its top edge level with the frame's.
         anchorMode = "attached", point = "TOPLEFT", relativePoint = "TOPRIGHT",
@@ -85,11 +86,14 @@ NS.defaults.profile = {
         fontFlags = "OUTLINE", fontShadow = false,
         showName = true, showPercent = true,
 
-        showMarker = true,
+        -- The marker's center sits on this point of the bar, nudged by the offsets (before Master
+        -- scale). LEFT, 0, 0 is where it sat before the setting existed: half over the bar's left end.
+        showMarker = true, markerPoint = "LEFT", markerOffsetX = 0, markerOffsetY = 0,
     },
 
     pet = {
-        enabled = true, clickToTarget = true,
+        -- updateHealth off: the bar is drawn full, no percent, and no health events are registered.
+        enabled = true, clickToTarget = true, updateHealth = true,
 
         -- Attached: under the party frame's left half.
         anchorMode = "attached", point = "TOPLEFT", relativePoint = "BOTTOMLEFT",

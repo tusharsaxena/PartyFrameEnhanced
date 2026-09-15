@@ -31,14 +31,20 @@ local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
 local function paintAll(btn)
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, btn.token, cfg.showName)
-    UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
+    if cfg.updateHealth then
+        UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
+    else
+        UnitButtons.RenderFull(btn)
+    end
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
 end
 
 local function paintPreview(btn)
-    UnitButtons.RenderPreview(btn, L["Preview pet"], 80, cfg.showName, cfg.showPercent)
+    local health = cfg.updateHealth
+    UnitButtons.RenderPreview(btn, L["Preview pet"], health and 80 or 100, cfg.showName,
+        health and cfg.showPercent)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
@@ -70,21 +76,29 @@ local function onEvent(btn, event)
     if t0 then Perf.Note("petEvent", debugprofilestop() - t0) end
 end
 
+-- What a button listens for: nothing (false), its owner and name ("name"), or those plus the pet's
+-- health ("health"). Re-registered only when that answer changes.
+local function wantedEvents(on, unit)
+    if not (on and Units.IsIncluded(unit)) then return false end
+    return cfg.updateHealth and "health" or "name"
+end
+
 local function syncEvents()
     local on = not suspended and cfg.enabled and Element.MasterShows()
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
-        if on and Units.IsIncluded(unit) then
-            if not btn.__registered then
-                btn:RegisterUnitEvent("UNIT_PET", unit)
-                btn:RegisterUnitEvent("UNIT_HEALTH", btn.token)
-                btn:RegisterUnitEvent("UNIT_MAXHEALTH", btn.token)
-                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
-                btn.__registered = true
-            end
-        elseif btn.__registered then
+        local want = wantedEvents(on, unit)
+        if (btn.__registered or false) ~= want then
             btn:UnregisterAllEvents()
-            btn.__registered = false
+            if want then
+                btn:RegisterUnitEvent("UNIT_PET", unit)
+                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
+                if want == "health" then
+                    btn:RegisterUnitEvent("UNIT_HEALTH", btn.token)
+                    btn:RegisterUnitEvent("UNIT_MAXHEALTH", btn.token)
+                end
+            end
+            btn.__registered = want
         end
     end
 end

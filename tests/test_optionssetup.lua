@@ -58,9 +58,83 @@ test("optionssetup: the degraded load registers every host-declared row; the gap
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 115, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 58, "the library-absent schema")
+  assertEqual(#NS.Schema, 120, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 63, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
+end)
+
+-- A row's dimming as the library evaluates it: `disabledIf(row)`, absent meaning never dimmed.
+local function rowsByPath(page)
+  local out = {}
+  for _, row in ipairs(NS.SchemaForPage(page)) do out[row.path] = row end
+  return out
+end
+
+local function dimmed(rows, path)
+  local cond = rows[path].disabledIf
+  return cond ~= nil and cond(rows[path]) == true
+end
+
+test("optionssetup: every feature page has a Size & Position tab that opens with Size", function()
+  local L = NS.L
+  for _, page in ipairs({ "castbar", "target", "pet" }) do
+    local tab = {}
+    for _, row in ipairs(NS.SchemaForPage(page)) do
+      assertTrue(row.group ~= L["Position"], page .. ": no tab is still called Position")
+      if row.group == L["Size & Position"] then tab[#tab + 1] = row end
+    end
+    assertEqual(tab[1].path, page .. ".width", page .. ": Width opens the tab")
+    assertEqual(tab[1].subgroup, L["Size"])
+    assertEqual(tab[2].path, page .. ".height")
+    assertEqual(tab[3].subgroup, L["Placement"], page .. ": placement follows the size")
+  end
+end)
+
+test("optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width", function()
+  local rows = rowsByPath("castbar")
+  NS.SetByPath("castbar.anchorMode", "attached")
+  NS.SetByPath("castbar.matchWidth", false)
+  for _, path in ipairs({ "castbar.matchWidth", "castbar.point", "castbar.relativePoint",
+                          "castbar.offsetX", "castbar.offsetY", "castbar.width", "castbar.height" }) do
+    T.assertFalse(dimmed(rows, path), "attached: " .. path .. " is live")
+  end
+  T.assertTrue(dimmed(rows, "castbar.growth"), "attached: the free stack is dimmed")
+  T.assertTrue(dimmed(rows, "castbar.spacing"))
+  NS.SetByPath("castbar.matchWidth", true)
+  T.assertTrue(dimmed(rows, "castbar.width"), "the party frame sets the width, so Width is dimmed")
+
+  NS.SetByPath("castbar.anchorMode", "free")
+  for _, path in ipairs({ "castbar.matchWidth", "castbar.point", "castbar.relativePoint",
+                          "castbar.offsetX", "castbar.offsetY" }) do
+    T.assertTrue(dimmed(rows, path), "free: " .. path .. " is dimmed")
+  end
+  T.assertFalse(dimmed(rows, "castbar.growth"), "free: the stack is live")
+  T.assertFalse(dimmed(rows, "castbar.spacing"))
+  T.assertFalse(dimmed(rows, "castbar.width"), "free placement always uses Width")
+  NS.ApplyDefault(rows["castbar.anchorMode"])
+  NS.ApplyDefault(rows["castbar.matchWidth"])
+  T.mocks.__fireTimers()
+end)
+
+test("optionssetup: health rows dim with Update health off, marker rows with Show raid marker off", function()
+  local target, pet = rowsByPath("target"), rowsByPath("pet")
+  NS.SetByPath("target.updateHealth", false)
+  NS.SetByPath("pet.updateHealth", false)
+  T.assertTrue(dimmed(target, "target.tickInterval"))
+  T.assertTrue(dimmed(target, "target.showPercent"))
+  T.assertTrue(dimmed(pet, "pet.showPercent"))
+  NS.SetByPath("target.updateHealth", true)
+  NS.SetByPath("pet.updateHealth", true)
+  T.assertFalse(dimmed(target, "target.tickInterval"))
+  T.assertFalse(dimmed(pet, "pet.showPercent"))
+
+  NS.SetByPath("target.showMarker", false)
+  for _, path in ipairs({ "target.markerPoint", "target.markerOffsetX", "target.markerOffsetY" }) do
+    T.assertTrue(dimmed(target, path), path .. " dims with the marker off")
+  end
+  NS.SetByPath("target.showMarker", true)
+  T.assertFalse(dimmed(target, "target.markerPoint"))
+  T.mocks.__fireTimers()
 end)
 
 test("optionssetup: the stub publishes every member a page file touches at load", function()

@@ -14,19 +14,19 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, reset position, reset all |
 | General | Party frames | which frame system elements attach to; whether your own row is included |
 | Cast Bars | General | enable, fade out |
-| Cast Bars | Position | anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing), size |
+| Cast Bars | Size & Position | size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); the block the anchor mode does not use is dimmed |
 | Cast Bars | Bar | the fill block, the cast-state palette, the background |
 | Cast Bars | Border | the border block with *Show border* |
 | Cast Bars | Text | the font block, spell name, time left |
 | Cast Bars | Icon | spell icon and its side, the shield, the spark |
-| Target Frames | General | enable, click to target, health refresh interval |
-| Target Frames | Position | as Cast Bars |
+| Target Frames | General | enable, click to target, update health, health refresh interval |
+| Target Frames | Size & Position | as Cast Bars |
 | Target Frames | Bar | the fill block, NPC reaction colors, the background |
 | Target Frames | Border | the border block with *Show border* |
 | Target Frames | Text | the font block, name, health percent |
-| Target Frames | Marker | the target's raid marker |
-| Pet Frames | General | enable, click to target |
-| Pet Frames | Position | as Cast Bars |
+| Target Frames | Marker | the target's raid marker, its point on the bar, X/Y offsets |
+| Pet Frames | General | enable, click to target, update health |
+| Pet Frames | Size & Position | as Cast Bars |
 | Pet Frames | Bar | the fill block (*Use class color* = the owner's class), the background |
 | Pet Frames | Border | the border block with *Show border* |
 | Pet Frames | Text | the font block, name, health percent |
@@ -57,7 +57,7 @@ free-placement stacks are movable, so every row applies.
 
 ## Cast Bars
 
-Every path is under `castbar.`. The Position tab is shared by all three feature pages
+Every path is under `castbar.`. The Size & Position tab is shared by all three feature pages
 (`settings/ElementRows.lua`); the Border, Text-font and Bar-fill blocks come from the library's
 composers, and every companion there resolves to the **tracked unit's** class
 (`classColorSource = "unit"`).
@@ -65,10 +65,10 @@ composers, and every companion there resolves to the **tracked unit's** class
 | Tab | Subgroup | Controls → path |
 |---|---|---|
 | General | — | Enable cast bars → `enabled` · Fade out → `fadeOut` |
-| Position | Placement | Anchor mode → `anchorMode` · Match party frame width → `matchWidth` |
-| Position | Attached to party frames | Anchor point → `point` · Party frame point → `relativePoint` · X/Y offset → `offsetX`/`offsetY` |
-| Position | Free placement | Growth direction → `growth` · Spacing → `spacing` |
-| Position | Size | Width → `width` · Height → `height` |
+| Size & Position | Size | Width → `width` (dimmed while attached with *Match party frame width* on) · Height → `height` |
+| Size & Position | Placement | Anchor mode → `anchorMode` · Match party frame width → `matchWidth` (dimmed in free placement) |
+| Size & Position | Attached to party frames | Anchor point → `point` · Party frame point → `relativePoint` · X/Y offset → `offsetX`/`offsetY` (all dimmed in free placement) |
+| Size & Position | Free placement | Growth direction → `growth` · Spacing → `spacing` (both dimmed while attached) |
 | Bar | Fill | Bar texture · Bar opacity · Cast color (`barColor`) · Use class color |
 | Bar | Cast colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
 | Bar | Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
@@ -76,32 +76,40 @@ composers, and every companion there resolves to the **tracked unit's** class
 | Text | Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Show spell name → `showName` · Show time left → `showTime` |
 | Icon | — | Show spell icon → `showIcon` · Icon side → `iconSide` · Show shield → `showShield` · Show spark → `showSpark` |
 
+Dimming is the library's `disabledIf`, re-evaluated on every write, so switching the anchor mode dims
+the other block on the same frame. A dimmed row keeps its stored value, and `/pfe set` still writes it.
+
 ## Target Frames
 
-Paths under `target.`. Position, Border and Text-font as on Cast Bars.
+Paths under `target.`. Size & Position, Border and Text-font as on Cast Bars.
 
 | Tab | Subgroup | Controls → path |
 |---|---|---|
-| General | — | Enable target frames → `enabled` · Click to target → `clickToTarget` · Health refresh (seconds) → `tickInterval` |
+| General | — | Enable target frames → `enabled` · Click to target → `clickToTarget` · Update health → `updateHealth` · Health refresh (seconds) → `tickInterval` (dimmed while Update health is off) |
 | Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) |
 | Bar | Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion) |
 | Bar | Background | Background color · Use class color |
-| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` |
-| Marker | — | Show raid marker → `showMarker` |
+| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
+| Marker | — | Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` (the last three dimmed while the marker is off) |
+
+*Update health* off draws the bar full with no percent and never starts the health ticker. The marker's
+center sits on *Anchor point* of the bar; the default, *Left*, is half over the bar's left end.
 
 *Click to target* and every size or position change are secure writes: made in combat, they apply
 when combat ends.
 
 ## Pet Frames
 
-Paths under `pet.`. Position, Border and Text-font as on Cast Bars.
+Paths under `pet.`. Size & Position, Border and Text-font as on Cast Bars.
 
 | Tab | Subgroup | Controls → path |
 |---|---|---|
-| General | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` |
+| General | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` · Update health → `updateHealth` |
 | Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
 | Bar | Background | Background color · Use class color |
-| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` |
+| Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
+
+*Update health* off draws the bar full with no percent and unregisters the pet's health events.
 
 ## Resets
 

@@ -1,13 +1,13 @@
 -- settings/PetFrames.lua — the Pet Frames page:
 --
---     [ General ][ Position ][ Bar ][ Border ][ Text ]
+--     [ General ][ Size & Position ][ Bar ][ Border ][ Text ]
 --
---     General   [Enable pet frames] (solo)   [Click to target]
---     Position  settings/ElementRows.lua's Position rows
---     Bar       -- Fill --        the canonical bar block (Use class color = the OWNER's class)
---               -- Background --  the background swatch and its class-color companion
---     Border    the canonical border block
---     Text      -- Font --  the canonical font block, then Show name · Show health percent
+--     General          [Enable pet frames] (solo)   [Click to target] · [Update health]
+--     Size & Position  settings/ElementRows.lua's Size & Position rows
+--     Bar              -- Fill --        the canonical bar block (Use class color = the OWNER's class)
+--                      -- Background --  the background swatch and its class-color companion
+--     Border           the canonical border block
+--     Text             -- Font --  the canonical font block, then Show name · Show health percent
 
 local _, NS = ...
 
@@ -23,6 +23,8 @@ local function row(t)
     return t
 end
 
+local function healthOff() return NS.GetSetting(P .. "updateHealth") ~= true end
+
 local rows = {
     row{ path = "enabled", group = L["General"], order = 10, type = "bool", solo = true,
          label = L["Enable pet frames"],
@@ -31,6 +33,10 @@ local rows = {
          label = L["Click to target"],
          desc = L["Left-click a pet frame to target that pet. Applied out of combat."],
          default = D.clickToTarget },
+    row{ path = "updateHealth", group = L["General"], order = 30, type = "bool",
+         label = L["Update health"],
+         desc = L["Track the pet's health on the bar. Off: the bar stays full with no percent, and no health events are listened for."],
+         default = D.updateHealth },
 }
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
@@ -44,7 +50,7 @@ rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Font"
 rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Font"], order = 80,
                        type = "bool", label = L["Show health percent"],
                        desc = L["The unit's health as a percentage, at the right end."],
-                       default = D.showPercent }
+                       default = D.showPercent, disabledIf = healthOff }
 
 NS.RegisterSchemaRows(rows)
 

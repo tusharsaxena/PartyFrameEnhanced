@@ -1,15 +1,16 @@
 -- settings/TargetFrames.lua — the Target Frames page:
 --
---     [ General ][ Position ][ Bar ][ Border ][ Text ][ Marker ]
+--     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
 --
---     General   [Enable target frames] (solo)   [Click to target] · [Health refresh]
---     Position  settings/ElementRows.lua's Position rows
---     Bar       -- Fill --             the canonical bar block
---               -- Reaction colors --  Color NPCs by reaction · Hostile / Neutral · Friendly
---               -- Background --       the background swatch and its class-color companion
---     Border    the canonical border block
---     Text      -- Font --  the canonical font block, then Show name · Show health percent
---     Marker    Show raid marker
+--     General          [Enable target frames] (solo)   [Click to target]
+--                      [Update health] · [Health refresh] (dimmed while health updates are off)
+--     Size & Position  settings/ElementRows.lua's Size & Position rows
+--     Bar              -- Fill --             the canonical bar block
+--                      -- Reaction colors --  Color NPCs by reaction · Hostile / Neutral · Friendly
+--                      -- Background --       the background swatch and its class-color companion
+--     Border           the canonical border block
+--     Text             -- Font --  the canonical font block, then Show name · Show health percent
+--     Marker           Show raid marker (solo) / Anchor point (solo) / X offset · Y offset
 --
 -- The reaction colors are a palette (one color per reaction), so they carry no class-color companion
 -- (options-ui-§17's exemption).
@@ -28,6 +29,9 @@ local function row(t)
     return t
 end
 
+local function healthOff() return NS.GetSetting(P .. "updateHealth") ~= true end
+local function markerOff() return NS.GetSetting(P .. "showMarker") ~= true end
+
 local rows = {
     row{ path = "enabled", group = L["General"], order = 10, type = "bool", solo = true,
          label = L["Enable target frames"],
@@ -37,10 +41,14 @@ local rows = {
          label = L["Click to target"],
          desc = L["Left-click a target frame to target that unit yourself. Applied out of combat."],
          default = D.clickToTarget },
-    row{ path = "tickInterval", group = L["General"], order = 30, type = "number",
+    row{ path = "updateHealth", group = L["General"], order = 30, type = "bool", startsLine = true,
+         label = L["Update health"],
+         desc = L["Track the target's health on the bar. Off: the bar stays full with no percent, and the health refresh never runs."],
+         default = D.updateHealth },
+    row{ path = "tickInterval", group = L["General"], order = 40, type = "number",
          label = L["Health refresh (seconds)"],
          desc = L["How often a shown target frame's health updates. Lower is smoother and costs more."],
-         default = D.tickInterval, min = 0.1, max = 1.0, step = 0.05 },
+         default = D.tickInterval, min = 0.1, max = 1.0, step = 0.05, disabledIf = healthOff },
 }
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
@@ -70,11 +78,24 @@ rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Font"
 rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Font"], order = 80,
                        type = "bool", label = L["Show health percent"],
                        desc = L["The unit's health as a percentage, at the right end."],
-                       default = D.showPercent }
+                       default = D.showPercent, disabledIf = healthOff }
 
-rows[#rows + 1] = row{ path = "showMarker", group = L["Marker"], order = 10, type = "bool",
+rows[#rows + 1] = row{ path = "showMarker", group = L["Marker"], order = 10, type = "bool", solo = true,
                        label = L["Show raid marker"],
                        desc = L["The target's raid marker, when it has one."], default = D.showMarker }
+rows[#rows + 1] = row{ path = "markerPoint", group = L["Marker"], order = 20, type = "string",
+                       solo = true, label = L["Anchor point"],
+                       desc = L["The point on the bar the marker's center sits on."],
+                       default = D.markerPoint, values = ElementRows.POINT_LABELS,
+                       sorting = NS.Constants.POINTS, disabledIf = markerOff }
+rows[#rows + 1] = row{ path = "markerOffsetX", group = L["Marker"], order = 30, type = "number",
+                       label = L["X offset"], desc = L["Horizontal nudge of the marker, in pixels."],
+                       default = D.markerOffsetX, min = -100, max = 100, step = 1,
+                       disabledIf = markerOff }
+rows[#rows + 1] = row{ path = "markerOffsetY", group = L["Marker"], order = 40, type = "number",
+                       label = L["Y offset"], desc = L["Vertical nudge of the marker, in pixels."],
+                       default = D.markerOffsetY, min = -100, max = 100, step = 1,
+                       disabledIf = markerOff }
 
 NS.RegisterSchemaRows(rows)
 

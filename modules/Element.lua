@@ -90,8 +90,9 @@ local function applyBar(el, cfg, left, right)
 end
 
 -- The spark, the shield and the raid marker, each anchored ONCE. The spark rides the fill texture's
--- right edge and is never positioned from the fill, which can be secret (the KickCD lesson).
-local function applyMarks(el, h)
+-- right edge and is never positioned from the fill, which can be secret (the KickCD lesson). The
+-- marker's center sits on the configured point of the bar, nudged by its offsets (target frames).
+local function applyMarks(el, h, cfg, scale)
     local bar = el.bar
     if el.spark then
         el.spark:ClearAllPoints()
@@ -106,7 +107,8 @@ local function applyMarks(el, h)
     if el.marker then
         el.marker:ClearAllPoints()
         el.marker:SetSize(h, h)
-        el.marker:SetPoint("CENTER", bar, "LEFT", 0, 0)
+        el.marker:SetPoint("CENTER", bar, cfg.markerPoint or "LEFT",
+            (cfg.markerOffsetX or 0) * scale, (cfg.markerOffsetY or 0) * scale)
     end
 end
 
@@ -156,12 +158,13 @@ end
 -- same finding KickCD recorded as F-015). IF YOU ADD A CONFIG READ TO THE STRUCTURAL HALF, ADD THE
 -- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
 local function structureSignature(cfg, look, scale)
-    return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
+    return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
         tostring(cfg.barTexture), tostring(cfg.borderShow), tostring(cfg.borderStyle),
         tostring(cfg.borderSize), tostring(cfg.font), tostring(cfg.fontSize),
-        tostring(cfg.fontFlags), tostring(cfg.fontShadow))
+        tostring(cfg.fontFlags), tostring(cfg.fontShadow), tostring(cfg.markerPoint),
+        tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY))
 end
 
 local function applyMasterAlpha(el)
@@ -185,7 +188,7 @@ function Element.Reskin(el, cfg, look, force)
         -- Attached and matching the party frame's width, the two edge anchors set the width.
         if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
         applyBar(el, cfg, applyIcon(el, h, look))
-        applyMarks(el, h)
+        applyMarks(el, h, cfg, scale)
         applyBorder(el, cfg)
         applyFonts(el, cfg, scale)
         applyMasterAlpha(el)

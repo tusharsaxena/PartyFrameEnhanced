@@ -8,6 +8,7 @@ local _, NS = ...
 -- deviation in docs/ARCHITECTURE.md) repaints name, color, marker and health; RAID_TARGET_UPDATE
 -- repaints markers. A compound token gets no UNIT_HEALTH, so health comes from ONE repeating timer
 -- that runs only while at least one tracked unit has a target, and cancels itself when none do.
+-- With "Update health" off the bar is drawn full and the ticker never starts.
 --
 -- COLOR: a player target in its class color when "Use class color" is on; an NPC by its reaction
 -- when "Color NPCs by reaction" is on; the stored bar color otherwise. The target's class, player-ness
@@ -63,13 +64,19 @@ local function paintAll(btn)
     local token = btn.token
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, token, cfg.showName)
-    UnitButtons.RenderHealth(btn, token, cfg.showPercent)
+    if cfg.updateHealth then
+        UnitButtons.RenderHealth(btn, token, cfg.showPercent)
+    else
+        UnitButtons.RenderFull(btn)
+    end
     paintColors(btn, token)
     if cfg.showMarker then Compat.RaidMarker(btn.marker, token) else btn.marker:Hide() end
 end
 
 local function paintPreview(btn)
-    UnitButtons.RenderPreview(btn, L["Preview target"], 65, cfg.showName, cfg.showPercent)
+    local health = cfg.updateHealth
+    UnitButtons.RenderPreview(btn, L["Preview target"], health and 65 or 100, cfg.showName,
+        health and cfg.showPercent)
     local r, g, b, a = Element.Stored(cfg.colorReaction and cfg.hostileColor or cfg.barColor)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, Element.ClassResolver(nil))
@@ -104,11 +111,11 @@ local function tick()
     if not any then TargetFrames.UpdateTicker() end
 end
 
---- Run the ticker exactly while it has something to do: the feature on, not previewing, and at
---- least one allowed unit with a target.
+--- Run the ticker exactly while it has something to do: the feature on, health updates on, not
+--- previewing, and at least one allowed unit with a target.
 function TargetFrames.UpdateTicker()
     local want = false
-    if featureOn() and not NS.State.preview then
+    if featureOn() and cfg.updateHealth and not NS.State.preview then
         for _, unit in ipairs(Units.LIST) do
             local btn = buttons[unit]
             if btn.__allowed and Compat.UnitExists(btn.token) then want = true; break end

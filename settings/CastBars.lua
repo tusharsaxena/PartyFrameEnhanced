@@ -1,9 +1,9 @@
 -- settings/CastBars.lua — the Cast Bars page:
 --
---     [ General ][ Position ][ Bar ][ Border ][ Text ][ Icon ]
+--     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Icon ]
 --
---     General   [Enable cast bars] (solo)            [Fade out]
---     Position  settings/ElementRows.lua's Position rows
+--     General          [Enable cast bars] (solo)            [Fade out]
+--     Size & Position  settings/ElementRows.lua's Size & Position rows
 --     Bar       -- Fill --        the canonical bar block (the fill is the plain-cast color)
 --               -- Cast colors -- Channel · Empowered / Can't be interrupted · Interrupted
 --               -- Background --  the background swatch and its class-color companion

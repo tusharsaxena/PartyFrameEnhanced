@@ -38,7 +38,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 27 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
 | 28 | `settings/About.lua` | the landing page body | after OptionsSetup |
 | 29 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 30 | `settings/ElementRows.lua` | the Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 30 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
 | 31 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
 | 32 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
 | 33 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |

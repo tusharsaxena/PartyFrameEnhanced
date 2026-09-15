@@ -63,6 +63,7 @@ Kit.run{
     "test_targetframes",
     "test_petframes",
     "test_preview",
+    "test_perf_buckets",
     "test_slash",
     "test_optionssetup",
     "test_surface_parity",

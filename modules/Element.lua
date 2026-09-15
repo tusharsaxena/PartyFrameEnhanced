@@ -97,17 +97,40 @@ local function applyFont(fs, font, size, flags, shadow)
     end
 end
 
+-- Every config field the structural half reads, in one string. A color picker commits every 50 ms,
+-- and before this memo each commit re-laid-out every region of every element — 40 SetPoint calls
+-- and a fresh backdrop table per commit on the cast bars alone (tests/perf.lua's settingsDrag; the
+-- same finding KickCD recorded as F-015). IF YOU ADD A CONFIG READ TO THE STRUCTURAL HALF, ADD THE
+-- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
+local function structureSignature(cfg, look, scale)
+    return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
+        tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
+        tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
+        tostring(cfg.barTexture), tostring(cfg.borderShow), tostring(cfg.borderStyle),
+        tostring(cfg.borderSize), tostring(cfg.font), tostring(cfg.fontSize),
+        tostring(cfg.fontFlags), tostring(cfg.fontShadow))
+end
+
 --- The config-driven restyle: size, bar texture, icon layout, spark and shield placement, border,
 --- fonts and master alpha. Runs on a settings or profile change, never on the hot path. `look`
 --- carries the feature's icon choice ({ showIcon, iconSide }); nil for a feature without one.
-function Element.Reskin(el, cfg, look)
+--- The structural half is skipped when nothing it reads has changed; `force` re-runs it anyway.
+function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
+    look = look or {}
+    local sig = structureSignature(cfg, look, scale)
+    if not force and el.__structure == sig then
+        el.__alpha = NS.GetSetting("alpha") or 1
+        if not el.__combatFaded then el:SetAlpha(el.__alpha) end
+        return false
+    end
+    el.__structure = sig
     local w, h = (cfg.width or 100) * scale, (cfg.height or 16) * scale
     el:SetHeight(h)
     -- Attached and matching the party frame's width, the two edge anchors set the width.
     if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth(w) end
 
-    local left, right = applyIcon(el, h, look or {})
+    local left, right = applyIcon(el, h, look)
     local bar = el.bar
     bar:ClearAllPoints()
     bar:SetPoint("TOPLEFT", el, "TOPLEFT", left, 0)
@@ -151,6 +174,7 @@ function Element.Reskin(el, cfg, look)
 
     el.__alpha = NS.GetSetting("alpha") or 1
     if not el.__combatFaded then el:SetAlpha(el.__alpha) end
+    return true
 end
 
 --- The colors that can follow a unit's class: background, border and text. `resolve(stored, on)`
@@ -174,15 +198,35 @@ function Element.Stored(stored)
     return stored.r or 1, stored.g or 1, stored.b or 1, stored.a or 1
 end
 
+-- One resolver per class token, built once: a target frame repaints its colors on every target
+-- change, and a fresh closure per repaint is garbage the ticker's neighbors pay for.
+local classResolvers = {}
+local NO_CLASS = "\0none"
+
 --- A resolver for a class token already known to be plain (or nil): the class color with the
 --- stored alpha when the companion is on and the class resolves, the stored swatch otherwise.
 function Element.ClassResolver(classToken)
+    local key = classToken or NO_CLASS
+    local resolver = classResolvers[key]
+    if resolver then return resolver end
     local c = classToken and type(RAID_CLASS_COLORS) == "table" and RAID_CLASS_COLORS[classToken]
-    return function(stored, on)
+    resolver = function(stored, on)
         local r, g, b, a = Element.Stored(stored)
         if on and type(c) == "table" and type(c.r) == "number" then return c.r, c.g, c.b, a end
         return r, g, b, a
     end
+    classResolvers[key] = resolver
+    return resolver
+end
+
+--- A resolver for a party member's own class (never secret), cached on the element.
+function Element.UnitResolver(el, unit)
+    local resolver = el.__unitResolver
+    if not resolver then
+        resolver = function(stored, on) return NS.ResolveColor(stored, on, unit) end
+        el.__unitResolver = resolver
+    end
+    return resolver
 end
 
 -- ── the show decision's shared rungs (spec §6.7) ──────────────────────────────────────────────

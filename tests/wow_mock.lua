@@ -51,7 +51,13 @@ return function()
     if frameType == "StatusBar" then
       rawset(f, "SetMinMaxValues", function(self, lo, hi) self.__min, self.__max = lo, hi end)
       rawset(f, "SetValue", function(self, v) self.__value = v end)
-      rawset(f, "SetStatusBarColor", function(self, r, g, b, a) self.__color = { r, g, b, a } end)
+      -- One table per bar, refilled: tests/perf.lua measures the addon's garbage, and a fresh
+      -- table per call here was 129 bytes of the mock's own on every cast start.
+      rawset(f, "SetStatusBarColor", function(self, r, g, b, a)
+        local c = self.__color or {}
+        c[1], c[2], c[3], c[4] = r, g, b, a
+        self.__color = c
+      end)
       rawset(f, "SetTimerDuration", function(self, d, interp, dir)
         self.__timer = { duration = d, interpolation = interp, direction = dir }
       end)
@@ -63,13 +69,18 @@ return function()
   -- name, texture, notInterruptible, remaining, total }. The duration object's getters answer
   -- plain numbers here; in the client they can be secret, which is why the addon never reads them.
   M.__casts = {}
+  -- One duration object per scripted cast, built on first ask: the client's is its own allocation,
+  -- and tests/perf.lua must measure the addon's garbage, not the mock's.
   local function durationFor(c)
     if not c then return nil end
-    return {
-      GetRemainingDuration = function() return c.remaining or 1.5 end,
-      GetTotalDuration = function() return c.total or 2 end,
-      GetElapsedDuration = function() return (c.total or 2) - (c.remaining or 1.5) end,
-    }
+    if not c.__d then
+      c.__d = {
+        GetRemainingDuration = function() return c.remaining or 1.5 end,
+        GetTotalDuration = function() return c.total or 2 end,
+        GetElapsedDuration = function() return (c.total or 2) - (c.remaining or 1.5) end,
+      }
+    end
+    return c.__d
   end
   M.UnitCastingInfo = function(unit)
     local c = M.__casts[unit]

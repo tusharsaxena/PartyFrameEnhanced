@@ -28,9 +28,9 @@ Declared in `core/PerfSetup.lua`, in report order, with nesting declared rather 
 | `petEvent` | — | a pet unit event |
 | `reskin` | — | any feature's config-driven restyle |
 
-Build status: the buckets are declared now; the brackets land with their modules (plan P2–P5), and
-`tests/perf.lua` gains a case that every declared bucket is reached (plan P7). Until then an in-game
-capture reports none of them.
+Every declared bucket is reached by a real bracket, and each nested one is noted inside the parent it
+declares — `tests/test_perf_buckets.lua` pins both, inside the green gate, along with "capture off
+calls the sink zero times".
 
 ## The bracket idiom
 
@@ -56,21 +56,40 @@ state, flushes any deferred secure write, and republishes (performance-§6).
 
 ## Offline scenarios (`lua tests/perf.lua`)
 
-Outside the green gate, asserting only API calls and bytes per iteration. Planned scenarios (plan P7),
-with SimplePartyTargets' measured fixes as the reference point — its captures showed ~7 full passes/s
-× 11 blocks and 46 `SetPoint` calls per block per pass before per-owner updates, an anchor memo and
-event filtering brought them down:
+Outside the green gate. It builds the worst realistic case — five units in a party, all three features
+on, attached to Blizzard's raid-style frames — and asserts only deterministic quantities: API calls on
+the addon's own elements and bytes allocated per iteration, each isolated by a full collect. Timings
+print for orientation only.
 
-| Scenario | Asserts |
-|---|---|
-| resolve coalescing | N layout triggers in one frame → exactly one resolve |
-| anchor memo | a pass with unchanged anchor keys makes zero `SetPoint` calls |
-| cast burst | start/stop per unit allocates under a measured ceiling |
-| ticker pass | five shown target frames: fixed API calls, bounded bytes |
-| settings drag | a color drag on a feature skips the structural reskin |
-| zero overhead | capture off allocates no more than capture on, and no more than a ceiling |
+**Reference point: SimplePartyTargets.** Its in-game captures showed ~7 full passes a second over 11
+blocks and **46 `SetPoint` calls per block per pass** before per-owner updates, an anchor memo and event
+filtering brought them down. The scenarios below pin the same properties here from the first release.
 
-Today `tests/perf.lua` loads the addon and reports zero scenarios.
+| Scenario | What it runs | API calls / iter | Bytes / iter | Asserted |
+|---|---|---|---|---|
+| resolve coalescing | 40 layout requests in one frame | — | — | exactly **1** resolve |
+| `resolveUnchanged` | a resolve that finds the frames it had | 0 | 0 | 0 API calls; ≤ 24 bytes |
+| `anchorUnchanged` | all three features' placement, nothing changed | 0 (**0 `SetPoint`**) | 0 | 0 `SetPoint`; ≤ 24 bytes |
+| `castStartStop` | start + stop on all five cast bars | 55 | 16.6 | ≤ 41 bytes |
+| `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
+| `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
+| `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
+| `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 607 | reported only |
+| `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off ≤ on + 1; same API count; off ≤ 24 bytes |
+
+Figures from 2026-09-15 (Lua 5.1.5, WSL2). Every ceiling is the measured figure plus 24 bytes — less
+than the 64 bytes one extra table costs, so the smallest allocation added to a hot path fails the run.
+
+### What the pass changed (2026-09-15)
+
+The first run of these scenarios found four real costs; each fix is in the tree and pinned above.
+
+| Finding | Before | After | Fix |
+|---|---|---|---|
+| Every dotted setting read built a `gmatch` iterator — hit per element per pass by the show decision (`general.includePlayer`) and per resolve (`general.provider`) | resolve: 88 bytes | 0 | `NS.ResolvePath` walks with `find`/`sub`, which yield already-interned strings |
+| Every restyle re-laid-out every region, so a color drag re-anchored five bars per 50 ms commit | drag: 115 API calls, **40 `SetPoint`**, 3.9 KB | 25 calls, **0 `SetPoint`**, 607 B | `Element.Reskin` memoizes a structure signature and skips layout when only colors moved (the KickCD F-015 lesson) |
+| A color-resolver closure was built on every paint | a closure per paint | one per element / per class | `Element.UnitResolver`, cached `Element.ClassResolver` |
+| Measurement noise: cast records, mock duration objects, the kit's AceTimer queue entries and the mock's color recorder were counted as the addon's garbage | cast cycle: 917 B; ticker: 240 B | 16.6 B; 0 | the scenarios build client data outside the measured loop; the ticker pass is called directly; the mock recorders reuse their tables |
 
 ## In-game captures
 

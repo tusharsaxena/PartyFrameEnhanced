@@ -31,7 +31,7 @@ Ground rules for whoever resumes:
 | P4 | Target frames (secure) + health ticker | done | see git log ("Add the target and pet frames") |
 | P5 | Pet frames (secure) | done | same commit as P4 — they share `modules/UnitButtons.lua` |
 | P6 | Settings pages complete, preview/unlock, `status` verb | done | see git log ("Add preview mode and the status verb") |
-| P7 | Offline perf pass: `tests/perf.lua` scenarios, allocation ceilings, bucket coverage | pending | |
+| P7 | Offline perf pass: `tests/perf.lua` scenarios, allocation ceilings, bucket coverage | done | see git log ("Run the offline perf pass"); findings in docs/performance.md |
 | P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | pending | |
 | P9 | GitHub issues for deferred work; roster row in WowAddonStandards | pending | |
 | P10 | In-game smoke + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |

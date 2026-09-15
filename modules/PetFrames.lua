@@ -28,24 +28,20 @@ local suspended = false
 
 local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
 
-local function ownerResolver(unit)
-    return function(stored, on) return NS.ResolveColor(stored, on, unit) end
-end
-
 local function paintAll(btn)
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, btn.token, cfg.showName)
     UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
-    Element.ApplyColors(btn, cfg, ownerResolver(btn.unit))
+    Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
 end
 
 local function paintPreview(btn)
     UnitButtons.RenderPreview(btn, L["Preview pet"], 80, cfg.showName, cfg.showPercent)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
-    Element.ApplyColors(btn, cfg, ownerResolver(btn.unit))
+    Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
 end
 
 local function refresh(btn)

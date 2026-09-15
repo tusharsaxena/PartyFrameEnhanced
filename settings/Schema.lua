@@ -54,17 +54,23 @@ end
 
 -- ── dotted paths ──────────────────────────────────────────────────────────────────────────────
 
+--- The value at a dotted path, or nil. ALLOCATION-FREE, and that is measured rather than tidy:
+--- the show decision reads `general.includePlayer` per element per pass and the provider pick reads
+--- `general.provider` per resolve, and a `gmatch` walk built an iterator closure every time
+--- (tests/perf.lua's resolveUnchanged went 88 → 0 bytes/iter). `sub` over a path this addon owns
+--- yields strings Lua has already interned, so the walk creates nothing.
 function NS.ResolvePath(tbl, path)
     if type(tbl) ~= "table" or type(path) ~= "string" then return nil end
-    -- Flat keys need none of the gmatch machinery, and allocate nothing this way.
-    if not path:find(".", 1, true) then return tbl[path] end
+    local start = 1
     local node = tbl
-    for segment in path:gmatch("[^%.]+") do
-        if type(node) ~= "table" then return nil end
+    while true do
+        local dot = path:find(".", start, true)
+        local segment = path:sub(start, dot and dot - 1 or -1)
         node = node[segment]
-        if node == nil then return nil end
+        if dot == nil or node == nil then return node end
+        if type(node) ~= "table" then return nil end
+        start = dot + 1
     end
-    return node
 end
 
 function NS.SetPath(tbl, path, value)

@@ -126,6 +126,9 @@ function TargetFrames.TickerRunning()
     return ticker ~= nil
 end
 
+-- One pass of the ticker, for tests/perf.lua to measure without the timer library around it.
+TargetFrames.__tick = tick
+
 -- ── show decision, content, events ────────────────────────────────────────────────────────────
 
 local function refresh(btn)

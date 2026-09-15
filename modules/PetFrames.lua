@@ -1,6 +1,6 @@
 local _, NS = ...
 
--- modules/PetFrames.lua — each party member's pet (spec §6.5). One secure button per tracked unit
+-- modules/PetFrames.lua — each party member's pet (design spec §6.5). One secure button per tracked unit
 -- acting on its pet token (`pet` for the player, `partypetN` otherwise); clicking it targets the pet.
 --
 -- UPDATES are all events, no ticker: UNIT_PET on the owner (a pet summoned, dismissed or swapped)

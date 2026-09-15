@@ -1,8 +1,8 @@
 local _, NS = ...
 
--- modules/CastBars.lua — one cast bar per tracked unit (spec §6.2).
+-- modules/CastBars.lua — one cast bar per tracked unit (design spec §6.2).
 --
--- SECRET-SAFE BY CONSTRUCTION (spec §7). A party member's cast name, icon, interruptibility and
+-- SECRET-SAFE BY CONSTRUCTION (design spec §7). A party member's cast name, icon, interruptibility and
 -- times can all be secret. The bar never reads a time: the client's duration object goes straight
 -- into StatusBar:SetTimerDuration and animates engine-side. The name and icon go straight to
 -- SetText/SetTexture. `notInterruptible` never meets an `if`: it picks colors through
@@ -57,7 +57,7 @@ CastBars.__bars = bars
 local cfg                -- NS.db.profile.castbar, re-read on PROFILE
 local suspended = false
 
--- ── the show decision (spec §6.7) ─────────────────────────────────────────────────────────────
+-- ── the show decision (design spec §6.7) ─────────────────────────────────────────────────────────────
 
 local function shouldShow(el)
     if not Element.MasterShows() or not cfg.enabled then return false end

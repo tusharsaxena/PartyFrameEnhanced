@@ -1,6 +1,6 @@
 local _, NS = ...
 
--- modules/Anchor.lua — where every element goes (spec §3.2, §6.4). Shared by the three features:
+-- modules/Anchor.lua — where every element goes (design spec §3.2, §6.4). Shared by the three features:
 -- each registers its five elements once, and Anchor places them.
 --
 --   attached  each unit's element pinned to Providers.FrameFor(unit) by the feature's point,

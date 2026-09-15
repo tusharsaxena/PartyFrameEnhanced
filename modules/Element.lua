@@ -247,7 +247,7 @@ function Element.UnitResolver(el, unit)
     return resolver
 end
 
--- ── the show decision's shared rungs (spec §6.7) ──────────────────────────────────────────────
+-- ── the show decision's shared rungs (design spec §6.7) ──────────────────────────────────────────────
 
 --- Rungs 0–1: not suspended (performance-§6 — step 0, so nothing re-shows behind suspend's back)
 --- and the addon switched on.

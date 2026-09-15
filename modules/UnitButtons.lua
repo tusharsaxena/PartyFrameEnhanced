@@ -2,9 +2,9 @@ local _, NS = ...
 
 -- modules/UnitButtons.lua — the clickable elements the target and pet frames are made of: a
 -- SecureUnitButtonTemplate button per tracked unit, its visibility state driver, its click
--- attributes, and the health/name painting both features share (spec §6.3–§6.5).
+-- attributes, and the health/name painting both features share (design spec §6.3–§6.5).
 --
--- SECURE RULES (events-frames-taint-§2, spec §6.4):
+-- SECURE RULES (events-frames-taint-§2, design spec §6.4):
 --   * buttons are created in OnEnable — at PLAYER_LOGIN, out of combat — and never later;
 --   * every attribute, state driver, mouse or geometry write goes through NS.RunSecure, which runs
 --     now out of combat and queues (latest write per key) for PLAYER_REGEN_ENABLED in combat;
@@ -118,7 +118,7 @@ function UnitButtons.RenderPreview(btn, name, pct, showName, showPercent)
     UnitButtons.Invalidate(btn)
 end
 
---- The feature-independent rungs of the show decision (spec §6.7, rungs 0–2 and 5–6).
+--- The feature-independent rungs of the show decision (design spec §6.7, rungs 0–2 and 5–6).
 function UnitButtons.Allowed(cfg, unit)
     if not Element.MasterShows() or not cfg.enabled then return false end
     if not NS.Units.IsIncluded(unit) then return false end

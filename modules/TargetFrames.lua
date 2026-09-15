@@ -1,6 +1,6 @@
 local _, NS = ...
 
--- modules/TargetFrames.lua — what each party member is targeting (spec §6.3). One secure button per
+-- modules/TargetFrames.lua — what each party member is targeting (design spec §6.3). One secure button per
 -- tracked unit acting on its target token (`target` for the player, `partyNtarget` otherwise);
 -- clicking it targets that unit.
 --

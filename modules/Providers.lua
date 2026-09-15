@@ -1,6 +1,6 @@
 local _, NS = ...
 
--- modules/Providers.lua — which party frame shows which party member (spec §5).
+-- modules/Providers.lua — which party frame shows which party member (design spec §5).
 --
 -- Three providers, one per frame system: EllesmereUI's party header, Blizzard's raid-style
 -- CompactPartyFrame, and Blizzard's classic PartyFrame. A resolve picks one (Automatic: the highest

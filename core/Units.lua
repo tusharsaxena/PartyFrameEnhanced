@@ -2,7 +2,7 @@ local _, NS = ...
 
 -- core/Units.lua — the five tracked units and the tokens derived from them.
 --
--- Every element is bound to a UNIT, never to a party-frame slot (spec §6.4): `party2target` is
+-- Every element is bound to a UNIT, never to a party-frame slot (design spec §6.4): `party2target` is
 -- party2's target whichever frame happens to show party2, so a unit-bound element always shows the
 -- right member's data even when a frame system re-sorts in combat.
 NS.Units = NS.Units or {}

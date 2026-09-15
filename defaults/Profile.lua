@@ -59,7 +59,7 @@ NS.defaults.profile = {
     target = {
         enabled = true, clickToTarget = true,
         -- How often the health of shown target frames refreshes, seconds. Compound tokens
-        -- (partyNtarget) get no UNIT_HEALTH, so a gated ticker does it (spec §6.3).
+        -- (partyNtarget) get no UNIT_HEALTH, so a gated ticker does it (design spec §6.3).
         tickInterval = 0.2,
 
         -- Attached: to the right of the party frame, its top edge level with the frame's.

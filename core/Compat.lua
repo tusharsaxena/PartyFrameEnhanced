@@ -1,7 +1,7 @@
 local _, NS = ...
 
 -- core/Compat.lua — every version-variant or optional client API this addon calls (compat), and the
--- secret-value guards around them (spec §7). Retail only: these shim cross-patch differences, never
+-- secret-value guards around them (design spec §7). Retail only: these shim cross-patch differences, never
 -- game flavors. Feature modules call NS.Compat.X and never the raw API, so a patch that renames or
 -- removes one is a one-file fix. Every global is read at CALL time: 12.0 and 12.1 differ in which
 -- members exist (C_Secrets.CanCompareUnitTokens is 12.1), and a headless run has none of them.
@@ -77,7 +77,7 @@ function Compat.UnitIsUnit(a, b)
     return same and true or false
 end
 
--- ── casts (spec §6.2) ─────────────────────────────────────────────────────────────────────────
+-- ── casts (design spec §6.2) ─────────────────────────────────────────────────────────────────────────
 --
 -- A party member's cast info is secret whenever the client restricts it: the name, the texture,
 -- `notInterruptible` and every time. Nothing below compares, formats or does arithmetic on any of
@@ -156,7 +156,7 @@ function Compat.AlphaFromBool(region, flag, ifTrue, ifFalse)
     region:SetAlpha(Compat.BoolValue(flag, ifTrue, ifFalse))
 end
 
--- ── units a party member targets (spec §6.3) ──────────────────────────────────────────────────
+-- ── units a party member targets (design spec §6.3) ──────────────────────────────────────────────────
 --
 -- `partyNtarget` is a compound token: its identity is secret whenever any link in the chain fails
 -- the client's identity test, so its class, player-ness and reaction can come back secret. Each shim

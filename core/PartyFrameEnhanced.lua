@@ -127,7 +127,7 @@ function addon:OnEnable()
     NS.State.inCombat = UnitAffectingCombat("player") and true or false
     self:RegisterLifecycleEvents()
     -- Modules build their frames here, at PLAYER_LOGIN, which is out of combat on every login and
-    -- every /reload — the only safe moment to create secure buttons (spec §6.4).
+    -- every /reload — the only safe moment to create secure buttons (design spec §6.4).
     each("OnEnable")
     -- EAGER settings-category registration (options-ui-§1); the page bodies stay lazy.
     if NS.CreateOptionsPanel then NS.CreateOptionsPanel() end

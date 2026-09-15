@@ -74,8 +74,10 @@ modules\CastBars.lua
 modules\UnitButtons.lua
 modules\TargetFrames.lua
 modules\PetFrames.lua
-# Last module: its OnEnable reads the lock after every feature has registered with Anchor.
+# After every feature: its OnEnable reads the lock once every feature has registered with Anchor.
 modules\Preview.lua
+# Test mode's stand-in party frame; publishes NS.StandIn.
+modules\StandIn.lua
 
 # Settings (last — depend on everything else being initialized)
 # LOAD-BEARING: publishes NS.RegisterSchemaRows and the write seam, which every settings page calls

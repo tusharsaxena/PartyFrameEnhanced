@@ -70,6 +70,7 @@ Kit.run{
     "test_petframes",
     "test_party",
     "test_preview",
+    "test_standin",
     "test_perf_buckets",
     "test_spelling",
     "test_slash",

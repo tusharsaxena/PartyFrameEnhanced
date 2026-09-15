@@ -22,6 +22,8 @@ read_globals = {
   "UnitEmpoweredChannelDuration", "GetRaidTargetIndex", "SetRaidTargetIconTexture",
   "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_Secrets", "C_CurveUtil",
   "Enum", "GetCVarBool", "CurveConstants",
+  -- The stand-in's classic look (modules/StandIn.lua).
+  "SetPortraitTexture", "UnitPowerType", "PowerBarColor",
   -- The client's own localized words for a stopped cast, displayed only.
   "INTERRUPTED", "FAILED",
   -- Secure frames (target and pet frames).

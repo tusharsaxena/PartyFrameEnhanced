@@ -36,6 +36,8 @@ local active                  -- the provider the last resolve used, or nil
 local suspended = false
 local scheduled = false       -- a next-frame resolve is already queued
 local burstGen = 0            -- invalidates follow-ups from an older burst
+local standIn                 -- test mode's stand-in party frame (modules/StandIn.lua), or nil
+local stale = false           -- the map was edited while suspended; the next resolve re-sends LAYOUT
 
 local hookedFrames = setmetatable({}, { __mode = "k" })
 local hookedFns = {}
@@ -206,7 +208,10 @@ function Providers.Resolve()
             p.ForEachFrame(collect)
         end
     end
-    local changed = p ~= active
+    -- Test mode's stand-in fills party1 when no real frame does, asleep or not: a real frame wins.
+    if standIn and scratch.party1 == nil then scratch.party1 = standIn end
+    local changed = stale or p ~= active
+    stale = false
     if not changed then
         for _, unit in ipairs(UNITS) do
             if scratch[unit] ~= map[unit] then changed = true; break end
@@ -236,6 +241,52 @@ end
 
 function Providers.ActiveId()
     return active and active.id or nil
+end
+
+-- ── test mode's stand-in (docs/superpowers/specs/2026-09-15-test-mode-design.md §3) ─────────────
+
+--- Put test mode's stand-in in party1's place (a real frame still wins), or remove it with nil.
+--- Resolves NOW rather than next frame: a stop at PLAYER_REGEN_DISABLED must land its anchor writes
+--- before lockdown begins.
+function Providers.SetStandIn(frame)
+    local old = standIn
+    standIn = frame
+    if suspended then
+        -- A resolve while suspended does nothing, yet a removed stand-in must leave the map now.
+        if frame == nil and old ~= nil and map.party1 == old then
+            map.party1, stale = nil, true
+        end
+        return
+    end
+    Providers.Resolve()
+end
+
+-- The first member frame of a frame system, which exists (hidden) out of a party.
+local function firstMember(id)
+    if id == "ellesmere" then
+        return (ERFPartyHeader and ERFPartyHeader[1]) or _G[ERF_CHILD[1]] or ERFPartySelfButton
+    elseif id == "blizzard-raid" then
+        local list = CompactPartyFrame and CompactPartyFrame.memberUnitFrames
+        return (type(list) == "table" and list[1]) or _G[CPF_MEMBER[1]]
+    end
+    return PartyFrame and PartyFrame[PF_MEMBER[1]]
+end
+
+--- Which frame system the stand-in imitates, and that system's first member frame (or nil). The
+--- resolve can't answer this out of a party, where no system is on screen: pinned to EllesmereUI it
+--- is EllesmereUI; pinned to Blizzard, or Automatic without EllesmereUI's raid frames loaded, it is
+--- raid-style when Edit Mode uses it and classic otherwise. Read-only, like everything here.
+function Providers.StandInSource()
+    local choice = NS.GetSetting("general.provider")
+    local id
+    if choice == "ellesmere" or (choice == "auto" and Compat.IsAddOnLoaded("EllesmereUIRaidFrames")) then
+        id = "ellesmere"
+    elseif Compat.UseRaidStyleParty() then
+        id = "blizzard-raid"
+    else
+        id = "blizzard-party"
+    end
+    return id, firstMember(id)
 end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────

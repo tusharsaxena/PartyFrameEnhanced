@@ -88,6 +88,11 @@ for _, key in ipairs({
     "Cast bars", "Target frames", "Pet frames",
 }) do L[key] = key end
 
+-- Test mode and its stand-in party frame (modules/TestMode.lua, modules/StandIn.lua)
+for _, key in ipairs({
+    "Test",
+}) do L[key] = key end
+
 -- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
 -- Pet pages)
 for _, key in ipairs({

@@ -165,11 +165,6 @@ badge and any count quoted in the docs must agree with it.
 - perf: each nested bucket is observed inside the parent it declares
 - perf: capture off, no bracket calls the sink
 
-### test_spelling.lua (2)
-
-- spelling: every authored file is US English (localization-§5)
-- spelling: the gate is not vacuous — a planted British word is caught
-
 ### test_slash.lua (9)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
@@ -227,10 +222,9 @@ badge and any count quoted in the docs must agree with it.
 | test_petframes.lua | 5 |
 | test_preview.lua | 5 |
 | test_perf_buckets.lua | 3 |
-| test_spelling.lua | 2 |
 | test_slash.lua | 9 |
 | test_optionssetup.lua | 4 |
 | test_surface_parity.lua | 4 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **131** |
+| **Total** | **129** |

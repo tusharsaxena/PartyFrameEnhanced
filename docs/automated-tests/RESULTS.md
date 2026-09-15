@@ -23,22 +23,23 @@ The **Tests** cell reads `passed/skipped/total`.
 
 | Run | Version | Lint w/e | Files | Tests | Perf | NLOC | Funcs | Avg NLOC | Avg CCN | Max CCN | CCN warn | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [`20260915-150853`](20260915-150853/) | 0.1.0 → 0.1.0 | 0/0 | 59 | 129/0/129 | pass | 4995 | 664 | 5.7 | 2.3 | 15 | 0 | **green** |
 | [`20260915-141340`](20260915-141340/) | 0.1.0 | 0/0 | 39 | 66/0/66 | pass | 1828 | 288 | 4.3 | 2.0 | 15 | 0 | **green** |
 
 ## Test suite
 
-**66 cases** — 66 passed, 0 failed, 0 skipped. The generated inventory
-[`20260915-141340/test-cases.md`](20260915-141340/test-cases.md) is the authority on which cases existed at this run;
+**129 cases** — 129 passed, 0 failed, 0 skipped. The generated inventory
+[`20260915-150853/test-cases.md`](20260915-150853/test-cases.md) is the authority on which cases existed at this run;
 `docs/test-cases.md` is that same list at HEAD.
 
-This is the first recorded run, so there is no trend to read yet.
+Moved **66 → 129** since the previous run.
 
 No case reported a `skip`, so passed and total agree and nothing in this row claims coverage
 that was not exercised.
 
 ## Lint
 
-**0 warnings / 0 errors over 39 files** (`luacheck .`).
+**0 warnings / 0 errors over 59 files** (`luacheck .`).
 
 Read that figure with its scope attached: `.luacheckrc` sets `exclude_files = { "libs/", "docs/audits/", "docs/reviews/", "_dev/", "tests/_kit/" }`, so those paths
 are not in it. A `0/0` that never moves is partly a statement about what was never looked at, which
@@ -46,15 +47,15 @@ is why the exclusion is restated on every run.
 
 ## Perf
 
-**0 scenarios** from `tests/perf.lua`; the measurements are in
-[`20260915-141340/perf.json`](20260915-141340/perf.json).
+**9 scenarios** from `tests/perf.lua`; the measurements are in
+[`20260915-150853/perf.json`](20260915-150853/perf.json).
 
 `perf` never fails a run and never blocks a commit — it is recorded, read and compared, not
 thresholded (`performance-§9`). It does gate the **tag** (`automated-tests-§3`).
 
 ## Complexity watch list
 
-Current as of [`20260915-141340`](20260915-141340/) — **this run's measurement, not its diff.** Max CCN **15** across 288
+Current as of [`20260915-150853`](20260915-150853/) — **this run's measurement, not its diff.** Max CCN **15** across 664
 functions, **0** of them warned on; 0 file(s) in the 1000–1500 band and 0 over the 1500 cap
 (`layout-§1`).
 

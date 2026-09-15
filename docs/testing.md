@@ -35,6 +35,11 @@ schema and its write seam, the slash table, the lifecycle and the secure-write q
 land) the providers, the anchor engine and the three features. The library's own internals are tested
 in the LibKa0s repo and not again here (testing-§8).
 
+`tests/test_spelling.lua` is the US-English prose gate (localization-§5): it copies the standard's
+published `BRITISH` and `ALLOWED` lists **whole** and scans every authored `.lua`, `.md` and `.toc`
+the repo tracks, skipping only `libs/`, `tests/_kit/` and the frozen evidence bundles. A British form
+the lists miss is added upstream in the standard first, never locally.
+
 The **degraded path** is proven by a real load with the library absent — `tests/degraded_env.lua`
 loads the whole TOC without `libs/LibKa0s` — never by hand-stubbing the member under test.
 

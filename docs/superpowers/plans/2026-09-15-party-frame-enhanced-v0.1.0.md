@@ -32,8 +32,8 @@ Ground rules for whoever resumes:
 | P5 | Pet frames (secure) | done | same commit as P4 — they share `modules/UnitButtons.lua` |
 | P6 | Settings pages complete, preview/unlock, `status` verb | done | see git log ("Add preview mode and the status verb") |
 | P7 | Offline perf pass: `tests/perf.lua` scenarios, allocation ceilings, bucket coverage | done | see git log ("Run the offline perf pass"); findings in docs/performance.md |
-| P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | pending | |
-| P9 | GitHub issues for deferred work; roster row in WowAddonStandards | pending | |
+| P8 | Docs sync, README + de-AI pass, automated-test bundle, DoD walk | done | release-candidate bundle `docs/automated-tests/20260915-150853/` (green, commit 275f786); spelling gate added; first audit bundle from `/wow-addon:standards-audit` |
+| P9 | GitHub issues for deferred work; roster row in WowAddonStandards | done | issues #1–#12 (`state:triaged`); roster row WowAddonStandards cb97a3a |
 | P10 | In-game smoke + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |
 
 ## P1 — Standards scaffold

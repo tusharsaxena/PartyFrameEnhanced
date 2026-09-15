@@ -106,13 +106,18 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 
 ## Known Limitations
 
-- Party only; a raid group puts the addon to sleep.
+- Party only; a raid group puts the addon to sleep (#1). Arena frames are not attached to either (#11).
+- Blizzard (both layouts) and EllesmereUI are the only frame systems detected; others use free
+  placement (#2).
 - Blizzard's classic party layout never shows the player, so the player's attached elements have no
-  frame there (free placement covers it).
+  frame there (free placement covers it; #8).
 - Secure target/pet frames can't move in combat; after a mid-combat roster reshuffle they fade until
-  combat ends.
-- English only.
-- The logo is a generated placeholder.
+  combat ends (#3).
+- English only (#9).
+- The logo is a generated placeholder (#10).
+
+Every deferred item is a GitHub issue labeled `state:triaged` (#1–#12); the spec's §10 is the list
+they were filed from.
 
 ## Documentation map
 

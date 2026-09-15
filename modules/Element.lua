@@ -54,6 +54,9 @@ function Element.Build(root, opts)
     return root
 end
 
+-- ── the restyle's parts ───────────────────────────────────────────────────────────────────────
+
+-- The icon square at one end, or none. Answers how far the bar is inset on each side.
 local function applyIcon(el, h, look)
     if not el.icon then return 0, 0 end
     if not look.showIcon then
@@ -69,6 +72,40 @@ local function applyIcon(el, h, look)
     end
     el.icon:SetPoint("TOPLEFT", el, "TOPLEFT", 0, 0)
     return h, 0
+end
+
+-- The status bar between the insets, and the background behind it in the same texture.
+local function applyBar(el, cfg, left, right)
+    local bar = el.bar
+    bar:ClearAllPoints()
+    bar:SetPoint("TOPLEFT", el, "TOPLEFT", left, 0)
+    bar:SetPoint("BOTTOMRIGHT", el, "BOTTOMRIGHT", -right, 0)
+    local texture = NS.FetchMedia("statusbar", cfg.barTexture, C.FALLBACK_TEXTURE)
+    bar:SetStatusBarTexture(texture)
+    el.bg:ClearAllPoints()
+    el.bg:SetAllPoints(bar)
+    el.bg:SetTexture(texture)
+end
+
+-- The spark, the shield and the raid marker, each anchored ONCE. The spark rides the fill texture's
+-- right edge and is never positioned from the fill, which can be secret (the KickCD lesson).
+local function applyMarks(el, h)
+    local bar = el.bar
+    if el.spark then
+        el.spark:ClearAllPoints()
+        el.spark:SetSize(math.max(8, h * 0.6), h * 2)
+        el.spark:SetPoint("CENTER", bar:GetStatusBarTexture(), "RIGHT", 0, 0)
+    end
+    if el.shield then
+        el.shield:ClearAllPoints()
+        el.shield:SetSize(h * 1.6, h * 1.6)
+        el.shield:SetPoint("CENTER", bar, "LEFT", 0, 0)
+    end
+    if el.marker then
+        el.marker:ClearAllPoints()
+        el.marker:SetSize(h, h)
+        el.marker:SetPoint("CENTER", bar, "LEFT", 0, 0)
+    end
 end
 
 local function applyBorder(el, cfg)
@@ -97,6 +134,20 @@ local function applyFont(fs, font, size, flags, shadow)
     end
 end
 
+-- Both text lines in the configured face: the name on the left, clipped by the right-hand one.
+local function applyFonts(el, cfg, scale)
+    local font = NS.FetchMedia("font", cfg.font, C.FALLBACK_FONT)
+    local size = (cfg.fontSize or 11) * scale
+    local flags = FONT_FLAGS[cfg.fontFlags] or cfg.fontFlags or ""
+    applyFont(el.text, font, size, flags, cfg.fontShadow)
+    applyFont(el.text2, font, size, flags, cfg.fontShadow)
+    el.text2:ClearAllPoints()
+    el.text2:SetPoint("RIGHT", el.bar, "RIGHT", -3, 0)
+    el.text:ClearAllPoints()
+    el.text:SetPoint("LEFT", el.bar, "LEFT", 3, 0)
+    el.text:SetPoint("RIGHT", el.text2, "LEFT", -2, 0)
+end
+
 -- Every config field the structural half reads, in one string. A color picker commits every 50 ms,
 -- and before this memo each commit re-laid-out every region of every element — 40 SetPoint calls
 -- and a fresh backdrop table per commit on the cast bars alone (tests/perf.lua's settingsDrag; the
@@ -111,70 +162,35 @@ local function structureSignature(cfg, look, scale)
         tostring(cfg.fontFlags), tostring(cfg.fontShadow))
 end
 
+local function applyMasterAlpha(el)
+    el.__alpha = NS.GetSetting("alpha") or 1
+    if not el.__combatFaded then el:SetAlpha(el.__alpha) end
+end
+
 --- The config-driven restyle: size, bar texture, icon layout, spark and shield placement, border,
 --- fonts and master alpha. Runs on a settings or profile change, never on the hot path. `look`
 --- carries the feature's icon choice ({ showIcon, iconSide }); nil for a feature without one.
 --- The structural half is skipped when nothing it reads has changed; `force` re-runs it anyway.
+--- Returns true when the structural half ran.
 function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
     look = look or {}
     local sig = structureSignature(cfg, look, scale)
-    if not force and el.__structure == sig then
-        el.__alpha = NS.GetSetting("alpha") or 1
-        if not el.__combatFaded then el:SetAlpha(el.__alpha) end
-        return false
+    if force or el.__structure ~= sig then
+        el.__structure = sig
+        local h = (cfg.height or 16) * scale
+        el:SetHeight(h)
+        -- Attached and matching the party frame's width, the two edge anchors set the width.
+        if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
+        applyBar(el, cfg, applyIcon(el, h, look))
+        applyMarks(el, h)
+        applyBorder(el, cfg)
+        applyFonts(el, cfg, scale)
+        applyMasterAlpha(el)
+        return true
     end
-    el.__structure = sig
-    local w, h = (cfg.width or 100) * scale, (cfg.height or 16) * scale
-    el:SetHeight(h)
-    -- Attached and matching the party frame's width, the two edge anchors set the width.
-    if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth(w) end
-
-    local left, right = applyIcon(el, h, look)
-    local bar = el.bar
-    bar:ClearAllPoints()
-    bar:SetPoint("TOPLEFT", el, "TOPLEFT", left, 0)
-    bar:SetPoint("BOTTOMRIGHT", el, "BOTTOMRIGHT", -right, 0)
-    local texture = NS.FetchMedia("statusbar", cfg.barTexture, C.FALLBACK_TEXTURE)
-    bar:SetStatusBarTexture(texture)
-    el.bg:ClearAllPoints()
-    el.bg:SetAllPoints(bar)
-    el.bg:SetTexture(texture)
-
-    -- The spark rides the fill texture's right edge, anchored ONCE: its position is never computed
-    -- from the fill, which can be secret (the KickCD lesson).
-    if el.spark then
-        el.spark:ClearAllPoints()
-        el.spark:SetSize(math.max(8, h * 0.6), h * 2)
-        el.spark:SetPoint("CENTER", bar:GetStatusBarTexture(), "RIGHT", 0, 0)
-    end
-    if el.shield then
-        el.shield:ClearAllPoints()
-        el.shield:SetSize(h * 1.6, h * 1.6)
-        el.shield:SetPoint("CENTER", bar, "LEFT", 0, 0)
-    end
-    if el.marker then
-        el.marker:ClearAllPoints()
-        el.marker:SetSize(h, h)
-        el.marker:SetPoint("CENTER", bar, "LEFT", 0, 0)
-    end
-
-    applyBorder(el, cfg)
-
-    local font = NS.FetchMedia("font", cfg.font, C.FALLBACK_FONT)
-    local size = (cfg.fontSize or 11) * scale
-    local flags = FONT_FLAGS[cfg.fontFlags] or cfg.fontFlags or ""
-    applyFont(el.text, font, size, flags, cfg.fontShadow)
-    applyFont(el.text2, font, size, flags, cfg.fontShadow)
-    el.text2:ClearAllPoints()
-    el.text2:SetPoint("RIGHT", bar, "RIGHT", -3, 0)
-    el.text:ClearAllPoints()
-    el.text:SetPoint("LEFT", bar, "LEFT", 3, 0)
-    el.text:SetPoint("RIGHT", el.text2, "LEFT", -2, 0)
-
-    el.__alpha = NS.GetSetting("alpha") or 1
-    if not el.__combatFaded then el:SetAlpha(el.__alpha) end
-    return true
+    applyMasterAlpha(el)
+    return false
 end
 
 --- The colors that can follow a unit's class: background, border and text. `resolve(stored, on)`

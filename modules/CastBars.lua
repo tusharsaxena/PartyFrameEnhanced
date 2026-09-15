@@ -174,36 +174,50 @@ local function stop(el, reason)
     idle(el)
 end
 
+-- One step per bar state. A bar only ticks while it is casting, holding an interrupt, or fading.
+
+-- Casting: the manual fill (a build without SetTimerDuration), then at TICK intervals the stale
+-- check and the time text.
+local function tickCasting(el, elapsed)
+    local d = el.duration
+    if el.__manualFill and d then
+        el.bar:SetValue(el.kind == "channel" and d:GetRemainingDuration() or d:GetElapsedDuration())
+    end
+    el.tick = el.tick + elapsed
+    if el.tick < TICK then return end
+    el.tick = 0
+    -- A stop the client never sent (CC, a zone change): nil-ness is never secret.
+    if not UnitCastingInfo(el.unit) and not UnitChannelInfo(el.unit) then
+        stop(el, nil)
+    elseif cfg.showTime and d then
+        el.text2:SetFormattedText("%.1f", d:GetRemainingDuration())
+    end
+end
+
+-- Holding an interrupted or failed cast: count down, then fade or hide.
+local function tickHolding(el, elapsed)
+    el.hold = el.hold - elapsed
+    if el.hold > 0 then return end
+    if cfg.fadeOut then el.state, el.fade = "fading", FADE_TIME else idle(el) end
+end
+
+-- Fading out: alpha down to nothing, then idle.
+local function tickFading(el, elapsed)
+    el.fade = el.fade - elapsed
+    if el.fade <= 0 then
+        idle(el)
+        return
+    end
+    el:SetAlpha((el.__alpha or 1) * el.fade / FADE_TIME)
+end
+
+-- Built once at file load; the handler only looks a step up.
+local TICKS = { casting = tickCasting, holding = tickHolding, fading = tickFading }
+
 function onUpdate(el, elapsed)
     local t0 = Perf.on and debugprofilestop()
-    if el.state == "casting" then
-        local d = el.duration
-        if el.__manualFill and d then
-            el.bar:SetValue(el.kind == "channel" and d:GetRemainingDuration() or d:GetElapsedDuration())
-        end
-        el.tick = el.tick + elapsed
-        if el.tick >= TICK then
-            el.tick = 0
-            -- A stop the client never sent (CC, a zone change): nil-ness is never secret.
-            if not UnitCastingInfo(el.unit) and not UnitChannelInfo(el.unit) then
-                stop(el, nil)
-            elseif cfg.showTime and d then
-                el.text2:SetFormattedText("%.1f", d:GetRemainingDuration())
-            end
-        end
-    elseif el.state == "holding" then
-        el.hold = el.hold - elapsed
-        if el.hold <= 0 then
-            if cfg.fadeOut then el.state, el.fade = "fading", FADE_TIME else idle(el) end
-        end
-    elseif el.state == "fading" then
-        el.fade = el.fade - elapsed
-        if el.fade <= 0 then
-            idle(el)
-        else
-            el:SetAlpha((el.__alpha or 1) * el.fade / FADE_TIME)
-        end
-    end
+    local step = TICKS[el.state]
+    if step then step(el, elapsed) end
     if t0 then Perf.Note("castTick", debugprofilestop() - t0) end
 end
 

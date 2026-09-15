@@ -41,8 +41,16 @@ local RIGHT_OF = {
     BOTTOMLEFT = "BOTTOMRIGHT", BOTTOM = "BOTTOMRIGHT", BOTTOMRIGHT = "BOTTOMRIGHT",
 }
 
--- Where each element's corner sits in the holder, by growth direction.
+-- Where each element's corner sits in the holder, and which way the next slot lies, by growth
+-- direction.
 local STACK_POINT = { DOWN = "TOPLEFT", UP = "BOTTOMLEFT", RIGHT = "TOPLEFT", LEFT = "TOPRIGHT" }
+local GROWTH_DIR  = { DOWN = { 0, -1 }, UP = { 0, 1 }, RIGHT = { 1, 0 }, LEFT = { -1, 0 } }
+
+-- The holder's size for `n` slots stacked along `dir`.
+local function stackSize(dir, n, w, h, gap)
+    if dir[1] ~= 0 then return n * w + (n - 1) * gap, h end
+    return w, n * h + (n - 1) * gap
+end
 
 -- ── placing one element ───────────────────────────────────────────────────────────────────────
 
@@ -112,12 +120,11 @@ end
 
 local function applyFree(spec, cfg)
     placeHolder(spec)
-    local growth = cfg.growth or "DOWN"
-    local corner = STACK_POINT[growth] or "TOPLEFT"
+    local growth = GROWTH_DIR[cfg.growth] and cfg.growth or "DOWN"
+    local corner, dir = STACK_POINT[growth], GROWTH_DIR[growth]
     local w, h = spec.slotSize()
     local gap = cfg.spacing or 0
-    local stepX = (growth == "RIGHT" and (w + gap)) or (growth == "LEFT" and -(w + gap)) or 0
-    local stepY = (growth == "DOWN" and -(h + gap)) or (growth == "UP" and (h + gap)) or 0
+    local stepX, stepY = dir[1] * (w + gap), dir[2] * (h + gap)
     local moved, slot = 0, 0
     for _, unit in ipairs(Units.LIST) do
         local el = spec.elements[unit]
@@ -134,12 +141,7 @@ local function applyFree(spec, cfg)
         end
         unfade(el)
     end
-    local n = math.max(slot, 1)
-    if stepX ~= 0 then
-        spec.holder:SetSize(n * w + (n - 1) * gap, h)
-    else
-        spec.holder:SetSize(w, n * h + (n - 1) * gap)
-    end
+    spec.holder:SetSize(stackSize(dir, math.max(slot, 1), w, h, gap))
     return moved, 0
 end
 

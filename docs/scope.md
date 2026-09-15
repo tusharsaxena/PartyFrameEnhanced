@@ -17,9 +17,9 @@ stacks them in one movable **free-placement** group.
 ## What it deliberately does not do
 
 - **Raid frames.** In a raid group the addon sleeps. Raid support is a separate feature with its own
-  frame systems and sorting (GitHub issue).
+  frame systems and sorting (#1); so is arena (#11).
 - **Other frame systems** — ElvUI, Cell, Grid2, VuhDo, DandersFrames. The provider interface makes
-  each one additive, but none ships in v0.1.0.
+  each one additive, but none ships in v0.1.0 (#2).
 - **Replace or restyle the party frames themselves.** It never hides, reparents, moves or calls into a
   Blizzard or EllesmereUI frame; it only reads their position and unit, and only through
   `hooksecurefunc` / `HookScript`.

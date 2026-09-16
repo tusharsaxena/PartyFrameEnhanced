@@ -14,6 +14,9 @@ marked as such rather than listed as a requirement.
 - **Nothing else.** Every library is vendored under `libs/` and committed (library-stack), so the
   player installs no separate library addon. `## OptionalDeps:` names the vendored libs for load
   ordering, not as things to download.
+- **A broker display — optional.** LibDataBroker-1.1 and LibDBIcon-1.0 are vendored under `libs/`,
+  so the minimap button needs nothing installed. A broker display (Titan Panel, ElvUI data texts,
+  Bazooka) draws the same object where one is present, and where none is the button is all there is.
 - **EllesmereUI — optional.** `## OptionalDeps:` lists `EllesmereUI, EllesmereUIRaidFrames` so they
   load first when present. With them absent the addon attaches to Blizzard's party frames or uses
   free placement; nothing is lost but the EllesmereUI attachment (library-stack-§6). The

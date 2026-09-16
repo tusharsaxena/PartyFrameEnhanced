@@ -11,6 +11,7 @@ The landing page renders the same table.
 |---|---|---|
 | `help` | the command list | yes |
 | `config` (alias `options`) | opens the settings panel on its landing page (bare `/pfe` does the same); refused in combat with a gray notice | yes |
+| `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
 | `list` | every setting and its value, grouped by page | yes |
 | `get <path>` | one setting's value | yes |
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |
@@ -26,6 +27,14 @@ The landing page renders the same table.
 | `version` | the addon version from the TOC | yes |
 | `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management | no |
 
+## The disabled state
+
+`Sl:Register` runs in `addon:OnInitialize` and no verb gates on `enabled`, so **every verb keeps
+working while the addon is disabled** (slash-commands-§2). *Disabled* means the features stand down;
+it does not mean the chat command goes away. `enable` above all — with `help`, `config` and
+`version` — must answer, or the switch only goes one way and the player who turned the addon off has
+no route back but the settings panel they were trying not to open. `tests/test_slash.lua` pins it.
+
 ## Output
 
 The library's shape and colors (slash-commands-§5): green header, azure `[page]` groups, gold paths,
@@ -34,4 +43,6 @@ white values, no trailing colon; every line carries the cyan `[PFE]` tag through
 ## Degraded
 
 With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host verbs; the schema verbs
-(`list`, `get`, `set`, `reset`, `resetall`) each print one line naming the missing library.
+(`list`, `get`, `set`, `reset`, `resetall`) each print one line naming the missing library. `enable`
+and `disable` still WRITE — only their echo degrades to that line — because the pair must never be
+one-way, whatever else is missing.

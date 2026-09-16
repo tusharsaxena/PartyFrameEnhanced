@@ -19,10 +19,12 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.39.0** vendored whole. The addon consumes seven LibKa0s majors through one setup file
-each — Media (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
-(`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Slash (`settings/Slash.lua`) and Options
-(`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements are
+and **LibKa0s v1.39.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
+(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
+(`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),
+Slash (`settings/Slash.lua`) and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are
+vendored, not wired**: fifteen elements are
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
@@ -31,12 +33,12 @@ and the first standards audit done. What remains before the tag is in-game testi
 
 ## Module Map
 
-Thirty-six files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-seven files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
 captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
-and UnitButtons before the features that capture them, Preview after every feature, Preview and
-StandIn before Preview, Schema before
+and UnitButtons before the features that capture them, StandIn before Preview and Preview after every
+feature, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
@@ -56,6 +58,12 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
 - **Session-only rows:** `state.debugConsole` (the console window's visibility) — one row, not two.
   `state.testMode` was the second until options-ui-§15 exempted this addon from the Test mode row:
   unlocking already is its preview.
+- **Global rows:** `global.minimap.hide` (the launcher's minimap button) — stored, not session-only,
+  but in the **account-wide** store rather than the profile, because launcher-§3 fixes LibDBIcon's own
+  table there. `settings/Schema.lua` carries a global registry beside the session one, and
+  `settings/General.lua` registers the get/set that invert the row's SHOWN sense onto LibDBIcon's
+  `hide` and call `NS.Launcher:SetShown`. The validator resolves such a path against `NS.defaults`
+  rather than `defaults.profile`, and the profile-reset tally skips it.
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).
@@ -75,9 +83,34 @@ source to check).
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, sixteen verbs in `NS.COMMANDS` — the ten reserved ones plus
-`resetposition`, `lock`, `unlock`, `test`, `status` and `profile`. Table and behavior:
-[slash-dispatch.md](slash-dispatch.md).
+`/pfe` and `/partyframeenhanced`, seventeen verbs in `NS.COMMANDS` — the twelve reserved ones
+(`enable` and `disable` among them, aliases for the `enabled` row and never a second switch) plus
+`resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
+`OnInitialize` and no verb gates on `enabled`, so it answers while the addon is disabled and the pair
+is never one-way (slash-commands-§2). Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+
+## Launcher
+
+**One object, registered twice** (launcher-§1). `core/LauncherSetup.lua` builds a single
+LibDataBroker-1.1 object of `type = "launcher"` through `LibKa0s-Launcher-1.0` and hands it to
+LibDBIcon-1.0: LibDBIcon draws the minimap button from it and any broker display (Titan Panel,
+ElvUI data texts, Bazooka) draws its own row from the very same object, so there is one `OnClick`,
+one icon, one label and one identity.
+
+| | |
+|---|---|
+| Owner | `core/LauncherSetup.lua` (`NS.Launcher`), an instance of `LibKa0s-Launcher-1.0` |
+| Name | `PartyFrameEnhanced`, the **folder** name, on **both** registrations — LibDBIcon keys the button's saved position by it, so a second spelling would drop the angle the player dragged it to |
+| Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
+| Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state |
+| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other |
+| Visibility | one Master-controls row, `global.minimap.hide` (see *Settings Schema* → Global rows) |
+| Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
+| Degradation | no stub. LibKa0s absent → no `NS.Launcher`, and its two callers already guard on it. LibDataBroker or LibDBIcon absent → the library reports it on one line and `Register` answers `false`; neither is a dependency, because LibKa0s is vendored into addons whose `libs/` folders are not identical |
+
+There is deliberately **no** setting that disables the broker object and none that reassigns either
+button: a broker display already offers its own per-plugin toggle, and the rung is a property of the
+addon rather than a preference.
 
 ## Event Subscriptions
 
@@ -158,7 +191,7 @@ they were filed from.
 | Doc | Status | Trigger |
 |---|---|---|
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
-| `slash-dispatch.md` | Present | 16 commands in `NS.COMMANDS` (trigger: eight or more) |
+| `slash-dispatch.md` | Present | 17 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims (trigger: three or more) |

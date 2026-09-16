@@ -11,7 +11,7 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Page | Tab | Covers |
 |---|---|---|
 | Ka0s Party Frame Enhanced | — (landing page) | logo, the TOC Notes line, the slash command list |
-| General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, reset position, reset all |
+| General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all |
 | General | Party frames | which frame system elements attach to; whether your own row is included |
 | General | Health updates | one *Update health* switch and *Health refresh* pace, shared by target and pet frames |
 | Cast Bars | General | enable, fade out |
@@ -46,6 +46,7 @@ free-placement stacks are movable, so every row applies.
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
 | Lock frame | `locked` | **The addon's one preview switch** (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
+| Minimap button | `global.minimap.hide` | shows or hides the launcher's minimap button (launcher-§3). **The row says SHOWN and the stored key says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` registers them with `NS.RegisterGlobalSetting`) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons and *Reset all settings* -- a profile reset by definition -- must not un-hide one they hid. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |
 

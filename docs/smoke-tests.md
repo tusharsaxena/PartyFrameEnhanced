@@ -24,6 +24,7 @@ mode are added by the phases that build them (plan P2–P6).
 | H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
 | I | Preview, placement and status | any Retail; a party for the attached steps |
 | J | Preview, the stand-in and the party-only rule | solo; a party; each of the three frame systems |
+| K | The launcher: minimap button and broker plugin | any Retail; a broker display for step 56 |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -33,14 +34,16 @@ mode are added by the phases that build them (plan P2–P6).
    missing `[PFE]` on every line.
 2. **`/reload`** → no errors.
 3. **AddOn list.** The character-select AddOn list shows **Ka0s Party Frame Enhanced** with its notes
-   line and icon.
+   line and **the addon's own logo** as its icon — not a Blizzard achievement icon, and not a blank
+   square. *Failure:* a blank square means `media/logos/partyframeenhanced.logo.128.tga` did not load;
+   it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
 
 ## B. Slash surface
 
 4. `/pfe` alone → the settings panel opens on the landing page (in combat: the gray refusal
-   instead). `/pfe help` → the help block: a version line and sixteen verbs (help, config, list, get, set,
-   reset, resetall, resetposition, lock, unlock, test, status, debug, perf, version, profile), each
-   a gold `/pfe <verb>`, an em dash and a white description.
+   instead). `/pfe help` → the help block: a version line and seventeen verbs (help, config, enable,
+   disable, list, get, set, reset, resetall, resetposition, lock, unlock, status, debug, perf,
+   version, profile), each a gold `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` and `/partyframeenhanced help` → the same as `/pfe` and `/pfe help`.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
 7. `/pfe version` → `[PFE] v0.1.0`.
@@ -50,6 +53,11 @@ mode are added by the phases that build them (plan P2–P6).
    → back to `auto`. `/pfe set scale abc` → an invalid-value line, nothing changed.
 10. `/pfe unlock` → `Elements unlocked — drag them into place`; the General page's *Lock frame*
     unticks if open. `/pfe lock` → locked again.
+10a. `/pfe disable` → `enabled = false` in the same gold/white shape `/pfe set` prints, everything
+    the addon draws goes, and the General page's *Enable Party Frame Enhanced* unticks if open. Then,
+    **while disabled**: `/pfe` still opens the panel, `/pfe help` still lists `enable`, `/pfe version`
+    still answers. `/pfe enable` → `enabled = true` and it all comes back. *Failure:* any of those
+    four going quiet — the switch would only go one way (slash-commands-§2).
 
 ## C. Settings panel and the combat gate
 
@@ -57,7 +65,7 @@ mode are added by the phases that build them (plan P2–P6).
     the Notes line and the slash-command list show (the same rows as `/pfe help`).
 12. **General** → a two-tab strip, **Master controls** then **Party frames**. Master controls holds, in
     order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
-    *Lock frame* · *Debug console*, and then the button pair straight away — **there is no Test mode
+    *Lock frame* · *Debug console* / *Minimap button*, and then the button pair — **there is no Test mode
     checkbox** (options-ui-§15 exempts this addon; a box labeled *Test mode* here is the
     duplicate-switch finding, anti-pattern #80). Unticking *Lock frame* is what starts preview, and
     combat re-ticks it
@@ -227,6 +235,37 @@ EllesmereUI's, where noted.
     While unlocked `/pfe status` reads *unlocked (stand-in)* or *unlocked (your party frames)*.
     In combat, `/pfe unlock` → a gray *cannot unlock during combat* and nothing moves; `/pfe lock`
     still works. Disable the addon while unlocked → *Locked — the addon was disabled*.
+
+## K. The launcher — minimap button and broker plugin
+
+53. **The button is there, wearing the addon's own logo.** Log in → a round button on the minimap ring
+    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → nothing
+    is required to appear (this addon supplies no tooltip yet). Drag it around the ring → it stays
+    where you left it after `/reload`. *Failure:* a blank button is the 128 `.tga` not loading; a
+    button that jumps back to its old angle on reload is `minimapPos` not being written to the table
+    LibDBIcon was handed.
+54. **Left-click is the preview switch (rung b).** Left-click → the elements unlock exactly as
+    `/pfe unlock` unlocks them (stand-in out of a party, placeholders in one), and the General page's
+    *Lock frame* unticks if open. Left-click again → locked. In combat, left-click → the same gray
+    *cannot unlock during combat* and nothing moves. *Failure:* a left click that opens the settings
+    panel — the panel is already on the right button, so that is the rule skipped, not a choice
+    (launcher-§2, anti-pattern #81).
+55. **Right-click always opens the settings.** Right-click, locked or unlocked → the settings panel
+    opens on the landing page and the lock does not move. In combat → the same gray refusal `/pfe
+    config` gives.
+56. **The broker plugin is the same object.** With Titan Panel, ElvUI data texts or Bazooka installed,
+    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click unlocks, right-click
+    opens the settings. *Failure:* an empty value cell beside the icon means the object was registered
+    as a `data source` rather than a `launcher`.
+57. **The Minimap button row, both ways.** General → Master controls → untick **Minimap button** → the
+    button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.
+    Then hide it from **LibDBIcon's own right-click menu** instead and reopen the panel → the checkbox
+    is already unticked. *Failure:* the two disagreeing is a second copy of one state
+    (launcher-§3, anti-pattern #81).
+58. **The button is account-wide furniture.** Hide the button, then: switch profiles (`/pfe profile
+    new smoke`) → still hidden. Run **Reset all settings** → still hidden. Log in on a different
+    character → still hidden. *Failure:* the button coming back on any of the three means the table is
+    profile-scoped, which launcher-§3 forbids for exactly these reasons.
 
 ## T. Non-English client (locale)
 

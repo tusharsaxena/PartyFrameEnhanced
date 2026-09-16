@@ -81,7 +81,22 @@ now the `locked` row's validate.
 
 ```text
 global.schemaVersion = 1
+global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
+
+`global.minimap` is **LibDBIcon-1.0's own table**, handed straight to its `:Register` and written by
+it too — `hide` from the button's right-click menu, `minimapPos` when the player drags the button
+(architecture-§5 governs both). The declared default above is what materializes it.
+
+It is **global rather than profile** because launcher-§3 fixes it there, for two stated reasons: a
+profile switch must not move the player's buttons, and options-ui-§12's *Reset all settings* — a
+profile reset by definition — must not un-hide a button they deliberately hid.
+
+`hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.hide`,
+which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says
+**shown** and the key says **hidden**, so `settings/General.lua` registers the inverting get/set with
+`NS.RegisterGlobalSetting` and the seam bridges them once. **No migration:** this addon never stored
+a minimap table anywhere else, so the path is new rather than moved and `schemaVersion` stays at 1.
 
 ## Migrations
 

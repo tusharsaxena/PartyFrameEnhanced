@@ -229,7 +229,7 @@ badge and any count quoted in the docs must agree with it.
 - spelling: every authored file is US English (localization-§5)
 - spelling: the gate is not vacuous — a planted British word is caught
 
-### test_slash.lua (12)
+### test_slash.lua (15)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -243,6 +243,24 @@ badge and any count quoted in the docs must agree with it.
 - slash: `perf` prints what the harness returns
 - slash: `profile` with no argument prints the sub-verb list
 - slash: an unknown verb says so and prints help
+- slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
+- slash: `enable` echoes the stored value in the shared `path = value` shape
+- slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way
+
+### test_launcher.lua (12)
+
+- launcher: one object, registered twice under the addon's FOLDER name
+- launcher: Register is idempotent -- a second call builds no second button
+- launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture names that file
+- launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
+- launcher: the left click and `/pfe unlock` are the same seam, not two
+- launcher: RIGHT click always opens the settings panel
+- launcher: the Minimap button row is composed, stored, and in its canonical position
+- launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
+- launcher: LibDBIcon was handed the SAME table the row writes
+- launcher: the minimap table is GLOBAL -- a profile switch and Reset all leave it alone
+- launcher: a host with NEITHER broker library loads, reports, and does not raise
+- launcher: the main harness -- no broker libraries at all -- never raised
 
 ### test_optionssetup.lua (8)
 
@@ -299,9 +317,10 @@ badge and any count quoted in the docs must agree with it.
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
-| test_slash.lua | 12 |
+| test_slash.lua | 15 |
+| test_launcher.lua | 12 |
 | test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **186** |
+| **Total** | **201** |

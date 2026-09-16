@@ -188,6 +188,17 @@ local function syncEvents()
         if on and Units.IsIncluded(unit) then
             if not btn.__registered then
                 btn:RegisterUnitEvent("UNIT_TARGET", unit)
+                -- AND THE NAME, WHICH ARRIVES LATE. UNIT_TARGET fires the moment the owner's
+                -- target CHANGES, and at that instant UnitName(btn.token) can still be nil --
+                -- the client has the unit but not yet its name, which is routine for someone
+                -- who just came into range and for cross-realm players. RenderName then writes
+                -- "" and NOTHING RE-RENDERS, so the frame kept a blank name until the owner
+                -- happened to change target again. Owner-reported: one frame showing its health
+                -- and percent with no name above it.
+                -- Filtered on btn.token, not on `unit`: UNIT_TARGET carries the OWNER as its
+                -- payload unit, UNIT_NAME_UPDATE carries the unit whose name resolved, and
+                -- those are different tokens on the same button.
+                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
                 btn.__registered = true
             end
         elseif btn.__registered then

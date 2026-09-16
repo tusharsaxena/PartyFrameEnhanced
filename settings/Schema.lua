@@ -324,25 +324,40 @@ local function defaultsFor(row, profileDefaults)
     return profileDefaults, "defaults.profile"
 end
 
+--- The four declarative checks over one row: it names a path, a page and a type this addon knows,
+--- and (options-ui-§13) a group to sit in unless it is a Profiles row, which the profiles page lays
+--- out itself. Reports each independently rather than stopping at the first, so one bad row prints
+--- everything wrong with it in a single pass. Returns the error count and whether the path is
+--- usable, which is what decides if the caller can go on to resolve it against the defaults.
+--- Lifted out of ValidateSchema rather than inlined, alongside defaultsFor above and for the same
+--- reason: a run of independent guards reads to the complexity gate as branching, and what remains
+--- in ValidateSchema is then the walk itself.
+local function validateRowShape(row, where)
+    local errors = 0
+    local hasPath = type(row.path) == "string" and row.path ~= ""
+    if not hasPath then
+        schemaError(where, "missing or empty `path`"); errors = errors + 1
+    end
+    if not VALID_PAGES[row.page] then
+        schemaError(where, "invalid `page` = " .. tostring(row.page)); errors = errors + 1
+    end
+    if not VALID_TYPES[row.type] then
+        schemaError(where, "invalid `type` = " .. tostring(row.type)); errors = errors + 1
+    end
+    if row.page ~= "profiles" and type(row.group) ~= "string" then
+        schemaError(where, "missing `group` (options-ui-§13)"); errors = errors + 1
+    end
+    return errors, hasPath
+end
+
 --- Returns shape `errors`, paths `resolved` against defaults.profile, and `missing` paths.
 function NS.ValidateSchema()
     local errors, resolved, missing = 0, 0, 0
     local defaults = (NS.defaults and NS.defaults.profile) or {}
     for i, row in ipairs(NS.Schema) do
         local where = "row #" .. i .. " (" .. tostring(row.path or "<no path>") .. ")"
-        local hasPath = type(row.path) == "string" and row.path ~= ""
-        if not hasPath then
-            schemaError(where, "missing or empty `path`"); errors = errors + 1
-        end
-        if not VALID_PAGES[row.page] then
-            schemaError(where, "invalid `page` = " .. tostring(row.page)); errors = errors + 1
-        end
-        if not VALID_TYPES[row.type] then
-            schemaError(where, "invalid `type` = " .. tostring(row.type)); errors = errors + 1
-        end
-        if row.page ~= "profiles" and type(row.group) ~= "string" then
-            schemaError(where, "missing `group` (options-ui-§13)"); errors = errors + 1
-        end
+        local shapeErrors, hasPath = validateRowShape(row, where)
+        errors = errors + shapeErrors
         if hasPath and row.page ~= "profiles" and not row.sessionOnly then
             local against, label = defaultsFor(row, defaults)
             if NS.ResolvePath(against, row.path) ~= nil then

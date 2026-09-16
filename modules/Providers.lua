@@ -194,6 +194,23 @@ local function logResolve(p)
         #found > 0 and table.concat(found, ", ") or "no party frames")
 end
 
+--- Did this resolve turn up anything a consumer would see differently — a different provider, or a
+--- different frame under any tracked unit? The `stale` flag counts as changed and is consumed here:
+--- SetStandIn raises it when it edits the map behind a suspended resolve, and that edit has to be
+--- published by the next live resolve even though nothing else moved. Must be asked BEFORE `active`
+--- is reassigned, since the provider comparison is against the previous one. Lifted out of
+--- Providers.Resolve rather than inlined, to keep that sequence under the complexity gate: the scan
+--- is a run of comparisons the gate reads as branching, and what remains in Resolve is the
+--- gather-then-publish shape it is actually about.
+local function resolveChanged(p)
+    if stale then stale = false; return true end
+    if p ~= active then return true end
+    for _, unit in ipairs(UNITS) do
+        if scratch[unit] ~= map[unit] then return true end
+    end
+    return false
+end
+
 --- Rebuild the unit → frame map now. Sends LAYOUT only when the provider or any unit's frame
 --- changed, so a resolve that finds what it already had costs its consumers nothing.
 function Providers.Resolve()
@@ -210,13 +227,7 @@ function Providers.Resolve()
     end
     -- Test mode's stand-in fills party1 when no real frame does, asleep or not: a real frame wins.
     if standIn and scratch.party1 == nil then scratch.party1 = standIn end
-    local changed = stale or p ~= active
-    stale = false
-    if not changed then
-        for _, unit in ipairs(UNITS) do
-            if scratch[unit] ~= map[unit] then changed = true; break end
-        end
-    end
+    local changed = resolveChanged(p)
     active = p
     if changed then map, scratch = scratch, map end
     -- Noted BEFORE the send, so the consumers' anchor work is not billed to this bucket.

@@ -65,6 +65,24 @@ mode are added by the phases that build them (plan P2–P6).
     default position. *Failure:* a second line, a lecture about the state, or a verb that prints the
     refusal and then acts anyway.
 
+10c. Still **while disabled**, the **stand-down is total**, which is the half a chat window cannot
+    show you. `/pfe debug on` and watch: entering and leaving combat, joining and leaving a party,
+    and switching target produce **no** `[Cast]`, `[Target]`, `[Pet]`, `[Party]` or `[Secure]` line,
+    because nothing is registered to produce one. *Failure:* any line at all — the addon stopped
+    reacting rather than stopping watching, and it is still paying the dispatch on every event the
+    player switched it off to stop paying for.
+
+10d. Still **while disabled**, **left-click the minimap button**: one tagged line naming
+    `/pfe enable`, and nothing else — the elements do not unlock and no stand-in appears.
+    **Right-click** it: the settings panel opens, exactly as it does when the addon is running.
+    *Failure:* a left click that unlocks (it would be writing the stored tree of an addon the player
+    switched off), or a right click that refuses.
+
+10e. `/pfe enable` again, then `/reload`. Everything comes back, and it comes back from the settings
+    **as they are now**: change a setting while the addon is disabled — `/pfe set castbar.enabled
+    false` — then `/pfe enable`, and the cast bars stay off. *Failure:* the addon standing up into
+    the state it had when it went down.
+
 ## C. Settings panel and the combat gate
 
 11. `/pfe config` out of combat → Settings opens on **Ka0s Party Frame Enhanced**: the logo renders,

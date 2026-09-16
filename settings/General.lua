@@ -86,7 +86,12 @@ local masterRows, masterTail = H.MasterControls({
 -- move a handler onto the wrong row. Scale and alpha need nothing extra: the seam publishes CONFIG
 -- ("master") and every element restyles from it.
 local masterOnChange = {
-    enabled    = function() NS.PublishVisibility() end,
+    -- THE ONE WRITE SEAM'S ONE EFFECT (slash-commands-§7). The checkbox, `/pfe enable`,
+    -- `/pfe disable` and `/pfe set enabled …` all arrive here, and all they do is take or release
+    -- the `disabled` hold on the addon's single latch. The stand-down and the stand-up publish
+    -- VISIBILITY themselves, so there is nothing else for this row to do — and nothing here holds a
+    -- second copy of the state the checkbox and the verbs would then be free to disagree about.
+    enabled    = function(v) NS.ApplyEnabled(v) end,
     visibility = function() NS.PublishVisibility() end,
     -- Unlocking IS preview mode (preview-mode), and the only switch for it: options-ui-§15 exempts
     -- this addon from a Test mode row because unlocking already raises the stand-in and paints the

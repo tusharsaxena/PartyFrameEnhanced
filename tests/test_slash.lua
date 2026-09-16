@@ -126,7 +126,14 @@ test("slash: `enable` and `disable` are ALIASES for the Enable row -- no state o
   NS.SetByPath = saved
   target:UnregisterMessage(NS.MSG.CONFIG)
   assertEqual(table.concat(writes, ","), "enabled=false,enabled=true", "one path, one seam")
-  assertEqual(table.concat(sections, ","), "master,master", "and the row's onChange ran both times")
+  -- ONE CONFIG, NOT TWO, and that is the stand-down rather than a missed publish. The `enabled`
+  -- row's onChange takes the latch's `disabled` hold, which unregisters every bus receiver -- this
+  -- probe included -- BEFORE the seam publishes CONFIG, so the disable edge reaches nobody by
+  -- design. `enable` releases the hold, the receivers come back from the record, and the publish
+  -- that follows is heard. Every module rebuilds from CURRENT state on the way up, so nothing is
+  -- lost by the message the disable edge did not deliver.
+  assertEqual(table.concat(sections, ","), "master", "and the onChange ran on both edges")
+  assertTrue(not NS.IsStoodDown(), "the latch, not a second copy of the switch, carries the state")
 end)
 
 test("slash: `enable` echoes the stored value in the shared `path = value` shape", function()
@@ -162,7 +169,10 @@ end)
 -- verb that drives the addon's features refuses on one tagged line naming `/pfe enable` and does
 -- nothing else, while the twelve reserved verbs plus this addon's two diagnostics stay live.
 
-local REFUSAL = "/pfe enable turns it back on"
+-- The collection's ONE refusal line, matched by SHAPE rather than by its words: the wording lives in
+-- LibKa0s-Slash-1.0 (`lib.DISABLED_LINE_FORMAT`, `cli:DisabledLine()`) and is not this addon's to
+-- re-spell, so hard-coding the sentence here would pin a string the addon does not own.
+local REFUSAL = "/pfe enable"
 
 test("slash: a feature verb REFUSES while disabled -- one line, and it does NOT act", function()
   -- red under: a verb that prints the refusal and then acts anyway. A case checking only the message
@@ -179,8 +189,9 @@ test("slash: a feature verb REFUSES while disabled -- one line, and it does NOT 
   NS.SetByPath("enabled", true)
 
   assertEqual(#out, 1, "exactly one line -- no second line, no paragraph")
+  assertTrue(out[1]:find(NS.Slash.__cli:DisabledLine(), 1, true) ~= nil,
+    "verbatim the library's line under the addon's tag, not a re-spelling")
   assertTrue(out[1]:find(REFUSAL, 1, true) ~= nil, "it names the verb that turns the addon back on")
-  assertTrue(out[1]:find("resetposition", 1, true) ~= nil, "and says which verb it refused")
   assertEqual(calls, 0, "the act never ran")
 end)
 
@@ -243,7 +254,13 @@ test("slash: the live set still ANSWERS and still ACTS while the addon is off", 
   NS.SetByPath("general.provider", "blizzard")
   NS.SetByPath("enabled", false)
 
-  unrefused(slash("help"), "help")
+  -- `help` is the one live verb that carries the line, and it is not a refusal OF help: the index
+  -- prints in full, because the player has to be able to SEE `enable` in the list. The line is a
+  -- statement about the rows below it, which is why the library puts it under the header.
+  local help = joined(slash("help"))
+  assertTrue(help:find("/pfe enable", 1, true) ~= nil, "help still lists `enable`")
+  assertTrue(help:find("/pfe lock", 1, true) ~= nil, "and still lists the verbs it is refusing")
+
   unrefused(slash("version"), "version")
   unrefused(slash("list"), "list")
   unrefused(slash("status"), "status")

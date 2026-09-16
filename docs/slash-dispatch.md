@@ -17,7 +17,7 @@ The landing page renders the same table.
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |
 | `reset <path>` | one setting back to its default | yes |
 | `resetall` | the global reset: the active profile back to defaults | yes |
-| `resetposition` | every free-placement stack back to its default position (`NS.Anchor.ResetPositions`). **Refuses while the addon is disabled** | no |
+| `resetposition` | every free-placement stack back to its default position (`NS.Anchor.ResetPositions`). **Refuses while the addon is disabled** — one line, the library's | no |
 | `lock` | locks the elements and leaves preview mode. **Refuses while the addon is disabled** | no |
 | `unlock` | unlocks them for dragging, with placeholder content; refused in combat with a gray notice. **Refuses while the addon is disabled**, at the dispatcher — before the write seam | no |
 | ~~`test`~~ | **Removed** (options-ui-§15). Unlocking already is this addon's preview, so `unlock` / `lock` are the switch and a second verb for the same state was the finding (anti-pattern #80). What it did — placeholders at the real party frames in a party, a stand-in party frame for party1 out of one, refused in combat, disabled or suspended; ends when combat starts | no |
@@ -29,33 +29,51 @@ The landing page renders the same table.
 
 ## The disabled state
 
-**The dispatcher survives it.** `Sl:Register` runs in `addon:OnInitialize` in either state, so
-`/pfe` is always registered and the `COMMANDS` table is never torn down (slash-commands-§2).
-*Disabled* means the features stand down; it does not mean the chat command goes away. `enable`
-above all — with `help`, `config` and `version` — must answer, or the switch only goes one way and
-the player who turned the addon off has no route back but the settings panel they were trying not to
-open.
+**The addon stands down; the command surface does not.** Those are two separate facts and they are
+not in tension. The stand-down is total — every registration unregistered, every timer canceled,
+nothing drawn, nothing written from a game event (slash-commands-§7, and
+[ARCHITECTURE.md](ARCHITECTURE.md#the-disabled-state-is-total)) — while the dispatcher, the
+`COMMANDS` table, the settings registration and the launcher registration are **setup**, not
+features: they come up on load in either state and stay up. Keeping them live costs nothing the
+stand-down was trying to reclaim. The addon is inert; its command surface is not the addon.
 
-**A verb that drives the features refuses.** With `enabled` false, `resetposition`, `lock` and
-`unlock` answer on **one** tagged line naming `/pfe enable` and do nothing else — no partial work,
-no side effect, no second line. Acting would be wrong twice over: the player asked for something the
-addon is standing down from, and a silent no-op leaves them with no clue why nothing happened.
+`Sl:Register` runs in `addon:OnInitialize` in either state, so `/pfe` is always registered.
 
-The gate is **one place and deny by default**: `settings/Slash.lua` wraps each handler once, between
-the `COMMANDS` table and the dispatcher, so the next verb added is gated unless it is named in
-`LIVE_WHILE_DISABLED`. A per-verb guard would be a dozen places to forget and would forget in the
-wrong direction. Wrapping touches only the handler, so the help block and the About page's command
-list are unchanged.
+**Every reserved verb answers, and the bare `/pfe` opens the settings panel.** `help`, `config`,
+`version`, `enable`, `disable`, `debug`, `perf` and the whole schema CLI — `get`, `set`, `list`,
+`reset`, `resetall` — all behave exactly as they do when the addon is running. A player must be able
+to read and repair settings and to reach the panel while the addon is off, which is precisely when
+they are most likely to need to, and `enable` above all or the switch only goes one way. `debug` and
+`perf` are diagnostics rather than features: the usual reason to reach for either is that the addon
+is misbehaving.
 
-**What stays live**, named once as data: the twelve the section fixes — `help`, `config`, `version`,
-`enable`, `disable`, `debug`, `perf`, and the schema CLI (`get`, `set`, `list`, `reset`, `resetall`)
-— because a player must be able to read and repair settings and reach the panel while the addon is
-off. Plus two of this addon's own, on that same reasoning rather than as exceptions to it: **`status`**
-is a diagnostic like `debug` (it changes nothing, and its first flag is `addon disabled`, so refusing
-it would delete the answer), and **`profile`** is settings management in the class of the schema CLI.
+> The standard narrowed this surface to `enable` and `help` at v2.56.0 and **reversed it at
+> v2.57.0**, after `/pfe` on a disabled addon answered with a refusal instead of the panel — the one
+> surface a player uses to switch it back on by hand. This addon tracks the reversal (LibKa0s
+> v1.41.0, `LibKa0s-Slash-1.0` minor 13).
 
-`tests/test_slash.lua` pins all of it: the refusal is one line and the act does not run, the seam is
-never entered, every verb outside the live set refuses, and the live ones still act.
+**Only a verb that drives the features refuses.** With `enabled` false, `resetposition`, `lock` and
+`unlock` answer on **one** tagged line and do nothing else — no partial work, no side effect, no
+second line. All three drive what the addon draws, and unlocking *is* this addon's preview switch
+(options-ui-§15). Acting would be wrong twice over: the player asked for something the addon is
+standing down from, and a silent no-op leaves them with no clue why nothing happened.
+
+**The gate is the library's.** `settings/Slash.lua` hands `LibKa0s-Slash-1.0` an `isEnabled` reader
+and a `brandName`, and the dispatcher does the rest; the refusal's wording lives in
+`cli:DisabledLine()` and is the collection's, never re-spelled here. The gate sits **after** the
+`COMMANDS` lookup, so a typo still gets `unknown command '<verb>'` and the index: a misspelling is
+the addon failing to understand, not the addon refusing.
+
+**The live set this addon declares** is the standard's twelve plus two of its own, on the same
+reasoning rather than as exceptions to it: **`status`** is a diagnostic like `debug` (it changes
+nothing, and its first flag is `addon disabled`, so refusing it would delete the answer), and
+**`profile`** is settings management in the class of the schema CLI. Declaring `liveVerbs` **replaces**
+the library's default, so the twelve are spelled out beside them. Widening is conformant; narrowing
+would not be.
+
+`tests/test_slash.lua` and `tests/test_disabled.lua` pin all of it: the bare `/pfe` opens the panel
+while disabled, every reserved verb answers normally, the three feature verbs answer on exactly one
+line matching the library's own, and the seam is never entered.
 
 ## Output
 
@@ -68,3 +86,9 @@ With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host v
 (`list`, `get`, `set`, `reset`, `resetall`) each print one line naming the missing library. `enable`
 and `disable` still WRITE — only their echo degrades to that line — because the pair must never be
 one-way, whatever else is missing.
+
+The stub carries the disabled gate too, in the library's shape: the same live set, the same
+after-the-lookup ordering, the same one-line refusal built from the same format string, and the same
+line under the `help` header. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
+own — the library's contract at its smallest, not a second mechanism — so a build without LibKa0s
+still stands down, and still stands up only when the last hold is released.

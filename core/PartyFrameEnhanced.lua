@@ -55,11 +55,16 @@ end
 -- through combat flushes one write rather than forty. PLAYER_REGEN_ENABLED flushes in queue order.
 local pending, pendingOrder = {}, {}
 
+-- Forward: a write queued while the addon is already stood down still has to be completed, and the
+-- listener that completes it is the one registration slash-commands-§7 permits a disabled addon.
+local armPendingRegen, disarmPendingRegen
+
 function NS.RunSecure(key, fn)
     if InCombatLockdown() then
         if not pending[key] then pendingOrder[#pendingOrder + 1] = key end
         pending[key] = fn
         NS.Debug("Secure", "queued %s", key)
+        if NS.IsStoodDown and NS.IsStoodDown() then armPendingRegen() end
         return false
     end
     fn()
@@ -86,7 +91,41 @@ local function flushSecure()
     NS.Debug("Secure", "flushed %d deferred write(s)", n)
 end
 
--- ── suspend / resume (performance-§6), reached from core/PerfSetup.lua ───────────────────────
+-- ── the pending-secure listener, and it is the ONLY thing a stood-down addon watches ─────────
+--
+-- Secure work — SetAttribute, a state driver, SetPoint on a secure button — is refused under combat
+-- lockdown, so a stand-down that lands in combat cannot finish. It holds the write pending and
+-- completes it on PLAYER_REGEN_ENABLED, which slash-commands-§7 names as the one event registration
+-- a disabled addon is permitted to keep — and MUSTs that it is released the moment it fires.
+--
+-- On its OWN frame rather than on the addon object, because the addon object's PLAYER_REGEN_ENABLED
+-- is OnLeaveCombat and AceEvent keys a callback by (event, target): registering the same event on
+-- the same target for a second reason silently replaces the first. Armed only when there is
+-- something queued, so a stood-down addon with an empty queue watches nothing at all.
+local regenWatch
+
+function armPendingRegen()
+    if #pendingOrder == 0 then return end
+    if not regenWatch then
+        regenWatch = CreateFrame("Frame")
+        regenWatch:SetScript("OnEvent", function(self)
+            self:UnregisterAllEvents()
+            flushSecure()
+        end)
+    end
+    regenWatch:RegisterEvent("PLAYER_REGEN_ENABLED")
+end
+
+function disarmPendingRegen()
+    if regenWatch then regenWatch:UnregisterAllEvents() end
+end
+
+-- ── the stand-down, reached from the latch in core/LifecycleSetup.lua ────────────────────────
+--
+-- ONE TEARDOWN, TWO REASONS TO REACH IT (slash-commands-§7). `perf` and `disabled` are two named
+-- holds on one latch, and both land here. There is deliberately no second, disable-only path: two
+-- mechanisms that both mean "be inert" diverge on the first module added after the second was
+-- written, which is anti-pattern #85.
 
 local LIFECYCLE_EVENTS = {
     PLAYER_ENTERING_WORLD = "OnEnterWorld",
@@ -101,13 +140,30 @@ function addon:RegisterLifecycleEvents()
     for event, method in pairs(LIFECYCLE_EVENTS) do self:RegisterEvent(event, method) end
 end
 
-function NS.SuspendAll()
+--- Every registration this addon owns, actually unregistered; every timer canceled; every element
+--- refused at the source. Not a draw gate: an early-returning handler is still a handler the client
+--- pays to dispatch, and what a player switching the addon off is trying to stop paying for is
+--- exactly that dispatch.
+---
+--- ORDER IS LOAD-BEARING. The modules stand their own event frames and tickers down first and the
+--- VISIBILITY publish gets the elements hidden — both of which need the bus — and only then does the
+--- bus itself come down. Reversed, the publish would reach nobody and the frames would stay up.
+function NS.StandDown()
     for event in pairs(LIFECYCLE_EVENTS) do addon:UnregisterEvent(event) end
     each("Suspend")
     NS.PublishVisibility()
+    NS.BusStandDown()
+    -- THE ONE REGISTRATION A STOOD-DOWN ADDON KEEPS (slash-commands-§7). A secure write refused
+    -- under combat lockdown cannot be completed now and must not be abandoned, so the queue holds
+    -- it and PLAYER_REGEN_ENABLED finishes it — and that listener is released the moment it fires.
+    armPendingRegen()
 end
 
-function NS.ResumeAll()
+--- Back up, and rebuilt from CURRENT state rather than from a snapshot taken on the way down: a
+--- setting changed while the addon was off comes back correctly (performance-§6).
+function NS.StandUp()
+    disarmPendingRegen()
+    NS.BusStandUp()
     addon:RegisterLifecycleEvents()
     -- The combat state may have moved while the regen events were unregistered.
     NS.State.inCombat = UnitAffectingCombat("player") and true or false
@@ -139,6 +195,12 @@ function addon:OnEnable()
     -- AceDB built in OnInitialize, not the one that did not exist at file load. Idempotent by the
     -- library's own design, so a second call from a later login handler builds no second button.
     if NS.Launcher then NS.Launcher:Register() end
+    -- THE `disabled` HOLD, RE-TAKEN FROM THE STORED PATH (slash-commands-§7). Last, because
+    -- everything above it is SETUP — the frames, the settings category, the launcher — and setup
+    -- comes up in either state; what the hold stands down is the FEATURES. A profile saved disabled
+    -- therefore builds its secure buttons at PLAYER_LOGIN, out of combat, and then stands down,
+    -- rather than having no buttons to build when the player switches it back on in combat.
+    NS.ApplyEnabled(NS.GetSetting("enabled"))
 end
 
 function addon:OnEnterWorld()
@@ -198,6 +260,10 @@ end
 
 local function adoptProfile(tag, fmt, ...)
     NS.Debug(tag, fmt, ...)
+    -- A profile switch can flip `enabled` with no verb and no checkbox touched, so the latch is
+    -- re-evaluated BEFORE anything is published: a profile that enables the addon has to be back up
+    -- to hear the messages below, and one that disables it has nothing that should hear them.
+    NS.ReevaluateEnabled()
     publishProfile()
     NS.PublishVisibility()
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end

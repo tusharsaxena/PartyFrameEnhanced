@@ -1,0 +1,297 @@
+-- tests/test_disabled.lua — the stand-down conformance suite (slash-commands-§7, anti-pattern #85).
+--
+-- WHAT THIS SUITE IS FOR, AND WHAT IT REFUSES TO BE. "Disabled" is total: the addon stops drawing,
+-- stops watching, stops writing, and the only thing left alive is the surface that can turn it back
+-- on. Eleven addons in this collection implemented that as a DRAW GATE — a rung in a show ladder, a
+-- boolean an early return consults — and every one of them passed its own tests, because a suite
+-- written against a handler's early return CANNOT tell a draw gate from a stand-down. An early
+-- return means the addon did not stop watching, it stopped reacting, and it still pays the dispatch
+-- on every event.
+--
+-- So every negative assertion below reads the REGISTRATION SET out of the kit's recording mock. Not
+-- a handler's return value, not a flag, not "did the frame hide". If a case here could be satisfied
+-- by an `if disabled then return end`, it is the wrong case and it is certifying the thing it exists
+-- to catch.
+--
+-- `__fire` on a frame reaches its OnEvent whether or not the frame ever registered, so a case that
+-- only fires an event proves nothing about a stand-down. Step 6 fires through the LIVE registry
+-- (`__fire`, which walks the registrations) and then deliberately reaches a handler anyway
+-- (`__fireUnconditional`) to prove the harness can still dispatch — otherwise "nothing ran" would be
+-- a statement about the mock rather than about the addon.
+
+local T = _G.PFE_TEST
+local test, assertEqual, assertTrue, assertFalse = T.test, T.assertEqual, T.assertTrue, T.assertFalse
+local NS, mocks = T.NS, T.mocks
+
+local function settle() while mocks.__fireTimers() > 0 do end end
+
+-- One registration rendered as a comparable string. The target is named where it has a name — which
+-- is every frame this addon creates — because the per-unit filter is what a careless rebuild widens,
+-- and `UNIT_SPELLCAST_START` on the wrong bar has the same count and a different set.
+local function sig(r)
+  return (r.target.__name or r.kind) .. "|" .. r.kind .. "|" .. tostring(r.event) .. "|" .. tostring(r.unit)
+end
+
+local function regs()
+  local out = {}
+  for _, r in ipairs(mocks.__registrations()) do out[#out + 1] = sig(r) end
+  table.sort(out)
+  return out
+end
+
+--- The frames this ADDON shows. Filtered by name rather than taken whole: the kit hands out a
+--- parentless stub for every CreateTexture and CreateFontString, those stubs land in the mock's
+--- frame set, and nothing ever hides them because nothing ever showed them. Every frame this addon
+--- creates carries a name, so the name is the filter that separates the addon's screen from the
+--- mock's bookkeeping.
+--- The DIAGNOSTIC windows, which are not the addon's display and are not stood down with it. `debug`
+--- and `perf` answer while disabled (slash-commands-§2) precisely because the usual reason to reach
+--- for either is that the addon is misbehaving, and a console that closed itself the moment the
+--- player switched the addon off would be useless at the one moment it is wanted.
+local function isDiagnostic(name)
+  return name:find("PerfPanel", 1, true) ~= nil or name:find("DebugLog", 1, true) ~= nil
+end
+
+local function shownOwn()
+  local out = {}
+  for _, f in ipairs(mocks.__shownFrames()) do
+    local name = type(f.__name) == "string" and f.__name or ""
+    if name:find("PartyFrameEnhanced", 1, true) and not isDiagnostic(name) then
+      out[#out + 1] = f
+    end
+  end
+  return out
+end
+
+local function enable(on) NS.SetByPath("enabled", on) settle() end
+
+-- Brought up ENABLED and unlocked, so there is something on screen to take away: preview is this
+-- addon's only display switch outside a live cast (options-ui-§15), and an addon with an empty
+-- baseline would pass every assertion below trivially.
+local R_on, F_on = {}, {}
+
+test("disabled: the baseline — enabled, the addon registers and draws", function()
+  enable(true)
+  NS.SetByPath("locked", false)
+  settle()
+  mocks.__runStateDrivers()
+
+  R_on = regs()
+  F_on = shownOwn()
+  assertTrue(#R_on > 0, "an addon that registers nothing when enabled proves nothing when disabled")
+  assertTrue(#F_on > 0, "and it has something on screen to take away")
+  assertEqual(#mocks.__timers(), 0, "nothing was left armed by the baseline itself")
+end)
+
+test("disabled: every registration the addon owns is UNREGISTERED, not gated", function()
+  -- red under: drop the each("Suspend") / NS.BusStandDown() pair in NS.StandDown, or replace either
+  -- with a flag the handlers read — the handlers would still early-return, every assertion about
+  -- behavior would still pass, and this one would go red, which is the entire point of it.
+  --
+  -- Written through the WRITE SEAM, never by calling NS.StandDown directly: the route the checkbox
+  -- and `/pfe disable` take is the route that has to work.
+  enable(false)
+
+  local after = regs()
+  assertEqual(#after, 0, "by count: " .. table.concat(after, ", "))
+  for _, s in ipairs(after) do assertTrue(false, "still registered: " .. s) end
+end)
+
+test("disabled: nothing is left armed to wake up", function()
+  -- red under: a Suspend that leaves a ticker or an OnUpdate running. A coalescing repaint timer
+  -- that re-arms ten times a second and then finds nothing to paint is the most expensive shape
+  -- slash-commands-§7 exists to kill.
+  assertEqual(#mocks.__timers(), 0, "no AceTimer handle, no C_Timer ticker, no OnUpdate")
+  settle()
+  assertEqual(#mocks.__timers(), 0, "and none is armed for the rest of the run")
+end)
+
+test("disabled: every frame that was on screen is hidden, and refused at the source", function()
+  for _, f in ipairs(F_on) do
+    assertFalse(f:IsShown(), "still shown: " .. tostring(f.__name))
+  end
+  -- At the SOURCE, not imperatively: a hidden frame comes back on a combat transition or a settings
+  -- change, so the show ladder itself has to answer no.
+  assertFalse(NS.Element.MasterShows(), "the show ladder's step 0 answers no")
+  assertEqual(#shownOwn(), 0, "and nothing of the addon's is left on screen")
+end)
+
+test("disabled: no game event produces a write, a line, or a frame", function()
+  -- red under: any handler that acts on the disabled state — the collection's live example is an
+  -- addon that writes `locked = true` and prints to chat on entering combat WHILE DISABLED, which is
+  -- the failure in its purest form, because the absence of that line is the player's evidence that
+  -- the addon is off.
+  mocks.__resetSvWrites()
+  mocks.__resetPrinted()
+  local shownBefore = #shownOwn()
+
+  local fired = {}
+  local ran = 0
+  for _, s in ipairs(R_on) do
+    local event = s:match("|[^|]*|([^|]*)|")
+    if event and event ~= "nil" and not fired[event] then
+      fired[event] = true
+      ran = ran + mocks.__fire(event, "player")
+    end
+  end
+  -- By name, because this is the one the collection's live example fails on.
+  ran = ran + mocks.__fire("PLAYER_REGEN_DISABLED")
+  assertEqual(ran, 0, "the client had nobody to dispatch to")
+
+  assertEqual(#mocks.__svWrites(), 0, "zero SavedVariables writes")
+  assertEqual(#mocks.__printed(), 0, "zero lines to the player")
+  assertEqual(#shownOwn(), shownBefore, "zero frames shown")
+
+  -- THE FALSIFICATION HALF. `__fire` over an empty registry runs nothing, so "no write, no line, no
+  -- frame" is equally true of a harness that lost the ability to dispatch at all. Reach a handler
+  -- the addon still owns but the client can no longer see, and prove it is still there.
+  local bar = F_on[1]
+  assertEqual(mocks.__fireUnconditional(bar, "UNIT_SPELLCAST_START", bar.unit), 1,
+    "the handler is still callable — it is simply no longer reachable from the client")
+  assertEqual(#mocks.__svWrites(), 0, "and even reached directly it wrote nothing")
+end)
+
+test("disabled: the whole reserved surface still answers, and only feature verbs refuse", function()
+  -- This step is NOT the stand-down — the five above are. It pins slash-commands-§2's surface, which
+  -- v2.56.0 narrowed to `enable` and `help` and v2.57.0 REVERSED: every reserved verb answers while
+  -- disabled, and the bare `/pfe` opens the settings panel, which is the case that settled it.
+  local live = NS.Slash.__liveWhileDisabled
+  local line = NS.Slash.__cli:DisabledLine()
+
+  local function dispatch(msg)
+    local before = #mocks.__chat
+    NS.Slash:OnSlash(msg)
+    local out = {}
+    for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+    return out
+  end
+
+  local opens = 0
+  local savedOpen = NS.OpenOptionsPanel
+  NS.OpenOptionsPanel = function() opens = opens + 1 end
+
+  assertEqual(#dispatch(""), 0, "the bare /pfe printed no refusal")
+  assertEqual(opens, 1, "it opened the settings panel, exactly as it does when the addon is running")
+
+  local refused = {}
+  for _, e in ipairs(NS.COMMANDS) do
+    local verb = e[1]
+    -- Re-asserted before EVERY verb, because the live set contains verbs that legitimately turn the
+    -- addon back on: `enable` by name, and `resetall`, whose defaults have it on. Walking the table
+    -- without this would test the first few verbs disabled and the rest enabled, and pass.
+    NS.SetByPath("enabled", false)
+    local before = #mocks.__chat
+    NS.Slash:OnSlash(verb == "debug" and "debug off" or verb)
+    local out = {}
+    for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+    if live[verb] then
+      -- `help` carries the line under its header — it is a statement about the rows below it, not a
+      -- refusal of help, and the index prints in full so the player can SEE `enable`.
+      if verb ~= "help" then
+        assertTrue(table.concat(out, "\n"):find(line, 1, true) == nil, verb .. " was refused")
+      end
+    else
+      assertEqual(#out, 1, verb .. " answered on more than one line")
+      assertTrue(out[1]:find(line, 1, true) ~= nil, verb .. " did not print the collection's line")
+      refused[#refused + 1] = verb
+    end
+  end
+  NS.OpenOptionsPanel = savedOpen
+
+  assertEqual(table.concat(refused, ","), "resetposition,lock,unlock",
+    "the three verbs that drive what this addon draws, and only those")
+  assertEqual(NS.GetSetting("enabled"), false, "and none of that turned the addon back on")
+end)
+
+test("disabled: re-enabled, the addon rebuilds from CURRENT state", function()
+  -- red under: a stand-up that replays a snapshot taken on the way down. The second half changes a
+  -- setting WHILE the addon is off, which a snapshot cannot know about (performance-§6).
+  -- `resetall` ran in the step above and put `locked` back to its shipped default, which ends
+  -- preview; the baseline was taken unlocked. Restored explicitly rather than left to luck, because
+  -- what this case compares is the registration set and preview owns one of its rows.
+  enable(true)
+  NS.SetByPath("locked", false)
+  settle()
+  mocks.__runStateDrivers()
+  assertEqual(table.concat(regs(), "\n"), table.concat(R_on, "\n"), "the same set came back")
+
+  enable(false)
+  NS.SetByPath("castbar.enabled", false)
+  enable(true)
+  local without = regs()
+  assertTrue(#without < #R_on, "the rebuild reflects the setting changed while it was off")
+
+  -- Unlocked again for the same reason as above: standing down force-locks, because an addon the
+  -- player switched off must not leave placeholders on their screen.
+  NS.SetByPath("castbar.enabled", true)
+  NS.SetByPath("locked", false)
+  settle()
+  assertEqual(table.concat(regs(), "\n"), table.concat(R_on, "\n"), "and putting it back restores it")
+end)
+
+test("disabled: two holds, one latch — releasing one never resurrects the other's addon", function()
+  -- red under: a resume that calls a bare stand-up, or a `disable` that stands the addon up on its
+  -- way out. This is the trap the latch exists for and it is reachable in the client: `/pfe disable`
+  -- and `/pfe enable` are both live, so a player can use either DURING a suspended perf arm.
+  local lc = NS.lifecycle
+
+  lc:Hold("perf")
+  enable(false)
+  assertEqual(#regs(), 0, "both holds taken")
+  lc:Release("perf")
+  assertEqual(#regs(), 0, "the perf arm ended and the addon the player disabled stayed down")
+  enable(true)
+  assertTrue(#regs() > 0, "releasing the LAST hold is the only thing that stands it up")
+
+  -- The other order, because hold order must not matter.
+  enable(false)
+  lc:Hold("perf")
+  assertEqual(#regs(), 0, "both holds taken")
+  enable(true)
+  assertEqual(#regs(), 0, "the capture still has it, so it is still down")
+  lc:Release("perf")
+  assertTrue(#regs() > 0, "and only now does it come back")
+
+  assertFalse(lc:IsHeld("perf"), "nothing was left holding")
+  assertEqual(#lc:Holds(), 0, "the hold set is empty")
+end)
+
+test("disabled: the launcher's LEFT click is refused and its RIGHT click is not", function()
+  -- launcher-§2 with slash-commands-§7: this addon is on rung (b) — its left click drives the lock,
+  -- which IS its preview switch, and a preview switch is a feature. Rung (c)'s carve-out does not
+  -- reach it. Right-click opens the settings panel in either state, because the ruling narrows the
+  -- SLASH surface and a mouse click is not a slash command.
+  --
+  -- Its own world: tests/run.lua's harness deliberately has neither broker library, so the object
+  -- with the OnClick on it only exists in the one tests/launcher_env.lua builds.
+  local NS2, mocks2 = dofile("tests/launcher_env.lua")()
+  local obj = NS2.Launcher:Object()
+
+  NS2.SetByPath("locked", true)
+  NS2.SetByPath("enabled", false)
+  while mocks2.__fireTimers() > 0 do end
+  mocks2.__resetSvWrites()
+  mocks2.__resetPrinted()
+
+  local opens = 0
+  NS2.OpenOptionsPanel = function() opens = opens + 1 end
+
+  obj.OnClick(obj, "LeftButton")
+  local printed = mocks2.__printed()
+  assertEqual(#printed, 1, "exactly one line")
+  assertTrue(printed[1]:find(NS2.Slash.__cli:DisabledLine(), 1, true) ~= nil,
+    "and it is the collection's line, not one the launcher re-spelled")
+  assertEqual(#mocks2.__svWrites(), 0, "a click on a disabled addon writes no SavedVariables")
+  assertEqual(NS2.GetSetting("locked"), true, "the lock did not move")
+  assertEqual(opens, 0, "and the left button did not quietly open the panel instead")
+
+  obj.OnClick(obj, "RightButton")
+  assertEqual(opens, 1, "right click still opens the settings panel, in either state")
+end)
+
+test("disabled: the suite leaves the world enabled for the suites after it", function()
+  enable(true)
+  NS.SetByPath("locked", true)
+  settle()
+  assertTrue(#regs() > 0)
+end)

@@ -58,57 +58,44 @@ NS.COMMANDS = {
         function(rest) runProfile(rest) end},
 }
 
--- ── the disabled-state gate (slash-commands-§2) ───────────────────────────────────────────────
+-- ── the disabled surface (slash-commands-§2, §7) ─────────────────────────────────
 --
--- A DISABLED ADDON REFUSES A VERB THAT DRIVES ITS FEATURES, on one tagged line naming `/pfe enable`,
--- and does nothing else. Acting would be wrong twice over: the player asked for something the addon
--- is currently standing down from doing, and a silent no-op leaves them with no clue why nothing
--- happened. One line is the whole courtesy -- a paragraph explaining the state is a lecture stapled
--- to a command they are about to re-run anyway.
+-- THE GATE IS THE LIBRARY'S, AND THE HOST DECLARES ONLY WHAT IS ADDON-SPECIFIC. LibKa0s-Slash-1.0
+-- minor 13 takes `isEnabled` and refuses, on ONE tagged line naming `/pfe enable`, exactly the verbs
+-- that are not on the live set. The wording lives in `cli:DisabledLine()` and is the collection's,
+-- never re-spelled here: eleven addons each phrasing it their own way is the drift the shared
+-- printer exists to end.
 --
--- ONE PLACE, AND IT IS DENY BY DEFAULT. The gate wraps each handler once, here, between the table
--- and the dispatcher every verb is dispatched through -- so there is nothing to remember per verb,
--- and the NEXT verb added is gated unless it is named live below. A guard pasted into each handler
--- is a dozen places to forget, and forgets in the wrong direction; this forgets in the safe one.
--- Wrapping leaves `entry[1]` and `entry[2]` untouched, so the help block and the About page's
--- command list (which render this same table) are unchanged.
+-- WHAT IS LIVE, AND IT IS A WIDENING RATHER THAN A NARROWING. The library's default is the
+-- standard's twelve reserved verbs — help, config, version, enable, disable, debug, perf, get, set,
+-- list, reset, resetall — plus the bare `/pfe`, which opens the settings panel. A player must be
+-- able to READ AND REPAIR SETTINGS and to REACH THE PANEL while the addon is off, which is precisely
+-- when they are most likely to need to, and `enable` above all or the pair is one-way. This addon
+-- adds two of its own on that same reasoning rather than as exceptions to it:
 --
--- WHAT STAYS LIVE, named once as data. The twelve the section fixes: a player must be able to READ
--- AND REPAIR SETTINGS, and to REACH THE PANEL, while the addon is off -- which is precisely when
--- they are most likely to need to -- and `enable` above all, or the pair is one-way again. `debug`
--- and `perf` are diagnostics rather than features: the usual reason to reach for either is that the
--- addon is misbehaving. Plus two of this addon's own, on that same reasoning rather than as
--- exceptions to it:
 --   status   a diagnostic, exactly like `debug`. It reads public seams and changes nothing, and its
---            own first flag is `addon disabled` -- so refusing it would delete the answer to the
+--            own first flag is `addon disabled` — so refusing it would delete the answer to the
 --            question a player actually asks a silent addon.
 --   profile  settings management, in the class of the schema CLI: it switches, copies, creates and
 --            resets where settings live, and draws nothing.
 --
--- It is a SHOULD in the standard, and this addon takes it: three of its verbs drive the display.
+-- Passing this table REPLACES the library's default rather than adding to it, so the twelve are
+-- spelled out here too. Widening is conformant and owes no deviation row; what a host must never do
+-- is REFUSE something on the standard's live set, and nothing is missing from the list below.
+--
+-- WHAT IS LEFT, AND IT IS THE REFUSAL §2 ASKS FOR: `resetposition`, `lock` and `unlock`. All three
+-- drive the display — unlocking IS this addon's preview switch (options-ui-§15) — so a disabled
+-- addon answers them on the one line and does nothing else.
 local LIVE_WHILE_DISABLED = {
-    help = true, config = true, version = true, enable = true, disable = true,
-    debug = true, perf = true,
-    get = true, set = true, list = true, reset = true, resetall = true,
-    status = true, profile = true,
+    "help", "config", "version", "enable", "disable", "debug", "perf",
+    "get", "set", "list", "reset", "resetall",
+    "status", "profile",
 }
 
-for _, entry in ipairs(NS.COMMANDS) do
-    if not LIVE_WHILE_DISABLED[entry[1]] then
-        local verb, handler = entry[1], entry[3]
-        entry[3] = function(rest)
-            if NS.GetSetting("enabled") ~= true then
-                return print(L["/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on"]
-                    :format(verb))
-            end
-            return handler(rest)
-        end
-    end
-end
-
--- Published for introspection only: tests/test_slash.lua walks NS.COMMANDS against it and drives
--- every verb on each side, rather than restating the list.
-Sl.__liveWhileDisabled = LIVE_WHILE_DISABLED
+-- Published for introspection only: tests/test_slash.lua and tests/test_disabled.lua walk
+-- NS.COMMANDS against it and drive every verb on each side, rather than restating the list.
+Sl.__liveWhileDisabled = {}
+for _, verb in ipairs(LIVE_WHILE_DISABLED) do Sl.__liveWhileDisabled[verb] = true end
 
 -- ── host verbs ────────────────────────────────────────────────────────────────────────────────
 
@@ -138,7 +125,15 @@ end
 --- `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that state. An
 --- unlock the row refuses leaves the lock where it was and runLock says nothing, which is the same
 --- answer the checkbox gives.
+---
+--- REFUSED WHILE THE ADDON IS DISABLED (launcher-§2, slash-commands-§7). Rung (b) drives a preview
+--- switch and a preview switch is a feature, so the left button prints the one line and does nothing
+--- else — in particular it writes no SavedVariables. The line is `cli:DisabledLine()`, the same one
+--- the slash gate prints, because the launcher MUST NOT re-spell it. Right-click is untouched: it
+--- opens the settings panel in either state, which is one of the two routes the standard nominates
+--- for reaching the panel, and rung (c)'s carve-out is the same rule read from the other side.
 function NS.ToggleLock()
+    if NS.GetSetting("enabled") ~= true then return print(cli:DisabledLine()) end
     runLock(NS.GetSetting("locked") ~= true)
 end
 
@@ -321,8 +316,15 @@ if not SlashLib then
     local missing = " " .. L["is unavailable."] .. " " .. NS.LIBKA0S_MISSING .. "."
     SlashLib = { FormatRow = function(cmd, desc) return cmd .. " \226\128\148 " .. desc end }
 
+    -- The library's own format string, because the stub prints the SAME sentence the gate would:
+    -- the wording is the collection's, and a build without LibKa0s is still this collection's addon.
+    local DISABLED_LINE = "%s is disabled \226\128\148 enable it with |cFFFFFF00%s|r"
+
     function SlashLib:New(d)
         local stub = { SetRowAnnotator = function() end }
+        stub.DisabledLine = function()
+            return DISABLED_LINE:format(d.brandName or d.slash, d.slash .. " enable")
+        end
         local function absent(verb)
             return function() print("/pfe " .. verb .. missing) end
         end
@@ -336,11 +338,19 @@ if not SlashLib then
             end
             return out
         end
+        local live = {}
+        for _, verb in ipairs(d.liveVerbs or {}) do live[verb] = true end
+        local function isDown() return d.isEnabled ~= nil and not d.isEnabled() end
+
         stub.PrintHelp = function()
             print(L["v%s \226\128\148 slash commands"]:format(d.version()))
+            -- Under the header and unindented, as the library places it: the index prints in full,
+            -- because the player has to be able to SEE `enable` in the list.
+            if isDown() then print(stub.DisabledLine()) end
             for _, row in ipairs(stub.LandingRows()) do print("  " .. row) end
         end
-        stub.OnSlash = function(_, msg)
+
+        stub.OnSlash = function(stubSelf, msg)
             local raw = (msg or ""):match("^%s*(.-)%s*$") or ""
             -- Bare opens the settings through `config`, as the library does (slash-commands-§4).
             if raw == "" then
@@ -352,9 +362,16 @@ if not SlashLib then
             local cmd, rest = raw:match("^(%S+)%s*(.*)$")
             cmd = (cmd or ""):lower()
             cmd = (d.aliases or {})[cmd] or cmd
+            -- The gate sits AFTER the lookup here too, so a typo still gets `unknown command`: a
+            -- misspelling is the addon failing to understand, not the addon refusing.
+            local down = isDown()
             for _, e in ipairs(d.commands) do
-                if e[1] == cmd then return e[3](rest or "") end
+                if e[1] == cmd then
+                    if down and not live[cmd] then return print(stubSelf:DisabledLine()) end
+                    return e[3](rest or "")
+                end
             end
+            if down and live[cmd] then return print(stubSelf:DisabledLine()) end
             print(L["unknown command '%s'"]:format(cmd))
             stub.PrintHelp()
         end
@@ -367,6 +384,15 @@ cli = SlashLib:New({
     slashAliases = { "/partyframeenhanced" },
     commands     = NS.COMMANDS,
     aliases      = { options = "config" },
+
+    -- ASKED AT DISPATCH TIME, NEVER CACHED, so the command after an `/pfe enable` works. It reads
+    -- the stored path through the same getter every other reader uses — there is no session flag
+    -- and no second copy of the switch anywhere in this addon.
+    isEnabled    = function() return NS.GetSetting("enabled") == true end,
+    -- The plain-text brand name, and the SAME string core/LauncherSetup.lua gives the LDB object as
+    -- `label` (launcher-§1). One brand spelling, not a second invented for this one line.
+    brandName    = "Ka0s Party Frame Enhanced",
+    liveVerbs    = LIVE_WHILE_DISABLED,
 
     print   = function(line) print(line) end,
     version = NS.Version,

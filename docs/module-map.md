@@ -19,32 +19,33 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 8 | `core/Util.lua` | LSM handle and fetch, deep copy, fill-defaults | conventional |
 | 9 | `core/EnvSetup.lua` | `NS.Meta`, `NS.Version` over LibKa0s-Env | conventional |
 | 10 | `core/CoreSetup.lua` | printer, stringifier, class-color resolver, skin, `NS.MakeCloseButton` | **load-bearing**: after Namespace, before anything that prints |
-| 11 | `core/PerfSetup.lua` | `NS.Perf`: buckets, suspend/resume | **load-bearing**: before every module's `local Perf = NS.Perf` |
-| 12 | `core/DebugLogSetup.lua` | `NS.DebugLog`, `NS.Debug` | **load-bearing**: after Constants, State, CoreSetup |
-| 13 | `core/LauncherSetup.lua` | `NS.Launcher`: the one LibDataBroker object, its icon, its rung-(b) left click and the right click that always opens the panel (launcher-§1/§2) | conventional: every seam is reached at click or `Register` time, and `Register` runs in `addon:OnEnable` |
-| 14 | `core/Units.lua` | the five units, their target and pet tokens, labels, the include rule, the party-only rule (`InParty`) | conventional |
-| 15 | `core/Database.lua` | AceDB init, the migration ladder | conventional (called at OnInitialize) |
-| 16 | `core/PartyFrameEnhanced.lua` | AceAddon promotion, lifecycle, combat flag, the party flip, secure-write queue, module registry, VISIBILITY/PROFILE sender | after the seams it reclaims and calls |
-| 17 | `defaults/Profile.lua` | every profile default | before the settings pages that read it |
-| 18 | `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT | **load-bearing**: registers first, so the lifecycle enables it before the features |
-| 19 | `modules/Anchor.lua` | attached pin (memoized), free stack, drag and the position owner, secure combat fade/defer | after Providers, before the features that register with it |
-| 20 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
-| 21 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
-| 22 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
-| 23 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
-| 24 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
-| 25 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
-| 26 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
-| 27 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
-| 28 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 29 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 30 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 31 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 32 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
-| 33 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
-| 34 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
-| 35 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
-| 36 | `settings/Profiles.lua` | the AceDBOptions page | last |
+| 11 | `core/LifecycleSetup.lua` | `NS.lifecycle`: the one `LibKa0s-Lifecycle-1.0` latch, its `disabled` / `perf` holds, `NS.IsStoodDown`, `NS.ApplyEnabled` | **load-bearing**: `core/PerfSetup.lua` requires `descriptor.lifecycle`, so the instance must exist before it |
+| 12 | `core/PerfSetup.lua` | `NS.Perf`: buckets, and the latch the harness takes its `perf` hold on | **load-bearing**: before every module's `local Perf = NS.Perf` |
+| 13 | `core/DebugLogSetup.lua` | `NS.DebugLog`, `NS.Debug` | **load-bearing**: after Constants, State, CoreSetup |
+| 14 | `core/LauncherSetup.lua` | `NS.Launcher`: the one LibDataBroker object, its icon, its rung-(b) left click and the right click that always opens the panel (launcher-§1/§2) | conventional: every seam is reached at click or `Register` time, and `Register` runs in `addon:OnEnable` |
+| 15 | `core/Units.lua` | the five units, their target and pet tokens, labels, the include rule, the party-only rule (`InParty`) | conventional |
+| 16 | `core/Database.lua` | AceDB init, the migration ladder | conventional (called at OnInitialize) |
+| 17 | `core/PartyFrameEnhanced.lua` | AceAddon promotion, lifecycle, combat flag, the party flip, secure-write queue, module registry, VISIBILITY/PROFILE sender | after the seams it reclaims and calls |
+| 18 | `defaults/Profile.lua` | every profile default | before the settings pages that read it |
+| 19 | `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT | **load-bearing**: registers first, so the lifecycle enables it before the features |
+| 20 | `modules/Anchor.lua` | attached pin (memoized), free stack, drag and the position owner, secure combat fade/defer | after Providers, before the features that register with it |
+| 21 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
+| 22 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
+| 23 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
+| 24 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
+| 25 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
+| 26 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
+| 27 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
+| 28 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 29 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 30 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 31 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 32 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 33 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 34 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
+| 35 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
+| 36 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
+| 37 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
 ## Tests
 

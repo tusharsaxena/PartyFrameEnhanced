@@ -187,7 +187,15 @@ return function()
   -- Every chat line the addon prints, in order. The printer (LibKa0s-Core-1.0, or core/CoreSetup.lua's
   -- fallback) reaches DEFAULT_CHAT_FRAME at call time, so recording here sees both arms.
   M.__chat = {}
-  M.DEFAULT_CHAT_FRAME.AddMessage = function(_, msg) M.__chat[#M.__chat + 1] = msg end
+  -- BOTH RECORDS, and the second half is not redundant. `M.__chat` is this addon's own transcript,
+  -- which every suite here reads; `M.__recordPrint` is the kit's survey (`M.__printed()`), which
+  -- tests/test_disabled.lua asks "did the player hear anything while the addon was off". Replacing
+  -- AddMessage without forwarding would leave that survey permanently empty, so the one assertion
+  -- whose whole subject is silence would pass over a chattering addon.
+  M.DEFAULT_CHAT_FRAME.AddMessage = function(_, msg)
+    M.__chat[#M.__chat + 1] = msg
+    if M.__recordPrint then M.__recordPrint(msg) end
+  end
 
   return M
 end

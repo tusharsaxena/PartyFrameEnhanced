@@ -124,9 +124,9 @@ test("preview: unlocking is refused in combat, disabled or suspended — one gra
   assertTrue(refusal:find("|cff808080", 1, true) ~= nil, "gray")
   NS.db.profile.enabled = true
   isOff()
-  NS.Perf.suspended = true
+  NS.lifecycle:Hold("perf")
   assertTrue(slash("unlock"):find("suspended", 1, true) ~= nil)
-  NS.Perf.suspended = false
+  NS.lifecycle:Release("perf")
   isOff()
   off()
 end)
@@ -178,9 +178,9 @@ test("preview: a perf-run suspend re-locks, and the stand-in leaves the map at o
   prep()
   world(false, false)
   slash("unlock")
-  NS.SuspendAll()
+  NS.lifecycle:Hold("perf")
   isOff()
-  NS.ResumeAll()
+  NS.lifecycle:Release("perf")
   off()
 end)
 

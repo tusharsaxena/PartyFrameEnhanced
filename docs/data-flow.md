@@ -52,7 +52,8 @@ Pet frame     UNIT_PET (owner) + UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE
 
 ## 4. Whether it is shown
 
-Every element runs the same ladder, first failing rung hides: `Perf.suspended` → master enable →
+Every element runs the same ladder, first failing rung hides: `NS.IsStoodDown()` — the one latch,
+held for a perf run or for the player's own *Enable* switch — → master enable →
 feature enable → preview (show placeholders, stop) → in a party (`NS.Units.InParty`) → General
 visibility vs. the combat flag → unit
 included and exists → attached: a frame for the unit → the feature's own condition (casting / has a

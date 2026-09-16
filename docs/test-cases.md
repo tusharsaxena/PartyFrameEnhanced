@@ -110,7 +110,7 @@ badge and any count quoted in the docs must agree with it.
 - providers: a hooked member frame's unit change requests a resolve
 - providers: suspended, requests do nothing and events come off
 
-### test_anchor.lua (7)
+### test_anchor.lua (9)
 
 - anchor: attached pins each element to its unit's frame by the configured points
 - anchor: a pass that changes nothing makes no SetPoint call
@@ -119,6 +119,8 @@ badge and any count quoted in the docs must agree with it.
 - anchor: a secure feature in combat fades what would move and defers the pass to regen
 - anchor: a drag saves the holder's position and ResetPositions clears it
 - anchor: LAYOUT re-applies every registered feature
+- anchor: a section stripped of its defaulted point still pins, from the shipped default
+- anchor: unlocking gives the name plate a grabbable body and arms every element's drag
 
 ### test_castbars.lua (13)
 
@@ -136,7 +138,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (18)
+### test_targetframes.lua (20)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -156,6 +158,8 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
 - targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
 - targetframes: suspended, no events, no ticker, every driver hide
+- targetframes: every included button registers UNIT_NAME_UPDATE on its TARGET token
+- targetframes: the handler paints a name that was nil at target time
 
 ### test_petframes.lua (6)
 
@@ -253,6 +257,19 @@ badge and any count quoted in the docs must agree with it.
 - slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
 - slash: the live set still ANSWERS and still ACTS while the addon is off
 
+### test_disabled.lua (10)
+
+- disabled: the baseline — enabled, the addon registers and draws
+- disabled: every registration the addon owns is UNREGISTERED, not gated
+- disabled: nothing is left armed to wake up
+- disabled: every frame that was on screen is hidden, and refused at the source
+- disabled: no game event produces a write, a line, or a frame
+- disabled: the whole reserved surface still answers, and only feature verbs refuse
+- disabled: re-enabled, the addon rebuilds from CURRENT state
+- disabled: two holds, one latch — releasing one never resurrects the other's addon
+- disabled: the launcher's LEFT click is refused and its RIGHT click is not
+- disabled: the suite leaves the world enabled for the suites after it
+
 ### test_launcher.lua (17)
 
 - launcher: one object, registered twice under the addon's FOLDER name
@@ -318,9 +335,9 @@ badge and any count quoted in the docs must agree with it.
 | test_bus.lua | 3 |
 | test_compat.lua | 6 |
 | test_providers.lua | 12 |
-| test_anchor.lua | 7 |
+| test_anchor.lua | 9 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 18 |
+| test_targetframes.lua | 20 |
 | test_petframes.lua | 6 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
@@ -329,9 +346,10 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 19 |
+| test_disabled.lua | 10 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **212** |
+| **Total** | **226** |

@@ -75,6 +75,7 @@ Kit.run{
     "test_perf_buckets",
     "test_spelling",
     "test_slash",
+    "test_disabled",
     "test_launcher",
     "test_optionssetup",
     "test_surface_parity",

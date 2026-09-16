@@ -46,13 +46,28 @@ if t0 then Perf.Note("castRender", debugprofilestop() - t0, "castEvent") end
 Capture off costs one upvalue read, one field read and one boolean test. The offline zero-overhead
 scenario (below) is the evidence, not this sentence.
 
-## Suspend and resume
+## Suspend and resume — one hold on the addon's latch
 
-`suspend` calls `NS.SuspendAll()`: every registered module unregisters its event frames and cancels
-its timers, the lifecycle events come off, and `VISIBILITY` is published — every element's
-show-decision ladder checks `NS.Perf.suspended` as step 0, so nothing re-shows behind suspend's back.
-`resume` calls `NS.ResumeAll()`, which re-registers from **current** settings, re-reads the combat
-state, flushes any deferred secure write, and republishes (performance-§6).
+There is no `suspend`/`resume` pair on the Perf descriptor any more, and that is the point. Being
+inert has exactly one implementation here (`NS.StandDown` / `NS.StandUp`, `core/PartyFrameEnhanced.lua`),
+reached through one `LibKa0s-Lifecycle-1.0` latch in `core/LifecycleSetup.lua`. The harness takes the
+**`perf`** hold for its suspended arm; the stored `enabled` path takes the **`disabled`** hold. A
+second teardown path written beside this one would be two mechanisms that must agree about what
+"inert" means, and they diverge on the first module added after the second was written
+(anti-pattern #85).
+
+**Standing down** unregisters every module's event frames, cancels every timer, publishes
+`VISIBILITY` so every element's show-decision ladder answers no at the source, and then unregisters
+every bus receiver. Step 0 of that ladder reads the **latch** (`NS.IsStoodDown()`), not a boolean of
+its own, so nothing can re-show an element behind its back. **Standing up** replays the bus
+registrations, re-registers the lifecycle events, re-reads the combat state, flushes any deferred
+secure write, and rebuilds from **current** settings — never from a snapshot taken on the way down
+(performance-§6).
+
+`NS.Perf.suspended` still reads as it always did, and is now a **view** of the latch rather than a
+second copy of it: `lib:New` refuses a write to it. Releasing one hold never stands the addon up
+while the other is held, which is what stops a capture ending under a player who disabled the addon
+halfway through it from resurrecting the addon they switched off.
 
 ## Offline scenarios (`lua tests/perf.lua`)
 

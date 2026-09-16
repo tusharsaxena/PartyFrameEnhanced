@@ -55,6 +55,7 @@ core\EnvSetup.lua
 # LOAD-BEARING: after Namespace (NS.PREFIX), before every file that prints or captures NS.Print.
 core\CoreSetup.lua
 # LOAD-BEARING: publishes NS.Perf before any module takes `local Perf = NS.Perf` at file scope.
+core\LifecycleSetup.lua
 core\PerfSetup.lua
 # LOAD-BEARING: after Constants (FONT_MONO), State (the flag) and CoreSetup (the printer),
 # before anything that calls NS.Debug.

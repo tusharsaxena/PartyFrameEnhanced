@@ -19,7 +19,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.39.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.41.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
 (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),
@@ -33,10 +33,10 @@ and the first standards audit done. What remains before the tag is in-game testi
 
 ## Module Map
 
-Thirty-six files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-seven files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
-Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
-captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
+Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup before PerfSetup (which requires the latch),
+PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
 and UnitButtons before the features that capture them, StandIn before Preview and Preview after every
 feature, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
@@ -91,11 +91,13 @@ source to check).
 (`enable` and `disable` among them, aliases for the `enabled` row and never a second switch) plus
 `resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
 `OnInitialize` in either state, so `/pfe` answers while the addon is disabled and the pair is never
-one-way (slash-commands-§2). What it answers then is gated in **one place**: `settings/Slash.lua`
-wraps each handler as the table is handed to the dispatcher, deny by default, with the live set
-(`LIVE_WHILE_DISABLED`) named once as data. The three verbs that drive what this addon draws —
-`resetposition`, `lock`, `unlock` — refuse on one tagged line naming `/pfe enable` and do nothing
-else. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+one-way (slash-commands-§2). What it answers then is the **whole reserved set, behaving normally** —
+and the bare `/pfe` opens the settings panel, which is the case that settled the standard's v2.57.0
+reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/Slash.lua` hands it an
+`isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the twelve plus this
+addon's `status` and `profile`), and the library refuses everything else on one line it owns the
+wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
+are what is left. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Launcher
 
@@ -111,8 +113,8 @@ one icon, one label and one identity.
 | Name | `PartyFrameEnhanced`, the **folder** name, on **both** registrations — LibDBIcon keys the button's saved position by it, so a second spelling would drop the angle the player dragged it to |
 | Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
 | Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
-| Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state |
-| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other |
+| Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state. **Refused while the addon is disabled** (launcher-§2): a preview switch is a feature, so it prints `cli:DisabledLine()` — the same line the slash gate prints, never re-spelled — and does nothing else, writing no SavedVariables. Rung (c)'s carve-out does not reach it |
+| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other, in **either** state. The ruling narrows the *slash* surface and a mouse click is not a slash command; this click is one of the two routes that keep the panel reachable |
 | Visibility | one Master-controls row, `global.minimap.hide` (see *Settings Schema* → Global rows) |
 | Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
 | Degradation | no stub. LibKa0s absent → no `NS.Launcher`, and its two callers already guard on it. LibDataBroker or LibDBIcon absent → the library reports it on one line and `Register` answers `false`; neither is a dependency, because LibKa0s is vendored into addons whose `libs/` folders are not identical |
@@ -134,6 +136,10 @@ addon rather than a preference.
 | `UNIT_TARGET` (per owner, `RegisterUnitEvent`), `RAID_TARGET_UPDATE` (AceEvent) | `modules/TargetFrames.lua` | target frames; health comes from a gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent` | `modules/PetFrames.lua` | pet frames |
 | `PLAYER_REGEN_DISABLED` (always), `GROUP_ROSTER_UPDATE` (registered only while preview is on) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
+| `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
+
+**Every registration in this table except the last comes off while the addon is stood down** — for
+either reason. Not gated: unregistered. See *The disabled state is total* below.
 
 The unit events above are registered only in a party (the party-only rule): each feature's
 `syncEvents` re-runs on VISIBILITY, which the roster flip republishes.
@@ -141,6 +147,77 @@ The unit events above are registered only in a party (the party-only rule): each
 Lifecycle, roster and Edit Mode events use AceEvent, each module on its own target. The per-unit
 game events are registered with `RegisterUnitEvent` on each element's own frame, so the client filters
 by unit in C rather than dispatching every unit's event into Lua — a recorded deviation, below.
+
+## The disabled state is total
+
+**Disabled means the addon is not running.** Not hidden, not quiet, not skipping a repaint — not
+running (slash-commands-§7, anti-pattern #85). A player who unticks *Enable Party Frame Enhanced*
+has asked for the same outcome they would get by unticking the addon in Blizzard's own AddOns list,
+minus the `/reload`.
+
+### One latch, two named holds
+
+`core/LifecycleSetup.lua` builds one `LibKa0s-Lifecycle-1.0` instance. The addon is stood down
+whenever **at least one** hold is taken and stands up only when the **last** one is released.
+
+| Hold | Taken by | Lifetime |
+|---|---|---|
+| `disabled` | the stored `enabled` path — the Master-controls checkbox, `/pfe enable`, `/pfe disable`, `/pfe set enabled`, and an AceDB profile switch, all through `NS.ApplyEnabled` | **persisted**; surviving a `/reload` is the whole point of the setting |
+| `perf` | `LibKa0s-Perf-1.0` itself, for the capture's suspended arm. The host never writes it | **session-only**, never persisted |
+
+Releasing one hold **never** stands up an addon the other is still holding down, and that is the one
+sentence the latch exists for: `/pfe disable` and `/pfe enable` are both live, so a player can use
+either *during* a suspended perf arm. A resume that called a bare stand-up would bring the addon back
+mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
+
+`NS.Perf.suspended` is a **view** of the latch, not a second copy; the library refuses a write to it.
+`NS.IsStoodDown()` is the one question every show ladder asks.
+
+### What stands down
+
+`NS.StandDown` (`core/PartyFrameEnhanced.lua`), in this order, and the order is load-bearing:
+
+1. the lifecycle events come off the addon object;
+2. every module's `Suspend` runs — every `RegisterUnitEvent` on every element frame actually
+   **unregistered**, every timer and `OnUpdate` canceled;
+3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
+   source** — a hidden frame comes back on a combat transition or a settings change, so hiding
+   imperatively is not enough;
+4. every bus receiver is unregistered, events and messages both (`NS.BusStandDown`, `core/Bus.lua`).
+
+A handler that merely early-returns does **not** satisfy any of this. An early return means the addon
+did not stop watching, it stopped reacting, and it still pays the dispatch the player switched it off
+to stop paying.
+
+Secure work — a state driver, `SetAttribute`, a `SetPoint` on a secure button — is refused under
+combat lockdown, so a stand-down that lands in combat holds the write pending and finishes it on
+`PLAYER_REGEN_ENABLED`. That listener lives on its own frame, is armed only while something is
+queued, and unregisters itself the moment it fires.
+
+### What survives, because it is setup
+
+The chat command registration, the dispatcher and the `COMMANDS` table; the settings-category
+registration and the panel body; the AceDB handle, the single write seam and AceDB's
+`OnProfileChanged` / `OnProfileCopied` / `OnProfileReset` callbacks (a profile switch can flip
+`enabled` with nothing else touched, so `adoptProfile` re-evaluates the latch before it publishes
+anything); and the launcher's registration. None of these is a feature, and keeping them live costs
+nothing the stand-down was trying to reclaim.
+
+### Standing back up
+
+`NS.StandUp` replays the bus registrations, re-registers the lifecycle events, re-reads the combat
+state, flushes any deferred secure write and runs every module's `Resume` — rebuilding from the
+settings **as they are now**, never from a snapshot taken on the way down (performance-§6). A setting
+changed while the addon was off comes back correctly.
+
+### The evidence
+
+`tests/test_disabled.lua` is the conformance suite slash-commands-§7 requires, and every negative
+assertion in it reads the **registration set** out of the kit's recording mock rather than a
+handler's return value — a suite written against an early return cannot tell a draw gate from a
+stand-down. It carries the falsification comments on the three negative steps, and all three were
+proven red by mutation: dropping the teardown from `NS.StandDown`, a raw frame that writes and prints
+on entering combat while disabled, and replacing the latch with a boolean.
 
 ## Taint Notes
 
@@ -214,7 +291,7 @@ they were filed from.
 | `testing.md` | The harness, lint, the green commit gate, the release gate, the vendored-payload check |
 | `smoke-tests.md` | The in-game smoke-test suite, including the non-English-client step |
 | `test-cases.md` | The generated case inventory (authoritative pass count) |
-| `performance.md` | Buckets, the bracket idiom, suspend/resume, the offline scenarios |
+| `performance.md` | Buckets, the bracket idiom, the latch the perf hold is taken on, the offline scenarios |
 | `automated-tests/README.md` | What the automated-test record is and how to produce it |
 | `automated-tests/RESULTS.md` | One row per run; generated by the runner, never hand-edited apart from the watch list's `Disposition` column |
 

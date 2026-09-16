@@ -37,6 +37,15 @@ schema and its write seam, the slash table, the lifecycle and the secure-write q
 the anchor engine, the three features, preview mode, perf-bucket coverage and the spelling gate. The
 library's own internals are tested in the LibKa0s repo and not again here (testing-§8).
 
+`tests/test_disabled.lua` is the stand-down conformance suite slash-commands-§7 requires, and it is
+written the way that section insists on: every negative assertion reads the **registration set** out
+of the kit's recording mock (`mocks.__registrations`, `__timers`, `__svWrites`, `__printed`), never a
+handler's return value. A suite that asserts "the handler returned early" certifies the draw gate it
+exists to catch, because an early return is exactly what a draw gate does. `__fire` dispatches through
+the live registry; `__fireUnconditional` reaches a handler anyway, so "nothing ran" is a claim about
+the addon rather than about the harness. The three negative steps carry testing-§12 falsification
+comments and were each proven red by mutation before the suite was kept.
+
 `tests/test_spelling.lua` is the US-English prose gate (localization-§5): it copies the standard's
 published `BRITISH` and `ALLOWED` lists **whole** and scans every authored `.lua`, `.md` and `.toc`
 the repo tracks, skipping only `libs/`, `tests/_kit/` and the frozen evidence bundles. A British form

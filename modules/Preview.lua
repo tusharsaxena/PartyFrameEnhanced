@@ -141,9 +141,13 @@ function Preview:OnEnable()
     applyLock(NS.GetSetting("locked") == false)
 end
 
---- A perf run suspends the addon; preview cannot be measured and must not be up during a capture.
+--- The addon standing down ends preview, whichever hold put it down: a capture cannot measure
+--- preview, and an addon the player switched off must not leave placeholders on their screen. Said
+--- in the words of the reason, because "a perf run suspended the addon" is a confusing thing to
+--- read after ticking a checkbox labeled *Enable Party Frame Enhanced*.
 function Preview:Suspend()
-    forceLock(L["Locked \226\128\148 a perf run suspended the addon"])
+    forceLock(NS.Perf.suspended and L["Locked \226\128\148 a perf run suspended the addon"]
+        or L["Locked \226\128\148 the addon was disabled"])
 end
 
 -- Combat re-locks while secure writes are still permitted, so nothing clickable survives into it.
@@ -151,11 +155,12 @@ ev:RegisterEvent("PLAYER_REGEN_DISABLED", function()
     forceLock(L["Locked \226\128\148 combat started"])
 end)
 
+-- The disabled case is NOT here and is not an omission: the `enabled` row's onChange takes the
+-- latch's hold, which stands the addon down and ends preview through Suspend above, before this
+-- message is published at all — and by then this receiver is unregistered with the rest of the bus.
 ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
     if not NS.State.preview then return end
-    if section == "master" and NS.GetSetting("enabled") ~= true then
-        forceLock(L["Locked \226\128\148 the addon was disabled"])
-    elseif section == "general" and NS.StandIn.IsShown() then
+    if section == "general" and NS.StandIn.IsShown() then
         -- A Frame system change: the stand-in takes the new system's look and size.
         if (NS.Providers.StandInSource()) ~= placedId then dress() end
     end

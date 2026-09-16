@@ -252,10 +252,15 @@ end
 
 -- ── the show decision's shared rungs (design spec §6.7) ──────────────────────────────────────────────
 
---- Rungs 0–1: not suspended (performance-§6 — step 0, so nothing re-shows behind suspend's back)
---- and the addon switched on.
+--- Rungs 0–1: the addon is not STOOD DOWN — for either reason, a perf-run hold or the player's own
+--- `enabled` hold (slash-commands-§7) — and the master switch is on.
+---
+--- Step 0, and it reads the LATCH rather than a boolean of its own, so nothing can re-show an
+--- element behind the stand-down's back: a combat transition, a target swap or a settings change all
+--- re-enter this ladder and all get the same answer. Refusing at the source is what the standard
+--- asks for instead of hiding frames imperatively, because a hidden frame comes back.
 function Element.MasterShows()
-    if NS.Perf.suspended then return false end
+    if NS.IsStoodDown() then return false end
     return NS.GetSetting("enabled") == true
 end
 

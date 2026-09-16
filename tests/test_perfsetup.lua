@@ -27,8 +27,8 @@ test("perfsetup: suspend and resume reach every registered module and republish 
   local target = NS.NewBusTarget()
   target:RegisterMessage(NS.MSG.VISIBILITY, function() visibility = visibility + 1 end)
 
-  NS.SuspendAll()
-  NS.ResumeAll()
+  NS.lifecycle:Hold("perf")
+  NS.lifecycle:Release("perf")
 
   target:UnregisterMessage(NS.MSG.VISIBILITY)
   table.remove(NS.Modules)

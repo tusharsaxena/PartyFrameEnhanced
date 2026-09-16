@@ -47,15 +47,13 @@ NS.Perf = lib:New({
         { key = "reskin" },                              -- any feature's config-driven restyle
     },
 
-    --- Inert without a /reload (performance-§6). The modules unregister their event frames and
-    --- cancel tickers; visibility is refused at the source, because every show-decision ladder
-    --- checks NS.Perf.suspended as step 0 — so publishing VISIBILITY is enough, and nothing can
-    --- re-show an element behind suspend's back. Reached at call time: core/PartyFrameEnhanced.lua
-    --- loads after this file.
-    suspend = function() if NS.SuspendAll then NS.SuspendAll() end end,
-
-    --- Everything back from CURRENT state: each module re-registers for its enabled set as it is now.
-    resume  = function() if NS.ResumeAll then NS.ResumeAll() end end,
+    -- THE LATCH, NOT A SUSPEND PAIR (slash-commands-§7). From Perf minor 8 the harness takes the
+    -- `perf` hold on the host's one latch instead of calling a `suspend`/`resume` pair of its own,
+    -- and `NS.Perf.suspended` is a VIEW of that latch rather than a second boolean beside it. The
+    -- teardown those two functions used to name is now core/LifecycleSetup.lua's `standDown`, which
+    -- is the same teardown the DISABLED hold reaches — one mechanism, so the perf arm and the
+    -- disable arm cannot drift about what inert means (anti-pattern #85).
+    lifecycle = NS.lifecycle,
 
     -- Not gated on NS.State.debug: a perf run is an explicit user act, and a console that stayed
     -- empty while a capture ran would read as a broken harness.

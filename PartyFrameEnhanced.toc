@@ -10,7 +10,7 @@
 ## Category-enUS: Group
 ## X-License: MIT
 ## X-Standard: https://github.com/tusharsaxena/WowAddonStandards
-# X-Curse-Project-ID: not published on CurseForge yet
+## X-Curse-Project-ID: 1698335
 
 # Libraries (vendored in libs/ — load first)
 #@no-lib-strip@

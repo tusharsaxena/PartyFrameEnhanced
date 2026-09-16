@@ -1,6 +1,7 @@
 # Ka0s Party Frame Enhanced
 
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
+![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
 ![Tests](https://img.shields.io/badge/Tests-212%2F212_passing-green)

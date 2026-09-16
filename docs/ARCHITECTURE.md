@@ -102,6 +102,7 @@ one icon, one label and one identity.
 | Owner | `core/LauncherSetup.lua` (`NS.Launcher`), an instance of `LibKa0s-Launcher-1.0` |
 | Name | `PartyFrameEnhanced`, the **folder** name, on **both** registrations — LibDBIcon keys the button's saved position by it, so a second spelling would drop the angle the player dragged it to |
 | Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
+| Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
 | Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state |
 | Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other |
 | Visibility | one Master-controls row, `global.minimap.hide` (see *Settings Schema* → Global rows) |

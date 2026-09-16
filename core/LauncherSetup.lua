@@ -46,8 +46,18 @@ NS.Launcher = Launcher:New({
     -- paths that way -- a wrong path here draws nothing and raises nothing.
     icon  = "Interface\\AddOns\\" .. addonName .. "\\media\\logos\\"
             .. addonName:lower() .. ".logo.128.tga",
-    -- What a broker display prints beside the icon. The reader-facing title, not the folder name.
-    label = "Party Frame Enhanced",
+    -- What a broker display prints beside the icon, and the ONE field that decides whether the
+    -- collection reads as one collection in Titan Panel. launcher-§1 fixes it at the BRAND NAME IN
+    -- PLAIN TEXT -- `Ka0s <Name>` -- so this addon's row files beside the other ten under K rather
+    -- than alone under P. Across eleven adoptions it came out three ways because nothing said what
+    -- it was; that is anti-pattern #84.
+    --
+    -- DELIBERATELY NOT THE TOC'S `## Title`, and the two are never wired to each other: a Title may
+    -- carry color escapes and one in the collection does, which a display drawing the string raw
+    -- would splatter across a row of otherwise plain text. No escape sequence of any kind here.
+    -- Not the folder name either -- that is the registration `name` above, an identifier LibDBIcon
+    -- keys the saved position by and a player reads nowhere as prose. Two fields, two jobs.
+    label = "Ka0s Party Frame Enhanced",
 
     -- A FUNCTION, never the table: `NS.db` does not exist when this file loads, and a table captured
     -- now is one AceDB replaces at InitDB. The library resolves it at Register time, which is why

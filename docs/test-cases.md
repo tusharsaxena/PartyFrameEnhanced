@@ -136,7 +136,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (16)
+### test_targetframes.lua (18)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -153,6 +153,8 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: a new Health refresh pace restarts a running ticker at it
 - targetframes: the marker sits on its configured point of the bar, nudged by its offsets
 - targetframes: preview shows every allowed button with placeholder content
+- targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
+- targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
 - targetframes: suspended, no events, no ticker, every driver hide
 
 ### test_petframes.lua (6)
@@ -247,11 +249,12 @@ badge and any count quoted in the docs must agree with it.
 - slash: `enable` echoes the stored value in the shared `path = value` shape
 - slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way
 
-### test_launcher.lua (12)
+### test_launcher.lua (13)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
 - launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture names that file
+- launcher: the broker label is the BRAND NAME in plain text, never the Title or the folder
 - launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
 - launcher: the left click and `/pfe unlock` are the same seam, not two
 - launcher: RIGHT click always opens the settings panel
@@ -309,7 +312,7 @@ badge and any count quoted in the docs must agree with it.
 | test_providers.lua | 12 |
 | test_anchor.lua | 7 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 16 |
+| test_targetframes.lua | 18 |
 | test_petframes.lua | 6 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
@@ -318,9 +321,9 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 15 |
-| test_launcher.lua | 12 |
+| test_launcher.lua | 13 |
 | test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **201** |
+| **Total** | **204** |

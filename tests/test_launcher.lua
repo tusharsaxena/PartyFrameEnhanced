@@ -32,7 +32,7 @@ test("launcher: one object, registered twice under the addon's FOLDER name", fun
   assertEqual(ldb.__objects.PartyFrameEnhanced, obj, "the broker object is registered under the folder name")
   assertEqual(registration().object, obj, "LibDBIcon holds the very same object")
   assertEqual(obj.type, "launcher", "type launcher, not `data source` -- it has no value to show")
-  assertEqual(obj.label, "Party Frame Enhanced")
+  assertEqual(obj.label, "Ka0s Party Frame Enhanced")
   local n = 0
   for _ in pairs(ldb.__objects) do n = n + 1 end
   assertEqual(n, 1, "exactly one broker object")
@@ -54,6 +54,24 @@ test("launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture 
   local toc = dofile("tests/_kit/loader.lua").readFile("PartyFrameEnhanced.toc")
   local declared = toc:match("##%s*IconTexture:%s*([^\r\n]+)")
   assertEqual(declared, ICON, "## IconTexture names the same file the launcher draws")
+end)
+
+test("launcher: the broker label is the BRAND NAME in plain text, never the Title or the folder", function()
+  -- red under: an ad-hoc spelling, the escaped TOC Title, or the folder name (anti-pattern #84).
+  -- `label` is what a broker display prints in its row, BESIDE the other ten, so it is the one
+  -- field that decides whether the collection reads as one collection (launcher-§1).
+  local label = object().label
+  assertEqual(label, "Ka0s Party Frame Enhanced")
+  assertTrue(label:find("|c", 1, true) == nil and label:find("|r", 1, true) == nil,
+    "no escape sequence of any kind -- a display drawing it raw would splatter the row")
+  assertTrue(label ~= "PartyFrameEnhanced", "not the folder name: that is the registration `name`")
+
+  -- And the two fields are not wired to each other. The Title is free to carry escapes; the label
+  -- is not, so reading one off the other is exactly the mistake the rule forbids.
+  local toc = dofile("tests/_kit/loader.lua").readFile("PartyFrameEnhanced.toc")
+  local title = toc:match("##%s*Title:%s*([^\r\n]+)")
+  assertTrue(title ~= nil, "the TOC declares a Title")
+  assertTrue(label:find("Ka0s ", 1, true) == 1, "the brand prefix every row in the display shares")
 end)
 
 -- --- the rung (launcher-§2) ---------------------------------------------------------------------

@@ -228,10 +228,13 @@ badge and any count quoted in the docs must agree with it.
 - spelling: every authored file is US English (localization-§5)
 - spelling: the gate is not vacuous — a planted British word is caught
 
-### test_slash.lua (9)
+### test_slash.lua (12)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
+- slash: a bare /pfe opens the settings panel through `config`, not the help
+- slash: whitespace-only input is a bare /pfe
+- slash: `help` prints the command list and opens nothing
 - slash: /pfe and /partyframeenhanced are both registered through AceConsole
 - slash: `version` prints the TOC version
 - slash: `unlock` and `lock` write `locked` through the seam
@@ -251,12 +254,13 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (4)
+### test_surface_parity.lua (5)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the DebugLog stub carries the whole live surface
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
+- parity: a bare /pfe runs `config` in the library-absent build too
 
 ### test_vendor_sync.lua (3)
 
@@ -294,9 +298,9 @@ badge and any count quoted in the docs must agree with it.
 | test_testmode.lua | 16 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
-| test_slash.lua | 9 |
+| test_slash.lua | 12 |
 | test_optionssetup.lua | 8 |
-| test_surface_parity.lua | 4 |
+| test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **181** |
+| **Total** | **185** |

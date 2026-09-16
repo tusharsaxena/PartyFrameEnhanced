@@ -104,15 +104,44 @@ end
 
 -- ── a feature's pass ──────────────────────────────────────────────────────────────────────────
 
+-- An absent section reads as an empty one rather than raising a second way.
+local EMPTY_SECTION = {}
+
+-- The section's shipped defaults, for the one moment `cfg` cannot be trusted to carry them.
+local function shipped(spec)
+    if spec.defaults then return spec.defaults end
+    local d = NS.defaults and NS.defaults.profile
+    return (d and d[spec.key]) or EMPTY_SECTION
+end
+
 local function applyAttached(spec, cfg)
     local moved, missing = 0, 0
-    local point, rel = cfg.point, cfg.relativePoint
+    -- DEFAULTED, and not defensively: on a profile switch, copy or reset, AceDB calls
+    -- removeDefaults() on the OUTGOING profile table, which strips every key whose value still
+    -- equals its default. `point` and `relativePoint` are almost always exactly that -- most
+    -- players never move them -- so the table is left without them. This module's MSG.PROFILE
+    -- handler is registered before the feature modules' (it loads earlier in the TOC), so it runs
+    -- FIRST and reads that stripped table through a `spec.config()` whose upvalue the feature has
+    -- not re-bound yet. A nil then reaches SetPoint, which raises "Usage: SetPoint(point, ...)"
+    -- and takes the whole ApplyAll fan-out down with it, mid-profile-change.
+    -- Falling back to the shipped default is the same move positionOf() already makes for the
+    -- holder, and it is correct rather than merely safe: the key is absent precisely BECAUSE its
+    -- value is the default.
+    local d = shipped(spec)
+    local point = cfg.point or d.point
+    local rel   = cfg.relativePoint or d.relativePoint
     local x, y, match = cfg.offsetX or 0, cfg.offsetY or 0, cfg.matchWidth and true or false
     for _, unit in ipairs(Units.LIST) do
         local el = spec.elements[unit]
         local target = NS.Providers.FrameFor(unit)
-        if not target then missing = missing + 1 end
-        if pin(el, target, point, rel, x, y, match) then moved = moved + 1 end
+        -- A point that resolves to nothing even after the default is an UNPLACEABLE element, not a
+        -- reason to raise: pin(nil) unpins it and the feature's show decision hides it, which is
+        -- the same answer a missing party frame already gets. SetPoint(nil, ...) would instead
+        -- take down every remaining element in the pass.
+        if not target or not point or not rel then missing = missing + 1 end
+        if pin(el, (point and rel) and target or nil, point, rel, x, y, match) then
+            moved = moved + 1
+        end
         unfade(el)
     end
     return moved, missing
@@ -208,6 +237,19 @@ function Anchor.Register(spec)
     holder.label:SetPoint("BOTTOM", holder, "TOP", 0, 2)
     holder.label:SetText(spec.label or spec.key)
     holder.label:Hide()
+    -- THE NAME PLATE IS A HANDLE, because the plate alone is not one. A FontString takes no mouse
+    -- input, so the label above the stack was only ever a caption; everything grabbable was the
+    -- holder's own rect, which the elements cover almost exactly. At a large gap the plate shows
+    -- between them and there is something to grab; at a 2px gap there is nothing, and a
+    -- free-placement stack becomes immovable at the one setting that makes it look tidiest.
+    -- This frame gives the label a body, sized to it and parented to the holder, so the caption
+    -- players naturally aim at is the handle it looks like.
+    holder.grip = CreateFrame("Frame", nil, holder)
+    holder.grip:SetPoint("TOPLEFT", holder.label, "TOPLEFT", -4, 4)
+    holder.grip:SetPoint("BOTTOMRIGHT", holder.label, "BOTTOMRIGHT", 4, -4)
+    holder.grip:EnableMouse(false)
+    holder.grip:RegisterForDrag("LeftButton")
+    holder.grip:Hide()
     holder:SetMovable(true)
     holder:SetClampedToScreen(true)
     holder:EnableMouse(false)
@@ -219,6 +261,18 @@ function Anchor.Register(spec)
         self:StopMovingOrSizing()
         Anchor.SavePosition(spec.key)
     end)
+    -- Every other handle moves the HOLDER, never itself: the elements are pinned to it, so
+    -- dragging one of them directly would tear it off the stack it belongs to.
+    local function dragHolder()
+        if not InCombatLockdown() then holder:StartMoving() end
+    end
+    local function dropHolder()
+        holder:StopMovingOrSizing()
+        Anchor.SavePosition(spec.key)
+    end
+    holder.grip:SetScript("OnDragStart", dragHolder)
+    holder.grip:SetScript("OnDragStop", dropHolder)
+    spec.__drag, spec.__drop = dragHolder, dropHolder
     spec.holder = holder
     return spec
 end
@@ -230,13 +284,28 @@ local function refreshHolder(spec)
     local grab = unlocked and spec.config().anchorMode == "free"
     NS.RunSecure("holder:" .. spec.key, function()
         spec.holder:EnableMouse(grab)
+        -- THE BARS ARE HANDLES TOO. With the gap closed the elements ARE the visible stack, so
+        -- they are what a player aims at. Each forwards its drag to the holder rather than moving
+        -- itself. Secure elements are included: this runs through RunSecure, and an unlock is
+        -- already refused in combat (modules/Preview.lua), so no attribute moves under lockdown.
+        -- Only the drag is taken -- the click stays the element's own, so a target frame keeps
+        -- targeting while unlocked.
+        for _, el in pairs(spec.elements) do
+            el:RegisterForDrag(grab and "LeftButton" or nil)
+            el:SetScript("OnDragStart", grab and spec.__drag or nil)
+            el:SetScript("OnDragStop", grab and spec.__drop or nil)
+        end
     end)
     if grab then
         spec.holder.plate:Show()
         spec.holder.label:Show()
+        spec.holder.grip:Show()
+        spec.holder.grip:EnableMouse(true)
     else
         spec.holder.plate:Hide()
         spec.holder.label:Hide()
+        spec.holder.grip:EnableMouse(false)
+        spec.holder.grip:Hide()
     end
 end
 

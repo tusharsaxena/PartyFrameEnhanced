@@ -2,7 +2,8 @@
 -- the free stack, the secure-in-combat fade and defer, and the position owner.
 
 local T = _G.PFE_TEST
-local test, assertEqual, assertTrue, assertNil = T.test, T.assertEqual, T.assertTrue, T.assertNil
+local test, assertEqual, assertTrue, assertNil, assertFalse =
+  T.test, T.assertEqual, T.assertTrue, T.assertNil, T.assertFalse
 local NS, mocks = T.NS, T.mocks
 local Anchor = NS.Anchor
 
@@ -33,6 +34,9 @@ local function probe(secure)
   local key = "probe" .. #Anchor.__order
   Anchor.Register({
     key = key, secure = secure, elements = els,
+    -- A probe key has no row in defaults/Profile.lua, so it declares the fallback a real feature
+    -- reads out of NS.defaults.profile[key]. Same seam, reachable from a synthetic key.
+    defaults = { point = "TOP", relativePoint = "BOTTOM" },
     config = function() return cfg end,
     slotSize = function() return 100, 20 end,
     defaultPosition = { "CENTER", 0, -150 },
@@ -156,4 +160,52 @@ test("anchor: LAYOUT re-applies every registered feature", function()
     assertEqual(#els.party1.__points, 1)
     unregister(key)
   end)
+end)
+
+-- THE PROFILE-SWITCH CRASH (in-game report, 2026-09-16). AceDB's SetProfile calls removeDefaults()
+-- on the OUTGOING profile table, stripping every key whose value still equals its default -- and
+-- `point` / `relativePoint` are exactly that for any player who never moved them. Anchor's
+-- MSG.PROFILE handler is registered before the feature modules' (it loads earlier in the TOC), so
+-- it runs first and reads the stripped table through a config() the feature has not re-bound yet.
+-- red under: `local point, rel = cfg.point, cfg.relativePoint`, which sent nil into SetPoint and
+-- raised "Usage: SetPoint(point, ...)" mid-profile-change, taking the whole ApplyAll down with it.
+test("anchor: a section stripped of its defaulted point still pins, from the shipped default", function()
+  withFrames(function()
+    local key, els = probe(false)
+    -- Exactly what removeDefaults leaves behind: the keys the player moved, and nothing else.
+    cfg.point, cfg.relativePoint = nil, nil
+    Anchor.Apply(key)
+    local d = NS.defaults.profile[key]
+    for _, unit in ipairs({ "party1", "party2" }) do
+      local pt = els[unit].__points[1]
+      assertTrue(pt ~= nil, unit .. " was never pinned")
+      assertTrue(pt[1] ~= nil, "SetPoint got a nil point, which is the raise itself")
+      if d then
+        assertEqual(pt[1], d.point, "the shipped default is what the absent key meant")
+        assertEqual(pt[3], d.relativePoint)
+      end
+    end
+    unregister(key)
+  end)
+end)
+
+-- The unlocked handles (in-game report): at a small gap the holder's plate is covered by the
+-- elements, so the only thing left to grab was a strip of blue that is not there any more. The
+-- label got a body and the elements forward their drag, so both are handles.
+test("anchor: unlocking gives the name plate a grabbable body and arms every element's drag", function()
+  local key, els = probe(false)
+  cfg.anchorMode = "free"
+  Anchor.SetUnlocked(true)
+  local holder = Anchor.__features[key].holder
+  assertTrue(holder.grip ~= nil, "the label needs a frame behind it; a FontString takes no mouse")
+  assertTrue(holder.grip:IsShown(), "the handle shows with the plate")
+  for _, unit in ipairs(NS.Units.LIST) do
+    assertTrue(els[unit]:GetScript("OnDragStart") ~= nil, unit .. " is not grabbable while unlocked")
+  end
+  Anchor.SetUnlocked(false)
+  assertFalse(holder.grip:IsShown(), "and goes with it when locked")
+  for _, unit in ipairs(NS.Units.LIST) do
+    assertNil(els[unit]:GetScript("OnDragStart"), "a locked element must not be draggable")
+  end
+  unregister(key)
 end)

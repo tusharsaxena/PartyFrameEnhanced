@@ -11,6 +11,19 @@ local Anchor = NS.Anchor
 local function element()
   local el = mocks.CreateFrame("Frame")
   el.__points, el.__cleared = {}, 0
+  -- STRICTER THAN THE MOCK, on purpose. The live client raises "bad argument #2 to '?'
+  -- (Usage: self:RegisterForDrag(buttons))" when handed nil -- clearing is the NO-ARGUMENT call --
+  -- but tests/_kit's frame stub accepts anything, so `RegisterForDrag(grab and "LeftButton" or nil)`
+  -- passed here and raised in game on the first `/pfe unlock`. Until the kit models it, this suite
+  -- models it locally. (Upstream finding for LibKa0s testkit; do not "fix" it by editing libs/.)
+  rawset(el, "RegisterForDrag", function(_, ...)
+    local n = select("#", ...)
+    for i = 1, n do
+      assertTrue(type((select(i, ...))) == "string",
+        "RegisterForDrag takes button names or NOTHING; nil raises on a real client")
+    end
+    el.__dragButtons = n > 0 and select(1, ...) or nil
+  end)
   rawset(el, "SetPoint", function(self, ...) self.__points[#self.__points + 1] = { ... } end)
   rawset(el, "ClearAllPoints", function(self) self.__cleared = self.__cleared + 1; self.__points = {} end)
   rawset(el, "SetAlpha", function(self, a) self.__alphaSet = a end)
@@ -201,11 +214,13 @@ test("anchor: unlocking gives the name plate a grabbable body and arms every ele
   assertTrue(holder.grip:IsShown(), "the handle shows with the plate")
   for _, unit in ipairs(NS.Units.LIST) do
     assertTrue(els[unit]:GetScript("OnDragStart") ~= nil, unit .. " is not grabbable while unlocked")
+    assertEqual(els[unit].__dragButtons, "LeftButton", unit .. " took no drag button")
   end
   Anchor.SetUnlocked(false)
   assertFalse(holder.grip:IsShown(), "and goes with it when locked")
   for _, unit in ipairs(NS.Units.LIST) do
     assertNil(els[unit]:GetScript("OnDragStart"), "a locked element must not be draggable")
+    assertNil(els[unit].__dragButtons, "locking must CLEAR the drag, not register nil")
   end
   unregister(key)
 end)

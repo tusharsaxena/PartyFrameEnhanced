@@ -291,7 +291,10 @@ local function refreshHolder(spec)
         -- Only the drag is taken -- the click stays the element's own, so a target frame keeps
         -- targeting while unlocked.
         for _, el in pairs(spec.elements) do
-            el:RegisterForDrag(grab and "LeftButton" or nil)
+            -- CLEARED WITH NO ARGUMENT, never with nil: RegisterForDrag(nil) is not "register for
+            -- nothing", it is a bad argument #2 and it raises. The no-arg call is the documented
+            -- way to drop every registered button.
+            if grab then el:RegisterForDrag("LeftButton") else el:RegisterForDrag() end
             el:SetScript("OnDragStart", grab and spec.__drag or nil)
             el:SetScript("OnDragStop", grab and spec.__drop or nil)
         end

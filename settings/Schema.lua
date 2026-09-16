@@ -311,6 +311,16 @@ local function schemaError(where, msg)
     if NS.Print then NS.Print("|cffff0000schema error|r: " .. where .. ": " .. msg) end
 end
 
+--- Where a row's declared default lives, and what to call it in the error. A GLOBAL row's path is
+--- absolute over NS.defaults (`global.minimap.hide`), not relative to defaults.profile. Still
+--- resolved either way: architecture-§5's rule is that every row's path has a declared default
+--- behind it, and where that default lives does not excuse a row from having one. Lifted out of
+--- ValidateSchema rather than inlined, to keep that walk under the complexity gate.
+local function defaultsFor(row, profileDefaults)
+    if globalSettings[row.path] then return NS.defaults, "NS.defaults" end
+    return profileDefaults, "defaults.profile"
+end
+
 --- Returns shape `errors`, paths `resolved` against defaults.profile, and `missing` paths.
 function NS.ValidateSchema()
     local errors, resolved, missing = 0, 0, 0
@@ -330,17 +340,12 @@ function NS.ValidateSchema()
         if row.page ~= "profiles" and type(row.group) ~= "string" then
             schemaError(where, "missing `group` (options-ui-§13)"); errors = errors + 1
         end
-        -- A global row's path is absolute over NS.defaults (`global.minimap.hide`), not relative to
-        -- defaults.profile, so it is resolved against the whole defaults table. Still resolved --
-        -- architecture-§5's rule is that every row's path has a declared default behind it, and
-        -- where the default lives does not excuse a row from having one.
         if hasPath and row.page ~= "profiles" and not row.sessionOnly then
-            local against = globalSettings[row.path] and NS.defaults or defaults
+            local against, label = defaultsFor(row, defaults)
             if NS.ResolvePath(against, row.path) ~= nil then
                 resolved = resolved + 1
             else
-                schemaError(where, "`path` does not resolve against "
-                    .. (globalSettings[row.path] and "NS.defaults" or "defaults.profile"))
+                schemaError(where, "`path` does not resolve against " .. label)
                 missing = missing + 1
             end
         end

@@ -19,7 +19,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.37.0** vendored whole. The addon consumes seven LibKa0s majors through one setup file
+and **LibKa0s v1.38.0** vendored whole. The addon consumes seven LibKa0s majors through one setup file
 each — Media (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
 (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Slash (`settings/Slash.lua`) and Options
 (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements are
@@ -53,7 +53,9 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
   feature's free-placement anchor, written only by a drag. Owner: `modules/Anchor.lua`; writers: its
   drag-stop handler and `Anchor.ResetPositions` (the *Reset position* button, `/pfe resetposition`).
-- **Session-only rows:** `state.debugConsole` (the console window's visibility).
+- **Session-only rows:** `state.debugConsole` (the console window's visibility) and
+  `state.testMode` (whether test mode is running; its set is `NS.TestMode.Toggle`,
+  `settings/General.lua`).
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).

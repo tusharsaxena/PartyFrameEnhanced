@@ -61,8 +61,11 @@ pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)
 pet.showName = true  showPercent = false
 ```
 
-The Master controls tab's **Debug console** row is `sessionOnly` at `state.debugConsole`: its value is
-the console window's own visibility and never reaches the profile.
+The Master controls tab carries two `sessionOnly` rows, neither of which reaches the profile.
+**Debug console** is `state.debugConsole`, whose value is the console window's own visibility.
+**Test mode** is `state.testMode`, whose value is whether test mode is running: its get reads
+`NS.State.test` and its set calls `NS.TestMode.Toggle` (`settings/General.lua`), so a refused
+start prints why and the box redraws unticked.
 
 ## Named non-setting state (architecture-§5)
 

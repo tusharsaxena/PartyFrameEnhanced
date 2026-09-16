@@ -74,7 +74,7 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
 | `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
-| `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 607 | reported only |
+| `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 596 | reported only |
 | `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off ≤ on + 1; same API count; off ≤ 24 bytes |
 
 Figures from 2026-09-15 (Lua 5.1.5, WSL2). Every ceiling is the measured figure plus 24 bytes — less
@@ -87,7 +87,7 @@ The first run of these scenarios found four real costs; each fix is in the tree 
 | Finding | Before | After | Fix |
 |---|---|---|---|
 | Every dotted setting read built a `gmatch` iterator — hit per element per pass by the show decision (`general.includePlayer`) and per resolve (`general.provider`) | resolve: 88 bytes | 0 | `NS.ResolvePath` walks with `find`/`sub`, which yield already-interned strings |
-| Every restyle re-laid-out every region, so a color drag re-anchored five bars per 50 ms commit | drag: 115 API calls, **40 `SetPoint`**, 3.9 KB | 25 calls, **0 `SetPoint`**, 607 B | `Element.Reskin` memoizes a structure signature and skips layout when only colors moved (the KickCD F-015 lesson) |
+| Every restyle re-laid-out every region, so a color drag re-anchored five bars per 50 ms commit | drag: 115 API calls, **40 `SetPoint`**, 3.9 KB | 25 calls, **0 `SetPoint`**, 596 B | `Element.Reskin` memoizes a structure signature and skips layout when only colors moved (the KickCD F-015 lesson) |
 | A color-resolver closure was built on every paint | a closure per paint | one per element / per class | `Element.UnitResolver`, cached `Element.ClassResolver` |
 | Measurement noise: cast records, mock duration objects, the kit's AceTimer queue entries and the mock's color recorder were counted as the addon's garbage | cast cycle: 917 B; ticker: 240 B | 16.6 B; 0 | the scenarios build client data outside the measured loop; the ticker pass is called directly; the mock recorders reuse their tables |
 

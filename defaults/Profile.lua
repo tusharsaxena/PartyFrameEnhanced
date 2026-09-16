@@ -28,11 +28,14 @@ NS.defaults.profile = {
     castbar = {
         enabled = true,
 
-        -- Position (settings/ElementRows.lua). Attached: under the party frame, edge to edge.
+        -- Position (settings/ElementRows.lua). Attached: TOP to TOP at no offset, so the bar lies
+        -- OVER the party frame rather than under it, spanning its width (matchWidth). Under the
+        -- frame it competed for space with whatever the player has below their party; over it, the
+        -- cast is read in the same glance as the health it belongs to.
         -- `position` is the free-placement holder's anchor, owned by modules/Anchor.lua; nil means
         -- the default spot.
-        anchorMode = "attached", point = "TOP", relativePoint = "BOTTOM",
-        offsetX = 0, offsetY = -2, matchWidth = true,
+        anchorMode = "attached", point = "TOP", relativePoint = "TOP",
+        offsetX = 0, offsetY = 0, matchWidth = true,
         width = 140, height = 16, growth = "DOWN", spacing = 4,
         position = nil,
 
@@ -96,9 +99,11 @@ NS.defaults.profile = {
     pet = {
         enabled = true, clickToTarget = true,
 
-        -- Attached: under the party frame's left half.
-        anchorMode = "attached", point = "TOPLEFT", relativePoint = "BOTTOMLEFT",
-        offsetX = 0, offsetY = -20, matchWidth = false,
+        -- Attached: OUT TO THE RIGHT of the party frame, under the target frame that sits there.
+        -- TOPLEFT to TOPRIGHT puts the column beside the frame instead of below it, and the -20
+        -- drop clears the target frame's own row; the +4 is the gutter between the two columns.
+        anchorMode = "attached", point = "TOPLEFT", relativePoint = "TOPRIGHT",
+        offsetX = 4, offsetY = -20, matchWidth = false,
         width = 80, height = 14, growth = "DOWN", spacing = 4,
         position = nil,
 

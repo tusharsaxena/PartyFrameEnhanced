@@ -26,7 +26,7 @@ general.tickInterval  = 0.2      the target health ticker's pace, seconds (pets 
 ```text
 castbar.enabled = true                       castbar.fadeOut = true
 castbar.anchorMode = "attached"              "attached" | "free"
-castbar.point = "TOP"  castbar.relativePoint = "BOTTOM"  castbar.offsetX = 0  castbar.offsetY = -2
+castbar.point = "TOP"  castbar.relativePoint = "TOP"  castbar.offsetX = 0  castbar.offsetY = 0
 castbar.matchWidth = true  castbar.width = 140  castbar.height = 16
 castbar.growth = "DOWN"  castbar.spacing = 4  castbar.position = nil (named non-setting state)
 castbar.barTexture = "Blizzard"  castbar.barAlpha = 1.0
@@ -54,7 +54,7 @@ target.showName = true  showPercent = true  showMarker = true
 target.markerPoint = "LEFT"  markerOffsetX = 0  markerOffsetY = 0
 
 pet.enabled = true  pet.clickToTarget = true
-pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "BOTTOMLEFT"  offsetX = 0  offsetY = -20
+pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = -20
 pet.matchWidth = false  width = 80  height = 14  growth = "DOWN"  spacing = 4  position = nil
 pet.barTexture  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)
 pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)

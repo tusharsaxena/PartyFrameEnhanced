@@ -69,7 +69,6 @@ files["modules/CastBars.lua"] = { ignore = { "212/self" } }
 files["modules/TargetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/PetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/Preview.lua"] = { ignore = { "212/self" } }
-files["modules/TestMode.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /
 -- Sl:OnSlash / Sl:Register mirror the instance's colon methods; a stub that narrows a signature

@@ -1,10 +1,12 @@
 local _, NS = ...
 
--- modules/StandIn.lua — test mode's stand-in party frame
--- (docs/superpowers/specs/2026-09-15-test-mode-design.md §3).
+-- modules/StandIn.lua — preview's stand-in party frame
+-- (docs/superpowers/specs/2026-09-15-test-mode-design.md §3, which predates the removal of the
+-- separate test mode — the frame it specifies is unchanged, only its switch moved).
 --
--- Out of a party there is no party frame to attach to, so `/pfe test` shows this one in party1's
--- place (modules/TestMode.lua decides when). It copies the size and position of the imitated frame
+-- Out of a party there is no party frame to attach to, so UNLOCKING shows this one in party1's
+-- place (modules/Preview.lua decides when; there is no `/pfe test` and no modules/TestMode.lua any
+-- more — options-ui-§15 made the lock the only preview switch). It copies the size and position of the imitated frame
 -- system's first member frame — which exists, hidden, out of a party — so offsets tuned against it are
 -- the ones a real party gets, and wears one of three looks. The looks are approximations, judged by
 -- eye in docs/smoke-tests.md.

@@ -260,6 +260,56 @@ test("targetframes: preview shows every allowed button with placeholder content"
   assertEqual(buttons.party1.__drivers.visibility, "[@party1target,exists] show; hide")
 end)
 
+-- ── the player's own target (UNIT_TARGET does not fire for it) ────────────────────
+--
+-- THE BUG THESE PIN. `UNIT_TARGET` fires when a PARTY member's target changes; it does not fire
+-- when the PLAYER's own target changes -- that is `PLAYER_TARGET_CHANGED`, which carries no unit
+-- argument. Registering only UNIT_TARGET therefore left the player's own target button frozen on
+-- whatever it last painted, while every other member's updated correctly. Reported from a live
+-- party: four frames showed the right target and the player's showed a red bar with no name,
+-- because an unknown reaction reads as hostile (see the color note at the top of
+-- modules/TargetFrames.lua) and the stale button had never been repainted.
+
+test("targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button",
+  function()
+  prep()
+  -- red under: registering it per button. An unfiltered event has no unit to filter by, so every
+  -- button holding it would repaint on every target change -- four of the five for a change that
+  -- is none of their business. One registration on the module's own target repaints the one button
+  -- whose owner moved.
+  assertTrue(TargetFrames.__ev.__events.PLAYER_TARGET_CHANGED ~= nil,
+    "the module must hear the one event that reports the player changing target")
+  for _, unit in ipairs(NS.Units.LIST) do
+    local btn = buttons[unit]
+    assertTrue(not (btn.__events and btn.__events.PLAYER_TARGET_CHANGED),
+      unit .. "'s button must not carry the unfiltered event")
+    assertTrue(btn.__unitEvents.UNIT_TARGET == nil
+      or btn.__unitEvents.UNIT_TARGET[1] == unit,
+      unit .. "'s per-owner UNIT_TARGET registration is unchanged")
+  end
+  drain()
+end)
+
+test("targetframes: PLAYER_TARGET_CHANGED repaints the player's target button", function()
+  prep()
+  NS.db.profile.general.includePlayer = true
+  NS.PublishVisibility()
+  -- The whole point: the paint has to happen on THIS event, because no UNIT_TARGET is coming.
+  --
+  -- Driven through the mock's DISPATCHER, not by firing the button's OnEvent directly. `__fire`
+  -- calls the handler whatever the frame is registered for, so a case written that way passes
+  -- without the registration it exists to prove -- which is exactly what this one did before it
+  -- was rewritten.
+  mocks.__units.target = { name = "Boar", reaction = 2, health = 50, healthMax = 100, pct = 50 }
+  mocks.__fireEvent("PLAYER_TARGET_CHANGED")
+  mocks.__runStateDrivers()
+  assertEqual(buttons.player.text.__text, "Boar",
+    "the player's target frame must show what the player is targeting")
+  mocks.__units.target = nil
+  NS.db.profile.general.includePlayer = false
+  drain()
+end)
+
 test("targetframes: suspended, no events, no ticker, every driver hide", function()
   prep()
   target("party1", { name = "Boar", reaction = 2 })

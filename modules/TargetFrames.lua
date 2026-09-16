@@ -5,8 +5,10 @@ local _, NS = ...
 -- clicking it targets that unit.
 --
 -- UPDATES: UNIT_TARGET per owner (RegisterUnitEvent on the button's own frame — the documented
--- deviation in docs/ARCHITECTURE.md) repaints name, color, marker and health; RAID_TARGET_UPDATE
--- repaints markers. A compound token gets no UNIT_HEALTH, so health comes from ONE repeating timer
+-- deviation in docs/ARCHITECTURE.md) repaints name, color, marker and health, PLUS
+-- PLAYER_TARGET_CHANGED on the module's own target -- UNIT_TARGET does not fire for the player's
+-- own target change -- which repaints the player's button alone; RAID_TARGET_UPDATE repaints
+-- markers. A compound token gets no UNIT_HEALTH, so health comes from ONE repeating timer
 -- that runs only while at least one button is SHOWN, and repaints only the shown ones. "Shown" is
 -- the state driver's `[@partyNtarget,exists]`, which the client resolves securely; Lua's own
 -- UnitExists on a compound token can come back secret in combat, and reading that as "exists"
@@ -277,6 +279,24 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
     refreshAll()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
+
+-- THE PLAYER'S OWN TARGET. `UNIT_TARGET` fires when a PARTY member's target changes and NOT when
+-- the player's does -- that is `PLAYER_TARGET_CHANGED`, which carries no unit argument. The
+-- per-owner registration above therefore covered four of the five tracked units, and the player's
+-- own button sat on whatever it last painted: every other frame tracked correctly while the
+-- player's showed a stale name, or a red bar with no name at all, since an unknown reaction reads
+-- as hostile (the color note at the top of this file). Reported from a live party.
+--
+-- ON THE MODULE'S OWN TARGET, not on the button, and that is the difference between this and the
+-- registrations above. An unfiltered event has no unit to filter by, so `RegisterUnitEvent` cannot
+-- carry it; putting a bare `RegisterEvent` on all five buttons would repaint all five on every
+-- target change, four of them for a change that is none of their business. One registration here
+-- repaints exactly the one button whose owner moved -- the same shape RAID_TARGET_UPDATE below
+-- already uses for an event that genuinely concerns everyone.
+ev:RegisterEvent("PLAYER_TARGET_CHANGED", whenReady(function()
+    local btn = buttons.player
+    if btn then onEvent(btn) end
+end))
 
 -- Markers change for every unit at once; one repaint pass over the shown frames.
 ev:RegisterEvent("RAID_TARGET_UPDATE", whenReady(function()

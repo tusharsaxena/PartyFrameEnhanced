@@ -75,11 +75,10 @@ modules\UnitButtons.lua
 modules\TargetFrames.lua
 modules\PetFrames.lua
 # After every feature: its OnEnable reads the lock once every feature has registered with Anchor.
-modules\Preview.lua
-# Test mode's stand-in party frame; publishes NS.StandIn.
+# The stand-in party frame preview raises when you are not in a party; publishes NS.StandIn.
 modules\StandIn.lua
-# LOAD-BEARING: after Preview and StandIn — TestMode captures NS.Preview and NS.StandIn at file scope.
-modules\TestMode.lua
+# LOAD-BEARING: after StandIn — Preview drives the stand-in, and reaches NS.Anchor and NS.Providers.
+modules\Preview.lua
 
 # Settings (last — depend on everything else being initialized)
 # LOAD-BEARING: publishes NS.RegisterSchemaRows and the write seam, which every settings page calls

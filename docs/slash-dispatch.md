@@ -19,8 +19,8 @@ The landing page renders the same table.
 | `resetposition` | every free-placement stack back to its default position (`NS.Anchor.ResetPositions`) | no |
 | `lock` | locks the elements and leaves preview mode | no |
 | `unlock` | unlocks them for dragging, with placeholder content; refused in combat with a gray notice | no |
-| `test` | test mode: placeholders on every element, at the real party frames in a party and on a stand-in party frame for party1 out of one; again turns it off; refused in combat, disabled or suspended; ends when combat starts | no |
-| `status` | the detected frame system, which units have a frame, each feature's state, test mode, and anything switched off (including not being in a party) | no |
+| ~~`test`~~ | **Removed** (options-ui-§15). Unlocking already is this addon's preview, so `unlock` / `lock` are the switch and a second verb for the same state was the finding (anti-pattern #80). What it did — placeholders at the real party frames in a party, a stand-in party frame for party1 out of one, refused in combat, disabled or suspended; ends when combat starts | no |
+| `status` | the detected frame system, which units have a frame, each feature's state, whether preview is up and on what, and anything switched off (including not being in a party) | no |
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |

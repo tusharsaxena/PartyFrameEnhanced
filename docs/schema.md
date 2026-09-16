@@ -61,11 +61,14 @@ pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)
 pet.showName = true  showPercent = false
 ```
 
-The Master controls tab carries two `sessionOnly` rows, neither of which reaches the profile.
+The Master controls tab carries **one** `sessionOnly` row, which does not reach the profile.
 **Debug console** is `state.debugConsole`, whose value is the console window's own visibility.
-**Test mode** is `state.testMode`, whose value is whether test mode is running: its get reads
-`NS.State.test` and its set calls `NS.TestMode.Toggle` (`settings/General.lua`), so a refused
-start prints why and the box redraws unticked.
+
+There were two until options-ui-§15 exempted this addon from the **Test mode** row: unlocking
+already is its preview — it raises the stand-in out of a party and paints placeholders in one — so a
+second switch for the same state was the finding (anti-pattern #80). `state.testMode` and
+`NS.State.test` are both gone; the three refusals that row carried (combat, disabled, suspended) are
+now the `locked` row's validate.
 
 ## Named non-setting state (architecture-§5)
 

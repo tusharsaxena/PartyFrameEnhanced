@@ -42,8 +42,6 @@ NS.COMMANDS = {
         function() runLock(true) end},
     {"unlock",   L["Unlock the elements to drag them, with placeholder content"],
         function() runLock(false) end},
-    {"test",     L["Toggle test mode \226\128\148 placeholders on every element, on a stand-in party frame when you're not in a party"],
-        function() print(NS.TestMode.Toggle()) end},
     {"status",   L["Show which party frames were found and what each feature is doing"],
         function() runStatus() end},
     {"debug",    L["Toggle the debug console \226\128\148 `on`/`off` enable/disable logging"],
@@ -96,12 +94,12 @@ local function statusFlags()
     if NS.GetSetting("visibility") ~= "always" then
         flags[#flags + 1] = L["visibility %s"]:format(tostring(NS.GetSetting("visibility")))
     end
-    if NS.State.test == "standin" then
-        flags[#flags + 1] = L["test mode on (stand-in)"]
-    elseif NS.State.test == "party" then
-        flags[#flags + 1] = L["test mode on (your party frames)"]
+    if NS.State.preview and not NS.Units.InParty() then
+        flags[#flags + 1] = L["unlocked (stand-in)"]
+    elseif NS.State.preview then
+        flags[#flags + 1] = L["unlocked (your party frames)"]
     elseif not NS.Units.InParty() then
-        flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe test)"]
+        flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)"]
     end
     if NS.Anchor.IsUnlocked() then flags[#flags + 1] = L["unlocked"] end
     if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end

@@ -88,21 +88,16 @@ for _, key in ipairs({
     "Cast bars", "Target frames", "Pet frames",
 }) do L[key] = key end
 
--- Test mode and its stand-in party frame (modules/TestMode.lua, modules/StandIn.lua)
+-- Preview and its stand-in party frame (modules/Preview.lua, modules/StandIn.lua). The lock is the
+-- only switch (options-ui-§15), so every string here is worded around locking and unlocking.
 for _, key in ipairs({
     "(test)",
-    "Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Combat ends it. The same as /pfe test.",
-    "Toggle test mode \226\128\148 placeholders on every element, on a stand-in party frame when you're not in a party",
-    "Test mode off",
-    "Test mode on \226\128\148 a stand-in party frame is up; drag it to move it",
-    "Test mode on \226\128\148 placeholders on your party frames",
-    "cannot start test mode during combat",
-    "cannot start test mode \226\128\148 the addon is disabled",
-    "cannot start test mode \226\128\148 a perf run has the addon suspended",
-    "Test mode off \226\128\148 combat started",
-    "Test mode off \226\128\148 the addon was disabled",
-    "Test mode off \226\128\148 a perf run suspended the addon",
-    "test mode on (stand-in)", "test mode on (your party frames)",
+    "cannot unlock \226\128\148 the addon is disabled",
+    "cannot unlock \226\128\148 a perf run has the addon suspended",
+    "Locked \226\128\148 combat started",
+    "Locked \226\128\148 the addon was disabled",
+    "Locked \226\128\148 a perf run suspended the addon",
+    "unlocked (stand-in)", "unlocked (your party frames)",
 }) do L[key] = key end
 
 -- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
@@ -137,7 +132,7 @@ for _, key in ipairs({
     "Elements locked", "Elements unlocked \226\128\148 drag them into place",
     "off", "on, free placement", "on, attached", "addon disabled", "visibility %s", "unlocked",
     "suspended by a perf run", "Frame system: %s",
-    "not in a party \226\128\148 nothing shows until you join one (try /pfe test)", "none found", "frame", "Note: %s",
+    "not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)", "none found", "frame", "Note: %s",
     "List all profiles", "Show current profile name", "Switch to profile",
     "Create new profile with defaults", "Copy settings from another profile", "Delete a profile",
     "Reset current profile to defaults", "Profile commands", "Usage: /pfe profile %s <name>",

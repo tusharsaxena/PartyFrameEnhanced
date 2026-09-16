@@ -23,7 +23,7 @@ mode are added by the phases that build them (plan P2–P6).
 | G | Target frames | a party, mobs to target |
 | H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
 | I | Preview, placement and status | any Retail; a party for the attached steps |
-| J | Test mode and the party-only rule | solo; a party; each of the three frame systems |
+| J | Preview, the stand-in and the party-only rule | solo; a party; each of the three frame systems |
 | **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
 
 ## A. Load and bootstrap
@@ -57,8 +57,10 @@ mode are added by the phases that build them (plan P2–P6).
     the Notes line and the slash-command list show (the same rows as `/pfe help`).
 12. **General** → a two-tab strip, **Master controls** then **Party frames**. Master controls holds, in
     order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
-    *Lock frame* · *Debug console*, then a *Test mode* checkbox on its own line (tick it → test mode
-    starts; `/pfe test` or combat ends it and the box unticks), then the button pair
+    *Lock frame* · *Debug console*, and then the button pair straight away — **there is no Test mode
+    checkbox** (options-ui-§15 exempts this addon; a box labeled *Test mode* here is the
+    duplicate-switch finding, anti-pattern #80). Unticking *Lock frame* is what starts preview, and
+    combat re-ticks it
     *Reset position* · *Reset all settings*.
     *General visibility* is a dropdown of four: Always, Only in combat, Only out of combat, Never.
 13. **Party frames** tab → *Frame system* (Automatic / Blizzard / EllesmereUI) and *Include my own row*.
@@ -193,24 +195,24 @@ EllesmereUI's, where noted.
 45. **Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free placement*, unlock → a
     translucent plate labeled *Cast bars* appears over the stack. Drag it; lock; `/reload` → the stack
     is where you left it. General → *Reset position* (or `/pfe resetposition`) → back to its default.
-46. **Test mode in a party.** In a party, `/pfe test` → placeholders on every element at the real
-    party frames, no stand-in, no plate and nothing draggable; again → gone.
+46. **Preview in a party.** In a party, `/pfe unlock` → placeholders on every element at the real
+    party frames, no stand-in and no plate; `/pfe lock` → gone.
 47. **Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
     feature's state, and a *Note:* line when something is switched off (set General visibility to
     *Never* and run it again).
 
-## J. Test mode and the party-only rule
+## J. Preview, the stand-in and the party-only rule
 
 48. **Party-only.** Solo: nothing shows, attached or free placement, and `/pfe status` ends with *not
-    in a party — nothing shows until you join one (try /pfe test)*. Join a party → everything shows.
+    in a party — nothing shows until you join one (try /pfe unlock)*. Join a party → everything shows.
     Convert to a raid → it all goes again.
-49. **Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, Frame system Automatic: `/pfe test` → one
+49. **Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, Frame system Automatic: `/pfe unlock` → one
     stand-in party frame where EllesmereUI's first party frame sits, at its size, with a flat
     class-colored bar and a gray *(test)* after your name. The stand-in draws beneath what attaches
     to it: the cast bar's spell icon shows whole. Party1's cast bar, target frame (skull) and pet frame
     attach to it, and the Size & Position offsets move them. Drag it → they follow. *Failure:* a
     stand-in of a different size from your EllesmereUI party frames. `/pfe debug on`, then
-    `/pfe test`, logs a `[Test]` line naming where the size came from. For EllesmereUI it should
+    `/pfe unlock`, logs a `[Preview]` line naming where the size came from. For EllesmereUI it should
     read `settings` (your EllesmereUI party frame width and height); `frame` or `fallback` means
     EllesmereUI's settings could not be read.
 50. **Stand-in, Blizzard raid-style.** Blizzard frames, Edit Mode raid-style party frames on: the same
@@ -220,9 +222,11 @@ EllesmereUI's, where noted.
     and a mana bar. Note whether the 120 × 53 fallback matched if the stand-in came up at screen
     center.
 52. **Live switch and exits.** With the stand-in up, join a party → it goes and the placeholders move
-    to the real frames; leave → it comes back. Pull a dummy → *Test mode off — combat started*,
-    nothing stuck on screen, no `ADDON_ACTION_BLOCKED` in `/pfe debug`. During test mode `/pfe status`
-    reads *test mode on (stand-in)* or *test mode on (your party frames)*.
+    to the real frames; leave → it comes back. Pull a dummy → *Locked — combat started*, the *Lock
+    frame* box ticks itself, nothing stuck on screen, no `ADDON_ACTION_BLOCKED` in `/pfe debug`.
+    While unlocked `/pfe status` reads *unlocked (stand-in)* or *unlocked (your party frames)*.
+    In combat, `/pfe unlock` → a gray *cannot unlock during combat* and nothing moves; `/pfe lock`
+    still works. Disable the addon while unlocked → *Locked — the addon was disabled*.
 
 ## T. Non-English client (locale)
 

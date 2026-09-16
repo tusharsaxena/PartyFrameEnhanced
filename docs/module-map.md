@@ -33,8 +33,8 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 22 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
 | 23 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
 | 24 | `modules/Preview.lua` | preview mode: named holds (unlock, test), the lock ↔ preview link, the combat refusal | after every feature: its OnEnable reads the lock once every feature has registered with Anchor |
-| 25 | `modules/StandIn.lua` | test mode's stand-in party frame: three looks, the size and position copy, drag | before TestMode, which captures `NS.StandIn` |
-| 26 | `modules/TestMode.lua` | `/pfe test`: the two modes, the live switch, the refusals and exits | **load-bearing**: after Preview and StandIn, which it captures at file scope |
+| 25 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
+| 26 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
 | 27 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
 | 28 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `status`, `test`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
 | 29 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |

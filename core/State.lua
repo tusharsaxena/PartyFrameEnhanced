@@ -4,14 +4,14 @@ local _, NS = ...
 -- /reload.
 --   debug     the debug-logging flag (debug-logging-§5), default off
 --   inCombat  the player's combat state, driven by the regen events (events-frames-taint-§2)
---   preview   placeholder content on every enabled element (preview-mode): on while any hold is set
---             (modules/Preview.lua — unlocking, test mode)
+--   preview   placeholder content on every enabled element (preview-mode): on exactly while the
+--             elements are UNLOCKED, which is the addon's only preview switch (modules/Preview.lua).
+--             There is no separate test-mode flag: options-ui-§15 exempts an addon whose unlocked
+--             view already is its preview from that row.
 --   inParty   the last NS.Units.InParty answer, so a roster change republishes only on a flip
---   test      test mode: nil (off), "party" or "standin", owned by modules/TestMode
 NS.State = NS.State or {}
 local State = NS.State
 State.debug    = State.debug or false
 State.inCombat = State.inCombat or false
 State.preview  = State.preview or false
 State.inParty  = State.inParty or false
-State.test     = State.test

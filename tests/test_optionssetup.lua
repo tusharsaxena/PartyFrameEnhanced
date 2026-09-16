@@ -45,7 +45,8 @@ end)
 -- no-copy MUST wins), so the gap between the two counts is exactly the composed rows, attributed here
 -- composer by composer. A page file that raised at load would show up as a larger gap.
 local COMPOSED = {
-  MasterControls = 7,   -- settings/General.lua (the six canonical rows plus Test mode)
+  MasterControls = 6,   -- settings/General.lua: the six canonical rows. NOT seven -- options-ui-§15
+                        -- exempts this addon from Test mode, its unlocked view being its preview.
   CastBarsBar    = 4,   -- settings/CastBars.lua: BarGroup (Fill)
   CastBarsBg     = 2,   --   ColorPair (Background)
   CastBarsBorder = 5,   --   BorderGroup, with Show border
@@ -58,7 +59,7 @@ test("optionssetup: the degraded load registers every host-declared row; the gap
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 120, "the fully loaded schema")
+  assertEqual(#NS.Schema, 119, "the fully loaded schema")
   assertEqual(#NS2.Schema, 62, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)

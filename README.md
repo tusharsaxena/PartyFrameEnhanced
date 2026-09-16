@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-185%2F185_passing-green)
+![Tests](https://img.shields.io/badge/Tests-186%2F186_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -40,7 +40,7 @@ pet in every pet frame, so you can arrange it all without waiting for a pull. At
 nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
 just drag. Lock again and the real data comes back.
 
-Not in a party? Type `/pfe test`, or tick **Test mode** on the **General** page. You get a stand-in frame dressed like your usual party frames,
+Not in a party? Type `/pfe unlock`, or untick **Lock frame** on the **General** page. You get a stand-in frame dressed like your usual party frames,
 with a cast bar, target frame and pet frame hanging off it, so you can set the offsets solo. Drag it
 wherever you like. In a party, the same command puts the placeholders on your real frames. Combat ends
 it, and so does typing it again.
@@ -83,7 +83,7 @@ own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full
 
 | Symptom | Fix |
 |---|---|
-| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe test` shows you what it would look like. |
+| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe unlock` shows you what it would look like. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
 | The settings panel won't open | It refuses in combat on purpose. Try again once combat ends. |

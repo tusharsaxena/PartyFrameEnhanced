@@ -44,9 +44,8 @@ free-placement stacks are movable, so every row applies.
 | General visibility | `visibility` | Always / Only in combat / Only out of combat / Never; publishes VISIBILITY |
 | Master scale | `scale` | multiplies every element's size (CONFIG "master") |
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
-| Lock frame | `locked` | off = unlocked = preview mode and grabbable free-placement stacks (`NS.OnLockChanged` holds preview for `unlock`, `modules/Preview.lua`); unlocking in combat is refused and the box snaps back |
+| Lock frame | `locked` | **The addon's one preview switch** (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
-| Test mode | `state.testMode` | session-only checkbox on its own line (the composer's `testModePath`, options-ui-§15); ticked exactly while test mode is on; its set is `NS.TestMode.Toggle()`, the same act as `/pfe test`, and a refused start leaves it unticked |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |
 

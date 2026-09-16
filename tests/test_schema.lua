@@ -29,8 +29,12 @@ test("schema: the General page opens on the Master controls tab, in the canonica
   for _, row in ipairs(rows) do
     if row.group == "Master controls" then paths[#paths + 1] = row.path end
   end
-  assertEqual(table.concat(paths, ","), "enabled,visibility,scale,alpha,locked,state.debugConsole,state.testMode",
-    "the canonical Master controls rows, in order, with nothing omitted")
+  assertEqual(table.concat(paths, ","), "enabled,visibility,scale,alpha,locked,state.debugConsole",
+    "the canonical Master controls rows, in order, with nothing omitted but Test mode")
+  -- Test mode is the one legitimate omission (options-ui-§15): this addon's unlocked view already IS
+  -- its preview -- unlocking raises the stand-in out of a party and paints placeholders in one --
+  -- so a Test mode box beside Lock frame would be two switches for one state (anti-pattern #80).
+  assertEqual(NS.FindSchemaRow("state.testMode"), nil, "the Test mode row must not come back")
 end)
 
 test("schema: General visibility is the four-value dropdown, not a boolean", function()

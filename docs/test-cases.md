@@ -14,7 +14,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
-- loadorder: StandIn and TestMode load after Preview, StandIn first, and the TOC says why
+- loadorder: Preview loads after StandIn, and the TOC says why
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
 - loadorder: every derived path exists on disk
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
@@ -177,9 +177,9 @@ badge and any count quoted in the docs must agree with it.
 
 - preview: unlocking turns preview on and makes free-placement holders grabbable
 - preview: unlocking in combat is refused, the stored lock stays, and the player is told why
-- preview: holds combine — unlocked plus a test hold, the test hold released, preview stays
-- preview: one hold turns it on and its release turns it off, one VISIBILITY each way
-- preview: the preview verb is gone — /pfe test replaces it
+- preview: the lock is the only switch, and there is no hold API left
+- preview: one VISIBILITY each way, and a redundant write sends nothing
+- preview: neither /pfe preview nor /pfe test exists — lock and unlock are the switch
 - preview: a profile saved unlocked comes back in preview
 - status: names the frame system, each unit, each feature, and anything switched off
 
@@ -198,24 +198,25 @@ badge and any count quoted in the docs must agree with it.
 - standin: setting and clearing it resolve at once, each sending LAYOUT
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
 
-### test_testmode.lua (16)
+### test_preview_standin.lua (17)
 
-- testmode: solo, /pfe test raises the stand-in in party1's place with placeholders; again ends it
-- testmode: in a party, /pfe test is placeholders on the real frames and no stand-in
-- testmode: in a raid it is the stand-in too
-- testmode: it switches live — joining hides the stand-in, leaving brings it back, it stays on
-- testmode: refused in combat, disabled or suspended — one gray line each, nothing changes
-- testmode: combat ends it at PLAYER_REGEN_DISABLED (stand-in)
-- testmode: combat ends it at PLAYER_REGEN_DISABLED (party)
-- testmode: the master switch going off ends it
-- testmode: a perf-run suspend ends it, and the stand-in leaves the map at once
-- testmode: party1's target button pins to the stand-in, and after the stop its driver hides it
-- testmode: unlock creates no stand-in
-- testmode: a Frame system change re-dresses the stand-in
-- testmode: with Match party frame width, party1's cast bar pins both edges to the stand-in
-- testmode: the placeholder cast is drawn full, so the whole bar shows
-- testmode: General → Master controls' Test mode checkbox is in step with /pfe test
-- testmode: status names the mode, and the verb is in NS.COMMANDS
+- preview: solo, unlocking raises the stand-in in party1's place; locking ends it
+- preview: in a party, unlocking is placeholders on the real frames and no stand-in
+- preview: in a raid it is the stand-in too
+- preview: it switches live — joining hides the stand-in, leaving brings it back, it stays on
+- preview: unlocking is refused in combat, disabled or suspended — one gray line each
+- preview: locking is never refused, so a refusal cannot strand the elements unlocked
+- preview: combat re-locks at PLAYER_REGEN_DISABLED (stand-in)
+- preview: combat re-locks at PLAYER_REGEN_DISABLED (party)
+- preview: the master switch going off re-locks
+- preview: a perf-run suspend re-locks, and the stand-in leaves the map at once
+- preview: party1's target button pins to the stand-in, and after the lock its driver hides it
+- preview: unlocking out of a party is what creates the stand-in
+- preview: a Frame system change re-dresses the stand-in
+- preview: with Match party frame width, party1's cast bar pins both edges to the stand-in
+- preview: the placeholder cast is drawn full, so the whole bar shows
+- preview: Lock frame is the switch, and no Test mode row survives beside it
+- preview: status names what preview is showing, and neither verb survives in NS.COMMANDS
 
 ### test_perf_buckets.lua (3)
 
@@ -295,7 +296,7 @@ badge and any count quoted in the docs must agree with it.
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
 | test_standin.lua | 12 |
-| test_testmode.lua | 16 |
+| test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 12 |
@@ -303,4 +304,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **185** |
+| **Total** | **186** |

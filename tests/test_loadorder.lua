@@ -86,11 +86,19 @@ test("loadorder: PerfSetup loads before every module", function()
   end
 end)
 
-test("loadorder: StandIn and TestMode load after Preview, StandIn first, and the TOC says why", function()
-  assertBefore("modules/preview.lua", "modules/testmode.lua", "TestMode captures NS.Preview at file scope")
-  assertBefore("modules/standin.lua", "modules/testmode.lua", "TestMode captures NS.StandIn at file scope")
-  assertTrue(readFile(TOC):find("TestMode captures NS.Preview and NS.StandIn", 1, true) ~= nil,
-    "the TOC line must say TestMode's position is load-bearing")
+-- The order flipped when test mode was removed (options-ui-§15): modules/TestMode.lua is gone, and
+-- Preview — which now drives the stand-in itself — became StandIn's consumer rather than its
+-- predecessor.
+test("loadorder: Preview loads after StandIn, and the TOC says why", function()
+  assertBefore("modules/standin.lua", "modules/preview.lua", "Preview drives the stand-in")
+  assertBefore("modules/anchor.lua", "modules/preview.lua", "Preview reaches NS.Anchor")
+  assertBefore("modules/providers.lua", "modules/preview.lua", "Preview reaches NS.Providers")
+  assertTrue(readFile(TOC):find("Preview drives the stand-in", 1, true) ~= nil,
+    "the TOC line must say Preview's position is load-bearing")
+  for _, path in ipairs(Loader.tocFiles(TOC)) do
+    assertTrue(path:lower() ~= "modules/testmode.lua",
+      "modules/TestMode.lua was removed; a TOC entry for it would be a dead load")
+  end
 end)
 
 test("loadorder: tocFiles skips libs, directives and comments, and uses forward slashes", function()

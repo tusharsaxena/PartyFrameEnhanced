@@ -24,7 +24,7 @@ Providers: one coalesced resolve on the next frame, follow-ups at 0.1 s and 0.5 
 unit → frame map ── changed? ──► LAYOUT message
 ```
 
-Test mode out of a party adds one source: the stand-in fills party1 when no real frame does
+Preview out of a party adds one source: the stand-in fills party1 when no real frame does
 (`Providers.SetStandIn`, resolved at once rather than next frame).
 
 ## 2. Where each element goes
@@ -63,4 +63,4 @@ target / has a pet). The secure target and pet frames express the later rungs as
 Stage 1 is `modules/Providers.lua`, stage 2 `modules/Anchor.lua`, stage 3 `modules/CastBars.lua`,
 `modules/TargetFrames.lua` and `modules/PetFrames.lua` (the last two over `modules/UnitButtons.lua`),
 and stage 4 is each feature's `shouldShow` / state driver over `modules/Element.lua`'s shared rungs.
-Preview mode (`modules/Preview.lua`, held by unlocking and by `/pfe test`) is rung 3 of stage 4.
+Preview mode (`modules/Preview.lua`, on exactly while UNLOCKED — its only switch, options-ui-§15) is rung 3 of stage 4.

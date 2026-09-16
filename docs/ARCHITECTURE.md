@@ -13,7 +13,7 @@ each unit — Blizzard classic, Blizzard raid-style or EllesmereUI, detected by 
 stacks them in one movable free-placement group. What it deliberately leaves out is
 [scope.md](scope.md).
 
-It is **party-only**: solo or in a raid it shows nothing and registers nothing. `/pfe test` previews
+It is **party-only**: solo or in a raid it shows nothing and registers nothing. `/pfe unlock` previews
 it anyway, on the real party frames in a party and on a stand-in party frame out of one
 ([the design](superpowers/specs/2026-09-15-test-mode-design.md)).
 
@@ -36,7 +36,7 @@ settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), Med
 Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
 captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
 and UnitButtons before the features that capture them, Preview after every feature, Preview and
-StandIn before TestMode, Schema before
+StandIn before Preview, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
@@ -53,9 +53,9 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
   feature's free-placement anchor, written only by a drag. Owner: `modules/Anchor.lua`; writers: its
   drag-stop handler and `Anchor.ResetPositions` (the *Reset position* button, `/pfe resetposition`).
-- **Session-only rows:** `state.debugConsole` (the console window's visibility) and
-  `state.testMode` (whether test mode is running; its set is `NS.TestMode.Toggle`,
-  `settings/General.lua`).
+- **Session-only rows:** `state.debugConsole` (the console window's visibility) — one row, not two.
+  `state.testMode` was the second until options-ui-§15 exempted this addon from the Test mode row:
+  unlocking already is its preview.
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).
@@ -91,7 +91,7 @@ source to check).
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
 | `UNIT_TARGET` (per owner, `RegisterUnitEvent`), `RAID_TARGET_UPDATE` (AceEvent) | `modules/TargetFrames.lua` | target frames; health comes from a gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent` | `modules/PetFrames.lua` | pet frames |
-| `PLAYER_REGEN_DISABLED`, `GROUP_ROSTER_UPDATE` (registered only while test mode is on) | `modules/TestMode.lua` (AceEvent, own target) | end test mode before lockdown; switch between the stand-in and the real party frames |
+| `PLAYER_REGEN_DISABLED` (always), `GROUP_ROSTER_UPDATE` (registered only while preview is on) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
 
 The unit events above are registered only in a party (the party-only rule): each feature's
 `syncEvents` re-runs on VISIBILITY, which the roster flip republishes.
@@ -103,7 +103,7 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 ## Taint Notes
 
 - **Never touch the frames we attach to.** No `Hide`, `SetParent`, `SetPoint` or call into a Blizzard
-  or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only. Test mode's
+  or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only. The preview
   stand-in (`modules/StandIn.lua`) reads another frame's size and position through getters only and
   is never anchored, parented or hooked to one. Imitating EllesmereUI, it takes EllesmereUI's
   configured party frame size, which `modules/Providers.lua` reads from EllesmereUI's saved settings
@@ -125,7 +125,7 @@ by unit in C rather than dispatching every unit's event into Lua — a recorded 
 
 ## Known Limitations
 
-- Party only, by design: solo or in a raid of any size nothing shows (`/pfe test` previews it). Arena
+- Party only, by design: solo or in a raid of any size nothing shows (`/pfe unlock` previews it). Arena
   frames are not attached to (#11).
 - Blizzard (both layouts) and EllesmereUI are the only frame systems detected; others use free
   placement (#2).

@@ -29,27 +29,12 @@ if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
     NS.RegisterSessionSetting(DEBUG_CONSOLE_PATH, NS.DebugLog:ConsoleCheckbox())
 end
 
--- Test mode is Master controls' own row (options-ui-§15, standard v2.46.0): a session-only checkbox
--- the composer emits from `testModePath` (LibKa0s v1.37.0), ticked exactly while test mode is on. Its
--- set goes through TestMode.Toggle, so a refused start (combat, disabled, suspended) prints why and the
--- panel redraws the box unticked; modules/TestMode.lua refreshes the panel on every start and stop.
-local TEST_MODE_PATH = "state.testMode"
-NS.RegisterSessionSetting(TEST_MODE_PATH, {
-    get = function() return NS.State.test ~= nil end,
-    set = function(v)
-        if (NS.State.test ~= nil) ~= (v and true or false) then print(NS.TestMode.Toggle()) end
-        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
-    end,
-})
-local TEST_MODE_TIP = L["Show placeholders on every element: on your party frames in a party, on a stand-in party frame out of one. Combat ends it. The same as /pfe test."]
-
 local masterRows, masterTail = H.MasterControls({
     prefix           = "",
     page             = PAGE,
     addonName        = "Party Frame Enhanced",
     frameless        = false,
     debugConsolePath = DEBUG_CONSOLE_PATH,
-    testModePath     = TEST_MODE_PATH,
     defaults         = {
         enabled    = D.enabled,
         visibility = D.visibility,
@@ -70,21 +55,21 @@ local masterRows, masterTail = H.MasterControls({
 local masterOnChange = {
     enabled    = function() NS.PublishVisibility() end,
     visibility = function() NS.PublishVisibility() end,
-    -- Unlocking is preview mode (preview-mode); modules/Preview.lua owns what that means.
+    -- Unlocking IS preview mode (preview-mode), and the only switch for it: options-ui-§15 exempts
+    -- this addon from a Test mode row because unlocking already raises the stand-in and paints the
+    -- placeholders. modules/Preview.lua owns what that means.
     locked     = function(v) if NS.OnLockChanged then NS.OnLockChanged(v) end end,
     -- Declared empty on purpose: the console's own set() is the whole act.
     [DEBUG_CONSOLE_PATH] = function() end,
-    -- The same for test mode: the session setting's set() is TestMode.Toggle.
-    [TEST_MODE_PATH] = function() end,
 }
 
 for _, row in ipairs(masterRows) do
     local fn = masterOnChange[row.path]
     if fn then row.onChange = fn end
-    -- The composer's tooltip is generic; this addon's says what test mode shows.
-    if row.path == TEST_MODE_PATH then row.tooltip = TEST_MODE_TIP end
     if not row.sessionOnly then row.section = "master" end
-    -- An unlock in combat is refused at the seam, before it is stored (modules/Preview.lua).
+    -- An unlock is refused at the seam, before it is stored — in combat, with the addon disabled,
+    -- or during a perf-run suspend (modules/Preview.lua). Those three refusals came off the removed
+    -- Test mode row, which would not start under any of them.
     if row.path == "locked" then
         row.validate = function(v) return not NS.AcceptLock or NS.AcceptLock(v) end
     end

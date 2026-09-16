@@ -113,6 +113,7 @@ for _, key in ipairs({
 -- Slash surface, chat replies and unit labels (settings/Slash.lua, settings/About.lua, core/Units.lua)
 for _, key in ipairs({
     "List available commands", "Open the settings panel", "List every setting and its current value",
+    "Turn the addon on", "Turn the addon off without unloading it",
     "Print a setting's current value \226\128\148 `/pfe get <path>`",
     "Set a setting \226\128\148 `/pfe set <path> <value>` (try /pfe list)",
     "Reset one setting to its default \226\128\148 `/pfe reset <path>`",

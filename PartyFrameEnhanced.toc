@@ -59,6 +59,9 @@ core\PerfSetup.lua
 # LOAD-BEARING: after Constants (FONT_MONO), State (the flag) and CoreSetup (the printer),
 # before anything that calls NS.Debug.
 core\DebugLogSetup.lua
+# Conventional: builds the launcher object, whose every seam is reached at click or Register
+# time. Register itself is called from addon:OnEnable, once NS.db.global.minimap exists.
+core\LauncherSetup.lua
 core\Units.lua
 core\Database.lua
 core\PartyFrameEnhanced.lua

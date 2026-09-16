@@ -16,13 +16,17 @@ local L = NS.L
 local SlashLib = LibStub and LibStub("LibKa0s-Slash-1.0", true)
 local cli   -- built at the bottom; every handler reaches it at CALL time
 
-local runResetAll, runDebug, runPerf, runProfile, runLock, runStatus
+local runResetAll, runDebug, runPerf, runProfile, runLock, runStatus, runEnabled
 
 NS.COMMANDS = {
     {"help",     L["List available commands"],
         function() cli:PrintHelp() end},
     {"config",   L["Open the settings panel"],
         function() NS.OpenOptionsPanel() end},
+    {"enable",   L["Turn the addon on"],
+        function() runEnabled(true) end},
+    {"disable",  L["Turn the addon off without unloading it"],
+        function() runEnabled(false) end},
     {"list",     L["List every setting and its current value"],
         function() cli:CliList() end},
     {"get",      L["Print a setting's current value \226\128\148 `/pfe get <path>`"],
@@ -75,6 +79,32 @@ function runLock(locked)
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
     if NS.GetSetting("locked") ~= locked then return end
     print(locked and L["Elements locked"] or L["Elements unlocked \226\128\148 drag them into place"])
+end
+
+--- Flip the lock. THE ONE TOGGLE: the launcher's left click (core/LauncherSetup.lua, launcher-§2's
+--- rung (b)) lands here, so the button drives the same `locked` path the Lock frame checkbox and
+--- `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that state. An
+--- unlock the row refuses leaves the lock where it was and runLock says nothing, which is the same
+--- answer the checkbox gives.
+function NS.ToggleLock()
+    runLock(NS.GetSetting("locked") ~= true)
+end
+
+-- `/pfe enable` and `/pfe disable` are RESERVED VERBS and are ALIASES, never a second switch
+-- (slash-commands-§2). They write the `enabled` path the Master controls *Enable Party Frame
+-- Enhanced* checkbox writes, through the same seam, and hold no state of their own -- no second key,
+-- no session flag -- so the checkbox and the verbs can never show the player two different answers
+-- and one onChange (NS.PublishVisibility) runs whichever surface was used.
+--
+-- The echo is the library's own `path = value` formatter, read back from the STORE after the write
+-- (slash-commands-§5), so the line reads exactly as `/pfe set enabled true` reads. In a build with
+-- no LibKa0s the echo degrades to one honest "unavailable" line while the WRITE still lands: the
+-- pair must never be one-way, and a player who cannot read the acknowledgment must still be able to
+-- turn the addon back on.
+function runEnabled(on)
+    NS.SetByPath("enabled", on)
+    if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+    cli:CliGet("enabled")
 end
 
 -- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing

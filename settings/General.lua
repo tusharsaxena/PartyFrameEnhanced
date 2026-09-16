@@ -5,7 +5,7 @@
 --     Master controls  [Enable Party Frame Enhanced]  [General visibility]
 --                      [Master scale]                 [Master alpha]
 --                      [Lock frame]                   [Debug console]
---                      [Test mode]                                           <- session-only checkbox
+--                      [Minimap button]                                      <- stored in db.global
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
 --     Party frames     [Frame system]                 [Include my own row]
 --
@@ -29,12 +29,40 @@ if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
     NS.RegisterSessionSetting(DEBUG_CONSOLE_PATH, NS.DebugLog:ConsoleCheckbox())
 end
 
+-- THE MINIMAP BUTTON'S ONE ROW (launcher-§3). The path is the composer's verbatim and unprefixed,
+-- because LibDBIcon's own table lives in the GLOBAL store, outside the block's profile prefix.
+--
+-- THE INVERSION IS THE ADDON'S, NOT THE LIBRARY'S, and it happens exactly once -- here, on the one
+-- write seam every other row goes through (options-ui-§1, architecture-§5). The row's boolean says
+-- SHOWN; LibDBIcon's `hide` says hidden. Storing the library's own key is what keeps ONE record of
+-- one state: LibDBIcon writes `hide` itself when the player uses the button's right-click menu, and
+-- a `show` key beside it would be a second copy free to disagree (anti-pattern #81).
+--
+-- The set calls the launcher's SetShown after storing, so the button follows the checkbox
+-- immediately rather than at the next reload. SetShown writes `hide` a second time with the same
+-- value, which the library documents and intends: a writer that is not this seam (a future verb, a
+-- migration) gets the store updated without having to remember the inversion again.
+local MINIMAP_PATH = "global.minimap.hide"
+
+NS.RegisterGlobalSetting(MINIMAP_PATH, {
+    get = function()
+        local m = NS.db and NS.db.global and NS.db.global.minimap
+        return not (m and m.hide)
+    end,
+    set = function(shown)
+        local m = NS.db and NS.db.global and NS.db.global.minimap
+        if m then m.hide = not shown end
+        if NS.Launcher then NS.Launcher:SetShown(shown and true or false) end
+    end,
+})
+
 local masterRows, masterTail = H.MasterControls({
     prefix           = "",
     page             = PAGE,
     addonName        = "Party Frame Enhanced",
     frameless        = false,
     debugConsolePath = DEBUG_CONSOLE_PATH,
+    minimapPath      = MINIMAP_PATH,
     defaults         = {
         enabled    = D.enabled,
         visibility = D.visibility,
@@ -61,6 +89,9 @@ local masterOnChange = {
     locked     = function(v) if NS.OnLockChanged then NS.OnLockChanged(v) end end,
     -- Declared empty on purpose: the console's own set() is the whole act.
     [DEBUG_CONSOLE_PATH] = function() end,
+    -- Likewise: the registered global set() stores `hide` and moves the button, and nothing this
+    -- addon draws reads the minimap table.
+    [MINIMAP_PATH] = function() end,
 }
 
 for _, row in ipairs(masterRows) do

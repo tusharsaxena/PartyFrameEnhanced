@@ -29,8 +29,12 @@ test("schema: the General page opens on the Master controls tab, in the canonica
   for _, row in ipairs(rows) do
     if row.group == "Master controls" then paths[#paths + 1] = row.path end
   end
-  assertEqual(table.concat(paths, ","), "enabled,visibility,scale,alpha,locked,state.debugConsole",
+  assertEqual(table.concat(paths, ","),
+    "enabled,visibility,scale,alpha,locked,state.debugConsole,global.minimap.hide",
     "the canonical Master controls rows, in order, with nothing omitted but Test mode")
+  -- Minimap button opens the fourth line and Test mode would have paired beside it (launcher-§3,
+  -- compose minor 7). With no Test mode row the line is the minimap row alone, which is the shape
+  -- the composer computes rather than declares.
   -- Test mode is the one legitimate omission (options-ui-§15): this addon's unlocked view already IS
   -- its preview -- unlocking raises the stand-in out of a party and paints placeholders in one --
   -- so a Test mode box beside Lock frame would be two switches for one state (anti-pattern #80).

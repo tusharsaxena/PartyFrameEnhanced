@@ -121,4 +121,18 @@ NS.defaults.global = {
     -- "pre-ladder" value: AceDB copies defaults into an absent key before the runner reads it, so any
     -- higher default would mark a stale store as already migrated.
     schemaVersion = 1,
+
+    -- LibDBIcon's OWN table, and the only record of whether the minimap button is shown
+    -- (launcher-§3). `hide` is the library's key and its sense is HIDDEN, while the Master controls
+    -- row says SHOWN -- the inversion happens once, at the write seam settings/General.lua registers.
+    -- A second `show` key beside it would be one state recorded twice, free to disagree the first
+    -- time either was used (anti-pattern #81).
+    --
+    -- GLOBAL rather than profile, and that is the decision rather than an accident. The ring of
+    -- buttons around the minimap is furniture the player arranged once: a profile switch must not
+    -- move it, and options-ui-§12's *Reset all settings* -- a profile reset by definition -- must not
+    -- un-hide a button they deliberately hid. Declaring the default here is what materializes the
+    -- table; LibDBIcon writes `minimapPos` into the same table when the player drags the button, and
+    -- architecture-§5 governs both writes.
+    minimap = { hide = false },
 }

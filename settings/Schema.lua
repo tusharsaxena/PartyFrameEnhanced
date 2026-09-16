@@ -99,10 +99,40 @@ function NS.RegisterSessionSetting(path, spec)
     sessionSettings[path] = spec
 end
 
+-- ── global settings ───────────────────────────────────────────────────────────────────────────
+--
+-- A STORED row whose value is not in the profile but in the ACCOUNT-WIDE global store: today only
+-- the Master controls tab's minimap button (`global.minimap.hide`), which launcher-§3 fixes at
+-- `db.global.minimap` so a profile switch cannot move the player's buttons and options-ui-§12's
+-- profile reset cannot un-hide one they deliberately hid.
+--
+-- The composer takes that path VERBATIM and unprefixed, so it resolves against nothing under
+-- `db.profile` and the ordinary read/write below would answer nil forever. The row's owner registers
+-- how to read and write it instead -- the same shape a session row uses, for the same reason: the
+-- seam stays the one seam, and where a value lives stays the owner's answer.
+--
+-- A global row is NOT sessionOnly. It is stored, it survives a reload, and settings/OptionsSetup.lua
+-- vetoes it from *Reset all settings* exactly as it vetoes every other profile-backed row.
+local globalSettings = {}
+
+function NS.RegisterGlobalSetting(path, spec)
+    if type(path) ~= "string" or type(spec) ~= "table" then return end
+    globalSettings[path] = spec
+end
+
+--- Whether `path` is answered by the global registry rather than by the profile. Read by the schema
+--- validator (which resolves a global path against NS.defaults, not defaults.profile) and by the
+--- profile-reset tally (which must not count a row the reset cannot reach).
+function NS.IsGlobalSetting(path)
+    return globalSettings[path] ~= nil
+end
+
 --- Read a setting: the session registry first, then the profile, then the shipped default.
 function NS.GetSetting(path)
     local session = sessionSettings[path]
     if session then return session.get() end
+    local global = globalSettings[path]
+    if global then return global.get() end
     local db = NS.db
     if db and db.profile then
         local val = NS.ResolvePath(db.profile, path)
@@ -116,6 +146,11 @@ function NS.SetSetting(path, value)
     local session = sessionSettings[path]
     if session then
         session.set(value)
+        return
+    end
+    local global = globalSettings[path]
+    if global then
+        global.set(value)
         return
     end
     local db = NS.db
@@ -221,7 +256,9 @@ local pendingResetCount
 function NS.ProfileRowsOffDefault()
     local n = 0
     for _, row in ipairs(NS.Schema) do
-        if row.path and not row.sessionOnly and row.page ~= "profiles"
+        -- A global row is skipped for the same reason a session row is: a profile reset cannot
+        -- reach it, so counting it would claim a write the reset never makes.
+        if row.path and not row.sessionOnly and not globalSettings[row.path] and row.page ~= "profiles"
             and not sameValue(NS.GetSetting(row.path), row.default) then
             n = n + 1
         end
@@ -293,11 +330,17 @@ function NS.ValidateSchema()
         if row.page ~= "profiles" and type(row.group) ~= "string" then
             schemaError(where, "missing `group` (options-ui-§13)"); errors = errors + 1
         end
+        -- A global row's path is absolute over NS.defaults (`global.minimap.hide`), not relative to
+        -- defaults.profile, so it is resolved against the whole defaults table. Still resolved --
+        -- architecture-§5's rule is that every row's path has a declared default behind it, and
+        -- where the default lives does not excuse a row from having one.
         if hasPath and row.page ~= "profiles" and not row.sessionOnly then
-            if NS.ResolvePath(defaults, row.path) ~= nil then
+            local against = globalSettings[row.path] and NS.defaults or defaults
+            if NS.ResolvePath(against, row.path) ~= nil then
                 resolved = resolved + 1
             else
-                schemaError(where, "`path` does not resolve against defaults.profile")
+                schemaError(where, "`path` does not resolve against "
+                    .. (globalSettings[row.path] and "NS.defaults" or "defaults.profile"))
                 missing = missing + 1
             end
         end

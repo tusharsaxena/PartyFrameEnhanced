@@ -134,6 +134,11 @@ function addon:OnEnable()
     each("OnEnable")
     -- EAGER settings-category registration (options-ui-§1); the page bodies stay lazy.
     if NS.CreateOptionsPanel then NS.CreateOptionsPanel() end
+    -- The launcher registers HERE rather than in its own setup file (launcher-§1): the library
+    -- resolves `db.global.minimap` at Register time, and the table it must hand LibDBIcon is the one
+    -- AceDB built in OnInitialize, not the one that did not exist at file load. Idempotent by the
+    -- library's own design, so a second call from a later login handler builds no second button.
+    if NS.Launcher then NS.Launcher:Register() end
 end
 
 function addon:OnEnterWorld()

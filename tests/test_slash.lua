@@ -27,7 +27,7 @@ test("slash: the reserved verbs are all present", function()
   local have = {}
   for _, e in ipairs(NS.COMMANDS) do have[e[1]] = true end
   for _, verb in ipairs({ "help", "config", "list", "get", "set", "reset", "resetall", "debug",
-                          "perf", "version" }) do
+                          "enable", "disable", "perf", "version" }) do
     assertTrue(have[verb], "reserved verb missing: " .. verb)
   end
 end)
@@ -102,4 +102,56 @@ end)
 test("slash: an unknown verb says so and prints help", function()
   local out = joined(slash("nosuchverb"))
   assertTrue(out:find("nosuchverb", 1, true) ~= nil)
+end)
+
+test("slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own", function()
+  -- red under: a second key, a session flag, or an NS.enabled local. slash-commands-§2 makes the two
+  -- verbs write the SAME stored path the Master controls *Enable Party Frame Enhanced* checkbox
+  -- writes, through the SAME seam, so the two surfaces can never show the player different answers.
+  local writes, sections = {}, {}
+  local saved = NS.SetByPath
+  NS.SetByPath = function(path, value)
+    writes[#writes + 1] = path .. "=" .. tostring(value)
+    return saved(path, value)
+  end
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.CONFIG, function(_, sec) sections[#sections + 1] = sec end)
+
+  slash("disable")
+  assertEqual(NS.GetSetting("enabled"), false)
+  assertEqual(NS.db.profile.enabled, false, "it landed on the profile path the checkbox writes")
+  slash("enable")
+  assertEqual(NS.GetSetting("enabled"), true)
+
+  NS.SetByPath = saved
+  target:UnregisterMessage(NS.MSG.CONFIG)
+  assertEqual(table.concat(writes, ","), "enabled=false,enabled=true", "one path, one seam")
+  assertEqual(table.concat(sections, ","), "master,master", "and the row's onChange ran both times")
+end)
+
+test("slash: `enable` echoes the stored value in the shared `path = value` shape", function()
+  -- slash-commands-§5: the echo is read back from the STORE after the write, through the library's
+  -- own formatter, so `/pfe enable` reads exactly as `/pfe set enabled true` reads.
+  local out = joined(slash("enable"))
+  assertTrue(out:find("enabled", 1, true) ~= nil, "the path")
+  assertTrue(out:find("true", 1, true) ~= nil, "the stored value")
+  assertTrue(out:find(":", 1, true) == nil or out:find("enabled:", 1, true) == nil,
+    "no trailing colon on the key")
+end)
+
+test("slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way", function()
+  -- red under: a dispatcher that stands down with the features. Disabled means the addon stops
+  -- drawing and stops registering events; it does NOT mean it drops the chat command, and an addon
+  -- that does has built a switch that only goes one way (slash-commands-§2).
+  NS.SetByPath("enabled", false)
+  local AceConsole = mocks.LibStub("AceConsole-3.0")
+  assertTrue(AceConsole.commands["pfe"] ~= nil, "/pfe is still registered")
+
+  local opens = countOpens(function() slash("") end)
+  assertEqual(opens, 1, "a bare /pfe still opens the settings panel")
+  assertTrue(joined(slash("version")):find("v0.1.0", 1, true) ~= nil, "`version` still answers")
+  assertTrue(joined(slash("help")):find("/pfe enable", 1, true) ~= nil, "`help` still lists `enable`")
+
+  slash("enable")
+  assertEqual(NS.GetSetting("enabled"), true, "and `enable` above all brought it back")
 end)

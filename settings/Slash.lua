@@ -58,6 +58,58 @@ NS.COMMANDS = {
         function(rest) runProfile(rest) end},
 }
 
+-- ── the disabled-state gate (slash-commands-§2) ───────────────────────────────────────────────
+--
+-- A DISABLED ADDON REFUSES A VERB THAT DRIVES ITS FEATURES, on one tagged line naming `/pfe enable`,
+-- and does nothing else. Acting would be wrong twice over: the player asked for something the addon
+-- is currently standing down from doing, and a silent no-op leaves them with no clue why nothing
+-- happened. One line is the whole courtesy -- a paragraph explaining the state is a lecture stapled
+-- to a command they are about to re-run anyway.
+--
+-- ONE PLACE, AND IT IS DENY BY DEFAULT. The gate wraps each handler once, here, between the table
+-- and the dispatcher every verb is dispatched through -- so there is nothing to remember per verb,
+-- and the NEXT verb added is gated unless it is named live below. A guard pasted into each handler
+-- is a dozen places to forget, and forgets in the wrong direction; this forgets in the safe one.
+-- Wrapping leaves `entry[1]` and `entry[2]` untouched, so the help block and the About page's
+-- command list (which render this same table) are unchanged.
+--
+-- WHAT STAYS LIVE, named once as data. The twelve the section fixes: a player must be able to READ
+-- AND REPAIR SETTINGS, and to REACH THE PANEL, while the addon is off -- which is precisely when
+-- they are most likely to need to -- and `enable` above all, or the pair is one-way again. `debug`
+-- and `perf` are diagnostics rather than features: the usual reason to reach for either is that the
+-- addon is misbehaving. Plus two of this addon's own, on that same reasoning rather than as
+-- exceptions to it:
+--   status   a diagnostic, exactly like `debug`. It reads public seams and changes nothing, and its
+--            own first flag is `addon disabled` -- so refusing it would delete the answer to the
+--            question a player actually asks a silent addon.
+--   profile  settings management, in the class of the schema CLI: it switches, copies, creates and
+--            resets where settings live, and draws nothing.
+--
+-- It is a SHOULD in the standard, and this addon takes it: three of its verbs drive the display.
+local LIVE_WHILE_DISABLED = {
+    help = true, config = true, version = true, enable = true, disable = true,
+    debug = true, perf = true,
+    get = true, set = true, list = true, reset = true, resetall = true,
+    status = true, profile = true,
+}
+
+for _, entry in ipairs(NS.COMMANDS) do
+    if not LIVE_WHILE_DISABLED[entry[1]] then
+        local verb, handler = entry[1], entry[3]
+        entry[3] = function(rest)
+            if NS.GetSetting("enabled") ~= true then
+                return print(L["/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on"]
+                    :format(verb))
+            end
+            return handler(rest)
+        end
+    end
+end
+
+-- Published for introspection only: tests/test_slash.lua walks NS.COMMANDS against it and drives
+-- every verb on each side, rather than restating the list.
+Sl.__liveWhileDisabled = LIVE_WHILE_DISABLED
+
 -- ── host verbs ────────────────────────────────────────────────────────────────────────────────
 
 function runResetAll()

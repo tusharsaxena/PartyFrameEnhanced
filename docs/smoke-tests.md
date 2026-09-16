@@ -56,8 +56,14 @@ mode are added by the phases that build them (plan P2–P6).
 10a. `/pfe disable` → `enabled = false` in the same gold/white shape `/pfe set` prints, everything
     the addon draws goes, and the General page's *Enable Party Frame Enhanced* unticks if open. Then,
     **while disabled**: `/pfe` still opens the panel, `/pfe help` still lists `enable`, `/pfe version`
-    still answers. `/pfe enable` → `enabled = true` and it all comes back. *Failure:* any of those
-    four going quiet — the switch would only go one way (slash-commands-§2).
+    still answers, and `/pfe list` / `/pfe get` / `/pfe set` still read and repair settings.
+    `/pfe enable` → `enabled = true` and it all comes back. *Failure:* any of those going quiet —
+    the switch would only go one way (slash-commands-§2).
+10b. Still **while disabled**, the three verbs that drive what the addon draws refuse instead of
+    acting: `/pfe unlock`, `/pfe lock` and `/pfe resetposition` each answer on **one** tagged line
+    naming `/pfe enable`, and nothing moves — no stand-in appears, no stack jumps back to its
+    default position. *Failure:* a second line, a lecture about the state, or a verb that prints the
+    refusal and then acts anyway.
 
 ## C. Settings panel and the combat gate
 
@@ -263,9 +269,14 @@ EllesmereUI's, where noted.
     is already unticked. *Failure:* the two disagreeing is a second copy of one state
     (launcher-§3, anti-pattern #81).
 58. **The button is account-wide furniture.** Hide the button, then: switch profiles (`/pfe profile
-    new smoke`) → still hidden. Run **Reset all settings** → still hidden. Log in on a different
-    character → still hidden. *Failure:* the button coming back on any of the three means the table is
-    profile-scoped, which launcher-§3 forbids for exactly these reasons.
+    new smoke`) → still hidden. Log in on a different character → still hidden. *Failure:* the button
+    coming back on either means the table is profile-scoped, which launcher-§3 forbids.
+59. **It survives BOTH resets.** Still hidden, run **Reset all settings** → still hidden. Then press
+    General's **Defaults** button → **still hidden**, while the other rows on General do go back to
+    their defaults in the same press. Tick it back on and repeat both → it stays shown. *Failure:*
+    either reset moving the row in either direction. Whether the button is on the minimap is a
+    per-installation display preference, like the position it was dragged to, and no reset may touch
+    it (launcher-§3). `/pfe reset global.minimap.hide` is the deliberate exception and does reset it.
 
 ## T. Non-English client (locale)
 

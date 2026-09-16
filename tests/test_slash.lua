@@ -155,3 +155,119 @@ test("slash: the dispatcher answers while the addon is DISABLED -- the pair is n
   slash("enable")
   assertEqual(NS.GetSetting("enabled"), true, "and `enable` above all brought it back")
 end)
+
+-- --- the disabled-state gate (slash-commands-§2) -------------------------------------------------
+--
+-- The dispatcher surviving the disabled state (above) is one half; what it ANSWERS is the other. A
+-- verb that drives the addon's features refuses on one tagged line naming `/pfe enable` and does
+-- nothing else, while the twelve reserved verbs plus this addon's two diagnostics stay live.
+
+local REFUSAL = "/pfe enable turns it back on"
+
+test("slash: a feature verb REFUSES while disabled -- one line, and it does NOT act", function()
+  -- red under: a verb that prints the refusal and then acts anyway. A case checking only the message
+  -- passes straight over that, so the act itself is counted: `resetposition` is the clearest, since
+  -- with the addon off it would otherwise move every stack and say `Positions reset` to a player who
+  -- can see nothing move.
+  local calls = 0
+  local savedReset = NS.Anchor.ResetPositions
+  NS.Anchor.ResetPositions = function() calls = calls + 1 end
+
+  NS.SetByPath("enabled", false)
+  local out = slash("resetposition")
+  NS.Anchor.ResetPositions = savedReset
+  NS.SetByPath("enabled", true)
+
+  assertEqual(#out, 1, "exactly one line -- no second line, no paragraph")
+  assertTrue(out[1]:find(REFUSAL, 1, true) ~= nil, "it names the verb that turns the addon back on")
+  assertTrue(out[1]:find("resetposition", 1, true) ~= nil, "and says which verb it refused")
+  assertEqual(calls, 0, "the act never ran")
+end)
+
+test("slash: `unlock` refuses at the DISPATCHER, before the write seam", function()
+  -- red under: a gate that lets the write through and leans on the row's own validate. The value
+  -- would still not stick -- NS.AcceptLock refuses an unlock while the addon is disabled -- but the
+  -- player would get that refusal instead of the one naming `/pfe enable`, and the single write seam
+  -- would have been entered for a verb the addon is standing down from.
+  NS.SetByPath("locked", true)
+  local writes = {}
+  local saved = NS.SetByPath
+  saved("enabled", false)
+  NS.SetByPath = function(p, v)
+    writes[#writes + 1] = p .. "=" .. tostring(v)
+    return saved(p, v)
+  end
+  local out = slash("unlock")
+  NS.SetByPath = saved
+  saved("enabled", true)
+
+  assertEqual(#out, 1, "one line")
+  assertTrue(out[1]:find(REFUSAL, 1, true) ~= nil)
+  assertEqual(#writes, 0, "and nothing went through the write seam")
+  assertTrue(NS.GetSetting("locked"), "the lock did not move")
+end)
+
+test("slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses", function()
+  -- red under: a gate that lists the verbs to REFUSE rather than the ones to keep, which the next
+  -- verb added joins on the wrong side by default. This walks NS.COMMANDS against the addon's own
+  -- published live set instead of restating either list, so a new verb arrives here already checked.
+  local live = NS.Slash.__liveWhileDisabled
+  assertTrue(type(live) == "table", "the live set is published for introspection")
+
+  NS.SetByPath("enabled", false)
+  local refused = {}
+  for _, e in ipairs(NS.COMMANDS) do
+    if not live[e[1]] then
+      local out = slash(e[1])
+      assertEqual(#out, 1, e[1] .. " answered on exactly one line")
+      assertTrue(out[1]:find(REFUSAL, 1, true) ~= nil, e[1] .. " named /pfe enable")
+      refused[#refused + 1] = e[1]
+    end
+  end
+  NS.SetByPath("enabled", true)
+
+  -- The inventory, so a verb quietly changing sides is a failure rather than a silent policy change.
+  assertEqual(table.concat(refused, ","), "resetposition,lock,unlock",
+    "the three verbs that drive what this addon draws, and only those")
+end)
+
+test("slash: the live set still ANSWERS and still ACTS while the addon is off", function()
+  -- red under: "refuse while disabled" read literally, which takes the whole command surface down
+  -- with it. A player must be able to read and repair settings, and reach the panel, while the addon
+  -- is off -- and `enable` above all, or the pair is one-way (slash-commands-§2).
+  local function unrefused(lines, what)
+    assertTrue(joined(lines):find(REFUSAL, 1, true) == nil, what .. " was not refused")
+    return lines
+  end
+
+  NS.SetByPath("general.provider", "blizzard")
+  NS.SetByPath("enabled", false)
+
+  unrefused(slash("help"), "help")
+  unrefused(slash("version"), "version")
+  unrefused(slash("list"), "list")
+  unrefused(slash("status"), "status")
+  unrefused(slash("profile"), "profile")
+  unrefused(slash("perf"), "perf")
+  unrefused(slash("debug off"), "debug")
+  assertEqual(countOpens(function() unrefused(slash("config"), "config") end), 1,
+    "`config` still opened the panel")
+
+  -- Not merely unrefused: they still DO the thing. `get` / `set` / `reset` are how a player repairs
+  -- settings with the addon off, so the writes have to land.
+  slash("set general.includePlayer false")
+  assertEqual(NS.GetSetting("general.includePlayer"), false, "`set` still wrote")
+  slash("reset general.includePlayer")
+  assertEqual(NS.GetSetting("general.includePlayer"), true, "`reset` still put it back")
+  unrefused(slash("get general.provider"), "get")
+
+  -- `resetall` too, and it really resets: the provider goes back to its default with the addon off.
+  unrefused(slash("resetall"), "resetall")
+  while mocks.__fireTimers() > 0 do end
+  assertEqual(NS.GetSetting("general.provider"), "auto", "`resetall` still reset the profile")
+
+  -- And `enable` above all, from the off state the reset's own default happened to leave.
+  NS.SetByPath("enabled", false)
+  unrefused(slash("enable"), "enable")
+  assertEqual(NS.GetSetting("enabled"), true, "`enable` above all still turns the addon back on")
+end)

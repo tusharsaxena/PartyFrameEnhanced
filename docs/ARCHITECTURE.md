@@ -90,8 +90,12 @@ source to check).
 `/pfe` and `/partyframeenhanced`, seventeen verbs in `NS.COMMANDS` — the twelve reserved ones
 (`enable` and `disable` among them, aliases for the `enabled` row and never a second switch) plus
 `resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
-`OnInitialize` and no verb gates on `enabled`, so it answers while the addon is disabled and the pair
-is never one-way (slash-commands-§2). Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+`OnInitialize` in either state, so `/pfe` answers while the addon is disabled and the pair is never
+one-way (slash-commands-§2). What it answers then is gated in **one place**: `settings/Slash.lua`
+wraps each handler as the table is handed to the dispatcher, deny by default, with the live set
+(`LIVE_WHILE_DISABLED`) named once as data. The three verbs that drive what this addon draws —
+`resetposition`, `lock`, `unlock` — refuse on one tagged line naming `/pfe enable` and do nothing
+else. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Launcher
 

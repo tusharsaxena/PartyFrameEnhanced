@@ -142,6 +142,7 @@ for _, key in ipairs({
     "Cannot delete the current profile", "Deleted profile '%s'", "Profile reset to defaults",
     "Profile system requires AceDB-3.0", "Unknown profile subcommand '%s'",
     "is unavailable.", "v%s \226\128\148 slash commands", "unknown command '%s'",
+    "/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on",
     "Slash Commands",
     "Player", "Party 1", "Party 2", "Party 3", "Party 4",
 }) do L[key] = key end

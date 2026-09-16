@@ -231,7 +231,7 @@ badge and any count quoted in the docs must agree with it.
 - spelling: every authored file is US English (localization-§5)
 - spelling: the gate is not vacuous — a planted British word is caught
 
-### test_slash.lua (15)
+### test_slash.lua (19)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -248,6 +248,10 @@ badge and any count quoted in the docs must agree with it.
 - slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
 - slash: `enable` echoes the stored value in the shared `path = value` shape
 - slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way
+- slash: a feature verb REFUSES while disabled -- one line, and it does NOT act
+- slash: `unlock` refuses at the DISPATCHER, before the write seam
+- slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
+- slash: the live set still ANSWERS and still ACTS while the addon is off
 
 ### test_launcher.lua (17)
 
@@ -324,10 +328,10 @@ badge and any count quoted in the docs must agree with it.
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
-| test_slash.lua | 15 |
+| test_slash.lua | 19 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **208** |
+| **Total** | **212** |

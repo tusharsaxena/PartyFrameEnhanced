@@ -14,13 +14,16 @@ local test, assertEqual, assertTrue, assertFalse, assertNil =
 local NS, mocks = T.NS, T.mocks
 local StandIn, Providers = NS.StandIn, NS.Providers
 
-local function slash(msg)
+--- Everything the addon printed while `fn` ran, joined.
+local function capture(fn)
   local before = #mocks.__chat
-  NS.Slash:OnSlash(msg)
+  fn()
   local out = {}
   for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
   return table.concat(out, "\n")
 end
+
+local function slash(msg) return capture(function() NS.Slash:OnSlash(msg) end) end
 
 -- The roster changes: the client fires GROUP_ROSTER_UPDATE to every listener. Bounded, because a
 -- running health ticker re-queues itself.
@@ -111,8 +114,14 @@ test("preview: unlocking is refused in combat, disabled or suspended — one gra
   assertTrue(out:find("cannot unlock during combat", 1, true) ~= nil, out)
   assertTrue(out:find("|cff808080", 1, true) ~= nil, "gray")
   isOff()
+  -- The disabled arm arrives at the SEAM rather than through `/pfe unlock`. Since slash-commands-§2's
+  -- gate landed, the dispatcher refuses a feature verb before the seam is entered at all — that
+  -- refusal is its own claim and is pinned in tests/test_slash.lua. The Lock frame checkbox still
+  -- reaches here, and what NS.AcceptLock does with it is what this case is about.
   NS.db.profile.enabled = false
-  assertTrue(slash("unlock"):find("the addon is disabled", 1, true) ~= nil)
+  local refusal = capture(function() NS.SetByPath("locked", false) end)
+  assertTrue(refusal:find("the addon is disabled", 1, true) ~= nil, refusal)
+  assertTrue(refusal:find("|cff808080", 1, true) ~= nil, "gray")
   NS.db.profile.enabled = true
   isOff()
   NS.Perf.suspended = true

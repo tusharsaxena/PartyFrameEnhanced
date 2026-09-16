@@ -33,7 +33,7 @@ and the first standards audit done. What remains before the tag is in-game testi
 
 ## Module Map
 
-Thirty-seven files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-six files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, PerfSetup before every module that
 captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
@@ -225,7 +225,7 @@ they were filed from.
 | `superpowers/` | The v0.1.0 design spec and the checkpointed build plan (directory) |
 
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
-`perf-analysis/<run>/`, and — when they exist — `audits/` and `reviews/`.
+`perf-analysis/<run>/`, `audits/` and — when it exists — `reviews/`.
 
 ## Documented deviations
 

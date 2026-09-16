@@ -3,7 +3,7 @@
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-201%2F201_passing-green)
+![Tests](https://img.shields.io/badge/Tests-212%2F212_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -40,10 +40,10 @@ pet in every pet frame, so you can arrange it all without waiting for a pull. At
 nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
 just drag. Lock again and the real data comes back.
 
-Not in a party? Type `/pfe unlock`, or untick **Lock frame** on the **General** page. You get a stand-in frame dressed like your usual party frames,
-with a cast bar, target frame and pet frame hanging off it, so you can set the offsets solo. Drag it
-wherever you like. In a party, the same command puts the placeholders on your real frames. Combat ends
-it, and so does typing it again.
+Not in a party? Type `/pfe unlock`, or untick **Lock frame** on the **General** page. You get a
+stand-in frame dressed like your usual party frames, with a cast bar, target frame and pet frame
+hanging off it, so you can set the offsets solo. Drag it wherever you like. In a party, the same
+command puts the placeholders on your real frames. Combat ends it, and so does typing it again.
 
 **Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
 size and position, the bar, the border and the text. That's also where you switch a feature to
@@ -106,4 +106,4 @@ filed there gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
-| 0.1.0 | unreleased | First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |
+| 0.1.0 | unreleased | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |

@@ -10,12 +10,27 @@ local _, NS = ...
 
 local print = NS.Print
 
+-- THE ONE ROW NO RESET THIS ADDON SHIPS MAY REWRITE (launcher-§3). Whether the minimap button is
+-- shown is a PER-INSTALLATION DISPLAY PREFERENCE, in the same class as the POSITION the player
+-- dragged it to — which LibDBIcon keeps in the very same `db.global.minimap` table and which
+-- nothing here touches. Nobody has ever wanted *reset my settings* to mean *and put the button back
+-- on my minimap, at the default angle*. That is a property of the setting, so it is stated here
+-- rather than derived from where the value happens to live.
+--
+-- A GLOBAL ROW IS THE TEST, and it is this repo's own word for exactly that class: a stored row
+-- outside the profile, registered through NS.RegisterGlobalSetting (settings/Schema.lua). Today
+-- there is one, `global.minimap.hide`. Read at CALL time, because this file loads before
+-- settings/General.lua registers it.
+local function exemptFromReset(row)
+    return type(row.path) == "string" and NS.IsGlobalSetting(row.path)
+end
+
 -- The one rule about what a global reset leaves alone, named once and enforced twice — by the
 -- library through skipRestoreAll, and by the degraded stub's own loop. The global reset IS a profile
 -- reset (options-ui-§12), so every profile-backed row is vetoed as well as the Profiles page; what
 -- the walk keeps is the sessionOnly rows, which a profile reset cannot reach.
 local function vetoedFromResetAll(row)
-    if row.page == "profiles" then return true end
+    if row.page == "profiles" or exemptFromReset(row) then return true end
     return not row.sessionOnly
 end
 
@@ -31,7 +46,20 @@ local descriptor = {
     -- The single write seam, so a panel change takes exactly the path `/pfe set` takes.
     get          = function(path) return NS.GetSetting(path) end,
     set          = function(path, value) NS.SetByPath(path, value) end,
-    applyDefault = function(row) NS.ApplyDefault(row) end,
+    -- WHERE THE EXEMPTION ACTUALLY BITES, and it has to be here rather than on skipRestoreAll.
+    -- `skipRestoreAll` is read by ONE reset. The page-scoped *Defaults* button is the other, and
+    -- O.RestoreDefaults vetoes nothing at all — it hands every row on the page to this seam, and the
+    -- composed Minimap button row declares `default = true`, so before this guard a press of
+    -- Defaults on General put a deliberately hidden button straight back on the minimap. This is the
+    -- one call BOTH panel resets make, so naming the rule once here covers both.
+    --
+    -- Not on NS.ApplyDefault itself: that is also the schema CLI's seam, and `/pfe reset
+    -- global.minimap.hide` is a player naming one row on purpose rather than a sweep that happened
+    -- to reach it. The exemption is for sweeps.
+    applyDefault = function(row)
+        if exemptFromReset(row) then return end
+        NS.ApplyDefault(row)
+    end,
     allRows      = function() return NS.Schema end,
     rowsForPage  = function(pageKey) return NS.SchemaForPage(pageKey) end,
 

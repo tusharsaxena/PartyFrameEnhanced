@@ -88,9 +88,20 @@ global.minimap       = { hide = false }        -- LibDBIcon's own table
 it too — `hide` from the button's right-click menu, `minimapPos` when the player drags the button
 (architecture-§5 governs both). The declared default above is what materializes it.
 
-It is **global rather than profile** because launcher-§3 fixes it there, for two stated reasons: a
-profile switch must not move the player's buttons, and options-ui-§12's *Reset all settings* — a
-profile reset by definition — must not un-hide a button they deliberately hid.
+It is **global rather than profile** because launcher-§3 fixes it there: a profile is how a player
+configures what the addon *draws*, while the ring of buttons around the minimap is furniture they
+arranged once, so a profile switch must not move it — and `minimapPos` has to live in the same place
+for the same reason, which is why the two are one table.
+
+**It also survives every reset this addon ships**, and that is a separate property rather than a
+consequence of the scope above. Whether the button is shown is a per-installation display
+preference, in the same class as the position the player dragged it to. So neither options-ui-§12's
+*Reset all settings* nor the page-scoped **Defaults** button on General may move it, in either
+direction. `settings/OptionsSetup.lua`'s `exemptFromReset` is the single place that says so: it
+answers on `NS.IsGlobalSetting(row.path)`, vetoes the row from `skipRestoreAll`, and — the half that
+actually bites — drops it from the descriptor's `applyDefault`, which is the one call *both* panel
+resets make. `/pfe reset global.minimap.hide` is deliberately still live: a player naming one row is
+not a sweep.
 
 `hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.hide`,
 which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says

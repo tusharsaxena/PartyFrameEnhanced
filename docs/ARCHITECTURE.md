@@ -63,7 +63,11 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
   table there. `settings/Schema.lua` carries a global registry beside the session one, and
   `settings/General.lua` registers the get/set that invert the row's SHOWN sense onto LibDBIcon's
   `hide` and call `NS.Launcher:SetShown`. The validator resolves such a path against `NS.defaults`
-  rather than `defaults.profile`, and the profile-reset tally skips it.
+  rather than `defaults.profile`, and the profile-reset tally skips it. **A global row survives every
+  reset the panel ships** — *Reset all settings* and a page's own **Defaults** button — because
+  launcher-§3 makes that a property of the setting; `settings/OptionsSetup.lua`'s `exemptFromReset`
+  is the one place that says so, and the descriptor's `applyDefault` is where it bites, that being
+  the single call both resets make. `/pfe reset <path>` is unaffected.
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).

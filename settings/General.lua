@@ -38,6 +38,11 @@ end
 -- one state: LibDBIcon writes `hide` itself when the player uses the button's right-click menu, and
 -- a `show` key beside it would be a second copy free to disagree (anti-pattern #81).
 --
+-- THE ROW SURVIVES BOTH RESETS (launcher-§3): *Reset all settings* and the page-scoped *Defaults*
+-- button. It is not stated here -- settings/OptionsSetup.lua's `exemptFromReset` is the one place --
+-- but it is why the `default = true` the composer puts on this row never lands on a player who hid
+-- the button on purpose.
+--
 -- The set calls the launcher's SetShown after storing, so the button follows the checkbox
 -- immediately rather than at the next reload. SetShown writes `hide` a second time with the same
 -- value, which the library documents and intends: a writer that is not this seam (a future verb, a

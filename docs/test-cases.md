@@ -249,7 +249,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `enable` echoes the stored value in the shared `path = value` shape
 - slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way
 
-### test_launcher.lua (13)
+### test_launcher.lua (17)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
@@ -261,7 +261,11 @@ badge and any count quoted in the docs must agree with it.
 - launcher: the Minimap button row is composed, stored, and in its canonical position
 - launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
 - launcher: LibDBIcon was handed the SAME table the row writes
-- launcher: the minimap table is GLOBAL -- a profile switch and Reset all leave it alone
+- launcher: the minimap table is GLOBAL -- a profile switch leaves it alone
+- launcher: *Reset all settings* leaves a hidden button hidden
+- launcher: the page-scoped General *Defaults* button leaves a hidden button hidden
+- launcher: neither reset re-HIDES a shown button either
+- launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
@@ -321,9 +325,9 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_spelling.lua | 2 |
 | test_slash.lua | 15 |
-| test_launcher.lua | 13 |
+| test_launcher.lua | 17 |
 | test_optionssetup.lua | 8 |
 | test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **204** |
+| **Total** | **208** |

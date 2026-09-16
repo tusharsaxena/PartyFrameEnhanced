@@ -171,19 +171,94 @@ test("launcher: LibDBIcon was handed the SAME table the row writes", function()
   NS.SetByPath(MINIMAP_PATH, true)
 end)
 
-test("launcher: the minimap table is GLOBAL -- a profile switch and Reset all leave it alone", function()
-  -- red under: a profile-scoped table. launcher-§3 fixes the scope for two stated reasons: a profile
-  -- switch must not move the player's buttons, and options-ui-§12's Reset all settings -- a profile
-  -- reset by definition -- must not un-hide a button they deliberately hid.
+test("launcher: the minimap table is GLOBAL -- a profile switch leaves it alone", function()
+  -- red under: a profile-scoped table. launcher-§3 fixes the scope because a profile is how a player
+  -- configures what an addon DRAWS, while the ring of buttons around the minimap is furniture they
+  -- arranged once -- so switching profiles must not move a player's buttons, and profile-scoped the
+  -- button would appear and vanish on a switch made for an entirely unrelated reason.
   assertNil(NS.db.profile.minimap, "nothing under the profile")
   NS.SetByPath(MINIMAP_PATH, false)
   NS.db:SetProfile("launcher-scope")
   assertEqual(NS.db.global.minimap.hide, true, "the switch did not move the button")
-  NS.Helpers.RestoreAllDefaults()
-  assertEqual(NS.db.global.minimap.hide, true, "and neither did Reset all settings")
   NS.db:SetProfile("Default")
   NS.SetByPath(MINIMAP_PATH, true)
   while mocks.__fireTimers() > 0 do end
+end)
+
+-- --- THE ROW SURVIVES EVERY RESET THIS ADDON SHIPS (launcher-§3, standard v2.54.0) ---------------
+--
+-- Not one reset: BOTH. Whether the button is shown is a per-installation display preference, in the
+-- same class as the POSITION the player dragged it to, which LibDBIcon keeps in the very same table
+-- and which no reset touches -- so the survival is a property of the setting rather than a
+-- consequence of where it is stored. The two cases below run the REAL resets and read the stored
+-- boolean back; asserting `skipRestoreAll` returns true would pass over a second reset that never
+-- consults it, which is exactly the hole the standard's old reasoning left.
+
+test("launcher: *Reset all settings* leaves a hidden button hidden", function()
+  -- Why it does not reach the row HERE, twice over: the library narrows its walk to the sessionOnly
+  -- rows once `resetProfile` is supplied and this row is stored, this addon's own veto skips it
+  -- again, and the reset itself is AceDB's ResetProfile -- which empties `db.profile` while the
+  -- minimap table lives in `db.global`.
+  NS.SetByPath(MINIMAP_PATH, false)
+  assertEqual(NS.db.global.minimap.hide, true, "the player hid the button")
+  assertFalse(registration().shown, "and it is off the minimap")
+
+  NS.Helpers.RestoreAllDefaults()
+  while mocks.__fireTimers() > 0 do end
+
+  assertEqual(NS.db.global.minimap.hide, true, "the stored choice survived")
+  assertFalse(NS.GetSetting(MINIMAP_PATH), "the checkbox still reads hidden")
+  assertFalse(registration().shown, "and the button did not come back")
+  NS.SetByPath(MINIMAP_PATH, true)
+end)
+
+test("launcher: the page-scoped General *Defaults* button leaves a hidden button hidden", function()
+  -- red under: the row reaching O.RestoreDefaults' page walk at all. That walk vetoes NOTHING -- it
+  -- hands every row on the page to applyDefault -- and the composed row carries `default = true`,
+  -- so before the exemption a press of Defaults on General put a deliberately hidden button back on
+  -- the minimap. The profile reasoning never covered this button: it only ever spoke about *Reset
+  -- all settings*.
+  NS.SetByPath(MINIMAP_PATH, false)
+  assertEqual(NS.db.global.minimap.hide, true, "the player hid the button")
+
+  NS.Helpers.RestoreDefaults("general")
+
+  assertEqual(NS.db.global.minimap.hide, true, "Defaults left the stored choice alone")
+  assertFalse(NS.GetSetting(MINIMAP_PATH), "the checkbox still reads hidden")
+  assertFalse(registration().shown, "and the button did not come back")
+
+  -- The exemption is one row, not a Defaults button that stopped working: the rows beside it on the
+  -- page went back to their own defaults in the very same press.
+  NS.SetByPath("general.provider", "blizzard")
+  NS.Helpers.RestoreDefaults("general")
+  assertEqual(NS.GetSetting("general.provider"), "auto", "the rest of General still resets")
+  assertEqual(NS.db.global.minimap.hide, true, "and the button is still hidden")
+
+  NS.SetByPath(MINIMAP_PATH, true)
+  while mocks.__fireTimers() > 0 do end
+end)
+
+test("launcher: neither reset re-HIDES a shown button either", function()
+  -- The rule cuts both ways: a reset may not move the row in either direction. Trivial today,
+  -- because the row's default is SHOWN -- and that is precisely why it needs saying, since the day
+  -- a default flips the other way this is the case that notices.
+  NS.SetByPath(MINIMAP_PATH, true)
+  NS.Helpers.RestoreDefaults("general")
+  assertEqual(NS.db.global.minimap.hide, false, "Defaults left it shown")
+  NS.Helpers.RestoreAllDefaults()
+  while mocks.__fireTimers() > 0 do end
+  assertEqual(NS.db.global.minimap.hide, false, "and so did Reset all settings")
+  assertTrue(registration().shown)
+end)
+
+test("launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS", function()
+  -- The veto sits on the OPTIONS descriptor's applyDefault, which only the two panel resets call.
+  -- A player naming the path themselves is a deliberate act on one row, not a sweep that happened
+  -- to reach it, so the schema CLI keeps answering (slash-commands-§2 keeps `reset` live besides).
+  NS.SetByPath(MINIMAP_PATH, false)
+  NS.Slash:OnSlash("reset " .. MINIMAP_PATH)
+  assertEqual(NS.db.global.minimap.hide, false, "the named reset put the row back to its default")
+  assertTrue(registration().shown, "and the button came back with it")
 end)
 
 -- --- degradation (launcher-§1) ------------------------------------------------------------------

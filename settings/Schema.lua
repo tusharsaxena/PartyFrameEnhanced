@@ -103,16 +103,19 @@ end
 --
 -- A STORED row whose value is not in the profile but in the ACCOUNT-WIDE global store: today only
 -- the Master controls tab's minimap button (`global.minimap.hide`), which launcher-§3 fixes at
--- `db.global.minimap` so a profile switch cannot move the player's buttons and options-ui-§12's
--- profile reset cannot un-hide one they deliberately hid.
+-- `db.global.minimap` so a profile switch cannot move the player's buttons -- a profile is how a
+-- player configures what the addon DRAWS, while the ring of buttons around the minimap is furniture
+-- they arranged once.
 --
 -- The composer takes that path VERBATIM and unprefixed, so it resolves against nothing under
 -- `db.profile` and the ordinary read/write below would answer nil forever. The row's owner registers
 -- how to read and write it instead -- the same shape a session row uses, for the same reason: the
 -- seam stays the one seam, and where a value lives stays the owner's answer.
 --
--- A global row is NOT sessionOnly. It is stored, it survives a reload, and settings/OptionsSetup.lua
--- vetoes it from *Reset all settings* exactly as it vetoes every other profile-backed row.
+-- A global row is NOT sessionOnly. It is stored, and it SURVIVES EVERY RESET THIS ADDON SHIPS --
+-- *Reset all settings* and a page's own *Defaults* button alike. That is launcher-§3's property
+-- rather than an accident of scope, and settings/OptionsSetup.lua's `exemptFromReset` is the one
+-- place that says so; NS.IsGlobalSetting below is what it asks.
 local globalSettings = {}
 
 function NS.RegisterGlobalSetting(path, spec)

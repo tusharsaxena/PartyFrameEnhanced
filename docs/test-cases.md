@@ -170,6 +170,17 @@ badge and any count quoted in the docs must agree with it.
 - petframes: Update health off drops the health events and draws the bar full
 - petframes: suspended, events come off and every driver is hide
 
+### test_rangefade.lua (8)
+
+- rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
+- rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
+- rangefade: EllesmereUI — a secret range flag is replayed through SetAlphaFromBoolean
+- rangefade: a secret alpha the client refuses falls back to the frame's own outOfRange
+- rangefade: Blizzard classic has no fade to copy — UnitInRange drives it instead
+- rangefade: off, in preview, or with no party frame, every fade is full alpha
+- rangefade: status names which way the fade is running
+- rangefade: a perf run's suspend drops the range event and restores full alpha
+
 ### test_party.lua (6)
 
 - party: InParty is a party of 2-5 — not solo, not a raid
@@ -340,6 +351,7 @@ badge and any count quoted in the docs must agree with it.
 | test_castbars.lua | 13 |
 | test_targetframes.lua | 20 |
 | test_petframes.lua | 6 |
+| test_rangefade.lua | 8 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
 | test_standin.lua | 12 |
@@ -353,4 +365,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 6 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **227** |
+| **Total** | **235** |

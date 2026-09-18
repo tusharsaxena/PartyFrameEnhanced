@@ -359,7 +359,8 @@ end
 function CastBars:OnEnable()
     cfg = NS.db.profile.castbar
     for _, unit in ipairs(Units.LIST) do
-        local el = CreateFrame("Frame", "PartyFrameEnhancedCastBar_" .. unit, UIParent)
+        -- Parented to the unit's fade frame, which dims it with the party frame (modules/RangeFade.lua).
+        local el = CreateFrame("Frame", "PartyFrameEnhancedCastBar_" .. unit, NS.RangeFade.Parent(unit))
         Element.Build(el, { icon = true, spark = true, shield = true })
         el.unit, el.state = unit, "idle"
         el:SetScript("OnEvent", onEvent)

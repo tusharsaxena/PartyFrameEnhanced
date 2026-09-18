@@ -241,6 +241,23 @@ EllesmereUI's, where noted.
 47. **Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
     feature's state, and a *Note:* line when something is switched off (set General visibility to
     *Never* and run it again).
+47a. **Range fade, EllesmereUI.** In a party with EllesmereUI's party frames, walk away from a member
+    until EllesmereUI dims their frame → that member's cast bar, target frame and pet frame dim to
+    the same opacity at the same moment; walk back → all return together. Change EllesmereUI's own
+    out-of-range alpha → ours follows it. `/pfe status` → *Range fade: copied from EllesmereUI*.
+    *Failure:* our elements stay bright, or dim to a different opacity from the frame.
+47b. **Range fade, Blizzard raid-style, in an instance.** Raid-style party frames with Blizzard's
+    *fade out of range* on: the same as 47a, at 0.5. Repeat **inside a dungeon, in combat**, where
+    range can be secret → still no Lua error, and the elements still dim. *Failure:* an error naming
+    `secret` from `RangeFade.lua`, or elements that stop dimming in the instance only (the secret
+    fallback did not take).
+47c. **Range fade, Blizzard classic.** Raid-style off: the classic frames themselves never dim, but a
+    member past ~40 yards has their elements at half opacity. `/pfe status` → *Range fade: own range
+    check (classic frames)*.
+47d. **Range fade, off and preview.** General → Party frames: untick *Fade with party frames* → every
+    element at full opacity at once, out of range or not. Tick it back → the far member dims again.
+    `/pfe unlock` in a party with someone out of range → every placeholder at full opacity; lock →
+    the fade returns. Mid-combat reshuffle (step 38) still fades the clickable frames as before.
 
 ## J. Preview, the stand-in and the party-only rule
 

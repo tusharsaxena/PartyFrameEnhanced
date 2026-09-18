@@ -165,6 +165,15 @@ local function featureState(cfg)
     return cfg.anchorMode == "free" and L["on, free placement"] or L["on, attached"]
 end
 
+-- Which way the out-of-range fade is running (modules/RangeFade.lua).
+local function rangeFadeState()
+    local mode = NS.RangeFade.Mode()
+    if mode == "copy" then return L["copied from %s"]:format(NS.Providers.ActiveLabel() or "?") end
+    if mode == "range" then return L["own range check (classic frames)"] end
+    if mode == "idle" then return L["waiting for party frames"] end
+    return L["off"]
+end
+
 local function statusFlags()
     local flags = {}
     if NS.GetSetting("enabled") ~= true then flags[#flags + 1] = L["addon disabled"] end
@@ -195,6 +204,7 @@ function runStatus()
     for _, f in ipairs(FEATURES) do
         print("  " .. f[2] .. ": " .. featureState(NS.db.profile[f[1]]))
     end
+    print("  " .. L["Range fade: %s"]:format(rangeFadeState()))
     local flags = statusFlags()
     if #flags > 0 then print("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
 end

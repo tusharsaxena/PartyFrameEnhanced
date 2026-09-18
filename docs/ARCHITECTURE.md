@@ -10,7 +10,8 @@ and the build's progress is the ledger in
 Party Frame Enhanced adds a **cast bar**, a **target frame** and a **pet frame** for the player and
 party1–party4. Each feature either attaches its five elements to the party frame currently showing
 each unit — Blizzard classic, Blizzard raid-style or EllesmereUI, detected by a provider layer — or
-stacks them in one movable free-placement group. What it deliberately leaves out is
+stacks them in one movable free-placement group. Every element fades with its party member's frame
+when that member is out of range (`modules/RangeFade.lua`). What it deliberately leaves out is
 [scope.md](scope.md).
 
 It is **party-only**: solo or in a raid it shows nothing and registers nothing. `/pfe unlock` previews
@@ -33,10 +34,10 @@ the first standards audit, the in-game smoke pass and the first party perf captu
 
 ## Module Map
 
-Thirty-seven files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-eight files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup before PerfSetup (which requires the latch),
-PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, Element
+PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element
 and UnitButtons before the features that capture them, StandIn before Preview and Preview after every
 feature, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
@@ -80,10 +81,10 @@ source to check).
 
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
-| `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility) |
-| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers (`general`, `master`) |
-| `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor |
+| `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade) |
+| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`) |
+| `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade |
 
 ## Slash Commands
 
@@ -135,6 +136,7 @@ addon rather than a preference.
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
 | `UNIT_TARGET` (per owner, `RegisterUnitEvent`); `PLAYER_TARGET_CHANGED` and `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/TargetFrames.lua` | target frames. `UNIT_TARGET` never fires for the player's own target, hence `PLAYER_TARGET_CHANGED`; the client does not dispatch unit events (such as `UNIT_NAME_UPDATE`) for compound tokens, so the repeating timer also repaints whole any shown button whose unit was unresolved (nil name) when it was painted -- e.g. a new member's target. Health comes from the same gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent` | `modules/PetFrames.lua` | pet frames |
+| `UNIT_IN_RANGE_UPDATE` (AceEvent, the module's own target; registered only while the fade is on, in a party, on Blizzard's classic frames) | `modules/RangeFade.lua` | the classic frames' own range check: `PartyMemberFrame` never fades for range, so there is nothing to copy. On EllesmereUI and raid-style frames the fade comes from post-hooks on each member frame's `SetAlpha` / `SetAlphaFromBoolean` instead, and no event is registered |
 | `PLAYER_REGEN_DISABLED` (always), `GROUP_ROSTER_UPDATE` (registered only while preview is on) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
 | `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
 
@@ -229,7 +231,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
   (read-only, nil-guarded at every step): EllesmereUI's hidden party buttons carry its raid size
   until it lays out a party, so measuring one copies the wrong frame.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
-  `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`).
+  `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`). Their parent is
+  their unit's fade frame (`modules/RangeFade.lua`), set at creation and never changed. The fade
+  frame is plain, never moved or hidden; only its alpha changes, and alpha is not protected.
+- **The out-of-range fade copies, it never calls in.** `modules/RangeFade.lua` post-hooks each member
+  frame's `SetAlpha` and `SetAlphaFromBoolean` with `hooksecurefunc` and replays the call on its own
+  fade frame. A secret flag goes to `SetAlphaFromBoolean` untouched; a secret number is tried on
+  `SetAlpha` under `pcall`, falling back to a raid-style frame's own `outOfRange` flag.
 - **Their visibility is a state driver**, not Lua: `[@party1target,exists] show; hide`, with General
   visibility folded in as `[combat]`/`[nocombat]`. Lua re-issues a driver only when a setting, preview
   or frame presence changes, through `NS.RunSecure`.
@@ -253,9 +261,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - Secure target/pet frames can't move in combat; after a mid-combat roster reshuffle they fade until
   combat ends (#3).
 - English only (#9).
+- The out-of-range fade copies the party frame. On Blizzard's classic layout, which does not fade,
+  it is the fixed ~40-yard `UnitInRange` check at 0.5. Spell-based ranges and a per-feature opacity
+  are #13. Whether the client takes a **secret number** on `SetAlpha` is unverified, so the
+  raid-style copy has a fallback through the frame's `outOfRange` flag (smoke step 47b).
 - The logo is a generated placeholder (#10).
 
-Every deferred item is a GitHub issue labeled `state:triaged` (#1–#12); the spec's §10 is the list
+Every deferred item is a GitHub issue (#1–#13, #13 still `state:untriaged`); the spec's §10 is the list
 they were filed from.
 
 ## Documentation map

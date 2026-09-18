@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-227%2F227_passing-green)
+![Tests](https://img.shields.io/badge/Tests-235%2F235_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -51,6 +51,11 @@ again and the real data comes back.
 size and position, the bar, the border and the text. That's also where you switch a feature to
 **Free placement**; whichever placement you aren't using grays out. The **General** page picks which
 party frames to attach to. Leave it on **Automatic** unless you run both UIs.
+
+When someone wanders out of range, their cast bar, target frame and pet frame dim along with their
+party frame, to whatever opacity that frame uses. Blizzard's classic party frames never dim, so with
+those the addon does it for them, at half opacity past about 40 yards. **Fade with party frames** on
+the **General** page turns this off.
 
 Target and pet frames are secure buttons, the same kind Blizzard's own unit frames are made of, so
 clicking them works in combat. The game also refuses to let any addon move one mid-fight. If someone

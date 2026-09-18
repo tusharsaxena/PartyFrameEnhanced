@@ -77,6 +77,21 @@ timer running even with *Update health* off. A secret name counts as resolved.
 `UnitIsUnit("party1target", …)` is always secret, which is why there is no "hide when my party member
 targets me" option.
 
+## Copying a party frame's out-of-range alpha
+
+`UnitInRange` can answer a secret boolean in combat. EllesmereUI hands it straight to
+`SetAlphaFromBoolean`, and Blizzard's raid-style frames turn it into `SetAlpha(0.5 or 1)` inside their
+own code, where the number can itself be secret. `modules/RangeFade.lua` post-hooks both calls on the
+member frame and replays them on its own per-unit fade frame:
+
+- a secret **flag** goes to `SetAlphaFromBoolean` untouched, which takes it by design;
+- a secret **number** is tried on `SetAlpha` under `pcall`. If the client refuses it, the raid-style
+  frame's own `outOfRange` flag (possibly secret too) goes through `SetAlphaFromBoolean` instead.
+  Which path runs in an instance is smoke step 47b;
+- the fade frame's `GetAlpha` is never read back. After `SetAlphaFromBoolean` it is secret, and it
+  never has to be multiplied with anything: the elements are the fade frame's children, so the
+  client multiplies the two alphas itself.
+
 ## Stops re-derive instead of matching ids
 
 A stop, fail or interrupt re-queries the unit before acting (`CastBars` `onEvent`): if the unit is

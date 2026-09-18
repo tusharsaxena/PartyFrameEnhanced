@@ -12,7 +12,8 @@ EllesmereUI's show:
 
 Each feature either **attaches** its elements to the party frame currently showing each unit
 (Blizzard classic, Blizzard raid-style, or EllesmereUI — detected automatically, overridable) or
-stacks them in one movable **free-placement** group.
+stacks them in one movable **free-placement** group. Every element fades with its party member's
+frame when that member is out of range.
 
 ## What it deliberately does not do
 
@@ -25,6 +26,9 @@ stacks them in one movable **free-placement** group.
   `hooksecurefunc` / `HookScript`.
 - **Auras, power, target-of-target, focus.** The target frame is a compact "who is my party member
   hitting or healing" readout, not a second unit frame.
+- **Its own range check.** The out-of-range fade copies the party frame's (on Blizzard classic,
+  which does not fade, it is a fixed ~40-yard check at half opacity). Spell-based ranges and a
+  per-feature opacity slider are #13.
 - **Per-unit styling.** Every element of one feature shares one style; only position differs.
 - **Decide anything from a secret value.** "Hide the target frame when the target is me" is not
   offered: comparing a compound unit token is always secret in Midnight, so it cannot be decided in

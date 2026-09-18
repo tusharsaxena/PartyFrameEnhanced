@@ -8,6 +8,7 @@
 --                      [Minimap button]                                      <- stored in db.global
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
 --     Party frames     [Frame system]                 [Include my own row]
+--                      [Fade with party frames]
 --
 -- Master controls is COMPOSED from one declaration (options-ui-§15, anti-pattern #73). Not
 -- frameless: the free-placement stacks are movable, so scale, alpha, lock and reset position apply.
@@ -139,6 +140,16 @@ NS.RegisterSchemaRows({
         label   = L["Include my own row"],
         desc    = L["Show a cast bar, target frame and pet frame for yourself too, wherever your party frames show you (and always in free placement)."],
         default = D.general.includePlayer,
+    },
+    {
+        path    = "general.rangeFade",
+        page    = PAGE,
+        group   = PARTY_GROUP,
+        order   = 30,
+        type    = "bool",
+        label   = L["Fade with party frames"],
+        desc    = L["Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."],
+        default = D.general.rangeFade,
     },
 })
 

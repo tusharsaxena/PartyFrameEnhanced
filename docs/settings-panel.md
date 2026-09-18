@@ -12,7 +12,7 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 |---|---|---|
 | Ka0s Party Frame Enhanced | — (landing page) | logo, the TOC Notes line, the slash command list |
 | General | Master controls | enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all |
-| General | Party frames | which frame system elements attach to; whether your own row is included |
+| General | Party frames | which frame system elements attach to; whether your own row is included; fading with the party frames out of range |
 | General | Health updates | one *Update health* switch and *Health refresh* pace, shared by target and pet frames |
 | Cast Bars | General | enable, fade out |
 | Cast Bars | Size & Position | size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); the block the anchor mode does not use is dimmed |
@@ -56,6 +56,7 @@ free-placement stacks are movable, so every row applies.
 |---|---|---|
 | Frame system | `general.provider` | Automatic / Blizzard / EllesmereUI; Providers re-resolves (CONFIG "general") |
 | Include my own row | `general.includePlayer` | the player's elements, wherever the frame system shows the player and always in free placement |
+| Fade with party frames | `general.rangeFade` | each unit's cast bar, target frame and pet frame fade with its party frame when the member is out of range: copied from EllesmereUI's and Blizzard raid-style's own fade, or on Blizzard classic (which does not fade) a ~40-yard `UnitInRange` check at 0.5. Off: every fade frame at full alpha (`modules/RangeFade.lua`) |
 
 ## General → Health updates
 

@@ -24,8 +24,10 @@ NS.UnitButtons = UnitButtons
 
 --- Create one feature's button for `unit`, acting on `token` (partyNtarget, partypetN, …).
 function UnitButtons.Create(feature, unit, token)
-    local btn = CreateFrame("Button", "PartyFrameEnhanced" .. feature .. "_" .. unit, UIParent,
-        "SecureUnitButtonTemplate")
+    -- Parented to the unit's fade frame, which dims it with the party frame (modules/RangeFade.lua).
+    -- A secure button's parent is set here, at creation, and never changes.
+    local btn = CreateFrame("Button", "PartyFrameEnhanced" .. feature .. "_" .. unit,
+        NS.RangeFade.Parent(unit), "SecureUnitButtonTemplate")
     btn:SetAttribute("unit", token)
     btn:RegisterForClicks("AnyUp")
     Element.Build(btn, { marker = feature == "Target" })

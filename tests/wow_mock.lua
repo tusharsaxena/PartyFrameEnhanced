@@ -62,6 +62,15 @@ return function()
         self.__timer = { duration = d, interpolation = interp, direction = dir }
       end)
     end
+    -- Alpha, recorded as the client would hold it. `__alphaSet` rather than `__alpha`, which the
+    -- addon uses on its own elements as its record of the alpha it asked for. SetAlphaFromBoolean
+    -- keeps the call (its flag may be a secret) and, for a plain flag, the alpha it resolves to.
+    rawset(f, "SetAlpha", function(self, a) self.__alphaSet = a end)
+    rawset(f, "GetAlpha", function(self) if self.__alphaSet == nil then return 1 end return self.__alphaSet end)
+    rawset(f, "SetAlphaFromBoolean", function(self, flag, ifTrue, ifFalse)
+      self.__alphaFromBool = { flag, ifTrue, ifFalse }
+      if type(flag) == "boolean" then self.__alphaSet = flag and ifTrue or ifFalse end
+    end)
     return f
   end
 
@@ -156,7 +165,7 @@ return function()
   end
 
   -- Units a suite can describe by token: M.__units[token] = { exists, name, health, healthMax,
-  -- pct, isPlayer, class, reaction, marker }. A token without an entry falls back to the base mock.
+  -- pct, isPlayer, class, reaction, marker, inRange }. A token without an entry falls back to the base mock.
   M.__units = {}
   local baseUnitExists, baseUnitName = M.UnitExists, M.UnitName
   M.UnitExists = function(u)
@@ -174,6 +183,12 @@ return function()
   M.UnitHealthPercent = function(u) local d = M.__units[u]; return d and d.pct end
   M.CurveConstants = { ScaleTo100 = "ScaleTo100" }
   M.UnitIsPlayer = function(u) local d = M.__units[u]; return d and d.isPlayer or false end
+  -- In range unless a suite says otherwise; the second return is the client's "checked" flag.
+  M.UnitInRange = function(u)
+    local d = M.__units[u]
+    if d and d.inRange ~= nil then return d.inRange, true end
+    return true, true
+  end
   M.UnitReaction = function(u) local d = M.__units[u]; return d and d.reaction end
   M.GetRaidTargetIndex = function(u) local d = M.__units[u]; return d and d.marker end
   M.SetRaidTargetIconTexture = function(tex, index) tex.__marker = index end

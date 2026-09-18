@@ -52,7 +52,23 @@ Target frame  UNIT_TARGET (per owner) / PLAYER_TARGET_CHANGED (the player's own)
 Pet frame     UNIT_PET (owner) + UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE (per pet token)
 ```
 
-## 4. Whether it is shown
+## 4. How faded it is
+
+```
+Each unit's elements are children of that unit's fade frame (modules/RangeFade.lua).
+EllesmereUI / Blizzard raid-style:
+  member frame:SetAlpha(a)                     ─ hooksecurefunc ─►  fade:SetAlpha(a)
+  member frame:SetAlphaFromBoolean(flag, t, f) ─ hooksecurefunc ─►  fade:SetAlphaFromBoolean(flag, t, f)
+  (seeded from GetAlpha on LAYOUT; a secret number SetAlpha refuses → the frame's outOfRange flag)
+Blizzard classic (no range fade of its own):
+  UNIT_IN_RANGE_UPDATE → UnitInRange(unit) → fade at 0.5 when out of range
+Off / preview / suspended / no party frame → fade 1
+```
+
+The client multiplies the fade frame's alpha into the element's own, so the element's alpha stays its
+own: the Master alpha, the reshuffle fade, the cast bar's fade-out.
+
+## 5. Whether it is shown
 
 Every element runs the same ladder, first failing rung hides: `NS.IsStoodDown()` — the one latch,
 held for a perf run or for the player's own *Enable* switch — → master enable →
@@ -65,5 +81,6 @@ target / has a pet). The secure target and pet frames express the later rungs as
 
 Stage 1 is `modules/Providers.lua`, stage 2 `modules/Anchor.lua`, stage 3 `modules/CastBars.lua`,
 `modules/TargetFrames.lua` and `modules/PetFrames.lua` (the last two over `modules/UnitButtons.lua`),
-and stage 4 is each feature's `shouldShow` / state driver over `modules/Element.lua`'s shared rungs.
-Preview mode (`modules/Preview.lua`, on exactly while UNLOCKED — its only switch, options-ui-§15) is rung 3 of stage 4.
+stage 4 `modules/RangeFade.lua`, and stage 5 is each feature's `shouldShow` / state driver over
+`modules/Element.lua`'s shared rungs. Preview mode (`modules/Preview.lua`, on exactly while UNLOCKED
+— its only switch, options-ui-§15) is rung 3 of stage 5, and it also holds every fade at full alpha.

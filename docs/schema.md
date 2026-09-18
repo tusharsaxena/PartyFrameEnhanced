@@ -19,6 +19,7 @@ alpha      = 1.0           addon-wide multiplier on every element's alpha
 locked     = true          false = unlocked, which is preview mode
 general.provider      = "auto"   "auto" | "blizzard" | "ellesmere"
 general.includePlayer = true     the player's own row
+general.rangeFade     = true     fade each unit's elements with its party frame when out of range
 general.updateHealth  = true     health updates on target AND pet frames (General → Health updates)
 general.tickInterval  = 0.2      the target health ticker's pace, seconds (pets use their own events)
 ```

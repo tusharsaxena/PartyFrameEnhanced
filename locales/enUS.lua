@@ -22,6 +22,9 @@ L["EllesmereUI"] = "EllesmereUI"
 L["Include my own row"] = "Include my own row"
 L["Show a cast bar, target frame and pet frame for yourself too, wherever your party frames show you (and always in free placement)."] =
     "Show a cast bar, target frame and pet frame for yourself too, wherever your party frames show you (and always in free placement)."
+L["Fade with party frames"] = "Fade with party frames"
+L["Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."] =
+    "Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."
 
 -- Shared element rows (settings/ElementRows.lua)
 for _, key in ipairs({
@@ -133,6 +136,7 @@ for _, key in ipairs({
     "Elements locked", "Elements unlocked \226\128\148 drag them into place",
     "off", "on, free placement", "on, attached", "addon disabled", "visibility %s", "unlocked",
     "suspended by a perf run", "Frame system: %s",
+    "Range fade: %s", "copied from %s", "own range check (classic frames)", "waiting for party frames",
     "not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)", "none found", "frame", "Note: %s",
     "List all profiles", "Show current profile name", "Switch to profile",
     "Create new profile with defaults", "Copy settings from another profile", "Delete a profile",

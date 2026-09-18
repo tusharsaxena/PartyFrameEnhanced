@@ -29,28 +29,29 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 18 | `defaults/Profile.lua` | every profile default | before the settings pages that read it |
 | 19 | `modules/Providers.lua` | the three frame-system providers, detection, the unit → frame map; sends LAYOUT | **load-bearing**: registers first, so the lifecycle enables it before the features |
 | 20 | `modules/Anchor.lua` | attached pin (memoized), free stack, drag and the position owner, secure combat fade/defer | after Providers, before the features that register with it |
-| 21 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
-| 22 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
-| 23 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
-| 24 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker (which also repaints an unresolved target) | after UnitButtons |
-| 25 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
-| 26 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
-| 27 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
-| 28 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
-| 29 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 30 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 31 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 32 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 33 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
-| 34 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
-| 35 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
-| 36 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
-| 37 | `settings/Profiles.lua` | the AceDBOptions page | last |
+| 21 | `modules/RangeFade.lua` | one fade frame per unit that every element is parented to; copies the party frame's own out-of-range alpha (EllesmereUI, Blizzard raid-style, by post-hooking `SetAlpha` / `SetAlphaFromBoolean`) or, on Blizzard classic, runs its own `UnitInRange` check | **load-bearing**: after Providers, before every feature — the features parent their elements to `NS.RangeFade.Parent(unit)` at OnEnable |
+| 22 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
+| 23 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
+| 24 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
+| 25 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker (which also repaints an unresolved target) | after UnitButtons |
+| 26 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
+| 27 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
+| 28 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
+| 29 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 30 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 31 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 32 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 33 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 34 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 35 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
+| 36 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
+| 37 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
+| 38 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
 ## Tests
 
 `tests/run.lua` (load list, lifecycle kick, suite list), `tests/wow_mock.lua` (thin extender: unit
-classes, distinct recording regions and status bars, scripted casts, unit data by token, secure
-attributes and state drivers), `tests/degraded_env.lua` (library-absent load), `tests/perf.lua`
+classes, distinct recording regions and status bars, scripted casts, unit data by token (range
+included), secure attributes and state drivers, and every frame's alpha calls), `tests/degraded_env.lua` (library-absent load), `tests/perf.lua`
 (offline scenarios, outside the gate), and one `tests/test_*.lua` per module. `tests/_kit/` is
 vendored and never edited.

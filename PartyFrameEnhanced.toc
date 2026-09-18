@@ -75,6 +75,9 @@ defaults\Profile.lua
 # read through Anchor; it registers first so the lifecycle enables it first.
 modules\Providers.lua
 modules\Anchor.lua
+# LOAD-BEARING: after Providers (captured at file scope), before every feature: publishes
+# NS.RangeFade, whose per-unit fade frames the features parent their elements to at OnEnable.
+modules\RangeFade.lua
 # Before every feature: publishes NS.Element, which the features capture at file scope.
 modules\Element.lua
 modules\CastBars.lua

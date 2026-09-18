@@ -17,6 +17,9 @@ NS.defaults.profile = {
     general = {
         provider      = "auto",   -- "auto" | "blizzard" | "ellesmere"
         includePlayer = true,
+        -- Fade each unit's elements with its party frame when the member is out of range
+        -- (modules/RangeFade.lua).
+        rangeFade     = true,
         -- Health updates, shared by target and pet frames. Off: their bars are drawn full with no
         -- percent, the target ticker never runs and no pet health event is registered.
         -- tickInterval paces the target ticker only: compound tokens (partyNtarget) get no

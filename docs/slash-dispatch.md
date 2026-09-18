@@ -21,7 +21,7 @@ The landing page renders the same table.
 | `lock` | locks the elements and leaves preview mode. **Refuses while the addon is disabled** | no |
 | `unlock` | unlocks them for dragging, with placeholder content; refused in combat with a gray notice. **Refuses while the addon is disabled**, at the dispatcher — before the write seam | no |
 | ~~`test`~~ | **Removed** (options-ui-§15). Unlocking already is this addon's preview, so `unlock` / `lock` are the switch and a second verb for the same state was the finding (anti-pattern #80). What it did — placeholders at the real party frames in a party, a stand-in party frame for party1 out of one, refused in combat, disabled or suspended; ends when combat starts | no |
-| `status` | the detected frame system, which units have a frame, each feature's state, whether preview is up and on what, and anything switched off (including not being in a party) | no |
+| `status` | the detected frame system, which units have a frame, each feature's state, how the out-of-range fade is running (copied from a frame system, the classic frames' own range check, waiting, or off), whether preview is up and on what, and anything switched off (including not being in a party) | no |
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |

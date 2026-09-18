@@ -18,6 +18,7 @@ read_globals = {
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
   "UnitExists", "UnitClass", "UnitName", "UnitGUID", "UnitIsPlayer", "UnitIsUnit", "UnitReaction",
   "UnitHealth", "UnitHealthMax", "UnitHealthPercent", "UnitIsDeadOrGhost", "UnitIsConnected",
+  "UnitInRange",
   "UnitCastingInfo", "UnitChannelInfo", "UnitCastingDuration", "UnitChannelDuration",
   "UnitEmpoweredChannelDuration", "GetRaidTargetIndex", "SetRaidTargetIconTexture",
   "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_Secrets", "C_CurveUtil",
@@ -68,6 +69,7 @@ files["modules/Providers.lua"] = { ignore = { "212/self" } }
 files["modules/CastBars.lua"] = { ignore = { "212/self" } }
 files["modules/TargetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/PetFrames.lua"] = { ignore = { "212/self" } }
+files["modules/RangeFade.lua"] = { ignore = { "212/self" } }
 files["modules/Preview.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /

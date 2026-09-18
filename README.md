@@ -11,9 +11,8 @@ casting, or which mob the tank actually has targeted. Party Frame Enhanced puts 
 party member's frame: a cast bar, a small frame for whatever they're targeting, and one for their pet.
 
 It works with Blizzard's party frames (classic or raid-style) and with EllesmereUI's, and it figures
-out which one you're using by itself. If you'd rather not tie anything to your party frames, any of
-the three can live in its own movable stack instead. Your own row is included whenever your party
-frames show you.
+out which one you're using and attaches itself to it. If you'd rather not tie anything to your party
+frames, any of the three can live in its own movable stack instead.
 
 - **Cast bars** change color with the kind of cast, carry a small shield when the cast can't be
   interrupted, and flash red when it gets interrupted.
@@ -37,21 +36,16 @@ frames show you.
 
 ## Usage
 
-There's nothing to turn on. Join a party and each member's cast bar lies across the top of their
-frame. Their target frame sits just to the right, with their pet's frame below it. A unit with
-no party frame on screen gets nothing until it has one, which is why your own row doesn't appear in
-Blizzard's classic party layout: that layout never shows you.
+Install it and join a party. Each member gets a cast bar across the top of their frame, a target
+frame just to the right, and their pet's frame below that. A unit with no party frame on screen gets
+nothing until it has one, which is why your own row doesn't appear in Blizzard's classic party
+layout: that layout never shows you.
 
-To move things, type `/pfe unlock` or untick **Lock frame** on the **General** page. Everything
-switches to placeholders, with a fake cast on every bar, a fake enemy in every target frame and a fake
-pet in every pet frame, so you can arrange it all without waiting for a pull. Attached elements are
-nudged with the offset sliders on each feature's **Size & Position** tab; free-placement stacks you
-just drag. Lock again and the real data comes back.
-
-Not in a party? Type `/pfe unlock`, or untick **Lock frame** on the **General** page. You get a
-stand-in frame dressed like your usual party frames, with a cast bar, target frame and pet frame
-hanging off it, so you can set the offsets solo. Drag it wherever you like. In a party, the same
-command puts the placeholders on your real frames. Combat ends it, and so does typing it again.
+To move things around, type `/pfe unlock` or untick **Lock frame** on the **General** page. Every bar
+and frame fills with made-up data, so you can arrange it all without waiting for a pull. Solo, you
+get a stand-in party frame to hang them on. You nudge attached elements with the offset sliders on
+each feature's **Size & Position** tab, and drag free-placement stacks wherever you want them. Lock
+again and the real data comes back.
 
 **Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
 size and position, the bar, the border and the text. That's also where you switch a feature to
@@ -65,8 +59,8 @@ joins or leaves during a pull, those frames hide until combat ends and then reap
 Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and typing `/pfe` on its
 own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full command list.
 
-There is a **minimap button** too. Left-click unlocks and re-locks the elements — the same switch as
-**Lock frame** — and right-click opens the settings. If you use Titan Panel, ElvUI's data texts or
+There is a **minimap button** too. Left-click unlocks and re-locks the elements (it's the same switch
+as **Lock frame**), and right-click opens the settings. If you use Titan Panel, ElvUI's data texts or
 Bazooka, the addon shows up there as well, and clicking it does exactly the same thing. To put the
 button away, untick **Minimap button** on the **General** page; it stays away on every character and
 every profile until you tick it back.
@@ -114,4 +108,4 @@ filed there gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
-| 0.1.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |
+| 1.0.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |

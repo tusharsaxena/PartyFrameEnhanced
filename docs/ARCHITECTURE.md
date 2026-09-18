@@ -28,7 +28,7 @@ vendored, not wired**: fifteen elements are
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
-Build status: feature-complete for v0.1.0, with the offline perf pass, the release-candidate record,
+Build status: feature-complete for v1.0.0, with the offline perf pass, the release-candidate record,
 the first standards audit, the in-game smoke pass and the first party perf captures done.
 
 ## Module Map

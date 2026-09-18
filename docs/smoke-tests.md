@@ -51,7 +51,7 @@ One row per full pass. The newest row is the current iteration.
    version, profile), each a gold `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` and `/partyframeenhanced help` → the same as `/pfe` and `/pfe help`.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
-7. `/pfe version` → `[PFE] v0.1.0`.
+7. `/pfe version` → `[PFE] v1.0.0`.
 8. `/pfe list` → a green header, `[general]` group, then `path = value` rows with gold paths and white
    values, no trailing colons.
 9. `/pfe set general.provider blizzard` → `general.provider = blizzard`; `/pfe reset general.provider`
@@ -129,7 +129,7 @@ One row per full pass. The newest row is the current iteration.
 
 21. `/pfe debug` → the console window opens (monospace font, the collection's close/copy/clear marks,
     not a `×` glyph); `/pfe debug` again → it closes. The logging flag is untouched by both.
-22. `/pfe debug on` → an `[Init]` line naming `PartyFrameEnhanced v0.1.0`, the schema version, the
+22. `/pfe debug on` → an `[Init]` line naming `PartyFrameEnhanced v1.0.0`, the schema version, the
     profile and the detected frame system. `/reload` → logging is **off** again (session-only).
 23. `/pfe perf` → a status line and the step panel, whose close mark matches the console's. Walk
     `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump` without a Lua error.

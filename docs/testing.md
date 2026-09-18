@@ -62,7 +62,7 @@ All four out-of-game suites go through one vendored runner, and every recorded r
 ```sh
 tests/_kit/run-automated-tests.sh                                          # all four, writes a bundle
 tests/_kit/run-automated-tests.sh --suite lint --suite tests --no-bundle   # the green gate; writes nothing
-tests/_kit/run-automated-tests.sh --release 0.1.0                          # the release run
+tests/_kit/run-automated-tests.sh --release 1.0.0                          # the release run
 ```
 
 There are **two checkpoints**, and a suite's answer differs between them:

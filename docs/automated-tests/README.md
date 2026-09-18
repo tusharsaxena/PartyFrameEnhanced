@@ -10,7 +10,7 @@ section; this file is the local how-to.
 tests/_kit/run-automated-tests.sh                                          # all four, writes a bundle
 tests/_kit/run-automated-tests.sh --suite complexity                       # a subset
 tests/_kit/run-automated-tests.sh --suite lint --suite tests --no-bundle   # the green gate; writes nothing
-tests/_kit/run-automated-tests.sh --release 0.1.0                          # the release run, before the tag
+tests/_kit/run-automated-tests.sh --release 1.0.0                          # the release run, before the tag
 ```
 
 The runner is **vendored** from LibKa0s's `testkit/` and is byte-identical in every Ka0s addon. Never

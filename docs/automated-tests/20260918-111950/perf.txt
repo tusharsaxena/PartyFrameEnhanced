@@ -1,0 +1,18 @@
+Ka0s Party Frame Enhanced — offline perf  (v0.1.0, label 'offline')
+40 layout requests coalesced into 1 resolve
+
+scenario                iters     ms/iter  api/iter  bytes/iter
+resolveUnchanged         1000     0.00819       0.0         0.0
+anchorUnchanged          1000     0.00517       0.0         0.0
+castStartStop            1000     0.02352      55.0         3.6
+castTick                 1000     0.00310      10.0         0.0
+targetTickUnchanged      1000     0.00220       0.0         0.0
+targetTickMoving         1000     0.00544      15.0         0.0
+settingsDrag              200     0.04162      25.0       885.9
+probeOverheadOff         1000     0.00465      11.0         0.0
+probeOverheadOn          1000     0.00522      11.0         0.5
+
+SetPoint calls/iter: resolveUnchanged 0.0, anchorUnchanged 0.0, castStartStop 0.0, castTick 0.0, targetTickUnchanged 0.0, targetTickMoving 0.0, settingsDrag 0.0, probeOverheadOff 0.0, probeOverheadOn 0.0
+
+timings are for orientation only — compare scenarios within a run, never across machines
+wrote docs/automated-tests/20260918-111950/perf.json

@@ -86,5 +86,8 @@ exercises only your own row, and never the pet frames. Take both arms:
 | Stamp | Addon version | Label | What it measured | Bundle |
 |---|---|---|---|---|
 | 20260915-161824 | 0.1.0 | `2026-09-15 16:14` | Solo Vengeance Demon Hunter in Silvermoon City: your own cast bar and target frame only. 0.861 ms/s of bracketed cost; the +1.63 ms/frame delta is about 99% environment or unbracketed client work; the health tick renders 4.89 buttons a pass solo | [ANALYSIS](20260915-161824/ANALYSIS.md) |
+| 20260918-102842 | 0.1.0 | `2026-09-18 10:26` | First party capture: Protection Paladin in a party of five, Murder Row, a different pull per arm. 0.451 ms/s of bracketed cost; the +1.45 ms/frame delta is about 99% environment. The target health ticker never ran (no `targetTick`/`targetRender`), and fewer than one cast bar showed per frame on average | [ANALYSIS](20260918-102842/ANALYSIS.md) |
+| 20260918-104528 | 0.1.0 | `2026-09-18 10:40` | Same party and zone with health updates on: every party-side bucket but pets measured. 0.800 ms/s of bracketed cost, 0.352 ms/s of it the health ticker at 4.41 renders per pass; the +0.89 ms/frame delta is about 98% outside the brackets. Settles why 20260918-102842 had no ticker: *Update health* was off | [ANALYSIS](20260918-104528/ANALYSIS.md) |
 
-No party capture yet: the pet-frame path and every party-member element are still unmeasured.
+Still unmeasured: the pet-frame path (`petEvent` has never fired), and a solo capture confirming that
+the health ticker no longer renders hidden target buttons.

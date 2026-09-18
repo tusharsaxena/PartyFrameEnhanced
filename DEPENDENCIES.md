@@ -33,6 +33,8 @@ marked as such rather than listed as a requirement.
 | `git` | any recent | the vendored-payload gate (`tests/test_vendor_sync.lua` reads the LibKa0s tag with `git`), the EOL gate (`tests/_kit/test_eol.lua` runs `git ls-files` / `git check-attr`), the spelling gate (`tests/test_spelling.lua` runs `git ls-files`) | those three files |
 | POSIX shell (`bash`) | any | `tests/_kit/run-automated-tests.sh` | its `#!/usr/bin/env bash` line |
 | A sibling `../LibKa0s` checkout | — | the vendored-payload gate compares against it; without it those cases **skip** with the reason | `tests/_kit/vendor_sync.lua` |
+| `timeout` (coreutils) | any | *optional* — the wall-clock bound the test kit (revision 23) puts on every run; absent, the run is unbounded in time | `tests/_kit/framework.lua:123` checks `command -v timeout` first |
+| `systemd-run --user` | any | *optional* — the process-tree memory cap on the outermost run; absent (no systemd user instance), that one bound is skipped and `ulimit -v` still applies | `tests/_kit/framework.lua:127` probes it before use |
 
 **Lua 5.1 is a requirement, not a preference.** The harness sandboxes each source file with
 `setfenv`, which was removed in 5.2 — "5.2 will probably work" is false and costs an hour to
@@ -75,6 +77,14 @@ and ignored by `.pkgmeta`. Regenerate it only when the art changes:
 
 ```sh
 python3 -c "from PIL import Image; Image.open('media/logos/partyframeenhanced.logo.png').convert('RGBA').resize((512, 512), Image.LANCZOS).save('media/logos/partyframeenhanced.logo.tga', rle=False)"
+```
+
+The 128×128 icon (`media/logos/partyframeenhanced.logo.128.tga`) is the TOC's `## IconTexture` and
+the launcher's minimap and broker icon. It comes from the same `.png` by the same recipe at 128×128,
+uncompressed 32-bit, 65,580 bytes:
+
+```sh
+python3 -c "from PIL import Image; Image.open('media/logos/partyframeenhanced.logo.png').convert('RGBA').resize((128, 128), Image.LANCZOS).save('media/logos/partyframeenhanced.logo.128.tga', rle=False)"
 ```
 **None of this group is required to build, run or test the addon.**
 

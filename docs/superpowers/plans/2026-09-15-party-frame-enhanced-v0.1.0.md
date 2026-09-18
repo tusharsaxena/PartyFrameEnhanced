@@ -36,7 +36,7 @@ Ground rules for whoever resumes:
 | P9 | GitHub issues for deferred work; roster row in WowAddonStandards | done | issues #1–#12 (`state:triaged`); roster row WowAddonStandards cb97a3a |
 | P9b | Standards-audit fixes (`docs/audits/2026-09-15/` PFE-01…07, 09, 11) + fresh release-candidate run | done | fixes 89d30b0; bundle `docs/automated-tests/20260915-154839/` (green) f76510f |
 | P9c | `/pfe test` and the party-only rule (spec `specs/2026-09-15-test-mode-design.md`, plan `plans/2026-09-15-test-mode.md`) | done | dc0b37a…bb289bb, then the docs commit |
-| P10 | In-game smoke (sections A–J and T; J is the test mode) + perf capture (needs the player) → `/wow-addon:perf-analysis` | blocked on player | |
+| P10 | In-game smoke (sections A–K and T) + perf capture (needs the player) → `/wow-addon:perf-analysis` | done | smoke pass recorded in `docs/smoke-tests.md` → *Completion record* (2026-09-18); captures `docs/perf-analysis/20260918-102842/`, `20260918-104528/` |
 
 ## P1 — Standards scaffold
 
@@ -140,6 +140,6 @@ filtering, idle gate).
 
 ## P10 — In-game (needs the player)
 
-- [ ] Walk `docs/smoke-tests.md` on Blizzard classic, Blizzard raid-style, EllesmereUI.
-- [ ] `/pfe perf` capture in a dungeon pull and at a dummy → `/wow-addon:perf-analysis`.
+- [x] Walk `docs/smoke-tests.md` on Blizzard classic, Blizzard raid-style, EllesmereUI.
+- [x] `/pfe perf` capture in a dungeon pull and at a dummy → `/wow-addon:perf-analysis`.
 - [ ] Fix findings; tag `v0.1.0`.

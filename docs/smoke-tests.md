@@ -7,8 +7,13 @@ covers the pure logic; this suite covers what only runs against the live client.
 
 **Section T is the exception**: it is the non-English-client pass and needs a deDE or frFR client.
 
-Sections for the three features (cast bars, target frames, pet frames), the frame systems and preview
-mode are added by the phases that build them (plan P2–P6).
+## Completion record
+
+One row per full pass. The newest row is the current iteration.
+
+| Iteration | Date | Sections | Result |
+|---|---|---|---|
+| v0.1.0 | 2026-09-18 | A–K and T, every step | Complete. Marked done by the addon owner |
 
 ## Index
 
@@ -141,12 +146,12 @@ mode are added by the phases that build them (plan P2–P6).
 Run each step once on Blizzard's raid-style party frames, once on the classic layout and once on
 EllesmereUI's, where noted.
 
-24. **Attached under each frame.** In a party (a follower dungeon is enough), watch a healer cast → a
-    bar appears **under that member's own party frame**, as wide as the frame, with the spell's icon
+24. **Attached over each frame.** On a fresh profile, in a party (a follower dungeon is enough), watch a
+    healer cast → a bar appears **across the top of that member's own party frame**, as wide as the frame, with the spell's icon
     at the left, its name, and seconds counting down at the right. It fills left to right and hides
-    when the cast lands. *Failure:* a bar under the wrong member (the unit → frame map is wrong), or a
+    when the cast lands. *Failure:* a bar on the wrong member (the unit → frame map is wrong), or a
     bar that never hides.
-25. **Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears under
+25. **Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears over
     your own frame. Classic layout: **no** player bar (the layout never shows you) — switch Cast Bars →
     Size & Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
 26. **Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and drains.
@@ -206,11 +211,11 @@ EllesmereUI's, where noted.
 
 ## H. Pet frames
 
-39. **A pet appears.** A hunter or warlock in the party → a small frame under their party frame with
-    the pet's name and health. They dismiss it → the frame disappears. Summon another → it shows the new
+39. **A pet appears.** A hunter or warlock in the party → a small frame to the right of their party
+    frame, under their target frame, with the pet's name and health. They dismiss it → the frame disappears. Summon another → it shows the new
     pet.
 40. **Your own pet.** On a pet class with your own row included, raid-style or EllesmereUI: your pet's
-    frame sits under your party frame.
+    frame sits to the right of your party frame, under your target frame.
 41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
     green, a warlock's warlock purple.
 42. **Click to target.** Click a pet frame → you target the pet.

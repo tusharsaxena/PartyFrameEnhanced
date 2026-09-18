@@ -19,7 +19,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.41.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.43.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
 (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),
@@ -28,8 +28,8 @@ vendored, not wired**: fifteen elements are
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
-Build status: feature-complete for v0.1.0, with the offline perf pass, the release-candidate record
-and the first standards audit done. What remains before the tag is in-game testing (plan P10).
+Build status: feature-complete for v0.1.0, with the offline perf pass, the release-candidate record,
+the first standards audit, the in-game smoke pass and the first party perf captures done.
 
 ## Module Map
 
@@ -133,7 +133,7 @@ addon rather than a preference.
 | `GROUP_ROSTER_UPDATE` | `core/PartyFrameEnhanced.lua` | the party-only flip (`NS.Units.InParty`): republish VISIBILITY |
 | `GROUP_ROSTER_UPDATE`, `PLAYER_ENTERING_WORLD`, `EDIT_MODE_LAYOUTS_UPDATED`, `PLAYER_REGEN_ENABLED`, `ADDON_LOADED` (EllesmereUI) | `modules/Providers.lua` (AceEvent, own target) | re-resolve the unit → frame map |
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
-| `UNIT_TARGET` (per owner, `RegisterUnitEvent`), `RAID_TARGET_UPDATE` (AceEvent) | `modules/TargetFrames.lua` | target frames; health comes from a gated repeating timer |
+| `UNIT_TARGET` (per owner) and `UNIT_NAME_UPDATE` (per target token), both `RegisterUnitEvent`; `PLAYER_TARGET_CHANGED` and `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/TargetFrames.lua` | target frames. `UNIT_TARGET` never fires for the player's own target, hence `PLAYER_TARGET_CHANGED`; `UNIT_NAME_UPDATE` repaints a name the client resolved after the target changed. Health comes from a gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent` | `modules/PetFrames.lua` | pet frames |
 | `PLAYER_REGEN_DISABLED` (always), `GROUP_ROSTER_UPDATE` (registered only while preview is on) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
 | `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |

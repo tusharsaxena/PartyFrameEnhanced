@@ -301,14 +301,13 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (6)
+### test_surface_parity.lua (5)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the DebugLog stub carries the whole live surface
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
 - parity: a bare /pfe runs `config` in the library-absent build too
-- parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
 ### test_vendor_sync.lua (3)
 
@@ -350,7 +349,7 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 10 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 8 |
-| test_surface_parity.lua | 6 |
+| test_surface_parity.lua | 5 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **227** |
+| **Total** | **226** |

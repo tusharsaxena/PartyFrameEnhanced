@@ -45,7 +45,9 @@ Cast bar      UNIT_SPELLCAST_* (RegisterUnitEvent per unit)
                 → UnitCastingInfo / UnitChannelInfo (name, texture, notInterruptible)
                 → duration object → StatusBar:SetTimerDuration   (never Lua arithmetic on a secret)
                 → stop / interrupted / failed from the event, not from the clock
-Target frame  UNIT_TARGET (per owner) → name, class/reaction color, marker
+Target frame  UNIT_TARGET (per owner) / PLAYER_TARGET_CHANGED (the player's own)
+                → name, class/reaction color, marker
+              UNIT_NAME_UPDATE (per target token) → the name, once the client resolves it
               health ticker (0.2 s, only while a target frame is shown) → SetMinMaxValues/SetValue
 Pet frame     UNIT_PET (owner) + UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE (per pet token)
 ```

@@ -1,0 +1,229 @@
+  PASS  loadorder: tocFiles returns the addon's files, locale first and settings last
+  PASS  loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
+  PASS  loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
+  PASS  loadorder: OptionsSetup loads before every settings page
+  PASS  loadorder: Schema loads before every settings file, and the TOC says why
+  PASS  loadorder: PerfSetup loads before every module
+  PASS  loadorder: Preview loads after StandIn, and the TOC says why
+  PASS  loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
+  PASS  loadorder: every derived path exists on disk
+  PASS  loadorder: the runner loaded exactly the TOC's files, in the TOC's order
+  PASS  loadorder: the runner loaded exactly the vendored XML's library files, in its order
+  PASS  loadorder: tests/perf.lua derives both halves of its list too
+  PASS  loadorder: the loaded library registered — NS.Perf is the lib, not the stub
+  PASS  schema: validates with no shape errors and no unresolved paths
+  PASS  schema: the General page opens on the Master controls tab, in the canonical order
+  PASS  schema: General visibility is the four-value dropdown, not a boolean
+  PASS  schema: a write through the seam stores the value and publishes CONFIG once, by section
+  PASS  schema: a flat Master controls row publishes the master section
+  PASS  schema: the session-only debug console row publishes nothing and stores nothing
+  PASS  schema: GetSetting falls back to the shipped default when the profile lacks the key
+  PASS  schema: ApplyDefault writes a COPY of a table default
+  PASS  schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
+  PASS  database: InitDB opens the store with the shipped defaults and schema v1
+  PASS  database: RunMigrations is idempotent
+  PASS  database: a counted profile reset restores defaults and publishes PROFILE once
+  PASS  database: a profile switch publishes PROFILE and VISIBILITY
+  PASS  coresetup: NS.Print is the library printer, reclaimed from AceConsole's embed
+  PASS  coresetup: printed lines carry the cyan [PFE] tag
+  PASS  coresetup: NS.MakeCloseButton hands the library this addon's folder name
+  PASS  coresetup: without LibKa0s the printer still prints, and says the library is missing once
+  PASS  envsetup: NS.Version never answers nil — the fallback constant when no reader answers
+  PASS  envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
+  PASS  mediasetup: the console's monospace face is the library's, under this addon's folder
+  PASS  mediasetup: NS.Icon builds catalog paths from this addon's folder
+  PASS  mediasetup: without LibKa0s the face falls back to a real client font and icons answer nil
+  PASS  debuglog: NS.Debug is the instance's gated sink, bound bare
+  PASS  debuglog: enabling logging flips NS.State.debug and writes nothing to the profile
+  PASS  debuglog: without LibKa0s, `debug on` still sets the flag and acknowledges it
+  PASS  perfsetup: every bucket is declared, in report order
+  PASS  perfsetup: suspend and resume reach every registered module and republish visibility
+  PASS  perfsetup: `/pfe perf` answers lines to print
+  PASS  perfsetup: live and stub both carry every Perf member the addon's source reads
+  PASS  perfsetup: without LibKa0s the stub carries every member the addon calls
+  PASS  lifecycle: a secure write out of combat runs at once
+  PASS  lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
+  PASS  lifecycle: the regen events drive NS.State.inCombat and republish visibility
+  PASS  lifecycle: a blocked action blamed on this addon is logged, ungated
+  PASS  bus: two receivers of one message on their own targets both fire
+  PASS  bus: every message is prefixed Ka0s_PartyFrameEnhanced_
+  PASS  bus: no message has more than one sending file
+  PASS  compat: IsSecret answers false without the client's issecretvalue
+  PASS  compat: FrameUnit prefers displayedUnit, then unit, then unitToken, then the attribute
+  PASS  compat: FrameUnit rejects a secret, an empty string and a non-string, and moves on
+  PASS  compat: FrameVisible fails open on a secret and closed on nil or an error
+  PASS  compat: UseRaidStyleParty reads Edit Mode first and the CVar second
+  PASS  compat: IsAddOnLoaded goes through C_AddOns and answers false without it
+  PASS  providers: Blizzard classic maps party1..4 by unitToken and never the player
+  PASS  providers: Blizzard raid-style maps the player too, and follows a re-sort
+  PASS  providers: EllesmereUI outranks Blizzard in Automatic, and reads the secure unit attribute
+  PASS  providers: the General page can pin Blizzard even with EllesmereUI on screen
+  PASS  providers: EllesmereUI's frames are ignored unless the addon is loaded
+  PASS  providers: hidden member frames and raid tokens are skipped
+  PASS  providers: a raid group puts the map to sleep
+  PASS  providers: solo puts the map to sleep
+  PASS  providers: a resolve that finds what it already had sends no LAYOUT
+  PASS  providers: any number of requests before the next frame cost one resolve
+  PASS  providers: a hooked member frame's unit change requests a resolve
+  PASS  providers: suspended, requests do nothing and events come off
+  PASS  anchor: attached pins each element to its unit's frame by the configured points
+  PASS  anchor: a pass that changes nothing makes no SetPoint call
+  PASS  anchor: match width pins both edges instead of one point
+  PASS  anchor: free placement stacks included units down from the holder
+  PASS  anchor: a secure feature in combat fades what would move and defers the pass to regen
+  PASS  anchor: a drag saves the holder's position and ResetPositions clears it
+  PASS  anchor: LAYOUT re-applies every registered feature
+  PASS  anchor: a section stripped of its defaulted point still pins, from the shipped default
+  PASS  anchor: unlocking gives the name plate a grabbable body and arms every element's drag
+  PASS  castbars: each included unit's bar registers exactly the cast events, for its own unit
+  PASS  castbars: nothing in the addon registers a UNIT_SPELLCAST event globally
+  PASS  castbars: turning the feature off unregisters every unit; on registers them again
+  PASS  castbars: a cast start shows the bar with the name, icon and an engine-driven fill timer
+  PASS  castbars: a channel drains, and without the engine timer the bar is driven from the same object
+  PASS  castbars: the time text shows seconds left, refreshed at most ten times a second
+  PASS  castbars: an interrupt holds the bar in the failed color with the client's word, then hides
+  PASS  castbars: a stop that arrives after the next cast began keeps the bar on the new cast
+  PASS  castbars: a stop the client never sent is caught by the tick
+  PASS  castbars: a secret notInterruptible picks the fill and the shield on the C side
+  PASS  castbars: the show decision hides a casting bar for master off, Never, and a missing frame
+  PASS  castbars: preview shows every included bar with placeholder content, and clears on exit
+  PASS  castbars: suspended, every bar unregisters and hides; resumed, they come back
+  PASS  targetframes: every button is a secure unit button acting on its owner's target
+  PASS  targetframes: the state driver folds General visibility in, and hides what is not allowed
+  PASS  targetframes: attached with no party frame on screen, the driver is hide
+  PASS  targetframes: in combat a driver change is queued, never written, and lands at regen
+  PASS  targetframes: click to target sets the attribute and the mouse, both ways
+  PASS  targetframes: UNIT_TARGET paints the name, health, percent and marker
+  PASS  targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise
+  PASS  targetframes: a secret class and a secret reaction never reach a table lookup
+  PASS  targetframes: the ticker runs only while someone has a target, and repaints health
+  PASS  targetframes: a secret UnitExists never makes the tick repaint a hidden button
+  PASS  targetframes: an unchanged plain health is not repainted by the tick
+  PASS  targetframes: Update health off draws the bar full with no percent, and the ticker never runs
+  PASS  targetframes: a new Health refresh pace restarts a running ticker at it
+  PASS  targetframes: the marker sits on its configured point of the bar, nudged by its offsets
+  PASS  targetframes: preview shows every allowed button with placeholder content
+  PASS  targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
+  PASS  targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
+  PASS  targetframes: suspended, no events, no ticker, every driver hide
+  PASS  targetframes: every included button registers UNIT_NAME_UPDATE on its TARGET token
+  PASS  targetframes: the handler paints a name that was nil at target time
+  PASS  petframes: each button acts on its owner's pet token
+  PASS  petframes: UNIT_PET listens on the owner, the health events on the pet token
+  PASS  petframes: a new pet paints fully; a health event repaints health only
+  PASS  petframes: Use class color takes the OWNER's class
+  PASS  petframes: Update health off drops the health events and draws the bar full
+  PASS  petframes: suspended, events come off and every driver is hide
+  PASS  party: InParty is a party of 2-5 — not solo, not a raid
+  PASS  party: solo, nothing shows — free placement included — and no unit events are registered
+  PASS  party: in a raid, nothing shows — free placement included — and no unit events are registered
+  PASS  party: a roster change republishes VISIBILITY only when the party answer flips
+  PASS  party: preview skips the rule — unlocked solo, the free-placement placeholders show
+  PASS  party: /pfe status says so when you're not in a party
+  PASS  preview: unlocking turns preview on and makes free-placement holders grabbable
+  PASS  preview: unlocking in combat is refused, the stored lock stays, and the player is told why
+  PASS  preview: the lock is the only switch, and there is no hold API left
+  PASS  preview: one VISIBILITY each way, and a redundant write sends nothing
+  PASS  preview: neither /pfe preview nor /pfe test exists — lock and unlock are the switch
+  PASS  preview: a profile saved unlocked comes back in preview
+  PASS  status: names the frame system, each unit, each feature, and anything switched off
+  PASS  standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
+  PASS  standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
+  PASS  standin: the source is the imitated system's first member frame
+  PASS  standin: copies the source's size and top-left through the effective-scale ratio
+  PASS  standin: a zero size takes the system's fallback, and no position goes to the center
+  PASS  standin: a secret size or position is never compared — fallback and center
+  PASS  standin: draws beneath what attaches to it (LOW strata), as a real party frame does
+  PASS  standin: marks the player's name (test), with no corner tag for an element to cover, and drags
+  PASS  standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
+  PASS  standin: fills party1 only when no real frame holds it, and clearing it restores the real map
+  PASS  standin: setting and clearing it resolve at once, each sending LAYOUT
+  PASS  standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
+  PASS  preview: solo, unlocking raises the stand-in in party1's place; locking ends it
+  PASS  preview: in a party, unlocking is placeholders on the real frames and no stand-in
+  PASS  preview: in a raid it is the stand-in too
+  PASS  preview: it switches live — joining hides the stand-in, leaving brings it back, it stays on
+  PASS  preview: unlocking is refused in combat, disabled or suspended — one gray line each
+  PASS  preview: locking is never refused, so a refusal cannot strand the elements unlocked
+  PASS  preview: combat re-locks at PLAYER_REGEN_DISABLED (stand-in)
+  PASS  preview: combat re-locks at PLAYER_REGEN_DISABLED (party)
+  PASS  preview: the master switch going off re-locks
+  PASS  preview: a perf-run suspend re-locks, and the stand-in leaves the map at once
+  PASS  preview: party1's target button pins to the stand-in, and after the lock its driver hides it
+  PASS  preview: unlocking out of a party is what creates the stand-in
+  PASS  preview: a Frame system change re-dresses the stand-in
+  PASS  preview: with Match party frame width, party1's cast bar pins both edges to the stand-in
+  PASS  preview: the placeholder cast is drawn full, so the whole bar shows
+  PASS  preview: Lock frame is the switch, and no Test mode row survives beside it
+  PASS  preview: status names what preview is showing, and neither verb survives in NS.COMMANDS
+  PASS  perf: every declared bucket is reached by a real bracket
+  PASS  perf: each nested bucket is observed inside the parent it declares
+  PASS  perf: capture off, no bracket calls the sink
+  PASS  spelling: every authored file is US English (localization-§5)
+  PASS  spelling: the gate is not vacuous — a planted British word is caught
+  PASS  slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
+  PASS  slash: the reserved verbs are all present
+  PASS  slash: a bare /pfe opens the settings panel through `config`, not the help
+  PASS  slash: whitespace-only input is a bare /pfe
+  PASS  slash: `help` prints the command list and opens nothing
+  PASS  slash: /pfe and /partyframeenhanced are both registered through AceConsole
+  PASS  slash: `version` prints the TOC version
+  PASS  slash: `unlock` and `lock` write `locked` through the seam
+  PASS  slash: `set` parses and stores a schema value, `reset` puts it back
+  PASS  slash: `perf` prints what the harness returns
+  PASS  slash: `profile` with no argument prints the sub-verb list
+  PASS  slash: an unknown verb says so and prints help
+  PASS  slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
+  PASS  slash: `enable` echoes the stored value in the shared `path = value` shape
+  PASS  slash: the dispatcher answers while the addon is DISABLED -- the pair is never one-way
+  PASS  slash: a feature verb REFUSES while disabled -- one line, and it does NOT act
+  PASS  slash: `unlock` refuses at the DISPATCHER, before the write seam
+  PASS  slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
+  PASS  slash: the live set still ANSWERS and still ACTS while the addon is off
+  PASS  disabled: the baseline — enabled, the addon registers and draws
+  PASS  disabled: every registration the addon owns is UNREGISTERED, not gated
+  PASS  disabled: nothing is left armed to wake up
+  PASS  disabled: every frame that was on screen is hidden, and refused at the source
+  PASS  disabled: no game event produces a write, a line, or a frame
+  PASS  disabled: the whole reserved surface still answers, and only feature verbs refuse
+  PASS  disabled: re-enabled, the addon rebuilds from CURRENT state
+  PASS  disabled: two holds, one latch — releasing one never resurrects the other's addon
+  PASS  disabled: the launcher's LEFT click is refused and its RIGHT click is not
+  PASS  disabled: the suite leaves the world enabled for the suites after it
+  PASS  launcher: one object, registered twice under the addon's FOLDER name
+  PASS  launcher: Register is idempotent -- a second call builds no second button
+  PASS  launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture names that file
+  PASS  launcher: the broker label is the BRAND NAME in plain text, never the Title or the folder
+  PASS  launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
+  PASS  launcher: the left click and `/pfe unlock` are the same seam, not two
+  PASS  launcher: RIGHT click always opens the settings panel
+  PASS  launcher: the Minimap button row is composed, stored, and in its canonical position
+  PASS  launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
+  PASS  launcher: LibDBIcon was handed the SAME table the row writes
+  PASS  launcher: the minimap table is GLOBAL -- a profile switch leaves it alone
+  PASS  launcher: *Reset all settings* leaves a hidden button hidden
+  PASS  launcher: the page-scoped General *Defaults* button leaves a hidden button hidden
+  PASS  launcher: neither reset re-HIDES a shown button either
+  PASS  launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS
+  PASS  launcher: a host with NEITHER broker library loads, reports, and does not raise
+  PASS  launcher: the main harness -- no broker libraries at all -- never raised
+  PASS  optionssetup: the live and degraded builds veto the same rows from Reset All
+  PASS  optionssetup: the degraded load registers every host-declared row; the gap is the composers'
+  PASS  optionssetup: every feature page has a Size & Position tab that opens with Size
+  PASS  optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width
+  PASS  optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker
+  PASS  optionssetup: the stub publishes every member a page file touches at load
+  PASS  optionssetup: Reset All resets the active profile only — the list and the active profile stay
+  PASS  optionssetup: without the library, opening the panel prints one honest line
+  PASS  parity: the Core stub publishes everything core/CoreSetup.lua publishes live
+  PASS  parity: the DebugLog stub carries the whole live surface
+  PASS  parity: the Options stub carries every helper the degraded build can reach
+  PASS  parity: the Slash stub carries every dispatcher member the addon calls
+  PASS  parity: a bare /pfe runs `config` in the library-absent build too
+  PASS  parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
+  PASS  libs/LibKa0s is the LibKa0s release CLAUDE.md says this addon bundles
+  PASS  tests/_kit is the test kit that shipped with that release
+  PASS  the automated-test runner is recorded executable (100755)
+  PASS  eol: every tracked file carries the terminator .gitattributes declares for it
+
+227 passed, 0 failed, 0 skipped, 227 total

@@ -62,7 +62,8 @@ standing down from, and a silent no-op leaves them with no clue why nothing happ
 and a `brandName`, and the dispatcher does the rest; the refusal's wording lives in
 `cli:DisabledLine()` and is the collection's, never re-spelled here. The gate sits **after** the
 `COMMANDS` lookup, so a typo still gets `unknown command '<verb>'` and the index: a misspelling is
-the addon failing to understand, not the addon refusing.
+the addon failing to understand, not the addon refusing. The same answer goes to a reserved verb the
+addon never registered: nothing was refused, so nothing says it was (`LibKa0s-Slash-1.0` minor 14).
 
 **The live set this addon declares** is the standard's twelve plus two of its own, on the same
 reasoning rather than as exceptions to it: **`status`** is a diagnostic like `debug` (it changes
@@ -88,7 +89,7 @@ and `disable` still WRITE — only their echo degrades to that line — because 
 one-way, whatever else is missing.
 
 The stub carries the disabled gate too, in the library's shape: the same live set, the same
-after-the-lookup ordering, the same one-line refusal built from the same format string, and the same
+after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same one-line refusal built from the same format string, and the same
 line under the `help` header. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
 own — the library's contract at its smallest, not a second mechanism — so a build without LibKa0s
 still stands down, and still stands up only when the last hold is released.

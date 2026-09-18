@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-226%2F226_passing-green)
+![Tests](https://img.shields.io/badge/Tests-227%2F227_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -20,9 +20,6 @@ frames show you.
 - **Target frames** show the target's name, health and raid marker, colored by class for players and
   by hostility for everything else. Clicking one targets that unit.
 - **Pet frames** show the pet's name and health, and a click targets the pet.
-
-> This is a pre-release. Everything described here is built, but it hasn't been through in-game
-> testing yet, so expect rough edges until 0.1.0 is tagged.
 
 ## Screenshots
 
@@ -40,10 +37,10 @@ frames show you.
 
 ## Usage
 
-There's nothing to turn on. Join a party and the cast bars show up under each member's frame, target
-frames to the right, pets underneath. A unit with no party frame on screen gets nothing until it has
-one, which is why your own row doesn't appear in Blizzard's classic party layout: that layout never
-shows you.
+There's nothing to turn on. Join a party and each member's cast bar lies across the top of their
+frame. Their target frame sits just to the right, with their pet's frame below it. A unit with
+no party frame on screen gets nothing until it has one, which is why your own row doesn't appear in
+Blizzard's classic party layout: that layout never shows you.
 
 To move things, type `/pfe unlock` or untick **Lock frame** on the **General** page. Everything
 switches to placeholders, with a fake cast on every bar, a fake enemy in every target frame and a fake
@@ -117,4 +114,4 @@ filed there gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
-| 0.1.0 | unreleased | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |
+| 0.1.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |

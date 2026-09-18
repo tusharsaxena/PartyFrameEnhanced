@@ -340,7 +340,13 @@ if not SlashLib then
         end
         local live = {}
         for _, verb in ipairs(d.liveVerbs or {}) do live[verb] = true end
+        local aliases = d.aliases or {}
         local function isDown() return d.isEnabled ~= nil and not d.isEnabled() end
+        local function findCommand(verb)
+            for _, e in ipairs(d.commands) do
+                if e[1] == verb then return e end
+            end
+        end
 
         stub.PrintHelp = function()
             print(L["v%s \226\128\148 slash commands"]:format(d.version()))
@@ -354,24 +360,19 @@ if not SlashLib then
             local raw = (msg or ""):match("^%s*(.-)%s*$") or ""
             -- Bare opens the settings through `config`, as the library does (slash-commands-§4).
             if raw == "" then
-                for _, e in ipairs(d.commands) do
-                    if e[1] == "config" then return e[3]("") end
-                end
+                local config = findCommand("config")
+                if config then return config[3]("") end
                 return stub.PrintHelp()
             end
             local cmd, rest = raw:match("^(%S+)%s*(.*)$")
             cmd = (cmd or ""):lower()
-            cmd = (d.aliases or {})[cmd] or cmd
+            cmd = aliases[cmd] or cmd
             -- The gate sits AFTER the lookup here too, so a typo still gets `unknown command`: a
-            -- misspelling is the addon failing to understand, not the addon refusing.
-            local down = isDown()
-            for _, e in ipairs(d.commands) do
-                if e[1] == cmd then
-                    if down and not live[cmd] then return print(stubSelf:DisabledLine()) end
-                    return e[3](rest or "")
-                end
-            end
-            if down and live[cmd] then return print(stubSelf:DisabledLine()) end
+            -- misspelling is the addon failing to understand, not the addon refusing. A verb that
+            -- is reserved but not registered is unknown too, as the library answers it.
+            local entry = findCommand(cmd)
+            if entry and isDown() and not live[cmd] then return print(stubSelf:DisabledLine()) end
+            if entry then return entry[3](rest or "") end
             print(L["unknown command '%s'"]:format(cmd))
             stub.PrintHelp()
         end

@@ -19,7 +19,7 @@ stacks them in one movable **free-placement** group.
 - **Raid frames, or anything out of a party.** The addon is party-only by design: solo or in a raid it
   shows nothing (`/pfe unlock` previews it). Arena frames are a separate feature (#11).
 - **Other frame systems** — ElvUI, Cell, Grid2, VuhDo, DandersFrames. The provider interface makes
-  each one additive, but none ships in v1.0.0 (#2).
+  each one additive, but none ships in v1.0.1 (#2).
 - **Replace or restyle the party frames themselves.** It never hides, reparents, moves or calls into a
   Blizzard or EllesmereUI frame; it only reads their position and unit, and only through
   `hooksecurefunc` / `HookScript`.

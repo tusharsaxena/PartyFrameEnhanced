@@ -15,7 +15,7 @@ end)
 test("envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version", function()
   local NS2, mocks2 = loadDegraded()
   assertNil(NS2.Meta("Version"), "no reader at all answers nil")
-  assertEqual(NS2.Version(), "1.0.0", "and Version falls back to the constant")
+  assertEqual(NS2.Version(), "1.0.1", "and Version falls back to the constant")
   mocks2.C_AddOns = { GetAddOnMetadata = function(name, field)
     if name == "PartyFrameEnhanced" and field == "Version" then return "9.9.9" end
   end }

@@ -68,7 +68,7 @@ test("slash: /pfe and /partyframeenhanced are both registered through AceConsole
 end)
 
 test("slash: `version` prints the TOC version", function()
-  assertTrue(joined(slash("version")):find("v1.0.0", 1, true) ~= nil)
+  assertTrue(joined(slash("version")):find("v1.0.1", 1, true) ~= nil)
 end)
 
 test("slash: `unlock` and `lock` write `locked` through the seam", function()
@@ -156,7 +156,7 @@ test("slash: the dispatcher answers while the addon is DISABLED -- the pair is n
 
   local opens = countOpens(function() slash("") end)
   assertEqual(opens, 1, "a bare /pfe still opens the settings panel")
-  assertTrue(joined(slash("version")):find("v1.0.0", 1, true) ~= nil, "`version` still answers")
+  assertTrue(joined(slash("version")):find("v1.0.1", 1, true) ~= nil, "`version` still answers")
   assertTrue(joined(slash("help")):find("/pfe enable", 1, true) ~= nil, "`help` still lists `enable`")
 
   slash("enable")

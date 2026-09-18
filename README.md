@@ -108,4 +108,5 @@ filed there gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
+| 1.0.1 | 2026-09-18 | - Fixed the target frame of someone who joins your party while already targeting something: it stayed blank and red until they changed target, and now fills in with the right name and color straight away. |
 | 1.0.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |

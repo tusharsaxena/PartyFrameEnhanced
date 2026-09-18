@@ -112,6 +112,19 @@ local function featureOn()
     return not suspended and cfg.enabled and Element.MasterShows()
 end
 
+-- One shown button's share of a tick: a pending one repainted whole, otherwise its health. Answers
+-- whether it is still pending.
+local function tickButton(btn)
+    local t1 = Perf.on and debugprofilestop()
+    if btn.__pending then
+        paintAll(btn)
+    elseif gen.updateHealth then
+        UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
+    end
+    if t1 then Perf.Note("targetRender", debugprofilestop() - t1, "targetTick") end
+    return btn.__pending
+end
+
 local function tick()
     local t0 = Perf.on and debugprofilestop()
     local any, pending = false, false
@@ -119,14 +132,7 @@ local function tick()
         local btn = buttons[unit]
         if btn.__allowed and btn:IsVisible() then
             any = true
-            local t1 = Perf.on and debugprofilestop()
-            if btn.__pending then
-                paintAll(btn)
-                pending = pending or btn.__pending
-            elseif gen.updateHealth then
-                UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
-            end
-            if t1 then Perf.Note("targetRender", debugprofilestop() - t1, "targetTick") end
+            if tickButton(btn) then pending = true end
         end
     end
     NS.CombatStats.targetTicks = (NS.CombatStats.targetTicks or 0) + 1

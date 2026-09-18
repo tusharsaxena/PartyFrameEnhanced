@@ -114,8 +114,8 @@ local function shipped(spec)
     return (d and d[spec.key]) or EMPTY_SECTION
 end
 
-local function applyAttached(spec, cfg)
-    local moved, missing = 0, 0
+-- The attached placement: point, relative point, offsets and match width.
+local function placementOf(spec, cfg)
     -- DEFAULTED, and not defensively: on a profile switch, copy or reset, AceDB calls
     -- removeDefaults() on the OUTGOING profile table, which strips every key whose value still
     -- equals its default. `point` and `relativePoint` are almost always exactly that -- most
@@ -128,9 +128,13 @@ local function applyAttached(spec, cfg)
     -- holder, and it is correct rather than merely safe: the key is absent precisely BECAUSE its
     -- value is the default.
     local d = shipped(spec)
-    local point = cfg.point or d.point
-    local rel   = cfg.relativePoint or d.relativePoint
-    local x, y, match = cfg.offsetX or 0, cfg.offsetY or 0, cfg.matchWidth and true or false
+    return cfg.point or d.point, cfg.relativePoint or d.relativePoint,
+        cfg.offsetX or 0, cfg.offsetY or 0, cfg.matchWidth and true or false
+end
+
+local function applyAttached(spec, cfg)
+    local moved, missing = 0, 0
+    local point, rel, x, y, match = placementOf(spec, cfg)
     for _, unit in ipairs(Units.LIST) do
         local el = spec.elements[unit]
         local target = NS.Providers.FrameFor(unit)

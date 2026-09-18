@@ -158,8 +158,8 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
 - targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
 - targetframes: suspended, no events, no ticker, every driver hide
-- targetframes: every included button registers UNIT_NAME_UPDATE on its TARGET token
-- targetframes: the handler paints a name that was nil at target time
+- targetframes: a target that had not resolved at paint time is repainted by the ticker
+- targetframes: with Update health off, the ticker runs only until a pending target resolves
 
 ### test_petframes.lua (6)
 

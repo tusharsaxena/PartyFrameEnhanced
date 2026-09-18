@@ -188,6 +188,9 @@ EllesmereUI's, where noted.
     naming `secret`, `compare` or `index` from `TargetFrames.lua` or `UnitButtons.lua`.
 34. **Colors.** A friendly NPC target → green; a neutral one → yellow. Tick *Use class color* on the
     Bar tab, have a member target a player → the player's class color.
+34a. **A new member's target.** Invite someone who is already targeting a friendly NPC → their target
+    frame shows the NPC's name in green within a fraction of a second, with no need for them to
+    retarget. *Failure:* a red frame with no name that stays until they change target.
 35. **Raid marker.** Mark a member's target with a skull → the skull appears on that target frame.
 35a. **Marker placement.** `/pfe unlock` (the preview shows a skull on every target frame). Target
     Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right end;
@@ -196,7 +199,8 @@ EllesmereUI's, where noted.
 35b. **Health updates off.** General page → Health updates: untick *Update health* → *Health refresh*
     grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames. With a
     member targeting a mob, its bar sits full with no percent while the mob takes damage, and
-    `/pfe debug on` shows no `[Target] health ticker started` line. Tick it back → the real health and
+    `/pfe debug on` shows no `[Target] health ticker started` line (one that is followed at once by
+    `health ticker stopped` is the unresolved-target repaint, and is expected). Tick it back → the real health and
     percent return at once. With a target up, drag *Health refresh* to 1 → the bar updates about once
     a second straight away, with no need to retarget.
 36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to

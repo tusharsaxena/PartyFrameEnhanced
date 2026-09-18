@@ -32,7 +32,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 21 | `modules/Element.lua` | the shared element regions, the config-driven restyle, class-color resolvers, the ladder's shared rungs | **load-bearing**: features capture `NS.Element` at file scope |
 | 22 | `modules/CastBars.lua` | cast bars: per-unit events, the secret-safe cast lifecycle, preview content | after Element and Anchor |
 | 23 | `modules/UnitButtons.lua` | the secure unit buttons the target and pet frames share: creation, state drivers, click attributes, health/name painting | **load-bearing**: TargetFrames and PetFrames capture `NS.UnitButtons` at file scope |
-| 24 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker | after UnitButtons |
+| 24 | `modules/TargetFrames.lua` | target frames: `UNIT_TARGET`, colors under secrets, raid markers, the gated health ticker (which also repaints an unresolved target) | after UnitButtons |
 | 25 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color | after UnitButtons |
 | 26 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
 | 27 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |

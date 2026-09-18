@@ -63,7 +63,7 @@ One switch and one pace for both unit-button features, so target and pet frames 
 
 | Control | Schema path | Behavior |
 |---|---|---|
-| Update health | `general.updateHealth` | off: target and pet bars are drawn full with no percent; the target ticker never runs and no pet health event is registered. *Show health percent* on both Text tabs dims with it |
+| Update health | `general.updateHealth` | off: target and pet bars are drawn full with no percent; the target ticker runs only to repaint a target that had not resolved yet, and no pet health event is registered. *Show health percent* on both Text tabs dims with it |
 | Health refresh (seconds) | `general.tickInterval` | the target health ticker's pace (0.1–1.0); a new pace restarts a running ticker. Pets update from the game's own health events, so it does not apply to them. Dimmed while *Update health* is off |
 
 ## Cast Bars
@@ -104,7 +104,7 @@ Paths under `target.`. Size & Position, Border and Text-font as on Cast Bars.
 | Marker | — | Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` (the last three dimmed while the marker is off) |
 
 With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
-and the health ticker never starts. The marker's
+and the ticker runs only while a shown target is still unresolved (no name yet). The marker's
 center sits on *Anchor point* of the bar; the default, *Left*, is half over the bar's left end.
 
 *Click to target* and every size or position change are secure writes: made in combat, they apply

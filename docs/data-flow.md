@@ -47,8 +47,8 @@ Cast bar      UNIT_SPELLCAST_* (RegisterUnitEvent per unit)
                 → stop / interrupted / failed from the event, not from the clock
 Target frame  UNIT_TARGET (per owner) / PLAYER_TARGET_CHANGED (the player's own)
                 → name, class/reaction color, marker
-              UNIT_NAME_UPDATE (per target token) → the name, once the client resolves it
-              health ticker (0.2 s, only while a target frame is shown) → SetMinMaxValues/SetValue
+              health ticker (0.2 s, only while a target frame is shown) → SetMinMaxValues/SetValue,
+                and a full repaint of a shown button whose unit had not resolved (nil name)
 Pet frame     UNIT_PET (owner) + UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE (per pet token)
 ```
 

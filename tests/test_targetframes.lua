@@ -323,49 +323,45 @@ test("targetframes: suspended, no events, no ticker, every driver hide", functio
   drain()
 end)
 
--- THE NAME THAT ARRIVES LATE (owner-reported, 2026-09-16). UNIT_TARGET fires the instant a party
--- member's target CHANGES, and at that instant the client may have the unit but not yet its name --
--- routine for someone who just came into range, and for cross-realm players. RenderName wrote ""
--- and nothing re-rendered, so the frame kept a blank name, showing health and percent under an
--- empty label until the owner happened to change target again.
---
--- WHAT THESE TWO CAN AND CANNOT PROVE, said plainly. tests/_kit RECORDS RegisterUnitEvent into
--- `__unitEvents` but never dispatches through it, and `__fire` reaches a frame's OnEvent whether or
--- not it ever registered -- so a test that only fires UNIT_NAME_UPDATE passes with the registration
--- deleted. That is a kit-fidelity gap and an upstream finding for LibKa0s, not something to paper
--- over here. Until the kit can deliver a filtered frame event, the REGISTRATION is what has to be
--- asserted directly, and the paint test is honest that it covers the handler rather than the wiring.
-test("targetframes: every included button registers UNIT_NAME_UPDATE on its TARGET token", function()
-  -- THIS is the regression guard: red the moment the registration is dropped from syncEvents.
-  -- Asserted unconditionally -- an `if btn.__unitEvents.UNIT_NAME_UPDATE then` guard would make the
-  -- case vacuous in exactly the state it exists to catch.
-  -- The two events carry different payload units on the same button: UNIT_TARGET names the OWNER
-  -- whose target moved, UNIT_NAME_UPDATE names the unit whose name resolved.
+-- THE BLANK RED FRAME (owner-reported, 2026-09-18). Someone joins the party already targeting a
+-- friendly NPC: the layout repaint lands before the client has streamed that target, so the name is
+-- nil and the unknown reaction reads as hostile. No UNIT_TARGET follows (the owner never changed
+-- target), and unit events are not dispatched for a compound token -- so without a retry the frame
+-- stayed blank and red for good.
+test("targetframes: a target that had not resolved at paint time is repainted by the ticker", function()
   prep()
-  for _, unit in ipairs(NS.Units.LIST) do
-    local btn = buttons[unit]
-    if NS.Units.IsIncluded(unit) then
-      local reg = btn.__unitEvents.UNIT_NAME_UPDATE
-      assertTrue(reg ~= nil, unit .. " never registered UNIT_NAME_UPDATE, so a late name is lost")
-      assertEqual(reg[1], NS.Units.TARGET[unit],
-        unit .. "'s name registration must filter on its TARGET token, not its owner")
-      assertEqual(btn.__unitEvents.UNIT_TARGET[1], unit,
-        unit .. "'s UNIT_TARGET registration must still filter on the OWNER")
-    end
-  end
+  drain()
+  local cfg = NS.db.profile.target
+  local btn = buttons.party2
+  mocks.__units.party2target = { exists = true, health = 50, healthMax = 100 }   -- not streamed yet
+  NS.bus:SendMessage(NS.MSG.LAYOUT)   -- the new member's frame arrives
+  mocks.__runStateDrivers()
+  assertEqual(btn.text.__text, "", "nothing to paint yet")
+  assertEqual(btn.bar.__color[1], cfg.hostileColor.r, "and the unknown reaction reads as hostile")
+  assertTrue(TargetFrames.TickerRunning())
+
+  mocks.__units.party2target.name, mocks.__units.party2target.reaction = "Ceera", 5
+  mocks.__fireTimers()
+  assertEqual(btn.text.__text, "Ceera", "the tick painted the name once it resolved")
+  assertEqual(btn.bar.__color[1], cfg.friendlyColor.r, "and the friendly color")
+  mocks.__units.party2target = nil
+  drain()
 end)
 
-test("targetframes: the handler paints a name that was nil at target time", function()
-  -- Covers the HANDLER, not the wiring (see the note above). Red if RenderName stops being reached
-  -- on a name event, green regardless of registration -- which is why the case above exists.
+test("targetframes: with Update health off, the ticker runs only until a pending target resolves",
+  function()
   prep()
-  local btn = buttons.party1
-  mocks.__units[NS.Units.TARGET.party1] = { name = nil, health = 50, healthMax = 100 }
-  btn:__fire("OnEvent", "UNIT_TARGET", "party1")
+  drain()
+  NS.SetByPath("general.updateHealth", false)
+  mocks.__units.party2target = { exists = true }
+  buttons.party2:__fire("OnEvent", "UNIT_TARGET", "party2")
   mocks.__runStateDrivers()
-  assertEqual(btn.text.__text, "", "nothing to paint yet, and that is not the bug")
-
-  mocks.__units[NS.Units.TARGET.party1].name = "Lokisylva"
-  btn:__fire("OnEvent", "UNIT_NAME_UPDATE", NS.Units.TARGET.party1)
-  assertEqual(btn.text.__text, "Lokisylva", "the late name never reached the frame")
+  assertTrue(TargetFrames.TickerRunning(), "a pending button keeps the ticker alive")
+  mocks.__units.party2target.name = "Ceera"
+  mocks.__fireTimers()
+  assertEqual(buttons.party2.text.__text, "Ceera")
+  assertFalse(TargetFrames.TickerRunning(), "resolved, and nothing else to refresh: the ticker stops")
+  NS.SetByPath("general.updateHealth", true)
+  mocks.__units.party2target = nil
+  drain()
 end)

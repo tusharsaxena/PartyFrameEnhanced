@@ -14,7 +14,14 @@ local _, NS = ...
 -- UnitExists on a compound token can come back secret in combat, and reading that as "exists"
 -- repainted every hidden button five times a second (docs/perf-analysis/20260915-161824). The
 -- buttons' OnShow/OnHide post-hooks start and stop the timer; they make no protected call.
--- With "Update health" off the bar is drawn full and the ticker never starts.
+-- With "Update health" off the bar is drawn full and the ticker runs only for the case below.
+--
+-- THE UNIT THAT HAS NOT RESOLVED. A button can be painted while its unit exists but the client has
+-- not streamed it yet -- routine when someone joins the party, since the layout repaint lands
+-- before the new member's target is known: a nil name, and an unknown reaction that reads as
+-- hostile, so a blank red frame (owner-reported). No event follows -- UNIT_TARGET waits for the
+-- owner to change target, and unit events such as UNIT_NAME_UPDATE are not dispatched for compound
+-- tokens -- so such a button is marked pending and the ticker repaints it whole until it resolves.
 --
 -- COLOR: a player target in its class color when "Use class color" is on; an NPC by its reaction
 -- when "Color NPCs by reaction" is on; the stored bar color otherwise. The target's class, player-ness
@@ -68,6 +75,11 @@ end
 
 local function paintAll(btn)
     local token = btn.token
+    -- Unresolved: the unit exists but the client has not streamed it yet -- a plain nil name, and
+    -- with it an unknown reaction that reads as hostile. The ticker repaints until it resolves. A
+    -- secret name IS resolved (the secret test comes first: a secret is never compared).
+    local name = UnitName(token)
+    btn.__pending = not Compat.IsSecret(name) and name == nil
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, token, cfg.showName)
     if gen.updateHealth then
@@ -102,28 +114,34 @@ end
 
 local function tick()
     local t0 = Perf.on and debugprofilestop()
-    local any, painted = false, 0
+    local any, pending = false, false
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         if btn.__allowed and btn:IsVisible() then
             any = true
             local t1 = Perf.on and debugprofilestop()
-            if UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent) then painted = painted + 1 end
+            if btn.__pending then
+                paintAll(btn)
+                pending = pending or btn.__pending
+            elseif gen.updateHealth then
+                UnitButtons.RenderHealth(btn, btn.token, cfg.showPercent)
+            end
             if t1 then Perf.Note("targetRender", debugprofilestop() - t1, "targetTick") end
         end
     end
     NS.CombatStats.targetTicks = (NS.CombatStats.targetTicks or 0) + 1
     if t0 then Perf.Note("targetTick", debugprofilestop() - t0) end
-    if not any then TargetFrames.UpdateTicker() end
+    if not any or (not pending and not gen.updateHealth) then TargetFrames.UpdateTicker() end
 end
 
--- Whether the ticker has something to do: the feature on, health updates on, not previewing, and at
--- least one allowed button shown by its state driver.
+-- Whether the ticker has something to do: the feature on, not previewing, and at least one allowed
+-- button shown by its state driver that needs it -- for its health, or because its unit had not
+-- resolved when it was painted (see paintAll).
 local function tickerWanted()
-    if not (featureOn() and gen.updateHealth and not NS.State.preview) then return false end
+    if not (featureOn() and not NS.State.preview) then return false end
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
-        if btn.__allowed and btn:IsVisible() then return true end
+        if btn.__allowed and btn:IsVisible() and (gen.updateHealth or btn.__pending) then return true end
     end
     return false
 end
@@ -188,17 +206,6 @@ local function syncEvents()
         if on and Units.IsIncluded(unit) then
             if not btn.__registered then
                 btn:RegisterUnitEvent("UNIT_TARGET", unit)
-                -- AND THE NAME, WHICH ARRIVES LATE. UNIT_TARGET fires the moment the owner's
-                -- target CHANGES, and at that instant UnitName(btn.token) can still be nil --
-                -- the client has the unit but not yet its name, which is routine for someone
-                -- who just came into range and for cross-realm players. RenderName then writes
-                -- "" and NOTHING RE-RENDERS, so the frame kept a blank name until the owner
-                -- happened to change target again. Owner-reported: one frame showing its health
-                -- and percent with no name above it.
-                -- Filtered on btn.token, not on `unit`: UNIT_TARGET carries the OWNER as its
-                -- payload unit, UNIT_NAME_UPDATE carries the unit whose name resolved, and
-                -- those are different tokens on the same button.
-                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
                 btn.__registered = true
             end
         elseif btn.__registered then

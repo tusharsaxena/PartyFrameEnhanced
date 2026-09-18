@@ -26,13 +26,13 @@ frames, any of the three can live in its own movable stack instead.
 
 ![Live (in a party)](https://media.forgecdn.net/attachments/1951/827/partframeenhanced-screenshot-01-png.png)
 
-**_Unlocked — preview, in a party_**
+**_Unlocked (preview, in a party)_**
 
-![Unlocked — preview, in a party](https://media.forgecdn.net/attachments/1951/828/partframeenhanced-screenshot-02-png.png)
+![Unlocked (preview, in a party)](https://media.forgecdn.net/attachments/1951/828/partframeenhanced-screenshot-02-png.png)
 
-**_Unlocked — preview, solo (the stand-in)_**
+**_Unlocked (preview, solo)_**
 
-![Unlocked — preview, solo (the stand-in)](https://media.forgecdn.net/attachments/1951/829/partframeenhanced-screenshot-03-png.png)
+![Unlocked (preview, solo)](https://media.forgecdn.net/attachments/1951/829/partframeenhanced-screenshot-03-png.png)
 
 ## Usage
 

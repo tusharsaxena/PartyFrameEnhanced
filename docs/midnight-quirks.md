@@ -67,6 +67,13 @@ pass, solo). The button's state driver `[@party1target,exists]` is resolved secu
 button's own visibility is the plain answer, and its `OnShow`/`OnHide` post-hooks start and stop the
 timer.
 
+The same gap covers a target the client has not streamed yet. `UNIT_NAME_UPDATE` never fires for
+`party1target` either, so a button painted before its unit resolved (a nil name, and an unknown
+reaction that reads as hostile) had nothing to repaint it: someone joining the party while targeting
+a friendly NPC got a blank red frame until they changed target. A button painted with a plain nil
+name is marked pending, and the same timer repaints it whole until the name arrives; it keeps the
+timer running even with *Update health* off. A secret name counts as resolved.
+
 `UnitIsUnit("party1target", …)` is always secret, which is why there is no "hide when my party member
 targets me" option.
 

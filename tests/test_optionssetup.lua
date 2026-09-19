@@ -61,8 +61,8 @@ test("optionssetup: the degraded load registers every host-declared row; the gap
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 121, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 63, "the library-absent schema")
+  assertEqual(#NS.Schema, 125, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 67, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 

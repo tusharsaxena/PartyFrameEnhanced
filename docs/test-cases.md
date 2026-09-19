@@ -138,7 +138,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (20)
+### test_targetframes.lua (21)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -160,8 +160,9 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: suspended, no events, no ticker, every driver hide
 - targetframes: a target that had not resolved at paint time is repainted by the ticker
 - targetframes: with Update health off, the ticker runs only until a pending target resolves
+- targetframes: the marker draws above the border
 
-### test_petframes.lua (6)
+### test_petframes.lua (9)
 
 - petframes: each button acts on its owner's pet token
 - petframes: UNIT_PET listens on the owner, the health events on the pet token
@@ -169,6 +170,9 @@ badge and any count quoted in the docs must agree with it.
 - petframes: Use class color takes the OWNER's class
 - petframes: Update health off drops the health events and draws the bar full
 - petframes: suspended, events come off and every driver is hide
+- petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it
+- petframes: the marker sits on its configured point of the bar, nudged by its offsets
+- petframes: the marker draws above the border
 
 ### test_rangefade.lua (8)
 
@@ -352,7 +356,7 @@ badge and any count quoted in the docs must agree with it.
 | test_anchor.lua | 9 |
 | test_castbars.lua | 13 |
 | test_targetframes.lua | 20 |
-| test_petframes.lua | 6 |
+| test_petframes.lua | 9 |
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
@@ -367,4 +371,4 @@ badge and any count quoted in the docs must agree with it.
 | test_surface_parity.lua | 6 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **237** |
+| **Total** | **241** |

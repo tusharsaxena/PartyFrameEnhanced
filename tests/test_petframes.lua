@@ -2,7 +2,7 @@
 -- pet tokens, painting, the owner's class color, and suspend.
 
 local T = _G.PFE_TEST
-local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
+local test, assertEqual, assertTrue, assertFalse = T.test, T.assertEqual, T.assertTrue, T.assertFalse
 local NS, mocks = T.NS, T.mocks
 local buttons = NS.PetFrames.__buttons
 
@@ -85,4 +85,53 @@ test("petframes: suspended, events come off and every driver is hide", function(
   assertEqual(buttons.party1.__drivers.visibility, "hide")
   NS.lifecycle:Release("perf")
   assertEqual(buttons.party1.__unitEvents.UNIT_PET[1], "party1")
+end)
+
+test("petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it", function()
+  prep()
+  mocks.__units.partypet1 = { name = "Wolf", health = 40, healthMax = 80, marker = 3 }
+  local btn = buttons.party1
+  btn:__fire("OnEvent", "UNIT_PET", "party1")
+  assertEqual(btn.marker.__marker, 3)
+  assertTrue(btn.marker:IsShown())
+  -- Driven through the dispatcher: the proof is the module's registration, not the handler.
+  mocks.__units.partypet1.marker = 8
+  mocks.__fireEvent("RAID_TARGET_UPDATE")
+  assertEqual(btn.marker.__marker, 8, "a marker change repaints without a UNIT_PET")
+  mocks.__units.partypet1.marker = nil
+  mocks.__fireEvent("RAID_TARGET_UPDATE")
+  assertFalse(btn.marker:IsShown(), "a cleared marker hides")
+  NS.SetByPath("pet.showMarker", false)
+  mocks.__units.partypet1.marker = 3
+  btn:__fire("OnEvent", "UNIT_PET", "party1")
+  assertFalse(btn.marker:IsShown(), "Show raid marker off hides it")
+  NS.SetByPath("pet.showMarker", true)
+  mocks.__units.partypet1 = nil
+end)
+
+test("petframes: the marker sits on its configured point of the bar, nudged by its offsets", function()
+  prep()
+  local btn = buttons.party1
+  local orig, got = btn.marker.SetPoint, nil
+  rawset(btn.marker, "SetPoint", function(_, ...) got = { ... } end)
+  NS.SetByPath("pet.markerPoint", "RIGHT")
+  NS.SetByPath("pet.markerOffsetX", -4)
+  NS.SetByPath("pet.markerOffsetY", 2)
+  assertEqual(got[1], "CENTER")
+  assertTrue(got[2] == btn.bar, "relative to the bar")
+  assertEqual(got[3], "RIGHT")
+  assertEqual(got[4], -4 * (NS.GetSetting("scale") or 1))
+  assertEqual(got[5], 2 * (NS.GetSetting("scale") or 1))
+  rawset(btn.marker, "SetPoint", orig)
+  for _, key in ipairs({ "markerPoint", "markerOffsetX", "markerOffsetY" }) do
+    NS.SetByPath("pet." .. key, NS.defaults.profile.pet[key])
+  end
+end)
+
+-- The marker was a region of the bar, and every child frame of the bar -- the border included --
+-- draws above the bar's own regions, so the border's edge cut across the marker (owner-reported).
+test("petframes: the marker draws above the border", function()
+  local btn = buttons.party1
+  assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
+    "the marker's layer must stack above the border frame")
 end)

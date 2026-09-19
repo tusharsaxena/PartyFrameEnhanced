@@ -50,6 +50,8 @@ Target frame  UNIT_TARGET (per owner) / PLAYER_TARGET_CHANGED (the player's own)
               health ticker (0.2 s, only while a target frame is shown) → SetMinMaxValues/SetValue,
                 and a full repaint of a shown button whose unit had not resolved (nil name)
 Pet frame     UNIT_PET (owner) + UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE (per pet token)
+                → name, owner's class color, marker
+              RAID_TARGET_UPDATE → every allowed pet frame's marker
 ```
 
 ## 4. How faded it is

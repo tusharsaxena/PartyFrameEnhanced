@@ -81,6 +81,7 @@ for _, key in ipairs({
     "Restore every Target Frames setting on this profile to its addon default.",
     "Enable pet frames", "Show each party member's pet, beside their party frame.",
     "Left-click a pet frame to target that pet. Applied out of combat.",
+    "The pet's raid marker, when it has one.",
     "Restore every Pet Frames setting on this profile to its addon default.",
     "Preview target", "Preview pet",
 }) do L[key] = key end

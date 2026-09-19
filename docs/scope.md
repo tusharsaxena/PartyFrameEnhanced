@@ -8,7 +8,7 @@ EllesmereUI's show:
 - a **cast bar** per party member;
 - a **target frame** per party member — what that member is targeting: name, health, class or
   reaction color, raid marker; click to target it;
-- a **pet frame** per party member — name and health; click to target the pet.
+- a **pet frame** per party member — name, health, raid marker; click to target the pet.
 
 Each feature either **attaches** its elements to the party frame currently showing each unit
 (Blizzard classic, Blizzard raid-style, or EllesmereUI — detected automatically, overridable) or

@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-237%2F237_passing-green)
+![Tests](https://img.shields.io/badge/Tests-241%2F241_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -18,7 +18,7 @@ frames, any of the three can live in its own movable stack instead.
   interrupted, and flash red when it gets interrupted.
 - **Target frames** show the target's name, health and raid marker, colored by class for players and
   by hostility for everything else. Clicking one targets that unit.
-- **Pet frames** show the pet's name and health, and a click targets the pet.
+- **Pet frames** show the pet's name, health and raid marker, and a click targets the pet.
 
 ## Screenshots
 

@@ -301,12 +301,14 @@ badge and any count quoted in the docs must agree with it.
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
-### test_optionssetup.lua (8)
+### test_optionssetup.lua (10)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
 - optionssetup: every feature page has a Size & Position tab that opens with Size
-- optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width
+- optionssetup: Size & Position draws only the placement block the anchor mode uses (shownWhen)
+- optionssetup: the hidden block stays in the schema and /pfe set still reaches it
+- optionssetup: Match party frame width dims in free placement, and Width with Match width
 - optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
@@ -361,8 +363,8 @@ badge and any count quoted in the docs must agree with it.
 | test_slash.lua | 19 |
 | test_disabled.lua | 10 |
 | test_launcher.lua | 17 |
-| test_optionssetup.lua | 8 |
+| test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 6 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 1 |
-| **Total** | **235** |
+| **Total** | **237** |

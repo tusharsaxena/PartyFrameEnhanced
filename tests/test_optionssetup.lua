@@ -95,27 +95,79 @@ test("optionssetup: every feature page has a Size & Position tab that opens with
   end
 end)
 
-test("optionssetup: the placement block the anchor mode does not use is dimmed, and Width with Match width", function()
+--- The labels a render of `page`'s Size & Position tab draws, in order, with `page`'s anchor mode
+--- set to `mode` first. Rendered through the library into a throwaway panel, the kit's AceGUI
+--- recording every widget made.
+local panelSeq = 0
+local function positionLabels(page, mode)
+  NS.SetByPath(page .. ".anchorMode", mode)
+  T.mocks.__fireTimers()
+  local rows = {}
+  for _, row in ipairs(NS.SchemaForPage(page)) do
+    if row.group == NS.L["Size & Position"] then rows[#rows + 1] = row end
+  end
+  panelSeq = panelSeq + 1
+  local ctx = NS.Helpers.CreatePanel("PFESwitchedProbe" .. panelSeq, "Probe", {})
+  local ace = T.mocks.LibStub("AceGUI-3.0")
+  local mark = #ace.__created
+  NS.Helpers.RenderRows(ctx, rows)
+  local out = {}
+  for i = mark + 1, #ace.__created do
+    local w = ace.__created[i]
+    local label = w.labelText or (w.type == "Heading" and w.text) or nil
+    if label then out[#out + 1] = label end
+  end
+  return table.concat(out, ","), ctx
+end
+
+test("optionssetup: Size & Position draws only the placement block the anchor mode uses (shownWhen)", function()
+  local L = NS.L
+  for _, page in ipairs({ "castbar", "target", "pet" }) do
+    local attachedDrawn = positionLabels(page, "attached")
+    -- red under: the rows still gated by disabledIf (both blocks drawn, one dimmed), or a hidden
+    -- block's heading drawn over nothing
+    assertEqual(attachedDrawn, table.concat({ L["Size & Position"], L["Size"], L["Width"], L["Height"], L["Placement"],
+      L["Anchor mode"], L["Match party frame width"], L["Attached to party frames"], L["Anchor point"],
+      L["Party frame point"], L["X offset"], L["Y offset"] }, ","), page .. ": attached")
+    local freeDrawn = positionLabels(page, "free")
+    assertEqual(freeDrawn, table.concat({ L["Size & Position"], L["Size"], L["Width"], L["Height"], L["Placement"],
+      L["Anchor mode"], L["Match party frame width"], L["Free placement"], L["Growth direction"],
+      L["Spacing"] }, ","), page .. ": free")
+    NS.ApplyDefault(NS.FindSchemaRow(page .. ".anchorMode"))
+    T.mocks.__fireTimers()
+  end
+end)
+
+test("optionssetup: the hidden block stays in the schema and /pfe set still reaches it", function()
+  NS.SetByPath("castbar.anchorMode", "attached")
+  for _, path in ipairs({ "castbar.growth", "castbar.spacing", "castbar.point", "castbar.offsetX" }) do
+    -- red under: a row removed from the schema rather than skipped by the flow engine (options-ui-§6)
+    assertTrue(NS.FindSchemaRow(path) ~= nil, path .. " is still a schema row")
+  end
+  NS.SetByPath("castbar.spacing", 7)
+  assertEqual(NS.GetSetting("castbar.spacing"), 7, "a hidden row is written as before")
+  NS.ApplyDefault(NS.FindSchemaRow("castbar.spacing"))
+  T.mocks.__fireTimers()
+end)
+
+test("optionssetup: Match party frame width dims in free placement, and Width with Match width", function()
   local rows = rowsByPath("castbar")
   NS.SetByPath("castbar.anchorMode", "attached")
   NS.SetByPath("castbar.matchWidth", false)
-  for _, path in ipairs({ "castbar.matchWidth", "castbar.point", "castbar.relativePoint",
-                          "castbar.offsetX", "castbar.offsetY", "castbar.width", "castbar.height" }) do
+  for _, path in ipairs({ "castbar.matchWidth", "castbar.width", "castbar.height" }) do
     T.assertFalse(dimmed(rows, path), "attached: " .. path .. " is live")
   end
-  T.assertTrue(dimmed(rows, "castbar.growth"), "attached: the free stack is dimmed")
-  T.assertTrue(dimmed(rows, "castbar.spacing"))
   NS.SetByPath("castbar.matchWidth", true)
   T.assertTrue(dimmed(rows, "castbar.width"), "the party frame sets the width, so Width is dimmed")
-
   NS.SetByPath("castbar.anchorMode", "free")
-  for _, path in ipairs({ "castbar.matchWidth", "castbar.point", "castbar.relativePoint",
-                          "castbar.offsetX", "castbar.offsetY" }) do
-    T.assertTrue(dimmed(rows, path), "free: " .. path .. " is dimmed")
-  end
-  T.assertFalse(dimmed(rows, "castbar.growth"), "free: the stack is live")
-  T.assertFalse(dimmed(rows, "castbar.spacing"))
+  -- Match width is in the selector's own Placement block, so it is dimmed, never hidden (D-4).
+  T.assertTrue(dimmed(rows, "castbar.matchWidth"), "free: Match party frame width is dimmed")
   T.assertFalse(dimmed(rows, "castbar.width"), "free placement always uses Width")
+  for _, path in ipairs({ "castbar.point", "castbar.relativePoint", "castbar.offsetX", "castbar.offsetY",
+                          "castbar.growth", "castbar.spacing" }) do
+    -- red under: a switched row keeping its disabledIf as well (it would dim a row that is not drawn)
+    assertEqual(rows[path].disabledIf, nil, path .. " carries shownWhen, not disabledIf")
+  end
   NS.ApplyDefault(rows["castbar.anchorMode"])
   NS.ApplyDefault(rows["castbar.matchWidth"])
   T.mocks.__fireTimers()

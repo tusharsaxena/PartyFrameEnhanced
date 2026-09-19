@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.43.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.44.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
 (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),

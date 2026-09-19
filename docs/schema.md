@@ -52,14 +52,15 @@ target.bgColor = {0, 0, 0, 0.6}  useClassColorBg = false
 target.borderShow = false  borderStyle  borderSize = 8  borderColor  useClassColorBorder = false
 target.font  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
 target.showName = true  showPercent = true  showMarker = true
-target.markerPoint = "LEFT"  markerOffsetX = 0  markerOffsetY = 0
+target.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 
 pet.enabled = true  pet.clickToTarget = true
 pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = -20
 pet.matchWidth = false  width = 80  height = 14  growth = "DOWN"  spacing = 4  position = nil
 pet.barTexture  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)
 pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)
-pet.showName = true  showPercent = false
+pet.showName = true  showPercent = false  showMarker = true
+pet.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 ```
 
 The Master controls tab carries **one** `sessionOnly` row, which does not reach the profile.

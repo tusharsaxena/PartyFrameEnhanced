@@ -30,7 +30,7 @@ function UnitButtons.Create(feature, unit, token)
         NS.RangeFade.Parent(unit), "SecureUnitButtonTemplate")
     btn:SetAttribute("unit", token)
     btn:RegisterForClicks("AnyUp")
-    Element.Build(btn, { marker = feature == "Target" })
+    Element.Build(btn, { marker = true })
     btn:Hide()
     btn.unit, btn.token, btn.__key = unit, token, feature .. ":" .. unit
     return btn

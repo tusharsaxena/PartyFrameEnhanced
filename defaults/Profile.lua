@@ -95,8 +95,8 @@ NS.defaults.profile = {
         showName = true, showPercent = true,
 
         -- The marker's center sits on this point of the bar, nudged by the offsets (before Master
-        -- scale). LEFT, 0, 0 is where it sat before the setting existed: half over the bar's left end.
-        showMarker = true, markerPoint = "LEFT", markerOffsetX = 0, markerOffsetY = 0,
+        -- scale). TOP, 0, 0 puts it half over the bar's top edge, centered, clear of the name.
+        showMarker = true, markerPoint = "TOP", markerOffsetX = 0, markerOffsetY = 0,
     },
 
     pet = {
@@ -121,6 +121,9 @@ NS.defaults.profile = {
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
         fontFlags = "OUTLINE", fontShadow = false,
         showName = true, showPercent = false,
+
+        -- As the target frame's: the marker's center on this point of the bar, nudged by the offsets.
+        showMarker = true, markerPoint = "TOP", markerOffsetX = 0, markerOffsetY = 0,
     },
 }
 

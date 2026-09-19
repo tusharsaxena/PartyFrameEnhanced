@@ -48,7 +48,14 @@ function Element.Build(root, opts)
         root.shield:SetTexture(SHIELD_TEXTURE)
     end
     if opts.marker then
-        root.marker = bar:CreateTexture(nil, "OVERLAY")
+        -- On a layer of its own one level above the border: a region of the bar draws under every
+        -- child frame of the bar, the border included, so a marker there sat behind the border's
+        -- edge. Not a region of the border frame, which hides when the border is off.
+        local layer = CreateFrame("Frame", nil, bar)
+        layer:SetFrameLevel(root.border:GetFrameLevel() + 1)
+        layer:SetAllPoints(bar)
+        root.markerLayer = layer
+        root.marker = layer:CreateTexture(nil, "OVERLAY")
         root.marker:SetTexture(MARKER_TEXTURE)
     end
     -- The alpha this element wants; Anchor's combat fade restores to it (modules/Anchor.lua).
@@ -91,7 +98,8 @@ end
 
 -- The spark, the shield and the raid marker, each anchored ONCE. The spark rides the fill texture's
 -- right edge and is never positioned from the fill, which can be secret (the KickCD lesson). The
--- marker's center sits on the configured point of the bar, nudged by its offsets (target frames).
+-- marker's center sits on the configured point of the bar, nudged by its offsets (target and pet
+-- frames).
 local function applyMarks(el, h, cfg, scale)
     local bar = el.bar
     if el.spark then

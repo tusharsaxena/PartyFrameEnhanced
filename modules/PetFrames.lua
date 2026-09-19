@@ -6,13 +6,14 @@ local _, NS = ...
 -- UPDATES are all events, no ticker: UNIT_PET on the owner (a pet summoned, dismissed or swapped)
 -- repaints everything; UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE on the pet token repaint what
 -- they name. Both are RegisterUnitEvent on the button's own frame (the documented deviation in
--- docs/ARCHITECTURE.md).
+-- docs/ARCHITECTURE.md). RAID_TARGET_UPDATE repaints the markers, one pass on the module's own target.
 --
 -- COLOR: the stored bar color, or the OWNER's class color with "Use class color" on — the pet frame
 -- describes a party member's pet, and the owner's class is what identifies whose it is. An owner is
 -- a party member, whose class is never secret.
 
 local Perf        = NS.Perf
+local Compat      = NS.Compat
 local Units       = NS.Units
 local Element     = NS.Element
 local UnitButtons = NS.UnitButtons
@@ -27,6 +28,7 @@ local cfg, gen        -- the pet section, and the general one (shared health upd
 local suspended = false
 
 local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
+local PREVIEW_MARKER = 8   -- skull
 
 local function paintAll(btn)
     UnitButtons.Invalidate(btn)
@@ -39,6 +41,7 @@ local function paintAll(btn)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
+    if cfg.showMarker then Compat.RaidMarker(btn.marker, btn.token) else btn.marker:Hide() end
 end
 
 local function paintPreview(btn)
@@ -48,6 +51,12 @@ local function paintPreview(btn)
     local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
+    if cfg.showMarker and SetRaidTargetIconTexture then
+        SetRaidTargetIconTexture(btn.marker, PREVIEW_MARKER)
+        btn.marker:Show()
+    else
+        btn.marker:Hide()
+    end
 end
 
 local function refresh(btn)
@@ -175,3 +184,12 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
     refreshAll()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
+
+-- Markers change for every unit at once; one repaint pass over the allowed buttons.
+ev:RegisterEvent("RAID_TARGET_UPDATE", whenReady(function()
+    if NS.State.preview or not cfg.showMarker then return end
+    for _, unit in ipairs(Units.LIST) do
+        local btn = buttons[unit]
+        if btn.__allowed then Compat.RaidMarker(btn.marker, btn.token) end
+    end
+end))

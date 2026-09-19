@@ -31,6 +31,7 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Pet Frames | Bar | the fill block (*Use class color* = the owner's class), the background |
 | Pet Frames | Border | the border block with *Show border* |
 | Pet Frames | Text | the font block, name, health percent |
+| Pet Frames | Marker | the pet's raid marker, its point on the bar, X/Y offsets |
 | Profiles | — (AceDBOptions) | create, switch, copy, reset, delete profiles |
 
 ## General → Master controls
@@ -106,7 +107,7 @@ Paths under `target.`. Size & Position, Border and Text-font as on Cast Bars.
 
 With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
 and the ticker runs only while a shown target is still unresolved (no name yet). The marker's
-center sits on *Anchor point* of the bar; the default, *Left*, is half over the bar's left end.
+center sits on *Anchor point* of the bar; the default, *Top*, is half over the bar's top edge, centered.
 
 *Click to target* and every size or position change are secure writes: made in combat, they apply
 when combat ends.
@@ -121,6 +122,7 @@ Paths under `pet.`. Size & Position, Border and Text-font as on Cast Bars.
 | Bar | Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
 | Bar | Background | Background color · Use class color |
 | Text | Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
+| Marker | — | as on Target Frames: Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` |
 
 With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
 and the pet's health events are unregistered.

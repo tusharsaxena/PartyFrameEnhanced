@@ -197,6 +197,11 @@ EllesmereUI's, where noted.
     Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right end;
     drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes and
     the three placement controls gray out. *Failure:* the skull stays put until `/reload`.
+35c. **Marker over the border.** Target Frames → Border: tick *Show border*; mark a member's target
+    → the skull draws on top of the border's edge. Repeat on Pet Frames. *Failure:* the border's line
+    cuts across the skull.
+35d. **Pet raid marker.** Mark a member's pet with a skull → the skull appears on that pet frame;
+    clear it → it goes. Pet Frames → Marker placement and *Show raid marker* behave as in 35a.
 35b. **Health updates off.** General page → Health updates: untick *Update health* → *Health refresh*
     grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames. With a
     member targeting a mob, its bar sits full with no percent while the mob takes damage, and

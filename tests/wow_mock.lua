@@ -38,6 +38,12 @@ return function()
   end
   M.CreateFrame = function(frameType, name, parent, template)
     local f = baseCreateFrame(frameType, name, parent, template)
+    -- Frame levels as the client assigns them: one above the parent, until told otherwise. The
+    -- base stub answers GetFrameLevel with the frame itself, and a marker layer stacks by number.
+    local parentLevel = type(parent) == "table" and type(parent.__level) == "number" and parent.__level
+    f.__level = parentLevel and parentLevel + 1 or 0
+    rawset(f, "SetFrameLevel", function(self, level) self.__level = level end)
+    rawset(f, "GetFrameLevel", function(self) return self.__level end)
     rawset(f, "CreateTexture", function() return region() end)
     rawset(f, "CreateFontString", function() return region() end)
     if type(template) == "string" and template:find("Secure", 1, true) then

@@ -365,3 +365,11 @@ test("targetframes: with Update health off, the ticker runs only until a pending
   mocks.__units.party2target = nil
   drain()
 end)
+
+-- The marker was a region of the bar, and every child frame of the bar -- the border included --
+-- draws above the bar's own regions, so the border's edge cut across the marker (owner-reported).
+test("targetframes: the marker draws above the border", function()
+  local btn = buttons.party1
+  assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
+    "the marker's layer must stack above the border frame")
+end)

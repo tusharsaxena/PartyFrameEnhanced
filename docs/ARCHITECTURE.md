@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.45.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.46.1** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
 (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),
@@ -246,7 +246,10 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - **Every secure write goes through `NS.RunSecure(key, fn)`**: run now out of combat, queued under its
   key in combat (the latest write per key wins), flushed on `PLAYER_REGEN_ENABLED`
   (events-frames-taint-§2). `tests/test_lifecycle.lua` pins the queue.
-- **Settings refuse to open in combat** (the library's gate, options-ui-§2) — never deferred.
+- **Settings refuse to open in combat** (the library's gate, options-ui-§2) — never deferred. A page
+  already on screen when combat starts, or reached through the AddOns sidebar in combat, goes under
+  the library's gray cover and refuses every write, Defaults and tab click until combat ends (LibKa0s
+  v1.46); nothing touches Blizzard's settings window, and the addon keeps no combat guard of its own.
 - **Secret values** are never compared, formatted or used in arithmetic; they are handed to C methods
   that accept them. The binding rules are the spec's §7.
 

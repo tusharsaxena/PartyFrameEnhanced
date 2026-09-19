@@ -106,9 +106,14 @@ One row per full pass. The newest row is the current iteration.
 15. **Combat refusal.** On a target dummy, in combat: `/pfe config` → the panel does **not** open and
     chat shows the gray `cannot open settings during combat — Blizzard's category-switch is protected`.
     Repeat → the same refusal each time, no queue. Leave combat → nothing opens by itself.
-16. **The sidebar refuses too.** In combat, Esc → Options → AddOns → **Ka0s Party Frame Enhanced**, then
-    **General** and **Profiles** → each closes the Settings window with the same gray notice; nothing
-    draws. Out of combat they render normally.
+16. **The combat lock.** Open **General**, pull a dummy → the whole page, tab strip included, goes under
+    a gray *Settings are locked during combat.* cover; a click on a checkbox, a slider drag, a tab and
+    Defaults change nothing, and one gray `settings are locked during combat — changes are refused
+    until it ends` line prints for the whole combat. In combat, switch to **Cast Bars** and **Profiles**
+    in the AddOns sidebar → each shows covered, the window stays open, no Lua error and no
+    `ADDON_ACTION_BLOCKED`. `/pfe set alpha 0.8` in combat, then leave combat → the cover
+    lifts and the page shows the new value. *Failure:* a window that closes itself, a value that
+    changes under the cover, or a page that stays covered after combat.
 
 ## D. Resets and profiles
 

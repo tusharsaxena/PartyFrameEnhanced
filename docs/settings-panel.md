@@ -2,7 +2,8 @@
 
 The panel is `LibKa0s-Options-1.0`'s, built from `settings/OptionsSetup.lua`'s descriptor: a Blizzard
 canvas landing page plus one canvas subcategory per page, every page tabbed (options-ui-§13), a lazily
-built body and Defaults button, and a panel-open that refuses in combat (options-ui-§2).
+built body and Defaults button, a panel-open that refuses in combat (options-ui-§2), and a gray cover over any page on screen in
+combat that refuses every write until combat ends (LibKa0s v1.46).
 
 ## Pages and tabs
 

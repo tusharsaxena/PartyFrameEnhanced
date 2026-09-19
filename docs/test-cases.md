@@ -355,7 +355,7 @@ badge and any count quoted in the docs must agree with it.
 | test_providers.lua | 12 |
 | test_anchor.lua | 9 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 20 |
+| test_targetframes.lua | 21 |
 | test_petframes.lua | 9 |
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |

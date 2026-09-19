@@ -49,8 +49,9 @@ again and the real data comes back.
 
 **Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
 size and position, the bar, the border and the text. That's also where you switch a feature to
-**Free placement**; whichever placement you aren't using grays out. The **General** page picks which
-party frames to attach to. Leave it on **Automatic** unless you run both UIs.
+**Free placement**, and the tab then shows only the settings for the placement you picked. The
+**General** page picks which party frames to attach to. Leave it on **Automatic** unless you run
+both UIs.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim along with their
 party frame, to whatever opacity that frame uses. Blizzard's classic party frames never dim, so with
@@ -99,7 +100,7 @@ every profile until you tick it back.
 | Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe unlock` shows you what it would look like. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
-| The settings panel won't open | It refuses in combat on purpose. Try again once combat ends. |
+| The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
 | Something looks wrong and you want to report it | Type `/pfe debug on`, reproduce it, then `/pfe debug` to open the log and copy it into your issue. |
 
 ## Issues and feature requests

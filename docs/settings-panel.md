@@ -15,7 +15,7 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | General | Party frames | which frame system elements attach to; whether your own row is included; fading with the party frames out of range |
 | General | Health updates | one *Update health* switch and *Health refresh* pace, shared by target and pet frames |
 | Cast Bars | General | enable, fade out |
-| Cast Bars | Size & Position | size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); the block the anchor mode does not use is dimmed |
+| Cast Bars | Size & Position | size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); only the block the anchor mode uses is drawn (`shownWhen`, LibKa0s v1.45.0) |
 | Cast Bars | Bar | the fill block, the cast-state palette, the background |
 | Cast Bars | Border | the border block with *Show border* |
 | Cast Bars | Text | the font block, spell name, time left |

@@ -169,13 +169,14 @@ EllesmereUI's, where noted.
 31. **Settings.** Cast Bars page → six tabs (General, Size & Position, Bar, Border, Text, Icon). Change
     *Cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no
     bar appears on the next cast.
-31a. **Size & Position dims what does not apply.** Cast Bars → Size & Position opens with the *Size*
-    block (Width, Height), then *Placement*. With *Attach to party frames*: the *Free placement* block
-    (Growth direction, Spacing) is grayed out and ignores clicks, and with *Match party frame width*
-    ticked, *Width* is grayed too. Switch to *Free placement* → on the same frame the *Attached to party
-    frames* block and *Match party frame width* gray out and the free block comes alive. Repeat on the
-    Target Frames and Pet Frames pages. *Failure:* the dimming lags one click behind, or a grayed
-    control still changes the frames.
+31a. **Size & Position shows only what applies.** Cast Bars → Size & Position opens with the *Size*
+    block (Width, Height), then *Placement*. With *Attach to party frames*: the *Attached to party
+    frames* block is drawn and there is no *Free placement* heading at all; with *Match party frame
+    width* ticked, *Width* is grayed. Switch to *Free placement* → the tab redraws at once with the
+    *Free placement* block (Growth direction, Spacing) in place of the attached one, and *Match party
+    frame width* grayed. `/pfe set castbar.anchorMode attached` with the page open → it redraws back.
+    Repeat on the Target Frames and Pet Frames pages. *Failure:* the redraw lags one click behind, an
+    empty heading is left behind, or the dropdown closes itself mid-choice with a Lua error.
 
 ## G. Target frames
 

@@ -28,13 +28,16 @@ ElementRows.UNIT_CLASS = UNIT_CLASS
 ElementRows.POINT_LABELS = POINT_LABELS
 
 --- The Size & Position tab: the size first, then the anchor mode, the attached pin and the free
---- stack. The placement block the current anchor mode does not use is drawn disabled, and so is
---- Width while Match party frame width sets it; the values stay stored, and `/pfe set` still
---- reaches them. The library re-evaluates `disabledIf` on every write, so flipping the mode dims
---- the other block on the same frame.
+--- stack. Only the placement block the current anchor mode uses is DRAWN (`shownWhen`, LibKa0s
+--- v1.45.0): the other block's rows stay in the schema, stored, and `/pfe set` still reaches them.
+--- The library watches Anchor mode and redraws the tab once, on the next frame, when it changes.
+--- Match party frame width sits in the selector's own Placement block, so it is dimmed rather than
+--- hidden in free placement, and Width is dimmed while Match party frame width sets it.
 function ElementRows.Position(page, prefix, D)
     local group = L["Size & Position"]
     local modePath, matchPath = prefix .. "anchorMode", prefix .. "matchWidth"
+    local ATTACHED_ONLY = { path = modePath, equals = "attached" }
+    local FREE_ONLY = { path = modePath, equals = "free" }
     local function free() return NS.GetSetting(modePath) == "free" end
     local function attached() return not free() end
     local function widthFromFrame() return attached() and NS.GetSetting(matchPath) == true end
@@ -60,23 +63,23 @@ function ElementRows.Position(page, prefix, D)
              default = D.matchWidth, disabledIf = free },
         row{ path = "point", subgroup = L["Attached to party frames"], order = 50, type = "string",
              label = L["Anchor point"], desc = L["The point on the element that is pinned."],
-             default = D.point, values = POINT_LABELS, sorting = C.POINTS, disabledIf = free },
+             default = D.point, values = POINT_LABELS, sorting = C.POINTS, shownWhen = ATTACHED_ONLY },
         row{ path = "relativePoint", subgroup = L["Attached to party frames"], order = 60, type = "string",
              label = L["Party frame point"], desc = L["The point on the party frame it is pinned to."],
-             default = D.relativePoint, values = POINT_LABELS, sorting = C.POINTS, disabledIf = free },
+             default = D.relativePoint, values = POINT_LABELS, sorting = C.POINTS, shownWhen = ATTACHED_ONLY },
         row{ path = "offsetX", subgroup = L["Attached to party frames"], order = 70, type = "number",
              label = L["X offset"], desc = L["Horizontal nudge from the pin, in pixels."],
-             default = D.offsetX, min = -200, max = 200, step = 1, disabledIf = free },
+             default = D.offsetX, min = -200, max = 200, step = 1, shownWhen = ATTACHED_ONLY },
         row{ path = "offsetY", subgroup = L["Attached to party frames"], order = 80, type = "number",
              label = L["Y offset"], desc = L["Vertical nudge from the pin, in pixels."],
-             default = D.offsetY, min = -200, max = 200, step = 1, disabledIf = free },
+             default = D.offsetY, min = -200, max = 200, step = 1, shownWhen = ATTACHED_ONLY },
         row{ path = "growth", subgroup = L["Free placement"], order = 90, type = "string",
              label = L["Growth direction"], desc = L["Which way the stack grows from its first element."],
              default = D.growth, values = GROWTH, sorting = { "DOWN", "UP", "RIGHT", "LEFT" },
-             disabledIf = attached },
+             shownWhen = FREE_ONLY },
         row{ path = "spacing", subgroup = L["Free placement"], order = 100, type = "number",
              label = L["Spacing"], desc = L["Gap between elements in the stack, in pixels."],
-             default = D.spacing, min = 0, max = 40, step = 1, disabledIf = attached },
+             default = D.spacing, min = 0, max = 40, step = 1, shownWhen = FREE_ONLY },
     }
 end
 

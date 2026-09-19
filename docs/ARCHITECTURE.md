@@ -29,8 +29,13 @@ vendored, not wired**: fifteen elements are
 created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
 (so no reorder list).
 
-Build status: feature-complete for v1.0.1, with the offline perf pass, the release-candidate record,
-the first standards audit, the in-game smoke pass and the first party perf captures done.
+Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
+record, the first standards audit, the in-game smoke pass and the first party perf captures done.
+Master carries unreleased work since that tag, waiting for the next version bump: every element fades
+with its party member's frame when they are out of range; the raid marker draws above the border,
+pet frames get one, and its default anchor is Top; the Size & Position section draws only the
+placement block the anchor mode uses; and LibKa0s is re-vendored to v1.46.1, which brings the
+settings-page combat lock.
 
 ## Module Map
 

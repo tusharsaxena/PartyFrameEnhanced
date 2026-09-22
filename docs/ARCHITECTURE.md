@@ -35,7 +35,7 @@ Master carries unreleased work since that tag, waiting for the next version bump
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.53.0. What the addon
-took from that run is v1.46.1's settings-page combat lock. Nothing since is adopted: v1.48.0 onward
+took from that run is v1.46.1's settings-page combat lock. Nothing since is adopted: v1.47.0 onward
 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
 
 ## Module Map

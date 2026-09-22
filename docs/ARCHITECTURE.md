@@ -20,23 +20,23 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.50.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
-launcher. The addon consumes eight LibKa0s majors through one setup file each — Media
-(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Perf
-(`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`), Launcher (`core/LauncherSetup.lua`),
-Slash (`settings/Slash.lua`) and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are
-vendored, not wired**: fifteen elements are
-created once at enable and never churn (so no pool), the addon handles no items, and it orders nothing
-(so no reorder list).
+and **LibKa0s v1.53.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+launcher. The addon consumes nine LibKa0s majors through one setup file each — Media
+(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Lifecycle
+(`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
+Launcher (`core/LauncherSetup.lua`), Slash (`settings/Slash.lua`) and Options
+(`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
+are created once at enable and never churn (so no pool), the addon handles no items, and it orders
+nothing (so no reorder list).
 
 Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
 record, the first standards audit, the in-game smoke pass and the first party perf captures done.
 Master carries unreleased work since that tag, waiting for the next version bump: every element fades
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
-placement block the anchor mode uses; and LibKa0s is re-vendored to v1.47.0, which brings the
-settings-page combat lock and O.IdList's optional second column. That column is not adopted:
-this addon draws no id list at all, so there is nothing to pack.
+placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.53.0. What the addon
+took from that run is v1.46.1's settings-page combat lock. Nothing since is adopted: v1.48.0 onward
+is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
 
 ## Module Map
 

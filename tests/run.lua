@@ -74,7 +74,7 @@ Kit.run{
     "test_standin",
     "test_preview_standin",
     "test_perf_buckets",
-    "test_spelling",
+    { name = "test_prose", dir = "tests/_kit/" },
     "test_slash",
     "test_disabled",
     "test_launcher",

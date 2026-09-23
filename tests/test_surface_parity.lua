@@ -32,6 +32,12 @@ test("parity: the DebugLog stub carries the whole live surface", function()
   })
 end)
 
+test("parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface", function()
+  local NS2 = loadDegraded()
+  assertTrue(NS2.__busLib ~= nil and NS2.__busLib ~= NS.__busLib, "the degraded load took the stub")
+  T.assertSurfaceParity(NS2.__busLib, "LibKa0s-Bus-1.0")
+end)
+
 test("parity: the Options stub carries every helper the degraded build can reach", function()
   local NS2 = loadDegraded()
   T.assertSurfaceParity(NS2.Helpers, "LibKa0s-Options-1.0", {

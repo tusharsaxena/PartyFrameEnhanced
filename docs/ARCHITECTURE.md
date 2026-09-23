@@ -85,6 +85,17 @@ Closed bus on AceEvent messages (`core/Bus.lua`); each receiver registers on its
 `NS.NewBusTarget()`, and every message has exactly one sending file (`tests/test_bus.lua` reads the
 source to check).
 
+The stand-down record is **`LibKa0s-Bus-1.0`** (`libs/LibKa0s/Bus.lua`, `docs/api/Bus/version-1-docs.md`
+in LibKa0s). `core/Bus.lua` builds one record with `Bus:New{ name, isDown }`, where `isDown` asks
+`NS.IsStoodDown` at call time, and keeps the host's names as one-line delegates: `NS.NewBusTarget`
+(a tracked target per receiver), `NS.BusStandDown` (events and messages down, the record kept) and
+`NS.BusStandUp` (the record replayed as it is now; an entry the client refuses is named on the debug
+console). A registration a receiver makes while the addon is stood down is recorded and goes live at
+the stand-up. `NS.MSG` is `Bus.Catalog(addonName, {...})`: validated once at load, and strict, so a
+mistyped key raises at the call site. The publisher `NS.bus` stays host code. Without the library,
+`core/Bus.lua` falls back to the untracked-target stub the Bus document prescribes (see Known
+Limitations).
+
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade) |
@@ -275,6 +286,10 @@ on entering combat while disabled, and replacing the latch with a boolean.
   are #13. Whether the client takes a **secret number** on `SetAlpha` is unverified, so the
   raid-style copy has a fallback through the frame's `outOfRange` flag (smoke step 47b).
 - The logo is a generated placeholder (#10).
+- On a load without LibKa0s the bus has no stand-down record: `core/Bus.lua` falls back to the
+  untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
+  target, but a disable leaves the bus registrations live. The modules' own `Suspend` hooks and the
+  show ladder's stood-down rung still apply. `tests/test_bus.lua` pins it.
 
 Every deferred item is a GitHub issue (#1–#13, #13 still `state:untriaged`); the spec's §10 is the list
 they were filed from.

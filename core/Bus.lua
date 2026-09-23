@@ -1,6 +1,7 @@
-local _, NS = ...
+local addonName, NS = ...
 
--- core/Bus.lua — the closed cross-module message bus (architecture-§4).
+-- core/Bus.lua — the closed cross-module message bus (architecture-§4), and the LibKa0s-Bus-1.0
+-- seam.
 --
 -- Modules never reach into each other's tables to trigger work. Each message has exactly ONE sender
 -- (the file named below), and each receiver registers on its OWN target from NS.NewBusTarget(),
@@ -18,123 +19,79 @@ local _, NS = ...
 
 local AceEvent = LibStub("AceEvent-3.0")
 
--- The publish target. SendMessage on it reaches receivers registered on any AceEvent target.
+-- The publish target. SendMessage on it reaches receivers registered on any AceEvent target. Host
+-- code on purpose: sending is not a registration, so it has no part in the stand-down record.
 NS.bus = NS.bus or {}
 AceEvent:Embed(NS.bus)
 
--- ── the bus as the stand-down seam (slash-commands-Â§7) ────────────────────────────────────────
+-- ── the bus as the stand-down seam (slash-commands-§7) ────────────────────────────────────────
 --
 -- A disabled addon has EVERY registration it owns actually unregistered, and a message registration
--- is a registration. The modules' own Suspend hooks tear down their game-event frames; this file
+-- is a registration. The modules' own Suspend hooks tear down their game-event frames; the record
 -- tears down the bus, because putting a `UnregisterAllMessages` in each module's Suspend is nine
 -- places to forget and the tenth module is the one that forgets. Every receiver comes from
--- NS.NewBusTarget, so this is the one place that can know them all.
+-- NS.NewBusTarget, so the record is the one place that can know them all.
 --
--- WHY IT REPLAYS RATHER THAN RE-RUNS THE FILES. Standing back up has to rebuild from CURRENT state
--- (performance-Â§6), and a module's message registrations ARE its current state: they are declared at
--- file scope and never conditional. The conditional ones â Providers' game events, Preview's
--- roster watch â are registered and unregistered through the wrappers below, so the record follows
--- them, and each module's Resume re-decides them anyway.
---
--- THE TEARDOWN BYPASSES THE WRAPPERS ON PURPOSE. NS.BusStandDown unregisters through the raw
--- AceEvent members, so the record survives the stand-down and there is something to replay. A
--- module unregistering for its own reasons goes through the wrapper and the record follows it.
-local targets = {}
+-- The record is LibKa0s-Bus-1.0's (docs/api/Bus/version-1-docs.md): it remembers what each target
+-- is registered for, takes events and messages down at the stand-down, and replays the record as it
+-- is NOW at the stand-up, so a module that dropped or gained a registration while the addon was
+-- down comes back right (performance-§6). A registration made while down is recorded and goes live
+-- at the stand-up, and a stand-up is refused while the latch still reads down.
+local Bus = LibStub and LibStub("LibKa0s-Bus-1.0", true)
+
+if not Bus then
+    -- Degraded: the payload is missing. The untracked-target stub the Bus API document's Worked
+    -- example prescribes (options-ui-§1 names the shape). Receivers still get a private target, so
+    -- the receiver rule holds, but nothing is recorded: a disable leaves the bus registrations live.
+    -- docs/ARCHITECTURE.md's Known Limitations states it. This build is already without Options,
+    -- Slash and Lifecycle, and core/CoreSetup.lua has announced that.
+    Bus = {
+        New = function(_, d)
+            return {
+                name = d and d.name,
+                NewTarget = function()
+                    local ace = LibStub and LibStub("AceEvent-3.0", true)
+                    if not ace then return nil end
+                    local t = {}
+                    ace:Embed(t)
+                    return t
+                end,
+                StandDown = function() return 0 end,
+                StandUp   = function() return 0, {} end,
+            }
+        end,
+        Catalog = function(_, messages) return messages end,
+    }
+end
+
+-- Published for introspection only: tests/test_surface_parity.lua holds the stub to the live major.
+NS.__busLib = Bus
+
+-- The record asks the latch through a closure: NS.IsStoodDown is defined in core/LifecycleSetup.lua,
+-- which loads after this file.
+NS.busRecord = Bus:New({ name = addonName, isDown = function() return NS.IsStoodDown() end })
 
 --- A fresh AceEvent-embedded table per receiver, so no two receivers ever share one.
-function NS.NewBusTarget()
-    local t = {}
-    AceEvent:Embed(t)
+function NS.NewBusTarget() return NS.busRecord:NewTarget() end
 
-    local raw = {
-        RegisterEvent         = t.RegisterEvent,
-        UnregisterEvent       = t.UnregisterEvent,
-        UnregisterAllEvents   = t.UnregisterAllEvents,
-        RegisterMessage       = t.RegisterMessage,
-        UnregisterMessage     = t.UnregisterMessage,
-        UnregisterAllMessages = t.UnregisterAllMessages,
-    }
-    -- `want` is what this target would be registered for if the addon were up, keyed by kind and
-    -- name; `order` keeps the replay deterministic. A handler stored as `false` means "no function
-    -- was given", which AceEvent reads as the method named for the event.
-    local order, want = {}, {}
+--- Every bus receiver actually unregistered — events and messages both. Answers the entry count.
+function NS.BusStandDown() return NS.busRecord:StandDown() end
 
-    local function remember(kind, name, fn)
-        local key = kind .. "\0" .. name
-        if want[key] == nil then order[#order + 1] = { kind = kind, name = name, key = key } end
-        want[key] = fn or false
-    end
-
-    local function forget(kind, name) want[kind .. "\0" .. name] = nil end
-
-    local function forgetKind(kind)
-        for _, e in ipairs(order) do
-            if e.kind == kind then want[e.key] = nil end
-        end
-    end
-
-    function t:RegisterEvent(event, fn)
-        remember("event", event, fn)
-        return raw.RegisterEvent(self, event, fn)
-    end
-
-    function t:UnregisterEvent(event)
-        forget("event", event)
-        return raw.UnregisterEvent(self, event)
-    end
-
-    function t:UnregisterAllEvents()
-        forgetKind("event")
-        return raw.UnregisterAllEvents(self)
-    end
-
-    function t:RegisterMessage(message, fn)
-        remember("message", message, fn)
-        return raw.RegisterMessage(self, message, fn)
-    end
-
-    function t:UnregisterMessage(message)
-        forget("message", message)
-        return raw.UnregisterMessage(self, message)
-    end
-
-    function t:UnregisterAllMessages()
-        forgetKind("message")
-        return raw.UnregisterAllMessages(self)
-    end
-
-    targets[#targets + 1] = { target = t, raw = raw, order = order, want = want }
-    return t
-end
-
---- Every bus receiver actually unregistered â events and messages both.
-function NS.BusStandDown()
-    for _, rec in ipairs(targets) do
-        rec.raw.UnregisterAllEvents(rec.target)
-        rec.raw.UnregisterAllMessages(rec.target)
-    end
-end
-
---- Every bus receiver back, from the record as it is NOW rather than from a snapshot taken on the
---- way down.
+--- Every bus receiver back, from the record as it is NOW. A replayed entry the client refused is
+--- dropped from the record and named on the debug console; answers the number replayed.
 function NS.BusStandUp()
-    for _, rec in ipairs(targets) do
-        for _, e in ipairs(rec.order) do
-            local fn = rec.want[e.key]
-            if fn ~= nil then
-                if e.kind == "event" then
-                    rec.raw.RegisterEvent(rec.target, e.name, fn or nil)
-                else
-                    rec.raw.RegisterMessage(rec.target, e.name, fn or nil)
-                end
-            end
-        end
+    local replayed, rejected = NS.busRecord:StandUp()
+    if #rejected > 0 and NS.Debug then
+        NS.Debug("Bus", "rejected on stand-up: %s", table.concat(rejected, ", "))
     end
+    return replayed
 end
 
-NS.MSG = {
+-- Declared once and read strictly: a mistyped key raises at the call site, for a sender as well as
+-- a receiver (Bus.Catalog).
+NS.MSG = Bus.Catalog(addonName, {
     LAYOUT     = "Ka0s_PartyFrameEnhanced_LayoutChanged",
     CONFIG     = "Ka0s_PartyFrameEnhanced_ConfigChanged",
     VISIBILITY = "Ka0s_PartyFrameEnhanced_VisibilityChanged",
     PROFILE    = "Ka0s_PartyFrameEnhanced_ProfileChanged",
-}
+})

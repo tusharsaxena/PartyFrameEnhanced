@@ -40,6 +40,7 @@ Kit.setSurfaceSource{
   ["LibKa0s-Options-1.0"]  = NS.Helpers,
   ["LibKa0s-DebugLog-1.0"] = NS.DebugLog,
   ["LibKa0s-Slash-1.0"]    = NS.Slash and NS.Slash.__cli,
+  ["LibKa0s-Bus-1.0"]      = mocks.LibStub("LibKa0s-Bus-1.0", true),
 }
 
 _G.PFE_TEST = Kit.expose{

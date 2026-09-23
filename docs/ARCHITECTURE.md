@@ -20,23 +20,28 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.53.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
-launcher. The addon consumes nine LibKa0s majors through one setup file each — Media
-(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Lifecycle
+and **LibKa0s v1.55.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+launcher. The addon consumes eleven LibKa0s majors through one setup file each — Media
+(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
+(`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
 (`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
 Launcher (`core/LauncherSetup.lua`), Slash (`settings/Slash.lua`) and Options
 (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
 are created once at enable and never churn (so no pool), the addon handles no items, and it orders
-nothing (so no reorder list).
+nothing (so no reorder list). **Schema is vendored and not adopted yet** (#14): the Schema document's
+library-less stub refuses a path with no row. On that build the Master controls composer is hollow,
+so `/pfe enable`, `/pfe disable` and `/pfe lock` would stop writing (`tests/test_schema.lua` pins
+it). `settings/Schema.lua` keeps its own runtime until that is settled upstream.
 
 Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
 record, the first standards audit, the in-game smoke pass and the first party perf captures done.
 Master carries unreleased work since that tag, waiting for the next version bump: every element fades
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
-placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.53.0. What the addon
-took from that run is v1.46.1's settings-page combat lock. Nothing since is adopted: v1.47.0 onward
-is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
+placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.55.0. What the addon
+took from that run is v1.46.1's settings-page combat lock, and v1.55.0's Bus and Compat majors
+([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)). v1.47.0 to v1.54.2 is the drag-handle
+widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
 
 ## Module Map
 
@@ -84,6 +89,17 @@ Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tre
 Closed bus on AceEvent messages (`core/Bus.lua`); each receiver registers on its own
 `NS.NewBusTarget()`, and every message has exactly one sending file (`tests/test_bus.lua` reads the
 source to check).
+
+The stand-down record is **`LibKa0s-Bus-1.0`** (`libs/LibKa0s/Bus.lua`, `docs/api/Bus/version-1-docs.md`
+in LibKa0s). `core/Bus.lua` builds one record with `Bus:New{ name, isDown }`, where `isDown` asks
+`NS.IsStoodDown` at call time, and keeps the host's names as one-line delegates: `NS.NewBusTarget`
+(a tracked target per receiver), `NS.BusStandDown` (events and messages down, the record kept) and
+`NS.BusStandUp` (the record replayed as it is now; an entry the client refuses is named on the debug
+console). A registration a receiver makes while the addon is stood down is recorded and goes live at
+the stand-up. `NS.MSG` is `Bus.Catalog(addonName, {...})`: validated once at load, and strict, so a
+mistyped key raises at the call site. The publisher `NS.bus` stays host code. Without the library,
+`core/Bus.lua` falls back to the untracked-target stub the Bus document prescribes (see Known
+Limitations).
 
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
@@ -275,9 +291,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
   are #13. Whether the client takes a **secret number** on `SetAlpha` is unverified, so the
   raid-style copy has a fallback through the frame's `outOfRange` flag (smoke step 47b).
 - The logo is a generated placeholder (#10).
+- On a load without LibKa0s the bus has no stand-down record: `core/Bus.lua` falls back to the
+  untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
+  target, but a disable leaves the bus registrations live. The modules' own `Suspend` hooks and the
+  show ladder's stood-down rung still apply. `tests/test_bus.lua` pins it.
 
-Every deferred item is a GitHub issue (#1–#13, #13 still `state:untriaged`); the spec's §10 is the list
-they were filed from.
+Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
+#1–#13 were filed from, and #14 is the deferred `LibKa0s-Schema-1.0` adoption.
 
 ## Documentation map
 
@@ -323,10 +343,17 @@ they were filed from.
 | `superpowers/` | The v0.1.0 design spec and the checkpointed build plan (directory) |
 
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
-`perf-analysis/<run>/`, `audits/` and — when it exists — `reviews/`.
+`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and — when it exists — `reviews/`.
 
 ## Documented deviations
 
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
 | `events-frames-taint-§1` | `UNIT_SPELLCAST_*`, `UNIT_TARGET` and the pet unit events are registered with `RegisterUnitEvent` on each element's own frame, not through AceEvent | AceEvent-3.0 has no unit filter: routed through it, every cast by every unit the client knows (nameplates, raid, target, focus) is dispatched into Lua to be discarded. `RegisterUnitEvent` filters in C, so a disabled or excluded unit costs nothing. The frames are the elements themselves, not frames made for events. | 2026-09-15 | AceEvent or LibKa0s gains a unit-filtered registration |
+
+### Files over the 1500-line cap
+
+Nothing is over the cap today. `layout-§1` caps an authored `.lua` file at 1500 lines, and this
+census is where a breach would be dispositioned; `libs/` and `tests/_kit/` are vendored and out of
+scope. The kit's `tests/_kit/test_layout_cap.lua` holds this section against the tracked tree on
+every run, so a file crossing the cap reddens the suite until it gets a row here.

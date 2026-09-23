@@ -100,3 +100,118 @@ test("schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
   assertEqual(NS.ResolvePath(t, "flat"), 1)
   assertEqual(NS.ResolvePath(t, "a.missing.c"), nil)
 end)
+
+-- ── the write seam, characterized (written before the seam moved to LibKa0s-Schema-1.0) ─────────
+
+-- A throwaway row on the General page, taken out again afterwards. `trace` records, in order, the
+-- [Set] lines, the row's reactions and the CONFIG sections.
+local function withProbe(fields, fn)
+  local trace = {}
+  local row = { path = "general.__probe", page = "general", group = "Party frames", type = "bool",
+                default = false }
+  for k, v in pairs(fields or {}) do row[k] = v end
+  if row.onChange == true then
+    row.onChange = function(v)
+      trace[#trace + 1] = "onChange " .. tostring(v) .. " stored=" .. tostring(NS.db.profile.general.__probe)
+    end
+  end
+  NS.RegisterSchemaRows({ row })
+  local savedDebug, savedFlag = NS.Debug, NS.State.debug
+  NS.State.debug = true
+  NS.Debug = function(tag, fmt, ...) trace[#trace + 1] = tag .. " " .. fmt:format(...) end
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.CONFIG, function(_, section) trace[#trace + 1] = "CONFIG " .. section end)
+  local ok, err = pcall(fn, trace, row)
+  target:UnregisterAllMessages()
+  NS.Debug, NS.State.debug = savedDebug, savedFlag
+  for i = #NS.Schema, 1, -1 do
+    if NS.Schema[i] == row then table.remove(NS.Schema, i) end
+  end
+  if NS.SchemaRuntime then NS.SchemaRuntime.Reindex() end
+  NS.db.profile.general.__probe = nil
+  if not ok then error(err, 0) end
+end
+
+test("schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG, once each", function()
+  withProbe({ onChange = true }, function(trace)
+    local ok = NS.SetByPath("general.__probe", true)
+    assertTrue(ok, "the seam answered true")
+    assertEqual(table.concat(trace, " | "),
+      "Set general.__probe = true | onChange true stored=true | CONFIG general")
+  end)
+end)
+
+test("schema: a refused write stores nothing, reacts to nothing and publishes nothing", function()
+  withProbe({ onChange = true, validate = function(v) return v ~= true end }, function(trace)
+    local ok = NS.SetByPath("general.__probe", true)
+    assertFalse(ok, "the seam answered false")
+    assertEqual(NS.db.profile.general.__probe, nil, "nothing was stored")
+    for _, line in ipairs(trace) do
+      assertTrue(line:find("^onChange") == nil and line:find("^CONFIG") == nil, "ran: " .. line)
+    end
+  end)
+end)
+
+test("schema: a bulk act is ONE [Set] line counting only the rows it changed", function()
+  withProbe({}, function(trace)
+    local scale = NS.GetSetting("scale")
+    NS.Bulk.Run("reset", "probe", function()
+      NS.SetByPath("general.__probe", true)   -- changed
+      NS.SetByPath("scale", scale)            -- already at that value: not counted
+    end)
+    local lines = {}
+    for _, line in ipairs(trace) do
+      if line:find("^Set ") then lines[#lines + 1] = line end
+    end
+    assertEqual(table.concat(lines, " | "), "Set reset probe: 1 rows")
+  end)
+end)
+
+test("schema: a bracket that raises still closes, says so, and re-raises the same error", function()
+  withProbe({}, function(trace)
+    local boom = {}
+    local ok, err = pcall(NS.Bulk.Run, "reset", "probe", function()
+      NS.SetByPath("general.__probe", true)
+      error(boom)
+    end)
+    assertFalse(ok)
+    assertTrue(err == boom, "the error came back by identity")
+    assertEqual(trace[#trace], "Set reset probe: 1 rows (stopped by an error)")
+  end)
+end)
+
+test("schema: the counted profile reset counts rows off default, and never the global minimap row", function()
+  local base = NS.ProfileRowsOffDefault()
+  NS.SetByPath("global.minimap.hide", false)
+  assertEqual(NS.ProfileRowsOffDefault(), base, "a hidden minimap button is not a profile row")
+  NS.SetByPath("general.provider", "blizzard")
+  assertEqual(NS.ProfileRowsOffDefault(), base + 1, "one profile row moved")
+  NS.SetByPath("general.provider", "auto")
+  NS.SetByPath("global.minimap.hide", true)
+end)
+
+test("schema: before the db opens, GetSetting answers the shipped default", function()
+  local db = NS.db
+  NS.db = nil
+  local ok, v = pcall(NS.GetSetting, "general.provider")
+  NS.db = db
+  assertTrue(ok, tostring(v))
+  assertEqual(v, "auto")
+end)
+
+-- ── the library-absent build's host verbs ──────────────────────────────────────────────────────
+--
+-- On a load without LibKa0s the Master controls composer is hollow (options-ui-§1), so `enabled`
+-- and `locked` have no row there. The host verbs still write them through the seam, and the write
+-- has to land (settings/Slash.lua, runEnabled): a player who cannot read the acknowledgment must
+-- still be able to turn the addon off and back on, and the stored path is what the next load reads.
+
+test("schema: without the library, /pfe disable and /pfe enable still write the stored path", function()
+  local NS2 = dofile("tests/degraded_env.lua")()
+  NS2:InitDB()
+  assertEqual(NS2.FindSchemaRow("enabled"), nil, "the composed row is absent on this build")
+  NS2.Slash.__cli:OnSlash("disable")
+  assertEqual(NS2.db.profile.enabled, false, "/pfe disable landed in the profile")
+  NS2.Slash.__cli:OnSlash("enable")
+  assertEqual(NS2.db.profile.enabled, true, "/pfe enable landed in the profile")
+end)

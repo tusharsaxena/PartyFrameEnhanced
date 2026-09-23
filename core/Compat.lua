@@ -8,11 +8,18 @@ local _, NS = ...
 NS.Compat = NS.Compat or {}
 local Compat = NS.Compat
 
+-- LibKa0s-Compat-1.0 carries the collection's shared secret seam. Only IsSecret is wired from it:
+-- every other member here is this addon's own (the library's readers have no caller in this tree).
+local CompatLib = LibStub and LibStub("LibKa0s-Compat-1.0", true)
+
 --- True only for a value the client marks secret. `issecretvalue` is a 12.0 global; an older build
---- or a headless run lacks it and answers false.
-function Compat.IsSecret(v)
+--- or a headless run lacks it and answers false. The library's member, or (library absent) the
+--- same one-rung body. That copy is a DELIBERATE, DOCUMENTED DUPLICATION: a stub answering false
+--- would send a secret into a comparison on a 12.x client, on exactly the degraded path it exists to
+--- survive. See LibKa0s docs/api/Compat/version-1-docs.md, "Degradation".
+Compat.IsSecret = CompatLib and CompatLib.IsSecret or function(v)
     local f = issecretvalue
-    return f ~= nil and f(v) == true
+    return f ~= nil and f(v) and true or false
 end
 
 --- Whether an addon is loaded. The presence guard every optional integration goes through

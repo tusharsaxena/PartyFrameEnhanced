@@ -22,7 +22,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: tests/perf.lua derives both halves of its list too
 - loadorder: the loaded library registered — NS.Perf is the lib, not the stub
 
-### test_schema.lua (9)
+### test_schema.lua (16)
 
 - schema: validates with no shape errors and no unresolved paths
 - schema: the General page opens on the Master controls tab, in the canonical order
@@ -33,6 +33,13 @@ badge and any count quoted in the docs must agree with it.
 - schema: GetSetting falls back to the shipped default when the profile lacks the key
 - schema: ApplyDefault writes a COPY of a table default
 - schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
+- schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG, once each
+- schema: a refused write stores nothing, reacts to nothing and publishes nothing
+- schema: a bulk act is ONE [Set] line counting only the rows it changed
+- schema: a bracket that raises still closes, says so, and re-raises the same error
+- schema: the counted profile reset counts rows off default, and never the global minimap row
+- schema: before the db opens, GetSetting answers the shipped default
+- schema: without the library, /pfe disable and /pfe enable still write the stored path
 
 ### test_database.lua (4)
 
@@ -80,13 +87,22 @@ badge and any count quoted in the docs must agree with it.
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
 
-### test_bus.lua (3)
+### test_bus.lua (12)
 
 - bus: two receivers of one message on their own targets both fire
 - bus: every message is prefixed Ka0s_PartyFrameEnhanced_
 - bus: no message has more than one sending file
+- bus: a stand-down takes a receiver's events AND messages down, and a stand-up puts both back
+- bus: a stand-up replays the record as it is NOW, not a snapshot from the way down
+- bus: a method-name handler survives the round trip and is called as a method
+- bus: re-registering a key after forgetting it never grows the record
+- bus: a registration made while the addon is stood down is recorded and NOT live until it stands up
+- bus: NS.MSG is strict, so a mistyped key raises instead of sending nil
+- bus: without the library, a receiver still gets a private target that hears the bus
+- bus: without the library nothing is recorded, so a stand-down leaves the receivers live (a stated limitation)
+- bus: without the library NS.MSG declares the same four names
 
-### test_compat.lua (6)
+### test_compat.lua (10)
 
 - compat: IsSecret answers false without the client's issecretvalue
 - compat: FrameUnit prefers displayedUnit, then unit, then unitToken, then the attribute
@@ -94,6 +110,10 @@ badge and any count quoted in the docs must agree with it.
 - compat: FrameVisible fails open on a secret and closed on nil or an error
 - compat: UseRaidStyleParty reads Edit Mode first and the CVar second
 - compat: IsAddOnLoaded goes through C_AddOns and answers false without it
+- compat: IsSecret answers exactly one boolean, true only for what the client marks secret
+- compat: IsSecret is the library's member on the live load
+- compat: without the library the guard stub answers what the library answers, fixture for fixture
+- compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires
 
 ### test_providers.lua (12)
 
@@ -245,10 +265,23 @@ badge and any count quoted in the docs must agree with it.
 - perf: each nested bucket is observed inside the parent it declares
 - perf: capture off, no bracket calls the sink
 
-### test_spelling.lua (2)
+### test_prose.lua (15)
 
-- spelling: every authored file is US English (localization-§5)
-- spelling: the gate is not vacuous — a planted British word is caught
+- prose: no authored file carries a British spelling from localization-5's published list
+- prose: the gate carries localization-5's two lists whole, and nothing of its own
+- prose self-test: the carve-out suppresses the named generated folder, and only it
+- prose self-test: a path the carve-out does not name is not covered by one that looks like it
+- prose self-test: a carve-out that is not a set of path strings is a failure, not a silence
+- prose self-test: a TOC's file lines are read as paths, and its directives and comments are not
+- prose self-test: a .pkgmeta's ignore block is read, and the keys around it are not
+- prose self-test: an ignore entry covers a path exactly, by folder, and by wildcard
+- prose self-test: the carve-out admits a generated dump and refuses a file the TOC loads
+- prose self-test: a waiver-file exclusion meets the same two refusals as the carve-out
+- prose self-test: each list is refused on the matching rule its own scan uses
+- prose self-test: the scan and the refusals read the added exclusions through one reader
+- prose self-test: a narrowing is refused by what it suppresses, not by how it is written
+- prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
+- prose self-test: a malformed waived is a failure, not a silence
 
 ### test_slash.lua (19)
 
@@ -318,10 +351,11 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (6)
+### test_surface_parity.lua (7)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the DebugLog stub carries the whole live surface
+- parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
 - parity: a bare /pfe runs `config` in the library-absent build too
@@ -333,16 +367,33 @@ badge and any count quoted in the docs must agree with it.
 - tests/_kit is the test kit that shipped with that release
 - the automated-test runner is recorded executable (100755)
 
-### test_eol.lua (1)
+### test_eol.lua (2)
 
 - eol: every tracked file carries the terminator .gitattributes declares for it
+- eol: .gitattributes is line-endings-5's canonical body for this repo kind
+
+### test_layout_cap.lua (13)
+
+- layoutcap: every authored file over the 1500-line cap is named in the census
+- layoutcap: no census row outlives the breach it records
+- layoutcap: every over-cap census row carries one of layout-1's three terminal states
+- layoutcap: the census and the exempt set agree about which paths were exempted
+- layoutcap: an empty census is written as a result rather than left standing empty
+- layoutcap self-test: the parser reads the census nested under the register, and stops there
+- layoutcap self-test: a census outside its register, or at the wrong level, is not read
+- layoutcap self-test: an over-cap file missing from the census is reported, and an exempt one is not
+- layoutcap self-test: a census row that outlives its breach is reported
+- layoutcap self-test: an over-cap row that names no terminal state is reported
+- layoutcap self-test: the census and the exempt set are held to naming the same paths
+- layoutcap self-test: a census that states nothing is told apart from one that states none
+- layoutcap self-test: the exempt set takes folders as well as paths
 
 ## Totals
 
 | Suite | Cases |
 |-------|------:|
 | test_loadorder.lua | 13 |
-| test_schema.lua | 9 |
+| test_schema.lua | 16 |
 | test_database.lua | 4 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
@@ -350,8 +401,8 @@ badge and any count quoted in the docs must agree with it.
 | test_debuglog.lua | 3 |
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
-| test_bus.lua | 3 |
-| test_compat.lua | 6 |
+| test_bus.lua | 12 |
+| test_compat.lua | 10 |
 | test_providers.lua | 12 |
 | test_anchor.lua | 9 |
 | test_castbars.lua | 13 |
@@ -363,12 +414,13 @@ badge and any count quoted in the docs must agree with it.
 | test_standin.lua | 12 |
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
-| test_spelling.lua | 2 |
+| test_prose.lua | 15 |
 | test_slash.lua | 19 |
 | test_disabled.lua | 10 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 6 |
+| test_surface_parity.lua | 7 |
 | test_vendor_sync.lua | 3 |
-| test_eol.lua | 1 |
-| **Total** | **241** |
+| test_eol.lua | 2 |
+| test_layout_cap.lua | 13 |
+| **Total** | **289** |

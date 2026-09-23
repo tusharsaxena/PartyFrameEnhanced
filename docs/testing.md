@@ -34,8 +34,15 @@ addon half from `PartyFrameEnhanced.toc` — the lifecycle kick (`NS:InitDB()`, 
 
 The suites test what is **this addon's**: each setup file's descriptor and degradation stub, the
 schema and its write seam, the slash table, the lifecycle and the secure-write queue, the providers,
-the anchor engine, the three features, preview mode, perf-bucket coverage and the spelling gate. The
-library's own internals are tested in the LibKa0s repo and not again here (testing-§8).
+the anchor engine, the three features, preview mode and perf-bucket coverage. The library's own
+internals are tested in the LibKa0s repo and not again here (testing-§8).
+
+Three suites arrive with the vendored kit and are wired by the pair form testing-§9 prescribes,
+`{ name = "<suite>", dir = "tests/_kit/" }`: `test_prose` (below), `test_eol` (every tracked file
+carries the terminator `.gitattributes` declares, and `.gitattributes` itself is line-endings-§5's
+canonical body) and `test_layout_cap`, which holds the `### Files over the 1500-line cap` census in
+[ARCHITECTURE.md](./ARCHITECTURE.md) against every authored `.lua` file the repo tracks (layout-§1).
+A kit suite left undeclared, or shadowed by a bare entry, reddens the kit's suite inventory.
 
 `tests/test_disabled.lua` is the stand-down conformance suite slash-commands-§7 requires, and it is
 written the way that section insists on: every negative assertion reads the **registration set** out
@@ -46,9 +53,10 @@ the live registry; `__fireUnconditional` reaches a handler anyway, so "nothing r
 the addon rather than about the harness. The three negative steps carry testing-§12 falsification
 comments and were each proven red by mutation before the suite was kept.
 
-`tests/test_spelling.lua` is the US-English prose gate (localization-§5): it copies the standard's
-published `BRITISH` and `ALLOWED` lists **whole** and scans every authored `.lua`, `.md` and `.toc`
-the repo tracks, skipping only `libs/`, `tests/_kit/` and the frozen evidence bundles. A British form
+`tests/_kit/test_prose.lua` is the US-English prose gate (localization-§5), shipped in the kit and
+wired as `{ name = "test_prose", dir = "tests/_kit/" }`: it copies the standard's published
+`BRITISH` and `ALLOWED` lists **whole** and scans every authored file the repo tracks, skipping only
+`libs/`, `tests/_kit/` and the frozen evidence bundles. A British form
 the lists miss is added upstream in the standard first, never locally.
 
 The **degraded path** is proven by a real load with the library absent — `tests/degraded_env.lua`

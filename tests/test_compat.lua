@@ -81,3 +81,65 @@ test("compat: IsAddOnLoaded goes through C_AddOns and answers false without it",
   assertFalse(Compat.IsAddOnLoaded("Other"))
   mocks.C_AddOns = nil
 end)
+
+-- ── the secret guard (LibKa0s-Compat-1.0's IsSecret) ─────────────────────────────────────────
+
+-- Every answer as a list, so a changed arity or a truthy non-boolean shows as a difference.
+local function answers(...) return { n = select("#", ...), ... } end
+
+test("compat: IsSecret answers exactly one boolean, true only for what the client marks secret", function()
+  withSecrets(function()
+    local cases = { { SECRET, true }, { "party1", false }, { 0, false }, { false, false }, { {}, false } }
+    for _, c in ipairs(cases) do
+      local got = answers(Compat.IsSecret(c[1]))
+      assertEqual(got.n, 1, "one value for " .. tostring(c[1]))
+      assertEqual(got[1], c[2], tostring(c[1]))
+    end
+    local got = answers(Compat.IsSecret(nil))
+    assertEqual(got.n, 1, "one value for nil")
+    assertEqual(got[1], false, "nil is not secret")
+  end)
+  local got = answers(Compat.IsSecret(SECRET))
+  assertEqual(got.n, 1)
+  assertEqual(got[1], false, "without issecretvalue nothing is secret")
+end)
+
+local loadDegraded = dofile("tests/degraded_env.lua")
+
+-- Every member of LibKa0s-Compat-1.0 this addon deliberately does not wire onto NS.Compat: the two
+-- other guards and the six readers have no caller in this tree. A member the major gains later is in
+-- neither list, so parity fails until this addon decides.
+local NOT_WIRED = {
+  "CanAccess", "IsSafeKey",
+  "GetSpellInfo", "GetSpellName", "GetSpellTexture", "GetSpellCooldown",
+  "GetSpecialization", "GetSpecializationInfo",
+}
+
+test("compat: IsSecret is the library's member on the live load", function()
+  assertTrue(Compat.IsSecret == mocks.LibStub("LibKa0s-Compat-1.0").IsSecret)
+end)
+
+test("compat: without the library the guard stub answers what the library answers, fixture for fixture", function()
+  local NS2, mocks2 = loadDegraded()
+  local stub = NS2.Compat.IsSecret
+  assertTrue(stub ~= Compat.IsSecret, "the degraded load took the stub")
+  local values = { SECRET, "party1", 0, false, {}, n = 6 }
+  local function compare(label)
+    for i = 1, values.n do
+      local live, degraded = answers(Compat.IsSecret(values[i])), answers(stub(values[i]))
+      assertEqual(degraded.n, live.n, label .. ": arity for " .. tostring(values[i]))
+      assertEqual(degraded[1], live[1], label .. ": " .. tostring(values[i]))
+    end
+  end
+  compare("no issecretvalue")
+  local fixture = function(v) return v == SECRET end
+  mocks.issecretvalue, mocks2.issecretvalue = fixture, fixture
+  local ok, err = pcall(compare, "issecretvalue present")
+  mocks.issecretvalue, mocks2.issecretvalue = nil, nil
+  if not ok then error(err, 0) end
+end)
+
+test("compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires", function()
+  T.assertSurfaceParity(Compat, "LibKa0s-Compat-1.0", NOT_WIRED)
+  T.assertSurfaceParity(loadDegraded().Compat, "LibKa0s-Compat-1.0", NOT_WIRED)
+end)

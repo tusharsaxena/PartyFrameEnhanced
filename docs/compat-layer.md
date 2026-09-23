@@ -8,7 +8,7 @@ library's and are not documented here.
 
 | Shim | Wraps | Answers | Why it exists |
 |---|---|---|---|
-| `IsSecret(v)` | `issecretvalue` | `true` only for a value the client marks secret | 12.0 global; older builds and the harness lack it |
+| `IsSecret(v)` | `LibKa0s-Compat-1.0`'s `IsSecret` (`issecretvalue`) | `true` only for a value the client marks secret | 12.0 global; older builds and the harness lack it. Wired from the library; without it, the same one-rung body as a documented guard stub (the Compat document's *Degradation*) |
 | `IsAddOnLoaded(name)` | `C_AddOns.IsAddOnLoaded`, then `IsAddOnLoaded` | boolean | the presence guard for optional integrations (library-stack-§6) |
 | `FrameVisible(frame)` | `frame:IsVisible()` | `true` for a secret answer (fail open), `false` for nil or a raise | other addons' secure frames can answer secrets |
 | `FrameUnit(frame)` | `displayedUnit` → `unit` → `unitToken` → `GetAttribute("unit")` | the unit token, or nil for none or a secret | three frame systems store the unit three ways; the secret check runs before any comparison |

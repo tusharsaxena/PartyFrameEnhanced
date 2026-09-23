@@ -28,7 +28,10 @@ launcher. The addon consumes eleven LibKa0s majors through one setup file each �
 Launcher (`core/LauncherSetup.lua`), Slash (`settings/Slash.lua`) and Options
 (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
 are created once at enable and never churn (so no pool), the addon handles no items, and it orders
-nothing (so no reorder list).
+nothing (so no reorder list). **Schema is vendored and not adopted yet** (#14): the Schema document's
+library-less stub refuses a path with no row. On that build the Master controls composer is hollow,
+so `/pfe enable`, `/pfe disable` and `/pfe lock` would stop writing (`tests/test_schema.lua` pins
+it). `settings/Schema.lua` keeps its own runtime until that is settled upstream.
 
 Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
 record, the first standards audit, the in-game smoke pass and the first party perf captures done.
@@ -293,8 +296,8 @@ on entering combat while disabled, and replacing the latch with a boolean.
   target, but a disable leaves the bus registrations live. The modules' own `Suspend` hooks and the
   show ladder's stood-down rung still apply. `tests/test_bus.lua` pins it.
 
-Every deferred item is a GitHub issue (#1–#13, #13 still `state:untriaged`); the spec's §10 is the list
-they were filed from.
+Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
+#1–#13 were filed from, and #14 is the deferred `LibKa0s-Schema-1.0` adoption.
 
 ## Documentation map
 

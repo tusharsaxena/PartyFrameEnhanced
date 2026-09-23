@@ -46,9 +46,10 @@ the live registry; `__fireUnconditional` reaches a handler anyway, so "nothing r
 the addon rather than about the harness. The three negative steps carry testing-§12 falsification
 comments and were each proven red by mutation before the suite was kept.
 
-`tests/test_spelling.lua` is the US-English prose gate (localization-§5): it copies the standard's
-published `BRITISH` and `ALLOWED` lists **whole** and scans every authored `.lua`, `.md` and `.toc`
-the repo tracks, skipping only `libs/`, `tests/_kit/` and the frozen evidence bundles. A British form
+`tests/_kit/test_prose.lua` is the US-English prose gate (localization-§5), shipped in the kit and
+wired as `{ name = "test_prose", dir = "tests/_kit/" }`: it copies the standard's published
+`BRITISH` and `ALLOWED` lists **whole** and scans every authored file the repo tracks, skipping only
+`libs/`, `tests/_kit/` and the frozen evidence bundles. A British form
 the lists miss is added upstream in the standard first, never locally.
 
 The **degraded path** is proven by a real load with the library absent — `tests/degraded_env.lua`

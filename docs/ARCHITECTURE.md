@@ -330,3 +330,10 @@ Frozen material named once as directories, never row by row: `automated-tests/<r
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
 | `events-frames-taint-§1` | `UNIT_SPELLCAST_*`, `UNIT_TARGET` and the pet unit events are registered with `RegisterUnitEvent` on each element's own frame, not through AceEvent | AceEvent-3.0 has no unit filter: routed through it, every cast by every unit the client knows (nameplates, raid, target, focus) is dispatched into Lua to be discarded. `RegisterUnitEvent` filters in C, so a disabled or excluded unit costs nothing. The frames are the elements themselves, not frames made for events. | 2026-09-15 | AceEvent or LibKa0s gains a unit-filtered registration |
+
+### Files over the 1500-line cap
+
+Nothing is over the cap today. `layout-§1` caps an authored `.lua` file at 1500 lines, and this
+census is where a breach would be dispositioned; `libs/` and `tests/_kit/` are vendored and out of
+scope. The kit's `tests/_kit/test_layout_cap.lua` holds this section against the tracked tree on
+every run, so a file crossing the cap reddens the suite until it gets a row here.

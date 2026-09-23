@@ -40,7 +40,7 @@ with its party member's frame when they are out of range; the raid marker draws 
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.55.0. What the addon
 took from that run is v1.46.1's settings-page combat lock, and v1.55.0's Bus and Compat majors
-([revendor/2026-09-23/](revendor/2026-09-23/05_SUMMARY.md)). v1.47.0 to v1.54.2 is the drag-handle
+([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)). v1.47.0 to v1.54.2 is the drag-handle
 widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
 
 ## Module Map

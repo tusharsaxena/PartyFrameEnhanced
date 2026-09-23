@@ -82,5 +82,6 @@ Kit.run{
     "test_surface_parity",
     "test_vendor_sync",
     { name = "test_eol", dir = "tests/_kit/" },
+    { name = "test_layout_cap", dir = "tests/_kit/" },
   },
 }

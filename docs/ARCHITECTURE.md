@@ -323,7 +323,7 @@ they were filed from.
 | `superpowers/` | The v0.1.0 design spec and the checkpointed build plan (directory) |
 
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
-`perf-analysis/<run>/`, `audits/` and — when it exists — `reviews/`.
+`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and — when it exists — `reviews/`.
 
 ## Documented deviations
 

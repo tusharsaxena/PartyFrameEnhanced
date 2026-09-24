@@ -23,8 +23,11 @@ local _, NS = ...
 -- UNLOCKING IS REFUSED IN COMBAT, with the addon disabled, and during a perf-run suspend. The
 -- clickable target and pet frames are secure: their state drivers cannot switch to "show" and
 -- nothing can be dragged until combat ends, so an unlock there would half-happen. The refusal puts
--- the stored value back and says why, in gray. LOCKING IS ALWAYS ALLOWED — whatever it cannot do at
--- once is queued for PLAYER_REGEN_ENABLED — so the refusal can never strand a player unlocked.
+-- the stored value back and says why: combat and a perf suspend in gray, and the disabled refusal
+-- as the collection's one line, NS.DisabledLine() (cli:DisabledLine(), slash-commands-§7), printed
+-- ungrayed exactly as the verbs and the launcher print it and never re-spelled here. LOCKING IS
+-- ALWAYS ALLOWED — whatever it cannot do at once is queued for PLAYER_REGEN_ENABLED — so the
+-- refusal can never strand a player unlocked.
 --
 -- ENTERING COMBAT RE-LOCKS, at PLAYER_REGEN_DISABLED while secure writes are still permitted, so no
 -- clickable placeholder and no stand-in anchor survives into the fight. That is where the old
@@ -37,7 +40,6 @@ NS.Preview = Preview
 
 local REFUSED_COMBAT = "|cff808080" ..
     L["cannot unlock during combat \226\128\148 the clickable frames cannot move until it ends"] .. "|r"
-local REFUSED_DISABLED  = "|cff808080" .. L["cannot unlock \226\128\148 the addon is disabled"] .. "|r"
 local REFUSED_SUSPENDED = "|cff808080" ..
     L["cannot unlock \226\128\148 a perf run has the addon suspended"] .. "|r"
 
@@ -107,7 +109,12 @@ function NS.AcceptLock(locked)
     if locked ~= false then return true end   -- locking is always allowed
     local why
     if InCombatLockdown() then why = REFUSED_COMBAT
-    elseif NS.GetSetting("enabled") ~= true then why = REFUSED_DISABLED
+    elseif NS.GetSetting("enabled") ~= true then
+        -- The collection's line, read at call time, through the same printer the slash gate and
+        -- the launcher use, and not wrapped in gray: one line, one spelling, everywhere.
+        NS.Print(NS.DisabledLine())
+        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+        return false
     elseif NS.Perf.suspended then why = REFUSED_SUSPENDED
     end
     if not why then return true end

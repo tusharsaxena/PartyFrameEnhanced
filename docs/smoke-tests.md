@@ -80,8 +80,11 @@ One row per full pass. The newest row is the current iteration.
 10d. Still **while disabled**, **left-click the minimap button**: one tagged line naming
     `/pfe enable`, and nothing else — the elements do not unlock and no stand-in appears.
     **Right-click** it: the settings panel opens, exactly as it does when the addon is running.
+    On the General page, **untick *Lock frame***: the same one tagged line (*Ka0s Party Frame
+    Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to ticked.
     *Failure:* a left click that unlocks (it would be writing the stored tree of an addon the player
-    switched off), or a right click that refuses.
+    switched off), a right click that refuses, or a gray *cannot unlock* line from the checkbox — a
+    second wording of the one refusal (slash-commands-§7).
 
 10e. `/pfe enable` again, then `/reload`. Everything comes back, and it comes back from the settings
     **as they are now**: change a setting while the addon is disabled — `/pfe set castbar.enabled

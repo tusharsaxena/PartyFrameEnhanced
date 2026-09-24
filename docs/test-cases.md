@@ -257,7 +257,7 @@ badge and any count quoted in the docs must agree with it.
 - preview: in a party, unlocking is placeholders on the real frames and no stand-in
 - preview: in a raid it is the stand-in too
 - preview: it switches live — joining hides the stand-in, leaving brings it back, it stays on
-- preview: unlocking is refused in combat, disabled or suspended — one gray line each
+- preview: unlocking is refused in combat, disabled or suspended — one line each
 - preview: locking is never refused, so a refusal cannot strand the elements unlocked
 - preview: combat re-locks at PLAYER_REGEN_DISABLED (stand-in)
 - preview: combat re-locks at PLAYER_REGEN_DISABLED (party)
@@ -321,7 +321,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 
-### test_disabled.lua (17)
+### test_disabled.lua (18)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -339,6 +339,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: re-enabled, the released state drivers are re-installed
 - disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
 - disabled: in combat, the fade frames and holders hide once combat ends
+- disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
 ### test_launcher.lua (17)
@@ -440,11 +441,11 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 23 |
-| test_disabled.lua | 17 |
+| test_disabled.lua | 18 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **309** |
+| **Total** | **310** |

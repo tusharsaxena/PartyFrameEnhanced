@@ -105,7 +105,7 @@ end)
 
 -- The three refusals came off the removed Test mode row, which would not start under any of them.
 -- They live on the `locked` row's validate now, so they reach every writer of it.
-test("preview: unlocking is refused in combat, disabled or suspended — one gray line each", function()
+test("preview: unlocking is refused in combat, disabled or suspended — one line each", function()
   prep()
   world(false, false)
   mocks.InCombatLockdown = function() return true end
@@ -120,8 +120,11 @@ test("preview: unlocking is refused in combat, disabled or suspended — one gra
   -- reaches here, and what NS.AcceptLock does with it is what this case is about.
   NS.db.profile.enabled = false
   local refusal = capture(function() NS.SetByPath("locked", false) end)
-  assertTrue(refusal:find("the addon is disabled", 1, true) ~= nil, refusal)
-  assertTrue(refusal:find("|cff808080", 1, true) ~= nil, "gray")
+  -- The collection's one refusal line (slash-commands-§7), byte for byte what the slash gate prints
+  -- for a refused verb: the Lock frame row MUST NOT re-spell it in its own gray wording.
+  assertEqual(refusal, slash("unlock"), "the disabled refusal is the gate's line")
+  assertTrue(refusal:find(NS.Slash.__cli:DisabledLine(), 1, true) ~= nil, refusal)
+  assertTrue(refusal:find("|cff808080", 1, true) == nil, "not gray")
   NS.db.profile.enabled = true
   isOff()
   NS.lifecycle:Hold("perf")

@@ -96,7 +96,6 @@ for _, key in ipairs({
 -- only switch (options-ui-§15), so every string here is worded around locking and unlocking.
 for _, key in ipairs({
     "(test)",
-    "cannot unlock \226\128\148 the addon is disabled",
     "cannot unlock \226\128\148 a perf run has the addon suspended",
     "Locked \226\128\148 combat started",
     "Locked \226\128\148 the addon was disabled",

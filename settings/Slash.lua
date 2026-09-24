@@ -120,6 +120,11 @@ function runLock(locked)
     print(locked and L["Elements locked"] or L["Elements unlocked \226\128\148 drag them into place"])
 end
 
+--- The collection's one disabled-refusal line (slash-commands-§7), asked of the CLI at call time.
+--- Published so a refusal outside the dispatcher — the launcher's left click here, the Lock frame
+--- row's validate in modules/Preview.lua — prints the same bytes the slash gate prints.
+function NS.DisabledLine() return cli:DisabledLine() end
+
 --- Flip the lock. THE ONE TOGGLE: the launcher's left click (core/LauncherSetup.lua, launcher-§2's
 --- rung (b)) lands here, so the button drives the same `locked` path the Lock frame checkbox and
 --- `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that state. An
@@ -133,7 +138,7 @@ end
 --- opens the settings panel in either state, which is one of the two routes the standard nominates
 --- for reaching the panel, and rung (c)'s carve-out is the same rule read from the other side.
 function NS.ToggleLock()
-    if NS.GetSetting("enabled") ~= true then return print(cli:DisabledLine()) end
+    if NS.GetSetting("enabled") ~= true then return print(NS.DisabledLine()) end
     runLock(NS.GetSetting("locked") ~= true)
 end
 
@@ -430,6 +435,9 @@ cli = SlashLib:New({
 
     -- Through the seam, so a CLI change takes the panel's path: [Set] line, onChange, CONFIG.
     get          = function(path) return NS.GetSetting(path) end,
+    -- Returns nothing, whatever the seam answered: a `/pfe set locked false` while disabled is
+    -- refused inside NS.AcceptLock, which prints the collection line, and the library then echoes
+    -- the unchanged stored value — the refusal and the echo, the same shape as before.
     set          = function(path, v)
         NS.SetByPath(path, v)
         if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end

@@ -437,6 +437,25 @@ test("disabled: in combat, the fade frames and holders hide once combat ends", f
   assertContainers(true, "is shown again on stand-up")
 end)
 
+test("disabled: unlocking through the seam prints only the collection line and writes nothing", function()
+  -- slash-commands-§7: the one refusal a disabled addon prints is cli:DisabledLine(), and the Lock
+  -- frame row (NS.AcceptLock, the `locked` row's validate) MUST NOT print a second wording.
+  -- red under: restore REFUSED_DISABLED
+  enable(false)
+  NS.db.profile.locked = true
+  local before = #mocks.__chat
+  local ok = NS.SetByPath("locked", false)
+  local out = {}
+  for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+  assertEqual(ok, false, "the seam reports the refused write")
+  assertEqual(#out, 1, "exactly one chat line")
+  local gate = #mocks.__chat
+  NS.Slash:OnSlash("unlock")
+  assertEqual(out[1], mocks.__chat[gate + 1], "byte for byte the line the slash gate prints")
+  assertTrue(out[1]:find(NS.Slash.__cli:DisabledLine(), 1, true) ~= nil, "the collection's line")
+  assertEqual(NS.db.profile.locked, true, "the stored lock did not move")
+end)
+
 test("disabled: the suite leaves the world enabled for the suites after it", function()
   enable(true)
   NS.SetByPath("locked", true)

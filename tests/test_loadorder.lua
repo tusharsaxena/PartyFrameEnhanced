@@ -45,6 +45,13 @@ test("loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TO
     "the TOC line must carry the note saying its position is load-bearing")
 end)
 
+test("loadorder: LifecycleSetup loads before PerfSetup, and the TOC says why", function()
+  -- red under: moving LifecycleSetup below PerfSetup (Perf would be handed a nil lifecycle).
+  assertBefore("core/lifecyclesetup.lua", "core/perfsetup.lua", "Perf requires d.lifecycle")
+  assertTrue(readFile(TOC):find("publishes NS.lifecycle", 1, true) ~= nil,
+    "the TOC line must say LifecycleSetup's position is load-bearing")
+end)
+
 test("loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup", function()
   assertBefore("core/namespace.lua", "core/coresetup.lua", "the printer's prefix is NS.PREFIX")
   assertBefore("core/coresetup.lua", "core/perfsetup.lua", "PerfSetup's sinks print")

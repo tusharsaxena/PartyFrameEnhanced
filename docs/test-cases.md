@@ -6,10 +6,11 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (13)
+### test_loadorder.lua (14)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
+- loadorder: LifecycleSetup loads before PerfSetup, and the TOC says why
 - loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
@@ -444,7 +445,7 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 13 |
+| test_loadorder.lua | 14 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
@@ -476,4 +477,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **338** |
+| **Total** | **339** |

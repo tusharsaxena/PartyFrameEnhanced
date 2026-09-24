@@ -58,7 +58,9 @@ end
 
 -- A structural change (roster, Edit Mode, an addon loading): resolve now, and again once frames that
 -- settle a frame or two late have settled. A newer burst supersedes an older one's follow-ups.
+-- Suspended, it arms nothing: the stand-down drops every trigger, and this holds even if one survives.
 local function burst()
+    if suspended then return end
     Providers.Request()
     burstGen = burstGen + 1
     local gen = burstGen

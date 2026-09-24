@@ -95,6 +95,12 @@ One row per full pass. The newest row is the current iteration.
     out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
     lockdown), or frames that stay gone after the re-enable (the release was not undone).
 
+10g. **Edit Mode through a stand-down.** In a party, `/pfe disable`, `/pfe debug on`, then open and
+    close Edit Mode (switch the party frames between raid-style and classic, so a resolve has
+    something to report) → no `[Provider]` line on the debug console. `/pfe enable`, then do the
+    same again → the resolve burst runs and a `[Provider]` line names the frames. *Failure:* a resolve line while disabled (the `EditMode.Exit`
+    callback survived the stand-down), or none after the re-enable (the stand-up did not take it back).
+
 ## C. Settings panel and the combat gate
 
 11. `/pfe config` out of combat → Settings opens on **Ka0s Party Frame Enhanced**: the logo renders,

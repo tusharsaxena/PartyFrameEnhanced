@@ -115,7 +115,7 @@ badge and any count quoted in the docs must agree with it.
 - compat: without the library the guard stub answers what the library answers, fixture for fixture
 - compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires
 
-### test_providers.lua (12)
+### test_providers.lua (14)
 
 - providers: Blizzard classic maps party1..4 by unitToken and never the player
 - providers: Blizzard raid-style maps the player too, and follows a re-sort
@@ -128,6 +128,8 @@ badge and any count quoted in the docs must agree with it.
 - providers: a resolve that finds what it already had sends no LAYOUT
 - providers: any number of requests before the next frame cost one resolve
 - providers: a hooked member frame's unit change requests a resolve
+- providers: enabled, exactly one EditMode.Exit callback is registered, owned by Providers
+- providers: suspended, the Edit Mode burst arms nothing even when reached directly
 - providers: suspended, requests do nothing and events come off
 
 ### test_anchor.lua (9)
@@ -319,11 +321,12 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 
-### test_disabled.lua (13)
+### test_disabled.lua (14)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
 - disabled: nothing is left armed to wake up
+- disabled: leaving Edit Mode while disabled arms nothing
 - disabled: every frame that was on screen is hidden, and refused at the source
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
@@ -420,7 +423,7 @@ badge and any count quoted in the docs must agree with it.
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 12 |
 | test_compat.lua | 10 |
-| test_providers.lua | 12 |
+| test_providers.lua | 14 |
 | test_anchor.lua | 9 |
 | test_profile_switch.lua | 4 |
 | test_castbars.lua | 13 |
@@ -434,11 +437,11 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 23 |
-| test_disabled.lua | 13 |
+| test_disabled.lua | 14 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **303** |
+| **Total** | **306** |

@@ -194,12 +194,56 @@ test("providers: a hooked member frame's unit change requests a resolve", functi
   reset()
 end)
 
+-- The EditMode.Exit callbacks the kit's recording EventRegistry holds (kit revision 26, LK-04).
+local function editModeExits()
+  local out = {}
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.kind == "callback" and r.event == "EditMode.Exit" then out[#out + 1] = r end
+  end
+  return out
+end
+
+test("providers: enabled, exactly one EditMode.Exit callback is registered, owned by Providers", function()
+  -- red under: drop editModeCallback(true) from OnEnable/Resume, or register it under a second owner.
+  local rows = editModeExits()
+  assertEqual(#rows, 1, "one callback, not zero and not two")
+  assertTrue(rows[1] and rows[1].owner == NS.Providers, "owned by NS.Providers")
+end)
+
+test("providers: suspended, the Edit Mode burst arms nothing even when reached directly", function()
+  -- red under: drop the suspended guard in burst. The stand-down unregisters the callback, so the
+  -- client cannot reach burst() while suspended; this reaches it anyway, the way test_disabled's
+  -- __fireUnconditional reaches a bar's handler, to prove the guard holds on its own.
+  local registry = mocks.EventRegistry
+  local register, handler = registry.RegisterCallback, nil
+  registry.RegisterCallback = function(self, event, func, owner, ...)
+    if event == "EditMode.Exit" then handler = func end
+    return register(self, event, func, owner, ...)
+  end
+  Providers:Suspend()
+  Providers:Resume()
+  registry.RegisterCallback = register
+  mocks.__fireTimers()
+  assertTrue(type(handler) == "function", "the stand-up registered the Edit Mode callback")
+
+  Providers:Suspend()
+  local before = #mocks.__timers
+  handler(Providers)
+  assertEqual(#mocks.__timers, before, "no resolve and no follow-up timer is armed")
+  Providers:Resume()
+  mocks.__fireTimers()
+end)
+
 test("providers: suspended, requests do nothing and events come off", function()
   Providers:Suspend()
   local before = #mocks.__timers
   Providers.Request()
   assertEqual(#mocks.__timers, before)
+  assertEqual(#editModeExits(), 0, "the EditMode.Exit callback came off")
+  mocks.EventRegistry:TriggerEvent("EditMode.Exit")
+  assertEqual(#mocks.__timers, before, "leaving Edit Mode while suspended arms nothing")
   Providers:Resume()
   assertTrue(#mocks.__timers > before, "resume resolves again from current state")
+  assertEqual(#editModeExits(), 1, "and the callback is back, once")
   mocks.__fireTimers()
 end)

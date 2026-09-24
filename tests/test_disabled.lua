@@ -92,6 +92,9 @@ test("disabled: every registration the addon owns is UNREGISTERED, not gated", f
   -- with a flag the handlers read — the handlers would still early-return, every assertion about
   -- behavior would still pass, and this one would go red, which is the entire point of it.
   --
+  -- red under: drop editModeCallback(false) from Providers:Suspend — the 'callback|EditMode.Exit'
+  -- row the kit's recording EventRegistry reports (LK-04) survives the stand-down.
+  --
   -- Written through the WRITE SEAM, never by calling NS.StandDown directly: the route the checkbox
   -- and `/pfe disable` take is the route that has to work.
   enable(false)
@@ -108,6 +111,15 @@ test("disabled: nothing is left armed to wake up", function()
   assertEqual(#mocks.__timers(), 0, "no AceTimer handle, no C_Timer ticker, no OnUpdate")
   settle()
   assertEqual(#mocks.__timers(), 0, "and none is armed for the rest of the run")
+end)
+
+test("disabled: leaving Edit Mode while disabled arms nothing", function()
+  -- red under: drop editModeCallback(false) from Providers:Suspend AND the suspended guard in burst.
+  -- Leaving Edit Mode is the one trigger the bus record cannot stand down on its own. Two defenses
+  -- hold it: step 3 falsifies the unregister, and test_providers reaches burst() directly to
+  -- falsify the guard, because with the callback gone the client cannot reach it from here.
+  mocks.EventRegistry:TriggerEvent("EditMode.Exit")
+  assertEqual(#mocks.__timers(), 0, "no resolve and no follow-up is armed")
 end)
 
 test("disabled: every frame that was on screen is hidden, and refused at the source", function()

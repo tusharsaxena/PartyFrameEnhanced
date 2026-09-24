@@ -155,6 +155,7 @@ addon rather than a preference.
 | `ADDON_ACTION_BLOCKED` / `_FORBIDDEN` | `core/PartyFrameEnhanced.lua` | log a blocked action blamed on this addon, ungated |
 | `GROUP_ROSTER_UPDATE` | `core/PartyFrameEnhanced.lua` | the party-only flip (`NS.Units.InParty`): republish VISIBILITY |
 | `GROUP_ROSTER_UPDATE`, `PLAYER_ENTERING_WORLD`, `EDIT_MODE_LAYOUTS_UPDATED`, `PLAYER_REGEN_ENABLED`, `ADDON_LOADED` (EllesmereUI) | `modules/Providers.lua` (AceEvent, own target) | re-resolve the unit → frame map |
+| `EditMode.Exit` (EventRegistry callback) | `modules/Providers.lua` | re-resolve after Edit Mode closes |
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
 | `UNIT_TARGET` (per owner, `RegisterUnitEvent`); `PLAYER_TARGET_CHANGED` and `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/TargetFrames.lua` | target frames. `UNIT_TARGET` never fires for the player's own target, hence `PLAYER_TARGET_CHANGED`; the client does not dispatch unit events (such as `UNIT_NAME_UPDATE`) for compound tokens, so the repeating timer also repaints whole any shown button whose unit was unresolved (nil name) when it was painted -- e.g. a new member's target. Health comes from the same gated repeating timer |
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent`; `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/PetFrames.lua` | pet frames |
@@ -206,7 +207,9 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
    **unregistered**, every timer and `OnUpdate` canceled, and the ten target and pet buttons' secure
    visibility state drivers **unregistered** (`UnitButtons.Release`), not replaced with `"hide"`:
    at once out of combat, deferred to `PLAYER_REGEN_ENABLED` in combat. A feature that is merely
-   switched off keeps its `"hide"` driver; only the stand-down releases it;
+   switched off keeps its `"hide"` driver; only the stand-down releases it. Providers also
+   unregisters its `EditMode.Exit` EventRegistry callback, and its resolve burst arms nothing while
+   suspended;
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;

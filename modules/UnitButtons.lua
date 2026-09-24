@@ -65,6 +65,21 @@ function UnitButtons.ApplyDriver(btn, driver)
     end)
 end
 
+--- The stand-down's half of ApplyDriver: unregister the visibility driver outright rather than
+--- installing "hide" (slash-commands-§7 — a stood-down addon leaves nothing for the secure
+--- state-driver manager to evaluate). Same RunSecure key as ApplyDriver, so a release requested in
+--- combat replaces a queued install, and a stand-up in the same combat replaces the release. The
+--- request memo clears NOW, so the stand-up's ApplyDriver always re-installs.
+function UnitButtons.Release(btn)
+    btn.__driverWant = nil
+    NS.RunSecure("driver:" .. btn.__key, function()
+        UnregisterStateDriver(btn, "visibility")
+        btn:Hide()
+        btn.__driver = nil
+        NS.Debug("Secure", "%s driver released", btn.__key)
+    end)
+end
+
 --- Left-click targets the unit, or the button ignores the mouse entirely.
 function UnitButtons.ApplyClicks(btn, on)
     on = on and true or false

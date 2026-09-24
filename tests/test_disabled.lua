@@ -293,6 +293,86 @@ test("disabled: the launcher's LEFT click is refused and its RIGHT click is not"
   assertEqual(opens, 1, "right click still opens the settings panel, in either state")
 end)
 
+-- The ten secure buttons (five target, five pet) whose visibility state drivers the stand-down
+-- releases. Their drivers are the one piece of the addon the registration census above cannot see:
+-- a state driver is registered with the client's secure state-driver manager, not as an event.
+local function unitButtons()
+  local out = {}
+  for _, feature in ipairs({ NS.TargetFrames, NS.PetFrames }) do
+    for _, unit in ipairs(NS.Units.LIST) do out[#out + 1] = feature.__buttons[unit] end
+  end
+  return out
+end
+
+local function driven()
+  local out = {}
+  for _, btn in ipairs(unitButtons()) do
+    if btn.__drivers and btn.__drivers.visibility then out[#out + 1] = btn.__key end
+  end
+  return out
+end
+
+local driversOn = {}
+
+test("disabled: out of combat, the target and pet state drivers are UNREGISTERED", function()
+  -- red under: keep the "hide" driver. A constant "hide" hides the buttons just as well, and every
+  -- visual assertion would still pass, but the secure state-driver manager keeps evaluating ten
+  -- conditions for an addon the player switched off (slash-commands-§7).
+  -- Unlocked, so preview puts a "show" driver on what it can: a baseline of all-"hide" drivers
+  -- would let a stand-up that re-installs "hide" everywhere pass the next case.
+  -- Free placement too: attached, a button with no party frame to sit on is not allowed even in
+  -- preview, and this harness has no frame system loaded. Restored after the combat case.
+  enable(true)
+  NS.SetByPath("target.anchorMode", "free")
+  NS.SetByPath("pet.anchorMode", "free")
+  NS.SetByPath("locked", false)
+  settle()
+  for _, btn in ipairs(unitButtons()) do driversOn[btn.__key] = btn.__drivers and btn.__drivers.visibility end
+  assertEqual(#driven(), #unitButtons(), "the baseline: every button has a driver while enabled")
+
+  enable(false)
+  assertEqual(table.concat(driven(), ", "), "", "no target or pet button keeps a visibility driver")
+  for _, btn in ipairs(unitButtons()) do
+    assertFalse(btn:IsShown(), btn.__key .. " is hidden")
+  end
+end)
+
+test("disabled: re-enabled, the released state drivers are re-installed", function()
+  -- red under: a Release that leaves the request memo (`__driverWant`) set, so the stand-up's
+  -- ApplyDriver skips the write as unchanged and the buttons never show again.
+  -- Standing down force-locks, so the baseline's preview is restored explicitly.
+  enable(true)
+  NS.SetByPath("locked", false)
+  settle()
+  for _, btn in ipairs(unitButtons()) do
+    assertTrue(btn.__drivers and btn.__drivers.visibility ~= nil, btn.__key .. " has a driver again")
+    assertEqual(btn.__drivers.visibility, driversOn[btn.__key], btn.__key .. " got its old driver back")
+  end
+  assertEqual(NS.TargetFrames.__buttons.party1.__drivers.visibility, "show", "the preview driver")
+end)
+
+test("disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it", function()
+  -- red under: keep the "hide" driver, or run UnregisterStateDriver under lockdown, which the client
+  -- blocks and blames on the addon.
+  local saved = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  enable(false)
+  assertEqual(#driven(), #unitButtons(), "nothing secure was touched under lockdown")
+  assertTrue(NS.PendingSecureCount() > 0, "the release is queued")
+
+  mocks.InCombatLockdown = saved
+  local ran = mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertEqual(ran, 1, "exactly one listener — the pending-secure watcher — was live to receive it")
+  assertEqual(table.concat(driven(), ", "), "", "and the queued release ran")
+  assertEqual(NS.PendingSecureCount(), 0, "nothing is left queued")
+  assertEqual(#regs(), 0, "and the watcher let go of the event the moment it fired")
+  enable(true)
+  settle()
+  assertEqual(#driven(), #unitButtons(), "back up, every driver returns")
+  NS.SetByPath("target.anchorMode", "attached")
+  NS.SetByPath("pet.anchorMode", "attached")
+end)
+
 test("disabled: the suite leaves the world enabled for the suites after it", function()
   enable(true)
   NS.SetByPath("locked", true)

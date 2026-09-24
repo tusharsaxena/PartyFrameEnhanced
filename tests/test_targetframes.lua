@@ -344,15 +344,17 @@ test("targetframes: PLAYER_TARGET_CHANGED repaints the player's target button", 
   drain()
 end)
 
-test("targetframes: suspended, no events, no ticker, every driver hide", function()
+test("targetframes: suspended, no events, no ticker, every driver unregistered", function()
   prep()
   target("party1", { name = "Boar", reaction = 2 })
   NS.lifecycle:Hold("perf")
   assertTrue(next(buttons.party1.__unitEvents) == nil)
   assertFalse(TargetFrames.TickerRunning())
-  assertEqual(buttons.party1.__drivers.visibility, "hide")
+  -- Unregistered, not replaced with "hide" (slash-commands-§7); the release re-installs it.
+  assertEqual(buttons.party1.__drivers.visibility, nil)
   NS.lifecycle:Release("perf")
   assertEqual(buttons.party1.__unitEvents.UNIT_TARGET[1], "party1")
+  assertEqual(buttons.party1.__drivers.visibility, "[@party1target,exists] show; hide")
   mocks.__units.party1target = nil
   drain()
 end)

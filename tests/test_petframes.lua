@@ -90,13 +90,15 @@ test("petframes: Update health off drops the health events and draws the bar ful
   mocks.__units.partypet2 = nil
 end)
 
-test("petframes: suspended, events come off and every driver is hide", function()
+test("petframes: suspended, events come off and every driver is unregistered", function()
   prep()
   NS.lifecycle:Hold("perf")
   assertTrue(next(buttons.party1.__unitEvents) == nil)
-  assertEqual(buttons.party1.__drivers.visibility, "hide")
+  -- Unregistered, not replaced with "hide" (slash-commands-§7); the release re-installs it.
+  assertEqual(buttons.party1.__drivers.visibility, nil)
   NS.lifecycle:Release("perf")
   assertEqual(buttons.party1.__unitEvents.UNIT_PET[1], "party1")
+  assertEqual(buttons.party1.__drivers.visibility, "[@partypet1,exists] show; hide")
 end)
 
 test("petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it", function()

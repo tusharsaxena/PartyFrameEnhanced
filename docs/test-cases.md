@@ -186,7 +186,7 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: preview shows every allowed button with placeholder content
 - targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
 - targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
-- targetframes: suspended, no events, no ticker, every driver hide
+- targetframes: suspended, no events, no ticker, every driver unregistered
 - targetframes: a target that had not resolved at paint time is repainted by the ticker
 - targetframes: with Update health off, the ticker runs only until a pending target resolves
 - targetframes: the marker draws above the border
@@ -199,7 +199,7 @@ badge and any count quoted in the docs must agree with it.
 - petframes: a new pet paints fully; a health event repaints health only
 - petframes: Use class color takes the OWNER's class
 - petframes: Update health off drops the health events and draws the bar full
-- petframes: suspended, events come off and every driver is hide
+- petframes: suspended, events come off and every driver is unregistered
 - petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it
 - petframes: the marker sits on its configured point of the bar, nudged by its offsets
 - petframes: the marker draws above the border
@@ -319,7 +319,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 
-### test_disabled.lua (10)
+### test_disabled.lua (13)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -330,6 +330,9 @@ badge and any count quoted in the docs must agree with it.
 - disabled: re-enabled, the addon rebuilds from CURRENT state
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
 - disabled: the launcher's LEFT click is refused and its RIGHT click is not
+- disabled: out of combat, the target and pet state drivers are UNREGISTERED
+- disabled: re-enabled, the released state drivers are re-installed
+- disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
 - disabled: the suite leaves the world enabled for the suites after it
 
 ### test_launcher.lua (17)
@@ -431,11 +434,11 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 23 |
-| test_disabled.lua | 10 |
+| test_disabled.lua | 13 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **300** |
+| **Total** | **303** |

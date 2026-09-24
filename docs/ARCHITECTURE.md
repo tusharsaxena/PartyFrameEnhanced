@@ -203,7 +203,10 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
 
 1. the lifecycle events come off the addon object;
 2. every module's `Suspend` runs — every `RegisterUnitEvent` on every element frame actually
-   **unregistered**, every timer and `OnUpdate` canceled;
+   **unregistered**, every timer and `OnUpdate` canceled, and the ten target and pet buttons' secure
+   visibility state drivers **unregistered** (`UnitButtons.Release`), not replaced with `"hide"`:
+   at once out of combat, deferred to `PLAYER_REGEN_ENABLED` in combat. A feature that is merely
+   switched off keeps its `"hide"` driver; only the stand-down releases it;
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;

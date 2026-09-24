@@ -88,6 +88,13 @@ One row per full pass. The newest row is the current iteration.
     false` — then `/pfe enable`, and the cast bars stay off. *Failure:* the addon standing up into
     the state it had when it went down.
 
+10f. **The target and pet frames through a stand-down, both ways.** In a party with a pet out and a
+    member targeting something, `/pfe disable` out of combat, then `/pfe enable` → the target and pet
+    frames return. Then enter combat, untick *Enable Party Frame Enhanced* in the panel, and leave
+    combat → no `ADDON_ACTION_BLOCKED` on the debug console, and the frames are gone. Tick it back
+    out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
+    lockdown), or frames that stay gone after the re-enable (the release was not undone).
+
 ## C. Settings panel and the combat gate
 
 11. `/pfe config` out of combat → Settings opens on **Ka0s Party Frame Enhanced**: the logo renders,

@@ -183,7 +183,14 @@ TargetFrames.__tick = tick
 -- ── show decision, content, events ────────────────────────────────────────────────────────────
 
 local function refresh(btn)
-    local allowed = not suspended and UnitButtons.Allowed(cfg, btn.unit)
+    -- Stood down, the driver is unregistered, not replaced with "hide" (slash-commands-§7); a
+    -- feature that is merely off keeps its "hide" driver. Resume's refreshAll re-installs it.
+    if suspended then
+        btn.__allowed = false
+        UnitButtons.Release(btn)
+        return
+    end
+    local allowed = UnitButtons.Allowed(cfg, btn.unit)
     btn.__allowed = allowed
     UnitButtons.ApplyDriver(btn, UnitButtons.Driver(btn.token, allowed, NS.State.preview))
     if not allowed then return end

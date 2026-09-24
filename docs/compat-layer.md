@@ -1,12 +1,14 @@
 # Compat layer
 
 `core/Compat.lua` owns every version-variant or optional client API this addon calls, and the
-secret-value guards around them (compat, spec §7). Feature modules call `NS.Compat.X` for those. Three
-raw calls stay outside it, each on a stable API whose answer is only tested for presence or passed
-through `Compat.IsSecret` first, never compared while it may be secret: `UnitCastingInfo` /
-`UnitChannelInfo` in `modules/CastBars.lua` (the ticker's missed-stop check; nil-ness is never
-secret), `UnitInRange` in `modules/RangeFade.lua` (both returns pass `Compat.IsSecret` before use)
-and `UnitName` in `modules/TargetFrames.lua` (the secret test comes first). Every global is read at **call time**: 12.0 and 12.1 differ in which members exist, and a
+secret-value guards around them (compat, spec §7). Feature modules call `NS.Compat.X` for those. Stable unit queries that
+never changed shape are called directly from the feature modules rather than wrapped here, for example
+`UnitHealth` / `UnitHealthMax` and `UnitName` (`modules/UnitButtons.lua`, `modules/TargetFrames.lua`,
+`modules/PetFrames.lua`), `UnitClass` / `UnitPowerType` (`modules/StandIn.lua`), `UnitCastingInfo` /
+`UnitChannelInfo` (the cast-bar ticker's missed-stop check) and `UnitInRange` (`modules/RangeFade.lua`).
+A query about another unit may answer a secret, so its result is only tested for presence, handed
+straight to a C setter or the debug formatter, or passed through `Compat.IsSecret` before any
+comparison; the stand-in's `"player"` queries read the player's own class and power type. Every global is read at **call time**: 12.0 and 12.1 differ in which members exist, and a
 headless run has none of them. Shims LibKa0s supplies (metadata, media, the stringifier) are the
 library's and are not documented here.
 

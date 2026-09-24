@@ -25,7 +25,7 @@ The landing page renders the same table.
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |
-| `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management | no |
+| `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management. Every name is checked against the profile list first, and a bad one is refused on one line: `use` no longer creates a profile (a missing name is refused), `new` refuses a name that already exists instead of wiping it, `copy` refuses a missing name and the current profile, and `delete` refuses a missing name as well as the current profile | no |
 
 ## The disabled state
 

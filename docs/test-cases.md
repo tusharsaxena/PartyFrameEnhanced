@@ -267,8 +267,8 @@ badge and any count quoted in the docs must agree with it.
 
 ### test_prose.lua (15)
 
-- prose: no authored file carries a British spelling from localization-5's published list
-- prose: the gate carries localization-5's two lists whole, and nothing of its own
+- prose: no authored file carries a British spelling from localization-§5's published list
+- prose: the gate carries localization-§5's two lists whole, and nothing of its own
 - prose self-test: the carve-out suppresses the named generated folder, and only it
 - prose self-test: a path the carve-out does not name is not covered by one that looks like it
 - prose self-test: a carve-out that is not a set of path strings is a failure, not a silence
@@ -283,7 +283,7 @@ badge and any count quoted in the docs must agree with it.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (19)
+### test_slash.lua (23)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -304,6 +304,10 @@ badge and any count quoted in the docs must agree with it.
 - slash: `unlock` refuses at the DISPATCHER, before the write seam
 - slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
 - slash: the live set still ANSWERS and still ACTS while the addon is off
+- slash: `profile new` on an existing name refuses and does NOT wipe it
+- slash: `profile use` on a missing name refuses and creates nothing
+- slash: `profile copy` refuses a missing name and the current profile, with no Lua error
+- slash: `profile delete` on a missing name refuses instead of claiming it deleted
 
 ### test_disabled.lua (10)
 
@@ -370,13 +374,13 @@ badge and any count quoted in the docs must agree with it.
 ### test_eol.lua (2)
 
 - eol: every tracked file carries the terminator .gitattributes declares for it
-- eol: .gitattributes is line-endings-5's canonical body for this repo kind
+- eol: .gitattributes is line-endings-§5's canonical body for this repo kind
 
 ### test_layout_cap.lua (13)
 
 - layoutcap: every authored file over the 1500-line cap is named in the census
 - layoutcap: no census row outlives the breach it records
-- layoutcap: every over-cap census row carries one of layout-1's three terminal states
+- layoutcap: every over-cap census row carries one of layout-§1's three terminal states
 - layoutcap: the census and the exempt set agree about which paths were exempted
 - layoutcap: an empty census is written as a result rather than left standing empty
 - layoutcap self-test: the parser reads the census nested under the register, and stops there
@@ -415,7 +419,7 @@ badge and any count quoted in the docs must agree with it.
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 19 |
+| test_slash.lua | 23 |
 | test_disabled.lua | 10 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
@@ -423,4 +427,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **289** |
+| **Total** | **293** |

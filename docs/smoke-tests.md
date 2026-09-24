@@ -129,6 +129,11 @@ One row per full pass. The newest row is the current iteration.
     does"*. `/pfe resetall` does the same act.
 20. `/pfe profile` → the sub-verb list; `/pfe profile new Test` → switched to a fresh `Test`;
     `/pfe profile use Default` → back.
+20a. **Bad profile names are refused.** `/pfe profile new Healer`; `/pfe set castbar.width 222`;
+    `/pfe profile use Default`; `/pfe profile new Healer` → one *already exists* line, and Healer
+    still has width 222. `/pfe profile copy Nope` and `/pfe profile copy <current>` → one refusal line
+    each, no Lua error frame. `/pfe profile use Typo` → refused, and `/pfe profile list` shows no
+    `Typo`. `/pfe profile delete Nope` → refused, no *Deleted* line.
 
 ## E. Debug console and perf harness
 

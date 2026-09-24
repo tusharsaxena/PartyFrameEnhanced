@@ -251,6 +251,15 @@ local function needsName(verb, fn)
     end
 end
 
+local function exists(db, name)
+    for _, n in ipairs(db:GetProfiles()) do
+        if n == name then return true end
+    end
+    return false
+end
+
+local NO_PROFILE = "No profile named '%s' \226\128\148 /pfe profile list shows them"
+
 local PROFILE_VERBS = {
     list = function(db)
         print(L["Available profiles"])
@@ -262,17 +271,26 @@ local PROFILE_VERBS = {
     current = function(db)
         print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
+    -- SetProfile creates a profile on demand, so a typo would make one: refuse a missing name.
     use = needsName("use", function(db, name)
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:SetProfile(name)
         print(L["Switched to profile '%s'"]:format(name))
     end),
-    -- SetProfile first, then the reset, so the reset lands on the new profile.
+    -- SetProfile first, then the reset, so the reset lands on the new profile. An existing name is
+    -- refused: switching to it and resetting would wipe that whole profile.
     new = needsName("new", function(db, name)
+        if exists(db, name) then
+            return print(L["Profile '%s' already exists \226\128\148 use /pfe profile use or /pfe profile reset"]:format(name))
+        end
         db:SetProfile(name)
         NS.ResetProfileCounted(db)
         print(L["Created and switched to new profile '%s'"]:format(name))
     end),
+    -- AceDB-3.0's CopyProfile raises on both of these (:581-587); refuse them before it can.
     copy = needsName("copy", function(db, name)
+        if name == db:GetCurrentProfile() then return print(L["Cannot copy the current profile onto itself"]) end
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:CopyProfile(name)
         print(L["Copied settings from profile '%s'"]:format(name))
     end),
@@ -280,6 +298,8 @@ local PROFILE_VERBS = {
         if name == db:GetCurrentProfile() then
             return print(L["Cannot delete the current profile"])
         end
+        -- The silent delete would otherwise report 'Deleted' for a profile that never existed.
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:DeleteProfile(name, true)
         print(L["Deleted profile '%s'"]:format(name))
     end),

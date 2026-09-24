@@ -288,3 +288,94 @@ test("slash: the live set still ANSWERS and still ACTS while the addon is off", 
   unrefused(slash("enable"), "enable")
   assertEqual(NS.GetSetting("enabled"), true, "`enable` above all still turns the addon back on")
 end)
+
+-- --- the profile sub-verbs refuse bad names (slash-commands-§3/§4) ------------------------------
+--
+-- AceDB's SetProfile creates a profile on demand and its CopyProfile / DeleteProfile raise on a
+-- bad name, so every name-taking sub-verb checks the name against db:GetProfiles() first and
+-- refuses on ONE tagged line. Each case puts the starting profile back and deletes what it made,
+-- so later suites see the store they expect.
+
+local function hasProfile(name)
+  for _, n in ipairs(NS.db:GetProfiles()) do
+    if n == name then return true end
+  end
+  return false
+end
+
+local function dropProfile(start, name)
+  NS.db:SetProfile(start)
+  if hasProfile(name) then NS.db:DeleteProfile(name, true) end
+end
+
+-- Runs one slash line through pcall, so a raw AceDB raise is a failed assertion, not a dead suite.
+local function slashSafe(msg)
+  local before = #mocks.__chat
+  local ok, err = pcall(NS.Slash.OnSlash, NS.Slash, msg)
+  local out = {}
+  for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+  return ok, err, out
+end
+
+test("slash: `profile new` on an existing name refuses and does NOT wipe it", function()
+  -- red under: drop the exists() guard in new. The unguarded verb switched to Healer, reset it to
+  -- defaults and said "Created" -- a whole profile's data gone from one ordinary command.
+  local start = NS.db:GetCurrentProfile()
+  slash("profile new Healer")
+  slash("set castbar.width 222")
+  slash("profile use " .. start)
+  local out = slash("profile new Healer")
+  local current = NS.db:GetCurrentProfile()
+  NS.db:SetProfile("Healer")
+  local width = NS.GetSetting("castbar.width")
+  dropProfile(start, "Healer")
+
+  assertEqual(width, 222, "Healer kept its width")
+  assertEqual(current, start, "and the refusal did not switch to it")
+  assertEqual(#out, 1, "one line")
+  assertTrue(out[1]:find("already exists", 1, true) ~= nil, "the 'already exists' line")
+end)
+
+test("slash: `profile use` on a missing name refuses and creates nothing", function()
+  -- red under: `use` straight through SetProfile, which makes a profile out of any typo.
+  local start = NS.db:GetCurrentProfile()
+  local out = slash("profile use Typo")
+  local created, current = hasProfile("Typo"), NS.db:GetCurrentProfile()
+  dropProfile(start, "Typo")
+
+  assertTrue(not created, "no 'Typo' profile")
+  assertEqual(current, start, "still on the starting profile")
+  assertEqual(#out, 1, "one line")
+  assertTrue(out[1]:find("No profile named 'Typo'", 1, true) ~= nil, "the no-profile line")
+end)
+
+test("slash: `profile copy` refuses a missing name and the current profile, with no Lua error", function()
+  -- red under: db:CopyProfile unguarded. AceDB-3.0 (:581-587) raises on both, and so does the kit's
+  -- fake from revision 26, so the unguarded verb dies with a raw error frame.
+  local start = NS.db:GetCurrentProfile()
+  slash("set castbar.width 223")
+
+  local ok1, err1, out1 = slashSafe("profile copy Missing")
+  local ok2, err2, out2 = slashSafe("profile copy " .. start)
+  local width = NS.GetSetting("castbar.width")
+  slash("reset castbar.width")
+
+  assertTrue(ok1, "copy Missing raised: " .. tostring(err1))
+  assertTrue(ok2, "copy <current> raised: " .. tostring(err2))
+  assertEqual(#out1, 1, "one line for the missing name")
+  assertTrue(out1[1]:find("No profile named 'Missing'", 1, true) ~= nil, "the no-profile line")
+  assertEqual(#out2, 1, "one line for the current profile")
+  assertTrue(out2[1]:find("Cannot copy the current profile onto itself", 1, true) ~= nil)
+  assertEqual(width, 223, "the store is unchanged")
+  assertTrue(not hasProfile("Missing"), "and nothing was created")
+end)
+
+test("slash: `profile delete` on a missing name refuses instead of claiming it deleted", function()
+  -- red under: DeleteProfile(name, true) unguarded -- silent, so it printed 'Deleted profile' for a
+  -- profile that never existed.
+  local ok, err, out = slashSafe("profile delete Missing")
+  assertTrue(ok, tostring(err))
+  assertEqual(#out, 1, "one line")
+  assertTrue(joined(out):find("Deleted profile", 1, true) == nil, "no false 'Deleted' line")
+  assertTrue(out[1]:find("No profile named 'Missing'", 1, true) ~= nil, "the no-profile line")
+end)

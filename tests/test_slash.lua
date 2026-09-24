@@ -379,3 +379,26 @@ test("slash: `profile delete` on a missing name refuses instead of claiming it d
   assertTrue(joined(out):find("Deleted profile", 1, true) == nil, "no false 'Deleted' line")
   assertTrue(out[1]:find("No profile named 'Missing'", 1, true) ~= nil, "the no-profile line")
 end)
+
+test("slash: `status` prints the frame system's label through NS.L", function()
+  -- red under: the provider labels were raw strings, so 'Blizzard (raid-style)' and
+  -- 'Blizzard (classic)' had no enUS key and a translation could never reach /pfe status
+  -- (localization-§1, PartyFrameEnhanced-A-09).
+  for _, p in ipairs(NS.Providers.__list) do
+    assertTrue(rawget(NS.L, p.label) ~= nil, "provider label is an enUS key: " .. p.label)
+  end
+  local container = mocks.CreateFrame("Frame", "CompactPartyFrame")
+  container:Show()
+  container.memberUnitFrames = {}
+  local savedGroup = mocks.__context.inGroup
+  mocks.__context.inGroup = true
+  mocks.CompactPartyFrame = container
+  mocks.EditModeManagerFrame = { UseRaidStylePartyFrames = function() return true end }
+  NS.Providers.Resolve()
+  local out = slash("status")
+  mocks.CompactPartyFrame, mocks.EditModeManagerFrame = nil, nil
+  mocks.__context.inGroup = savedGroup
+  NS.Providers.Resolve()
+  local want = "Frame system: " .. NS.L["Blizzard (raid-style)"]
+  assertEqual(out[1]:sub(-#want), want, "the L-routed label ends the first line")
+end)

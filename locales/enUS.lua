@@ -28,7 +28,7 @@ L["Fade each party member's cast bar, target frame and pet frame along with thei
 
 -- Shared element rows (settings/ElementRows.lua)
 for _, key in ipairs({
-    "General", "Position", "Placement", "Attached to party frames", "Free placement", "Size",
+    "General", "Placement", "Attached to party frames", "Free placement", "Size",
     "Border", "Text", "Font", "Bar", "Fill", "Background", "Background color", "Icon",
     "Top left", "Top", "Top right", "Left", "Center", "Right", "Bottom left", "Bottom", "Bottom right",
     "Attach to party frames", "Down", "Up",
@@ -130,9 +130,8 @@ for _, key in ipairs({
     "Print the addon version",
     "Profile management \226\128\148 try `/pfe profile` for the list",
     "Positions reset",
-    "All settings reset to defaults", "All settings reset to defaults.",
+    "All settings reset to defaults",
     "Cannot reset settings \226\128\148 the settings helpers failed to load",
-    "Cannot reset settings \226\128\148 the settings helpers failed to load.",
     "Elements locked", "Elements unlocked \226\128\148 drag them into place",
     "off", "on, free placement", "on, attached", "addon disabled", "visibility %s", "unlocked",
     "suspended by a perf run", "Frame system: %s",
@@ -150,7 +149,6 @@ for _, key in ipairs({
     "Cannot copy the current profile onto itself",
     "Profile system requires AceDB-3.0", "Unknown profile subcommand '%s'",
     "%s is unavailable: the LibKa0s library did not load.", "v%s \226\128\148 slash commands", "unknown command '%s'",
-    "/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on",
     "Slash Commands",
     "Player", "Party 1", "Party 2", "Party 3", "Party 4",
 }) do L[key] = key end
@@ -162,6 +160,14 @@ L["Yes"] = "Yes"
 L["No"] = "No"
 L["Restore every General setting on this profile to its addon default."] =
     "Restore every General setting on this profile to its addon default."
+
+-- Frame-system labels (modules/Providers.lua; "EllesmereUI" is listed with the General page above)
+L["Blizzard (raid-style)"] = "Blizzard (raid-style)"
+L["Blizzard (classic)"] = "Blizzard (classic)"
+
+-- The debug seam's degraded stub (core/DebugLogSetup.lua)
+L["debug logging %s"] = "debug logging %s"
+L["Debug console"] = "Debug console"
 
 -- Migration runner (core/Database.lua)
 L["Settings migration to v%d failed; your settings were left as they were"] =

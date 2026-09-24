@@ -210,9 +210,9 @@ StaticPopupDialogs["PARTYFRAMEENHANCED_RESET_ALL"] = {
     OnAccept     = function()
         if NS.Helpers and NS.Helpers.RestoreAllDefaults then
             NS.Helpers.RestoreAllDefaults()
-            print(L["All settings reset to defaults."])
+            print(L["All settings reset to defaults"])
         else
-            print(L["Cannot reset settings \226\128\148 the settings helpers failed to load."])
+            print(L["Cannot reset settings \226\128\148 the settings helpers failed to load"])
         end
     end,
 }

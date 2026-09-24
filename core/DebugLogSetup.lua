@@ -37,7 +37,7 @@ if not lib then
             on = not not on
             if NS.State then NS.State.debug = on end
             if NS.Print then
-                NS.Print("debug logging " .. (on and "|cff40ff40ON|r" or "|cffff4040OFF|r"))
+                NS.Print(NS.L["debug logging %s"]:format(on and "|cff40ff40ON|r" or "|cffff4040OFF|r"))
             end
             if on then sayOnce() end
         end,
@@ -51,7 +51,7 @@ if not lib then
         MakeCloseButton = function() return nil end,
         ConsoleCheckbox = function()
             return {
-                label   = "Debug console",
+                label   = NS.L["Debug console"],
                 tooltip = missing,
                 get = function() return false end,
                 set = function() sayOnce() end,

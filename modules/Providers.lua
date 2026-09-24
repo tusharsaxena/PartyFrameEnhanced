@@ -12,6 +12,7 @@ local _, NS = ...
 -- HookScript only, and every hook just REQUESTS a resolve; the resolve itself runs on the next frame,
 -- coalesced, so a burst of forty attribute changes during a re-sort costs one pass.
 
+local L      = NS.L
 local Perf   = NS.Perf
 local Compat = NS.Compat
 local Units  = NS.Units
@@ -95,7 +96,7 @@ local function erfChild(header, i)
 end
 
 local ELLESMERE = {
-    id = "ellesmere", family = "ellesmere", label = "EllesmereUI", priority = 100,
+    id = "ellesmere", family = "ellesmere", label = L["EllesmereUI"], priority = 100,
     IsAvailable = function()
         return ERFPartyHeader ~= nil and Compat.IsAddOnLoaded("EllesmereUIRaidFrames")
     end,
@@ -118,7 +119,7 @@ local ELLESMERE = {
 }
 
 local BLIZZARD_RAID = {
-    id = "blizzard-raid", family = "blizzard", label = "Blizzard (raid-style)", priority = 50,
+    id = "blizzard-raid", family = "blizzard", label = L["Blizzard (raid-style)"], priority = 50,
     IsAvailable = function() return CompactPartyFrame ~= nil end,
     IsActive = function()
         return Compat.UseRaidStyleParty() and Compat.FrameVisible(CompactPartyFrame)
@@ -137,7 +138,7 @@ local BLIZZARD_RAID = {
 }
 
 local BLIZZARD_PARTY = {
-    id = "blizzard-party", family = "blizzard", label = "Blizzard (classic)", priority = 40,
+    id = "blizzard-party", family = "blizzard", label = L["Blizzard (classic)"], priority = 40,
     IsAvailable = function() return PartyFrame ~= nil end,
     IsActive = function()
         return not Compat.UseRaidStyleParty() and Compat.FrameVisible(PartyFrame)

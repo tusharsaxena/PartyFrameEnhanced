@@ -73,11 +73,12 @@ badge and any count quoted in the docs must agree with it.
 - mediasetup: NS.Icon builds catalog paths from this addon's folder
 - mediasetup: without LibKa0s the face falls back to a real client font and icons answer nil
 
-### test_debuglog.lua (3)
+### test_debuglog.lua (4)
 
 - debuglog: NS.Debug is the instance's gated sink, bound bare
 - debuglog: enabling logging flips NS.State.debug and writes nothing to the profile
 - debuglog: without LibKa0s, `debug on` still sets the flag and acknowledges it
+- debuglog: the degraded stub's ack and checkbox label are routed through NS.L
 
 ### test_perfsetup.lua (5)
 
@@ -309,7 +310,7 @@ badge and any count quoted in the docs must agree with it.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (23)
+### test_slash.lua (24)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -334,6 +335,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile use` on a missing name refuses and creates nothing
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
+- slash: `status` prints the frame system's label through NS.L
 
 ### test_disabled.lua (18)
 
@@ -444,7 +446,7 @@ badge and any count quoted in the docs must agree with it.
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
 | test_mediasetup.lua | 3 |
-| test_debuglog.lua | 3 |
+| test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 12 |
@@ -462,7 +464,7 @@ badge and any count quoted in the docs must agree with it.
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 23 |
+| test_slash.lua | 24 |
 | test_disabled.lua | 18 |
 | test_launcher.lua | 20 |
 | test_optionssetup.lua | 10 |
@@ -470,4 +472,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **332** |
+| **Total** | **334** |

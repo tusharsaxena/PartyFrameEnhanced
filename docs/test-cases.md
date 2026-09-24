@@ -165,12 +165,14 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (21)
+### test_targetframes.lua (23)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
 - targetframes: attached with no party frame on screen, the driver is hide
 - targetframes: in combat a driver change is queued, never written, and lands at regen
+- targetframes: a driver changed and changed back in combat ends on the last request
+- targetframes: click to target unticked and re-ticked in combat stays on after combat
 - targetframes: click to target sets the attribute and the mouse, both ways
 - targetframes: UNIT_TARGET paints the name, health, percent and marker
 - targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise
@@ -189,9 +191,10 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: with Update health off, the ticker runs only until a pending target resolves
 - targetframes: the marker draws above the border
 
-### test_petframes.lua (9)
+### test_petframes.lua (10)
 
 - petframes: each button acts on its owner's pet token
+- petframes: click to target unticked and re-ticked in combat stays on after combat
 - petframes: UNIT_PET listens on the owner, the health events on the pet token
 - petframes: a new pet paints fully; a health event repaints health only
 - petframes: Use class color takes the OWNER's class
@@ -418,8 +421,8 @@ badge and any count quoted in the docs must agree with it.
 | test_anchor.lua | 9 |
 | test_profile_switch.lua | 4 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 21 |
-| test_petframes.lua | 9 |
+| test_targetframes.lua | 23 |
+| test_petframes.lua | 10 |
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |
 | test_preview.lua | 7 |
@@ -435,4 +438,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **297** |
+| **Total** | **300** |

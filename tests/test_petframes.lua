@@ -22,6 +22,18 @@ test("petframes: each button acts on its owner's pet token", function()
   assertEqual(buttons.party3.__drivers.visibility, "[@partypet3,exists] show; hide")
 end)
 
+test("petframes: click to target unticked and re-ticked in combat stays on after combat", function()
+  -- red under: compare against btn.__clicks
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("pet.clickToTarget", false)
+  NS.SetByPath("pet.clickToTarget", true)
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  assertEqual(buttons.party1:GetAttribute("*type1"), "target")
+  assertEqual(buttons.party1.__clicks, true)
+end)
+
 test("petframes: UNIT_PET listens on the owner, the health events on the pet token", function()
   local ev = buttons.party2.__unitEvents
   assertEqual(ev.UNIT_PET[1], "party2")

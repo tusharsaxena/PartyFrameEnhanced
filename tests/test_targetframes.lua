@@ -81,6 +81,40 @@ test("targetframes: in combat a driver change is queued, never written, and land
   NS.SetByPath("visibility", "always")
 end)
 
+test("targetframes: a driver changed and changed back in combat ends on the last request", function()
+  -- red under: compare against btn.__driver
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("visibility", "never")
+  NS.SetByPath("visibility", "always")
+  -- OnLeaveCombat re-publishes visibility after the flush, which would mask a stale queued "hide"
+  -- as a one-frame flicker; record every driver the flush and the republish install.
+  local installed, real = {}, mocks.RegisterStateDriver
+  mocks.RegisterStateDriver = function(frame, state, driver)
+    if frame == buttons.party1 then installed[#installed + 1] = driver end
+    return real(frame, state, driver)
+  end
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  mocks.RegisterStateDriver = real
+  assertEqual(buttons.party1.__drivers.visibility, "[@party1target,exists] show; hide")
+  assertEqual(table.concat(installed, " | "), "[@party1target,exists] show; hide",
+    "the queued write is the last request; the stale \"hide\" is never installed")
+end)
+
+test("targetframes: click to target unticked and re-ticked in combat stays on after combat", function()
+  -- red under: compare against btn.__clicks
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("target.clickToTarget", false)
+  NS.SetByPath("target.clickToTarget", true)
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  assertEqual(buttons.party1:GetAttribute("*type1"), "target")
+  assertEqual(buttons.party1.__clicks, true)
+  assertEqual(buttons.party1.__mouse, true)
+end)
+
 test("targetframes: click to target sets the attribute and the mouse, both ways", function()
   prep()
   assertEqual(buttons.party1:GetAttribute("*type1"), "target")

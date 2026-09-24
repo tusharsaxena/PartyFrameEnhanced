@@ -12,6 +12,10 @@ local _, NS = ...
 --     General visibility mode folded in as `[combat]` / `[nocombat]`, so combat transitions change
 --     nothing Lua has to write. Lua only re-issues a driver when a setting, preview or frame
 --     presence changes.
+--   * the skip-if-unchanged memos compare against the REQUESTED value (`__driverWant`,
+--     `__clicksWant`, set before NS.RunSecure), never the applied one (`__driver`, `__clicks`, set
+--     inside the deferred write), so a setting changed and changed back in combat queues the last
+--     request instead of being dropped behind a stale queued write.
 --
 -- Painting the regions inside a secure button is not a protected action, so content updates freely
 -- in combat.
@@ -49,9 +53,11 @@ function UnitButtons.Driver(token, allowed, preview)
     return exists
 end
 
---- Install `driver` unless it is already the installed one.
+--- Install `driver` unless it is already the requested one. `__driverWant` is the last request
+--- (set now), `__driver` the installed driver (set when the write runs).
 function UnitButtons.ApplyDriver(btn, driver)
-    if btn.__driver == driver then return end
+    if btn.__driverWant == driver then return end
+    btn.__driverWant = driver
     NS.RunSecure("driver:" .. btn.__key, function()
         btn.__driver = driver
         RegisterStateDriver(btn, "visibility", driver)
@@ -62,7 +68,8 @@ end
 --- Left-click targets the unit, or the button ignores the mouse entirely.
 function UnitButtons.ApplyClicks(btn, on)
     on = on and true or false
-    if btn.__clicks == on then return end
+    if btn.__clicksWant == on then return end
+    btn.__clicksWant = on
     NS.RunSecure("clicks:" .. btn.__key, function()
         btn.__clicks = on
         btn:SetAttribute("*type1", on and "target" or nil)

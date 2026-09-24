@@ -221,6 +221,10 @@ EllesmereUI's, where noted.
     a second straight away, with no need to retarget.
 36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
     target* → clicks pass through; ticking it back in combat applies when combat ends.
+36a. **Click to target toggled back in combat.** In combat, on Target Frames untick *Click to target*
+    and then tick it again before combat ends. After combat, left-click a target frame → you target
+    that unit. *Failure:* the frame ignores the click (the untick landed at regen and the re-tick was
+    lost), which needs a third toggle to recover.
 37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
     at once (the driver's `[combat]` clause) — no Lua error, no blocked-action message. Move a frame in
     free placement: refused in combat, allowed out of it.

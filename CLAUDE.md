@@ -30,7 +30,8 @@ Start here, then read the docs:
   wiring, taint notes, known limitations, documented deviations. What this addon actually is.
 - **`docs/testing.md`** — how to verify: the headless harness, lint, and the green commit gate.
 - Topic detail in `docs/` as needed (`schema.md`, `settings-panel.md`, `smoke-tests.md`, …).
-- **`docs/superpowers/plans/`** — the v0.1.0 build plan; its status ledger is the resume point.
+- **Resume point** — `docs/ARCHITECTURE.md` (Known Limitations, Documented deviations) and the repo's
+  GitHub issues. `docs/superpowers/plans/` holds the v0.1.0 build plan, which is history.
 
 Green gate before every commit: `lua tests/run.lua` and `luacheck .` (0/0). Never auto-stage/commit/
 push and never bump the version without an explicit instruction.

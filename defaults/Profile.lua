@@ -1,7 +1,8 @@
 local _, NS = ...
 
 -- defaults/Profile.lua — every profile default, and the only place one is written (savedvariables-§2).
--- Feature sections (castbar, target, pet) are added by the phase that builds each feature.
+-- NS.defaults.profile holds the master controls and every feature section (general, castbar, target,
+-- pet); NS.defaults.global below holds the account-wide rows.
 
 NS.defaults = NS.defaults or {}
 

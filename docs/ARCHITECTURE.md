@@ -1,9 +1,9 @@
 # Architecture — Ka0s Party Frame Enhanced
 
 The engineer's hub. Each section summarizes and links to its topic doc; the design record behind it is
-[superpowers/specs/2026-09-15-party-frame-enhanced-design.md](superpowers/specs/2026-09-15-party-frame-enhanced-design.md),
-and the build's progress is the ledger in
-[superpowers/plans/2026-09-15-party-frame-enhanced-v0.1.0.md](superpowers/plans/2026-09-15-party-frame-enhanced-v0.1.0.md).
+[superpowers/specs/2026-09-15-party-frame-enhanced-design.md](superpowers/specs/2026-09-15-party-frame-enhanced-design.md).
+The resume point is this document and the repo's GitHub issues: the v0.1.0 build plan under
+[superpowers/plans/](superpowers/plans/) is history, not a live ledger.
 
 ## Overview
 
@@ -120,9 +120,9 @@ Limitations).
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade) |
-| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`) |
+| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing) |
 | `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state) |
 
 ## Slash Commands
 
@@ -153,7 +153,7 @@ one icon, one label and one identity.
 | Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
 | Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
 | Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state. **Refused while the addon is disabled** (launcher-§2): a preview switch is a feature, so it prints `cli:DisabledLine()` — the same line the slash gate prints, never re-spelled — and does nothing else, writing no SavedVariables. Rung (c)'s carve-out does not reach it |
-| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other, in **either** state. The ruling narrows the *slash* surface and a mouse click is not a slash command; this click is one of the two routes that keep the panel reachable |
+| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other, in **either** state. Per the standard's v2.57.0 ruling the settings panel is setup, reachable in either state; this click and the bare `/pfe` are the two routes to it |
 | Visibility | one Master-controls row, `global.minimap.shown`, inverting onto LibDBIcon's stored `hide` (see *Settings Schema* → Global rows) |
 | Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
 | Degradation | no stub. LibKa0s absent → no `NS.Launcher`, and its two callers already guard on it. LibDataBroker or LibDBIcon absent → the library reports it on one line and `Register` answers `false`; neither is a dependency, because LibKa0s is vendored into addons whose `libs/` folders are not identical |
@@ -358,7 +358,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | `slash-dispatch.md` | Present | 17 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims (trigger: three or more) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims — 14 `function Compat.X` statements plus the `Compat.IsSecret` assignment; count both forms with `grep -cE '^function Compat\.\|^Compat\.[A-Za-z]+ *=' core/Compat.lua` (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 

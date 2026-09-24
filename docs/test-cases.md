@@ -98,11 +98,12 @@ badge and any count quoted in the docs must agree with it.
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
 
-### test_bus.lua (12)
+### test_bus.lua (13)
 
 - bus: two receivers of one message on their own targets both fire
 - bus: every message is prefixed Ka0s_PartyFrameEnhanced_
 - bus: no message has more than one sending file
+- bus: every receiving module is named in its message's Consumers cell in docs/ARCHITECTURE.md
 - bus: a stand-down takes a receiver's events AND messages down, and a stand-up puts both back
 - bus: a stand-up replays the record as it is NOW, not a snapshot from the way down
 - bus: a method-name handler survives the round trip and is called as a method
@@ -456,7 +457,7 @@ badge and any count quoted in the docs must agree with it.
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
-| test_bus.lua | 12 |
+| test_bus.lua | 13 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
 | test_anchor.lua | 11 |
@@ -479,4 +480,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **341** |
+| **Total** | **342** |

@@ -14,7 +14,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 3 | `core/Compat.lua` | every version-variant client call and secret guard ([compat-layer.md](compat-layer.md)) | conventional: reached at call time |
 | 4 | `core/MediaSetup.lua` | `NS.Icon`, `NS.MediaFont`, the one `Media.RegisterLSM` | **load-bearing**: before Constants |
 | 5 | `core/Constants.lua` | fallback media, `FONT_MONO`, logo path, the nine anchor points | reads NS.MediaFont at load |
-| 6 | `core/State.lua` | session state: `debug`, `inCombat`, `preview`, `inParty`, `test` | conventional |
+| 6 | `core/State.lua` | session state: `debug`, `inCombat`, `preview`, `inParty` | conventional |
 | 7 | `core/Bus.lua` | `NS.bus`, the `NS.busRecord` stand-down record (`LibKa0s-Bus-1.0`), `NS.NewBusTarget` / `NS.BusStandDown` / `NS.BusStandUp`, the `NS.MSG` catalog (`Bus.Catalog`) | before anything that subscribes |
 | 8 | `core/Util.lua` | LSM handle and fetch, deep copy, fill-defaults | conventional |
 | 9 | `core/EnvSetup.lua` | `NS.Meta`, `NS.Version` over LibKa0s-Env | conventional |

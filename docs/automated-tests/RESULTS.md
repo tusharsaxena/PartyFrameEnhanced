@@ -21,33 +21,42 @@ not selected, which is a different fact again.
 
 The **Tests** cell reads `passed/skipped/total`.
 
-| Run | Version | Lint w/e | Files | Tests | Perf | NLOC | Funcs | Avg NLOC | Avg CCN | Max CCN | CCN warn | Verdict |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| [`20260918-121606`](20260918-121606/) | 1.0.0 → 1.0.1 | 0/0 | 70 | 227/0/227 | pass | 7378 | 942 | 6.3 | 2.2 | 14 | 0 | **green** |
-| [`20260918-111950`](20260918-111950/) | 0.1.0 → 1.0.0 | 0/0 | 70 | 227/0/227 | pass | 7357 | 940 | 6.3 | 2.2 | 15 | 0 | **green** |
-| [`20260918-110125`](20260918-110125/) | 0.1.0 | 0/0 | 70 | 227/0/227 | pass | 7357 | 940 | 6.3 | 2.2 | 15 | 0 | **green** |
-| [`20260918-105401`](20260918-105401/) | 0.1.0 | 0/0 | 70 | 226/0/226 | pass | 7322 | 936 | 6.2 | 2.2 | 16 | 1 | **green** |
-| [`20260916-184541`](20260916-184541/) | 0.1.0 | 0/0 | 68 | 212/0/212 | pass | 6868 | 880 | 6.1 | 2.2 | 15 | 0 | **green** |
-| [`20260916-094218`](20260916-094218/) | 0.1.0 | 0/0 | 66 | 185/0/185 | pass | 6452 | 824 | 6.1 | 2.3 | 15 | 0 | **green** |
-| [`20260915-154839`](20260915-154839/) | 0.1.0 → 0.1.0 | 0/0 | 61 | 136/0/136 | pass | 5242 | 678 | 5.8 | 2.3 | 15 | 0 | **green** |
-| [`20260915-150853`](20260915-150853/) | 0.1.0 → 0.1.0 | 0/0 | 59 | 129/0/129 | pass | 4995 | 664 | 5.7 | 2.3 | 15 | 0 | **green** |
-| [`20260915-141340`](20260915-141340/) | 0.1.0 | 0/0 | 39 | 66/0/66 | pass | 1828 | 288 | 4.3 | 2.0 | 15 | 0 | **green** |
+**Commit** is the short sha the run measured and **Tree** is whether that tree was clean at the
+time. Both are read from git by the runner; neither is ever typed. A **dirty** row measured bytes
+that no sha can bring back, so it is kept as an experiment honestly labeled rather than dropped —
+and a release record is refused outright on a dirty tree, so no release row can be one.
+
+A row reading `unknown` in both cells was recorded before the runner emitted them. That is what
+the record holds about those runs — it is not `clean`, and it is not reconstructed from git
+archaeology, for the same reason a skip is never a pass (`automated-tests-§4`).
+
+| Run | Commit | Tree | Version | Lint w/e | Files | Tests | Perf | NLOC | Funcs | Avg NLOC | Avg CCN | Max CCN | CCN warn | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [`20260924-110428`](20260924-110428/) | `c888121` | clean | 1.0.1 | 0/0 | 72 | 342/0/342 | pass | 9154 | 1192 | 6.3 | 2.2 | 14 | 0 | **green** |
+| [`20260918-121606`](20260918-121606/) | unknown | unknown | 1.0.0 → 1.0.1 | 0/0 | 70 | 227/0/227 | pass | 7378 | 942 | 6.3 | 2.2 | 14 | 0 | **green** |
+| [`20260918-111950`](20260918-111950/) | unknown | unknown | 0.1.0 → 1.0.0 | 0/0 | 70 | 227/0/227 | pass | 7357 | 940 | 6.3 | 2.2 | 15 | 0 | **green** |
+| [`20260918-110125`](20260918-110125/) | unknown | unknown | 0.1.0 | 0/0 | 70 | 227/0/227 | pass | 7357 | 940 | 6.3 | 2.2 | 15 | 0 | **green** |
+| [`20260918-105401`](20260918-105401/) | unknown | unknown | 0.1.0 | 0/0 | 70 | 226/0/226 | pass | 7322 | 936 | 6.2 | 2.2 | 16 | 1 | **green** |
+| [`20260916-184541`](20260916-184541/) | unknown | unknown | 0.1.0 | 0/0 | 68 | 212/0/212 | pass | 6868 | 880 | 6.1 | 2.2 | 15 | 0 | **green** |
+| [`20260916-094218`](20260916-094218/) | unknown | unknown | 0.1.0 | 0/0 | 66 | 185/0/185 | pass | 6452 | 824 | 6.1 | 2.3 | 15 | 0 | **green** |
+| [`20260915-154839`](20260915-154839/) | unknown | unknown | 0.1.0 → 0.1.0 | 0/0 | 61 | 136/0/136 | pass | 5242 | 678 | 5.8 | 2.3 | 15 | 0 | **green** |
+| [`20260915-150853`](20260915-150853/) | unknown | unknown | 0.1.0 → 0.1.0 | 0/0 | 59 | 129/0/129 | pass | 4995 | 664 | 5.7 | 2.3 | 15 | 0 | **green** |
+| [`20260915-141340`](20260915-141340/) | unknown | unknown | 0.1.0 | 0/0 | 39 | 66/0/66 | pass | 1828 | 288 | 4.3 | 2.0 | 15 | 0 | **green** |
 
 ## Test suite
 
-**227 cases** — 227 passed, 0 failed, 0 skipped. The generated inventory
-[`20260918-121606/test-cases.md`](20260918-121606/test-cases.md) is the authority on which cases existed at this run;
+**342 cases** — 342 passed, 0 failed, 0 skipped. The generated inventory
+[`20260924-110428/test-cases.md`](20260924-110428/test-cases.md) is the authority on which cases existed at this run;
 `docs/test-cases.md` is that same list at HEAD.
 
-The count has been **flat at 227 across the last 3 runs**. A suite that stopped growing while
-the addon did is a coverage gap, and it is the one thing the table above cannot show.
+Moved **227 → 342** since the previous run.
 
 No case reported a `skip`, so passed and total agree and nothing in this row claims coverage
 that was not exercised.
 
 ## Lint
 
-**0 warnings / 0 errors over 70 files** (`luacheck .`).
+**0 warnings / 0 errors over 72 files** (`luacheck .`).
 
 Read that figure with its scope attached: `.luacheckrc` excludes 5 path(s) from it — `libs/`, `docs/audits/`, `docs/reviews/`, `_dev/`, `tests/_kit/` —
 so nothing under them is in the count above. A `0/0` that never moves is partly a statement about
@@ -57,26 +66,26 @@ to whoever thinks to open `.luacheckrc`.
 ## Perf
 
 **9 scenarios** from `tests/perf.lua`; the measurements are in
-[`20260918-121606/perf.json`](20260918-121606/perf.json).
+[`20260924-110428/perf.json`](20260924-110428/perf.json).
 
 | `scenario` | `iters` | `ms/iter` | `api/iter` | `bytes/iter` |
 |---|---|---|---|---|
-| `resolveUnchanged` | 1000 | 0.00809 | 0.0 | 0.0 |
-| `anchorUnchanged` | 1000 | 0.00571 | 0.0 | 0.0 |
-| `castStartStop` | 1000 | 0.02584 | 55.0 | 3.6 |
-| `castTick` | 1000 | 0.00330 | 10.0 | 0.0 |
-| `targetTickUnchanged` | 1000 | 0.00234 | 0.0 | 0.0 |
-| `targetTickMoving` | 1000 | 0.00587 | 15.0 | 0.0 |
-| `settingsDrag` | 200 | 0.04463 | 25.0 | 885.9 |
-| `probeOverheadOff` | 1000 | 0.00537 | 11.0 | 0.0 |
-| `probeOverheadOn` | 1000 | 0.00595 | 11.0 | 0.5 |
+| `resolveUnchanged` | 1000 | 0.00890 | 0.0 | 0.0 |
+| `anchorUnchanged` | 1000 | 0.00608 | 0.0 | 0.0 |
+| `castStartStop` | 1000 | 0.02940 | 55.0 | 3.6 |
+| `castTick` | 1000 | 0.00334 | 10.0 | 0.0 |
+| `targetTickUnchanged` | 1000 | 0.00284 | 0.0 | 0.0 |
+| `targetTickMoving` | 1000 | 0.00645 | 15.0 | 0.0 |
+| `settingsDrag` | 200 | 0.04880 | 25.0 | 925.9 |
+| `probeOverheadOff` | 1000 | 0.00535 | 11.0 | 0.0 |
+| `probeOverheadOn` | 1000 | 0.00681 | 11.0 | 0.5 |
 
 `perf` never fails a run and never blocks a commit — it is recorded, read and compared, not
 thresholded (`performance-§9`). It does gate the **tag** (`automated-tests-§3`).
 
 ## Complexity watch list
 
-Current as of [`20260918-121606`](20260918-121606/) — **this run's measurement, not its diff.** Max CCN **14** across 942
+Current as of [`20260924-110428`](20260924-110428/) — **this run's measurement, not its diff.** Max CCN **14** across 1192
 functions, **0** of them warned on; 0 file(s) in the 1000–1500 band and 0 over the 1500 cap
 (`layout-§1`).
 
@@ -87,11 +96,13 @@ cell is this file saying something crossed and nobody has ruled on it yet.
 
 ### Functions `lizard` warned on
 
-None.
+| Function | CCN | Location | Disposition |
+|---|---|---|---|
 
 ### Files by `layout-§1` band
 
-None.
+| Band | File | LOC | Disposition |
+|---|---|---|---|
 
 `lizard` counts every `and`/`or` short-circuit as a decision, so in Lua a run of
 `t.k = rec.k or D.k` defaulting lines scores high with no visible branching at all: a large CCN

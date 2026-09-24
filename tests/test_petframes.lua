@@ -149,3 +149,31 @@ test("petframes: the marker draws above the border", function()
   assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
     "the marker's layer must stack above the border frame")
 end)
+
+-- SESSION-LONG REGISTRATIONS (review F-017): RAID_TARGET_UPDATE follows the feature's syncEvents
+-- answer -- on and in a party -- like the per-button events, read from the live registration set.
+local function moduleHolds(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == NS.PetFrames.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+local function party(on)
+  mocks.__context.inGroup = on
+  NS.addon:OnRosterUpdate()
+end
+
+test("petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party", function()
+  -- red under: register it at file load
+  prep()
+  party(true)
+  assertTrue(moduleHolds("RAID_TARGET_UPDATE"), "held in a party, feature on")
+  NS.SetByPath("pet.enabled", false)
+  assertFalse(moduleHolds("RAID_TARGET_UPDATE"), "dropped with the feature off")
+  NS.SetByPath("pet.enabled", true)
+  party(false)
+  assertFalse(moduleHolds("RAID_TARGET_UPDATE"), "dropped solo")
+  party(true)
+  assertTrue(moduleHolds("RAID_TARGET_UPDATE"), "back in a party")
+end)

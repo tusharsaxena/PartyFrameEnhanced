@@ -169,7 +169,7 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (23)
+### test_targetframes.lua (25)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -194,8 +194,10 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: a target that had not resolved at paint time is repainted by the ticker
 - targetframes: with Update health off, the ticker runs only until a pending target resolves
 - targetframes: the marker draws above the border
+- targetframes: the module's own events are held only while the feature is on and in a party
+- targetframes: the debug line's UnitName is not evaluated with debug off
 
-### test_petframes.lua (10)
+### test_petframes.lua (11)
 
 - petframes: each button acts on its owner's pet token
 - petframes: click to target unticked and re-ticked in combat stays on after combat
@@ -207,6 +209,7 @@ badge and any count quoted in the docs must agree with it.
 - petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it
 - petframes: the marker sits on its configured point of the bar, nudged by its offsets
 - petframes: the marker draws above the border
+- petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
 ### test_rangefade.lua (8)
 
@@ -228,7 +231,7 @@ badge and any count quoted in the docs must agree with it.
 - party: preview skips the rule — unlocked solo, the free-placement placeholders show
 - party: /pfe status says so when you're not in a party
 
-### test_preview.lua (7)
+### test_preview.lua (8)
 
 - preview: unlocking turns preview on and makes free-placement holders grabbable
 - preview: unlocking in combat is refused, the stored lock stays, and the player is told why
@@ -237,6 +240,7 @@ badge and any count quoted in the docs must agree with it.
 - preview: neither /pfe preview nor /pfe test exists — lock and unlock are the switch
 - preview: a profile saved unlocked comes back in preview
 - status: names the frame system, each unit, each feature, and anything switched off
+- preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
 ### test_standin.lua (12)
 
@@ -433,11 +437,11 @@ badge and any count quoted in the docs must agree with it.
 | test_anchor.lua | 9 |
 | test_profile_switch.lua | 4 |
 | test_castbars.lua | 13 |
-| test_targetframes.lua | 23 |
-| test_petframes.lua | 10 |
+| test_targetframes.lua | 25 |
+| test_petframes.lua | 11 |
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |
-| test_preview.lua | 7 |
+| test_preview.lua | 8 |
 | test_standin.lua | 12 |
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
@@ -450,4 +454,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **312** |
+| **Total** | **316** |

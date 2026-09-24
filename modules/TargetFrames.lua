@@ -208,12 +208,35 @@ local function onEvent(btn)
     paintAll(btn)
     TargetFrames.UpdateTicker()
     if t0 then Perf.Note("targetEvent", debugprofilestop() - t0) end
-    -- The name may be secret; the sink's stringifier renders it as <secret>.
-    NS.Debug("Target", "%s targets %s", btn.unit, UnitName(btn.token) or "nothing")
+    -- The name may be secret; the sink's stringifier renders it as <secret>. Guarded so the
+    -- argument is not built at all with debug off: UnitName is a call per UNIT_TARGET otherwise.
+    if NS.State.debug then
+        NS.Debug("Target", "%s targets %s", btn.unit, UnitName(btn.token) or "nothing")
+    end
+end
+
+-- The module's own bus target. Hoisted above syncEvents, which holds the two unfiltered events on
+-- it while the feature is on and in a party; the message receivers are registered at the bottom.
+local ev = NS.NewBusTarget()
+TargetFrames.__ev = ev
+local moduleListening = false
+local moduleEvents   -- event -> handler, filled in at the bottom of the file
+
+-- PLAYER_TARGET_CHANGED and RAID_TARGET_UPDATE follow the same answer as the per-owner UNIT_TARGET
+-- registrations, so solo and feature-off pay no dispatch for them (review F-017). Re-registered
+-- only when that answer flips.
+local function syncModuleEvents(on)
+    on = on and true or false
+    if on == moduleListening then return end
+    for event, handler in pairs(moduleEvents) do
+        if on then ev:RegisterEvent(event, handler) else ev:UnregisterEvent(event) end
+    end
+    moduleListening = on
 end
 
 local function syncEvents()
     local on = featureOn() and Units.InParty()
+    syncModuleEvents(on)
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         if on and Units.IsIncluded(unit) then
@@ -288,9 +311,6 @@ function TargetFrames:Resume()
     refreshAll()
 end
 
-local ev = NS.NewBusTarget()
-TargetFrames.__ev = ev
-
 local function whenReady(fn)
     return function(...) if cfg then fn(...) end end
 end
@@ -322,21 +342,22 @@ ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 -- as hostile (the color note at the top of this file). Reported from a live party.
 --
 -- ON THE MODULE'S OWN TARGET, not on the button, and that is the difference between this and the
--- registrations above. An unfiltered event has no unit to filter by, so `RegisterUnitEvent` cannot
--- carry it; putting a bare `RegisterEvent` on all five buttons would repaint all five on every
--- target change, four of them for a change that is none of their business. One registration here
--- repaints exactly the one button whose owner moved -- the same shape RAID_TARGET_UPDATE below
--- already uses for an event that genuinely concerns everyone.
-ev:RegisterEvent("PLAYER_TARGET_CHANGED", whenReady(function()
-    local btn = buttons.player
-    if btn then onEvent(btn) end
-end))
-
--- Markers change for every unit at once; one repaint pass over the shown frames.
-ev:RegisterEvent("RAID_TARGET_UPDATE", whenReady(function()
-    if NS.State.preview or not cfg.showMarker then return end
-    for _, unit in ipairs(Units.LIST) do
-        local btn = buttons[unit]
-        if btn.__allowed then Compat.RaidMarker(btn.marker, btn.token) end
-    end
-end))
+-- per-owner registrations. An unfiltered event has no unit to filter by, so `RegisterUnitEvent`
+-- cannot carry it; putting a bare `RegisterEvent` on all five buttons would repaint all five on
+-- every target change, four of them for a change that is none of their business. One registration
+-- on `ev` repaints exactly the one button whose owner moved -- the same shape RAID_TARGET_UPDATE
+-- uses for an event that genuinely concerns everyone. Both are held by syncModuleEvents above.
+moduleEvents = {
+    PLAYER_TARGET_CHANGED = whenReady(function()
+        local btn = buttons.player
+        if btn then onEvent(btn) end
+    end),
+    -- Markers change for every unit at once; one repaint pass over the shown frames.
+    RAID_TARGET_UPDATE = whenReady(function()
+        if NS.State.preview or not cfg.showMarker then return end
+        for _, unit in ipairs(Units.LIST) do
+            local btn = buttons[unit]
+            if btn.__allowed then Compat.RaidMarker(btn.marker, btn.token) end
+        end
+    end),
+}

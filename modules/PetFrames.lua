@@ -87,7 +87,10 @@ local function onEvent(btn, event)
         UnitButtons.RenderName(btn, btn.token, cfg.showName)
     else
         paintAll(btn)   -- UNIT_PET: a different pet (or none) behind the token
-        NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
+        -- Guarded so the UnitName argument is not built at all with debug off.
+        if NS.State.debug then
+            NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
+        end
     end
     if t0 then Perf.Note("petEvent", debugprofilestop() - t0) end
 end
@@ -99,8 +102,26 @@ local function wantedEvents(on, unit)
     return gen.updateHealth and "health" or "name"
 end
 
+-- The module's own bus target. Hoisted above syncEvents, which holds RAID_TARGET_UPDATE on it
+-- while the feature is on and in a party; the message receivers are registered at the bottom.
+local ev = NS.NewBusTarget()
+PetFrames.__ev = ev
+local moduleListening = false
+local onRaidTarget   -- RAID_TARGET_UPDATE's handler, defined at the bottom of the file
+
+-- RAID_TARGET_UPDATE follows the same answer as the per-button registrations, so solo and
+-- feature-off pay no dispatch for it (review F-017). Re-registered only when that answer flips.
+local function syncModuleEvents(on)
+    on = on and true or false
+    if on == moduleListening then return end
+    if on then ev:RegisterEvent("RAID_TARGET_UPDATE", onRaidTarget)
+    else ev:UnregisterEvent("RAID_TARGET_UPDATE") end
+    moduleListening = on
+end
+
 local function syncEvents()
     local on = not suspended and cfg.enabled and Element.MasterShows() and Units.InParty()
+    syncModuleEvents(on)
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         local want = wantedEvents(on, unit)
@@ -169,9 +190,6 @@ function PetFrames:Resume()
     refreshAll()
 end
 
-local ev = NS.NewBusTarget()
-PetFrames.__ev = ev
-
 local function whenReady(fn)
     return function(...) if cfg then fn(...) end end
 end
@@ -195,11 +213,12 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 
--- Markers change for every unit at once; one repaint pass over the allowed buttons.
-ev:RegisterEvent("RAID_TARGET_UPDATE", whenReady(function()
+-- Markers change for every unit at once; one repaint pass over the allowed buttons. Held by
+-- syncModuleEvents above, only while the feature is on and in a party.
+onRaidTarget = whenReady(function()
     if NS.State.preview or not cfg.showMarker then return end
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         if btn.__allowed then Compat.RaidMarker(btn.marker, btn.token) end
     end
-end))
+end)

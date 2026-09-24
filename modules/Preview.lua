@@ -78,11 +78,17 @@ end
 local ev = NS.NewBusTarget()
 Preview.__ev = ev
 
+local onCombat   -- PLAYER_REGEN_DISABLED's handler, defined below with forceLock
+
+-- What preview listens for, held only while preview is on: the roster, to swap the stand-in, and
+-- combat, to re-lock (review F-017: locked, neither has anything to do).
 local function listen(on)
     if on then
         ev:RegisterEvent("GROUP_ROSTER_UPDATE", applyStandIn)
+        ev:RegisterEvent("PLAYER_REGEN_DISABLED", onCombat)
     else
         ev:UnregisterEvent("GROUP_ROSTER_UPDATE")
+        ev:UnregisterEvent("PLAYER_REGEN_DISABLED")
     end
 end
 
@@ -158,9 +164,10 @@ function Preview:Suspend()
 end
 
 -- Combat re-locks while secure writes are still permitted, so nothing clickable survives into it.
-ev:RegisterEvent("PLAYER_REGEN_DISABLED", function()
+-- Registered by listen(on) above, only while preview is on.
+onCombat = function()
     forceLock(L["Locked \226\128\148 combat started"])
-end)
+end
 
 -- The disabled case is NOT here and is not an omission: the `enabled` row's onChange takes the
 -- latch's hold, which stands the addon down and ends preview through Suspend above, before this

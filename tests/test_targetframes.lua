@@ -409,3 +409,58 @@ test("targetframes: the marker draws above the border", function()
   assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
     "the marker's layer must stack above the border frame")
 end)
+
+-- SESSION-LONG REGISTRATIONS (review F-017). The two module-level events are the feature's, so they
+-- follow the feature's own syncEvents answer -- on and in a party -- exactly as the per-owner
+-- UNIT_TARGET registrations do. Read from the live registration set, not from a handler's early
+-- return: an early return is a draw gate, and it still pays the dispatch on every event.
+local MODULE_EVENTS = { "PLAYER_TARGET_CHANGED", "RAID_TARGET_UPDATE" }
+
+local function moduleHolds(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == TargetFrames.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+local function party(on)
+  mocks.__context.inGroup = on
+  NS.addon:OnRosterUpdate()
+end
+
+test("targetframes: the module's own events are held only while the feature is on and in a party",
+  function()
+  -- red under: register them at file load
+  prep()
+  party(true)
+  for _, e in ipairs(MODULE_EVENTS) do assertTrue(moduleHolds(e), e .. " held in a party, feature on") end
+  NS.SetByPath("target.enabled", false)
+  for _, e in ipairs(MODULE_EVENTS) do assertFalse(moduleHolds(e), e .. " dropped with the feature off") end
+  NS.SetByPath("target.enabled", true)
+  party(false)
+  for _, e in ipairs(MODULE_EVENTS) do assertFalse(moduleHolds(e), e .. " dropped solo") end
+  party(true)
+  for _, e in ipairs(MODULE_EVENTS) do assertTrue(moduleHolds(e), e .. " back in a party") end
+  drain()
+end)
+
+test("targetframes: the debug line's UnitName is not evaluated with debug off", function()
+  -- red under: build the NS.Debug argument unconditionally
+  prep()
+  party(true)
+  local base, calls = mocks.UnitName, 0
+  mocks.UnitName = function(u) calls = calls + 1; return base(u) end
+  local was = NS.State.debug
+  local function count(debugOn)
+    NS.State.debug = debugOn
+    calls = 0
+    target("party1", { name = "Boar", reaction = 2 })
+    return calls
+  end
+  local off, on = count(false), count(true)
+  NS.State.debug = was
+  mocks.UnitName = base
+  assertEqual(off, on - 1, "debug off skips exactly the debug argument's UnitName")
+  mocks.__units.party1target = nil
+  drain()
+end)

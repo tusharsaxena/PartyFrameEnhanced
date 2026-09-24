@@ -334,8 +334,14 @@ EllesmereUI's, where noted.
 ## K. The launcher — minimap button and broker plugin
 
 53. **The button is there, wearing the addon's own logo.** Log in → a round button on the minimap ring
-    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → nothing
-    is required to appear (this addon supplies no tooltip yet). Drag it around the ring → it stays
+    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → the
+    status tooltip (launcher-§1): `Ka0s Party Frame Enhanced  v<the TOC version>`, `Enabled: Yes`
+    (green), `Locked: Yes` (green), `Left-click: Unlock frame`, `Right-click: Open settings`, and no
+    `Test mode` line. Unlock (`/pfe unlock`) and hover again → `Locked: No` (red) and `Left-click: Lock
+    frame`. `/pfe disable` and hover → still shown, `Enabled: No` (red) and `Left-click: disabled —
+    /pfe enable`; left-click prints that one refusal line and nothing unlocks; `/pfe enable` after.
+    *Failure:* no tooltip while disabled, a title or hint drawn twice, or a `Test mode` line (anti-
+    pattern #89). Drag it around the ring → it stays
     where you left it after `/reload`. *Failure:* a blank button is the 128 `.tga` not loading; a
     button that jumps back to its old angle on reload is `minimapPos` not being written to the table
     LibDBIcon was handed.

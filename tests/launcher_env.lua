@@ -75,6 +75,16 @@ return function(brokers, sv)
     mocks.__libs["LibDBIcon-1.0"] = icons
   end
   Loader.loadAll(Loader.xmlFiles("libs/LibKa0s/LibKa0s.xml"), NS, mocks)
+  -- Keep the descriptor core/LauncherSetup.lua hands the library, so a suite can pin its fields
+  -- (Launcher minor 3's tooltip fields above all) rather than only what the library drew from them.
+  local Launcher = mocks.LibStub("LibKa0s-Launcher-1.0", true)
+  if Launcher then
+    local new = Launcher.New
+    Launcher.New = function(self, d)
+      mocks.__launcherDescriptor = d
+      return new(self, d)
+    end
+  end
   Loader.loadAll(Loader.tocFiles("PartyFrameEnhanced.toc"), NS, mocks)
   local previous = _G.PartyFrameEnhancedDB
   if sv then _G.PartyFrameEnhancedDB = sv end

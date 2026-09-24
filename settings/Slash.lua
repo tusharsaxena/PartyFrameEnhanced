@@ -138,6 +138,10 @@ function NS.DisabledLine() return cli:DisabledLine() end
 --- the slash gate prints, because the launcher MUST NOT re-spell it. Right-click is untouched: it
 --- opens the settings panel in either state, which is one of the two routes the standard nominates
 --- for reaching the panel, and rung (c)'s carve-out is the same rule read from the other side.
+---
+--- On the button the library's own gate answers first (core/LauncherSetup.lua passes `isEnabled`
+--- and `disabledLine`, which the status tooltip needs too), so a disabled click prints this same
+--- line there and never reaches here. The gate below stays for any other caller.
 function NS.ToggleLock()
     if NS.GetSetting("enabled") ~= true then return print(NS.DisabledLine()) end
     runLock(NS.GetSetting("locked") ~= true)

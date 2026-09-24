@@ -366,7 +366,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_launcher.lua (20)
+### test_launcher.lua (26)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
@@ -375,6 +375,12 @@ badge and any count quoted in the docs must agree with it.
 - launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
 - launcher: the left click and `/pfe unlock` are the same seam, not two
 - launcher: RIGHT click always opens the settings panel
+- launcher: the descriptor claims the states this addon HAS -- enabled and a lock, no test mode
+- launcher: each accessor reads the store the Master-controls rows read, on every call
+- launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two hints
+- launcher: tooltip while unlocked -- Locked: No, and the hint says the click will LOCK
+- launcher: tooltip while DISABLED -- still shown, Enabled: No, the hint is the refusal's pointer
+- launcher: the left-click label goes through the addon's locale
 - launcher: the Minimap button row is composed, stored, and in its canonical position
 - launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
 - launcher: the row's path is `global.minimap.shown`, and the old `hide` path is gone
@@ -474,10 +480,10 @@ badge and any count quoted in the docs must agree with it.
 | test_prose.lua | 15 |
 | test_slash.lua | 24 |
 | test_disabled.lua | 18 |
-| test_launcher.lua | 20 |
+| test_launcher.lua | 26 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 12 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **342** |
+| **Total** | **348** |

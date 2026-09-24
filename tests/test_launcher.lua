@@ -124,6 +124,118 @@ test("launcher: RIGHT click always opens the settings panel", function()
   NS.OpenOptionsPanel = savedOpen
 end)
 
+-- --- the status tooltip (launcher-§1, Launcher minor 3) ------------------------------------------
+--
+-- The library draws the tooltip; this addon only answers its questions. So the cases below pin the
+-- DESCRIPTOR (which states this addon claims to have, and where each answer comes from) and then
+-- hover the one object, as LibDBIcon does, and read every line the library drew from it.
+
+local GREEN, RED = "|cFF00FF00", "|cFFFF0000"
+local EM_DASH = "\226\128\148"
+
+--- Hover the button once and answer the lines drawn, in order.
+local function hover()
+  local tt = mocks.__stubFrame()
+  local lines = {}
+  tt.AddLine = function(_, line) lines[#lines + 1] = line end
+  object().OnTooltipShow(tt)
+  return lines
+end
+
+local function tocVersion()
+  local toc = dofile("tests/_kit/loader.lua").readFile("PartyFrameEnhanced.toc")
+  return toc:match("##%s*Version:%s*([^\r\n]+)")
+end
+
+local function descriptor() return mocks.__launcherDescriptor end
+
+test("launcher: the descriptor claims the states this addon HAS -- enabled and a lock, no test mode", function()
+  -- red under: an `isTestMode` passed (this addon has no test mode: unlocking IS its preview,
+  -- options-ui-§15), which would draw a permanent `Test mode: Off` (launcher-§1 forbids it); or a
+  -- missing `isEnabled` / `isLocked`, which would draw Enabled: Yes forever and no Locked line.
+  local d = descriptor()
+  assertTrue(d ~= nil, "the env caught the descriptor")
+  assertEqual(type(d.isEnabled), "function", "Enabled is on every addon (slash-commands-§7)")
+  assertEqual(type(d.disabledLine), "function", "the refusal's words, required with isEnabled")
+  assertEqual(type(d.isLocked), "function", "the Lock frame row's state")
+  assertNil(d.isTestMode, "no test mode, so no Test mode line")
+  assertEqual(type(d.version), "function", "read at show time, not captured at load")
+  assertEqual(type(d.leftClickLabel), "function", "it names the NEXT lock state, so it is asked per show")
+  assertNil(d.onTooltipShow, "nothing of the addon's own to append -- and never a title or hints")
+end)
+
+test("launcher: each accessor reads the store the Master-controls rows read, on every call", function()
+  local d = descriptor()
+  NS.SetByPath("locked", true)
+  assertTrue(d.isLocked(), "locked row true -> Locked")
+  assertTrue(d.isEnabled(), "the enabled row")
+  NS.SetByPath("locked", false)
+  assertFalse(d.isLocked(), "the same accessor, asked again, sees the unlock")
+  NS.SetByPath("locked", true)
+  assertEqual(d.version(), tocVersion(), "the version is the TOC's ## Version")
+  assertEqual(d.disabledLine(), NS.DisabledLine(), "the slash gate's own line, never re-spelled")
+end)
+
+test("launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two hints", function()
+  -- red under: a missing version, a Test mode line, the hint naming the wrong direction, or any
+  -- line of the addon's own drawn above the status block.
+  NS.SetByPath("locked", true)
+  local lines = hover()
+  assertEqual(#lines, 5, "title, Enabled, Locked, Left-click, Right-click: " .. table.concat(lines, " / "))
+  assertEqual(lines[1], "Ka0s Party Frame Enhanced  v" .. tocVersion())
+  assertEqual(lines[2], "Enabled: " .. GREEN .. "Yes|r")
+  assertEqual(lines[3], "Locked: " .. GREEN .. "Yes|r")
+  assertEqual(lines[4], "Left-click: Unlock frame")
+  assertEqual(lines[5], "Right-click: Open settings")
+end)
+
+test("launcher: tooltip while unlocked -- Locked: No, and the hint says the click will LOCK", function()
+  NS.SetByPath("locked", false)
+  local lines = hover()
+  assertEqual(#lines, 5)
+  assertEqual(lines[3], "Locked: " .. RED .. "No|r")
+  assertEqual(lines[4], "Left-click: Lock frame")
+  for _, line in ipairs(lines) do
+    assertTrue(line:find("Test mode", 1, true) == nil, "no Test mode line in any state")
+  end
+  NS.SetByPath("locked", true)
+end)
+
+test("launcher: tooltip while DISABLED -- still shown, Enabled: No, the hint is the refusal's pointer", function()
+  -- red under: no tooltip while disabled (anti-pattern #89), an Enabled line that stays Yes, or a
+  -- left-click hint promising an unlock the click would refuse.
+  NS.SetByPath("enabled", false)
+  while mocks.__fireTimers() > 0 do end
+  local chatAfterDisable = #mocks.__chat
+  local lines = hover()
+  assertEqual(#lines, 5, table.concat(lines, " / "))
+  assertEqual(lines[1], "Ka0s Party Frame Enhanced  v" .. tocVersion())
+  assertEqual(lines[2], "Enabled: " .. RED .. "No|r")
+  assertEqual(lines[3], "Locked: " .. GREEN .. "Yes|r", "a disabled addon is locked")
+  assertEqual(lines[4], "Left-click: disabled " .. EM_DASH .. " /pfe enable")
+  assertEqual(lines[5], "Right-click: Open settings", "the right button never changes")
+  assertEqual(#mocks.__chat, chatAfterDisable, "a hover prints nothing")
+
+  -- And the click does what the hint said: one refusal line, no write.
+  click("LeftButton")
+  assertEqual(#mocks.__chat, chatAfterDisable + 1, "exactly one line")
+  assertTrue(mocks.__chat[#mocks.__chat]:find("/pfe enable", 1, true) ~= nil, "the refusal line")
+  assertTrue(NS.GetSetting("locked"), "and the lock did not move")
+
+  NS.SetByPath("enabled", true)
+  while mocks.__fireTimers() > 0 do end
+  assertEqual(hover()[2], "Enabled: " .. GREEN .. "Yes|r", "re-read on the next show, never cached")
+end)
+
+test("launcher: the left-click label goes through the addon's locale", function()
+  -- red under: a literal the locale cannot reach (localization-§1).
+  local saved = rawget(NS.L, "Unlock frame")
+  NS.L["Unlock frame"] = "Entsperren"
+  NS.SetByPath("locked", true)
+  assertEqual(hover()[4], "Left-click: Entsperren")
+  NS.L["Unlock frame"] = saved
+end)
+
 -- --- the Minimap button row (launcher-§3) -------------------------------------------------------
 
 test("launcher: the Minimap button row is composed, stored, and in its canonical position", function()

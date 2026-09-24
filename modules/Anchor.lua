@@ -316,6 +316,26 @@ local function refreshHolder(spec)
     end
 end
 
+-- The free-placement holders are on screen whenever the addon is up and hidden on stand-down.
+-- Secure elements anchor to them, so the change goes through the secure queue and, under lockdown,
+-- waits for PLAYER_REGEN_ENABLED; a later call under the same key replaces a queued one.
+local function showHolders(on)
+    NS.RunSecure("holder:shown", function()
+        for _, key in ipairs(order) do
+            local holder = features[key].holder
+            if on then holder:Show() else holder:Hide() end
+        end
+    end)
+end
+
+function Anchor:Suspend()
+    showHolders(false)
+end
+
+function Anchor:Resume()
+    showHolders(true)
+end
+
 --- Unlocked (preview) mode lets the free-placement holders be grabbed.
 function Anchor.SetUnlocked(on)
     unlocked = on and true or false

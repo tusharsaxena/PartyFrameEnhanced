@@ -14,7 +14,8 @@ local function member(unit, opts)
   else
     rawset(f, "unit", unit)
   end
-  if opts.shown ~= false then f:Show() end
+  -- The client starts a frame shown (kit revision 26, LK-05), so a hidden member is hidden here.
+  if opts.shown == false then f:Hide() else f:Show() end
   return f
 end
 

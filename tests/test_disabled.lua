@@ -27,9 +27,13 @@ local function settle() while mocks.__fireTimers() > 0 do end end
 
 -- One registration rendered as a comparable string. The target is named where it has a name — which
 -- is every frame this addon creates — because the per-unit filter is what a careless rebuild widens,
--- and `UNIT_SPELLCAST_START` on the wrong bar has the same count and a different set.
+-- and `UNIT_SPELLCAST_START` on the wrong bar has the same count and a different set. Kit revision
+-- 26 also records every live EventRegistry callback, as `{ kind = "callback", event, owner }` with no
+-- `target` (LK-04), so the registrant is whichever of the two the entry carries.
 local function sig(r)
-  return (r.target.__name or r.kind) .. "|" .. r.kind .. "|" .. tostring(r.event) .. "|" .. tostring(r.unit)
+  local who = r.target or r.owner
+  local name = type(who) == "table" and who.__name or r.kind
+  return name .. "|" .. r.kind .. "|" .. tostring(r.event) .. "|" .. tostring(r.unit)
 end
 
 local function regs()

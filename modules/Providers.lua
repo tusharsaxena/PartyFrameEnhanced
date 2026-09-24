@@ -336,12 +336,21 @@ local function registerEvents()
     end)
 end
 
+-- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private. It is
+-- a registration like any other, so the stand-down drops it and the stand-up takes it back
+-- (slash-commands-§7): one callback per owner, so a second registration replaces the first.
+local function editModeCallback(on)
+    if not (EventRegistry and type(EventRegistry.RegisterCallback) == "function") then return end
+    if on then
+        pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
+    else
+        pcall(EventRegistry.UnregisterCallback, EventRegistry, "EditMode.Exit", Providers)
+    end
+end
+
 function Providers:OnEnable()
     registerEvents()
-    -- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private.
-    if EventRegistry and type(EventRegistry.RegisterCallback) == "function" then
-        pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
-    end
+    editModeCallback(true)
     burst()
 end
 
@@ -350,11 +359,13 @@ function Providers:Suspend()
     scheduled = false
     burstGen = burstGen + 1
     ev:UnregisterAllEvents()
+    editModeCallback(false)
 end
 
 function Providers:Resume()
     suspended = false
     registerEvents()
+    editModeCallback(true)
     burst()
 end
 

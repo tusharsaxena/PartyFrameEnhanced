@@ -231,3 +231,38 @@ test("anchor: unlocking gives the name plate a grabbable body and arms every ele
   end
   unregister(key)
 end)
+
+-- Every NAMED frame built inside `fn` gets a recording SetDontSavePosition (or, with `present`
+-- false, a falsy one: a client without the method). Answers the name -> { args } record.
+local function withNamedFrames(present, fn)
+  local calls, orig = {}, mocks.CreateFrame
+  mocks.CreateFrame = function(frameType, name, ...)
+    local f = orig(frameType, name, ...)
+    if name then
+      rawset(f, "SetDontSavePosition", present and function(_, v) calls[name] = { v } end or false)
+    end
+    return f
+  end
+  local ok, err = pcall(fn)
+  mocks.CreateFrame = orig
+  if not ok then error(err, 0) end
+  return calls
+end
+
+test("anchor: a holder opts out of the client's layout cache; the addon owns its position", function()
+  -- red under: no SetDontSavePosition after SetMovable, which lets layout-local.txt restore a
+  -- dragged holder over the position the addon re-anchors it to.
+  local key
+  local calls = withNamedFrames(true, function() key = probe(false) end)
+  local rec = calls["PartyFrameEnhanced_" .. key .. "_Holder"]
+  assertTrue(rec ~= nil, "the holder never called SetDontSavePosition")
+  assertEqual(rec[1], true)
+  unregister(key)
+end)
+
+test("anchor: a holder still builds on a client without SetDontSavePosition", function()
+  local key
+  withNamedFrames(false, function() key = probe(false) end)
+  assertTrue(Anchor.__features[key].holder ~= nil)
+  unregister(key)
+end)

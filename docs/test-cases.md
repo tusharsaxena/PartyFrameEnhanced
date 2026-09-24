@@ -142,7 +142,7 @@ badge and any count quoted in the docs must agree with it.
 - providers: a refused event name costs only itself, and is recorded once across a disable/enable
 - providers: /pfe status names the events the client refused
 
-### test_anchor.lua (9)
+### test_anchor.lua (11)
 
 - anchor: attached pins each element to its unit's frame by the configured points
 - anchor: a pass that changes nothing makes no SetPoint call
@@ -153,6 +153,8 @@ badge and any count quoted in the docs must agree with it.
 - anchor: LAYOUT re-applies every registered feature
 - anchor: a section stripped of its defaulted point still pins, from the shipped default
 - anchor: unlocking gives the name plate a grabbable body and arms every element's drag
+- anchor: a holder opts out of the client's layout cache; the addon owns its position
+- anchor: a holder still builds on a client without SetDontSavePosition
 
 ### test_profile_switch.lua (4)
 
@@ -251,7 +253,7 @@ badge and any count quoted in the docs must agree with it.
 - status: names the frame system, each unit, each feature, and anything switched off
 - preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (12)
+### test_standin.lua (14)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -265,6 +267,8 @@ badge and any count quoted in the docs must agree with it.
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
 - standin: setting and clearing it resolve at once, each sending LAYOUT
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
+- standin: opts out of the client's layout cache; the addon places it every time
+- standin: still builds on a client without SetDontSavePosition
 
 ### test_preview_standin.lua (17)
 
@@ -452,7 +456,7 @@ badge and any count quoted in the docs must agree with it.
 | test_bus.lua | 12 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
-| test_anchor.lua | 9 |
+| test_anchor.lua | 11 |
 | test_profile_switch.lua | 4 |
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
@@ -460,7 +464,7 @@ badge and any count quoted in the docs must agree with it.
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
-| test_standin.lua | 12 |
+| test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
@@ -472,4 +476,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **334** |
+| **Total** | **338** |

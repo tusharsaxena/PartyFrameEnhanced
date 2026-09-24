@@ -259,6 +259,8 @@ function Anchor.Register(spec)
     holder.grip:RegisterForDrag("LeftButton")
     holder.grip:Hide()
     holder:SetMovable(true)
+    -- Re-anchored from the addon's own stored or default position; a client-cached one is never wanted.
+    if holder.SetDontSavePosition then holder:SetDontSavePosition(true) end
     holder:SetClampedToScreen(true)
     holder:EnableMouse(false)
     holder:RegisterForDrag("LeftButton")

@@ -151,6 +151,8 @@ end
 local function build()
     local f = CreateFrame("Frame", "PartyFrameEnhancedStandIn", UIParent, "BackdropTemplate")
     f:SetMovable(true)
+    -- Placed afresh from the imitated frame every time; a client-cached position is never wanted.
+    if f.SetDontSavePosition then f:SetDontSavePosition(true) end
     f:SetClampedToScreen(true)
     f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")

@@ -93,9 +93,9 @@ One row per full pass. The newest row is the current iteration.
 
 10f. **The target and pet frames through a stand-down, both ways.** In a party with a pet out and a
     member targeting something, `/pfe disable` out of combat, then `/pfe enable` → the target and pet
-    frames return. Then enter combat, untick *Enable Party Frame Enhanced* in the panel, and leave
-    combat → no `ADDON_ACTION_BLOCKED` on the debug console, and the frames are gone. Tick it back
-    out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
+    frames return. Then enter combat, `/pfe disable` (the settings panel refuses every write in
+    combat, so the command is the route), and leave combat → no `ADDON_ACTION_BLOCKED` on the debug
+    console, and the frames are gone. `/pfe enable` out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
     lockdown), or frames that stay gone after the re-enable (the release was not undone).
 
 10g. **Edit Mode through a stand-down.** In a party, `/pfe disable`, `/pfe debug on`, then open and
@@ -103,6 +103,15 @@ One row per full pass. The newest row is the current iteration.
     something to report) → no `[Provider]` line on the debug console. `/pfe enable`, then do the
     same again → the resolve burst runs and a `[Provider]` line names the frames. *Failure:* a resolve line while disabled (the `EditMode.Exit`
     callback survived the stand-down), or none after the re-enable (the stand-up did not take it back).
+
+10h. **The fade frames and holders through a stand-down in combat.** In a party, enter combat, then
+    `/pfe disable`. Still in combat,
+    `/run print(PartyFrameEnhanced_Fade_party1:IsShown(), PartyFrameEnhanced_castbar_Holder:IsShown())`
+    → `true true` (the hide waits for the lockdown to lift). Leave combat and run it again →
+    `false false`. `/pfe enable` → `true true`, and the elements come back where they were.
+    *Failure:* `ADDON_ACTION_BLOCKED` on the debug console (the hide was attempted under lockdown),
+    frames still shown after combat (the stand-down left them up), or frames still hidden after the
+    re-enable.
 
 ## C. Settings panel and the combat gate
 

@@ -33,7 +33,7 @@ marked as such rather than listed as a requirement.
 | `git` | any recent | the vendored-payload gate (`tests/test_vendor_sync.lua` reads the LibKa0s tag with `git`), the EOL gate (`tests/_kit/test_eol.lua` runs `git ls-files` / `git check-attr`), the prose gate (`tests/_kit/test_prose.lua` runs `git ls-files`), the cap census gate (`tests/_kit/test_layout_cap.lua` runs `git ls-files`) | those four files |
 | POSIX shell (`bash`) | any | `tests/_kit/run-automated-tests.sh` | its `#!/usr/bin/env bash` line |
 | A sibling `../LibKa0s` checkout | — | the vendored-payload gate compares against it; without it those cases **skip** with the reason | `tests/_kit/vendor_sync.lua` |
-| `timeout` (coreutils) | any | *optional* — the wall-clock bound the test kit (revision 23) puts on every run; absent, the run is unbounded in time | `tests/_kit/framework.lua:123` checks `command -v timeout` first |
+| `timeout` (coreutils) | any | *optional* — the wall-clock bound the test kit puts on every run (since kit revision 23); absent, the run is unbounded in time | `tests/_kit/framework.lua:123` checks `command -v timeout` first |
 | `systemd-run --user` | any | *optional* — the process-tree memory cap on the outermost run; absent (no systemd user instance), that one bound is skipped and `ulimit -v` still applies | `tests/_kit/framework.lua:127` probes it before use |
 
 **Lua 5.1 is a requirement, not a preference.** The harness sandboxes each source file with

@@ -84,12 +84,17 @@ white values, no trailing colon; every line carries the cyan `[PFE]` tag through
 ## Degraded
 
 With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host verbs; the schema verbs
-(`list`, `get`, `set`, `reset`, `resetall`) each print one line naming the missing library. `enable`
-and `disable` still WRITE — only their echo degrades to that line — because the pair must never be
-one-way, whatever else is missing.
+(`list`, `get`, `set`, `reset`, `resetall`) each print the one library-absent line
+(`/pfe <verb> is unavailable: the LibKa0s library did not load.`). `enable` and `disable` still
+WRITE — through the schema's `writeThrough` list, and only their echo degrades to that line — because
+the pair must never be one-way, whatever else is missing. The stub is the shape the library's Slash
+document (minor 15, *The degradation stub*) prescribes: the help, landing and profile rows render as
+plain `cmd  desc`, with no copy of the library's formatter or parser.
 
 The stub carries the disabled gate too, in the library's shape: the same live set, the same
-after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same one-line refusal built from the same format string, and the same
-line under the `help` header. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
+after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same
+one-line refusal built from the same format string, and the same line under the `help` header. That
+format string is the one library string the stub carries, and `tests/test_surface_parity.lua` pins it
+byte for byte against the library's `DISABLED_LINE_FORMAT`. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
 own — the library's contract at its smallest, not a second mechanism — so a build without LibKa0s
 still stands down, and still stands up only when the last hold is released.

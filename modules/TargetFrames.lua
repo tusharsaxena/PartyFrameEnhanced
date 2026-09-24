@@ -4,8 +4,8 @@ local _, NS = ...
 -- tracked unit acting on its target token (`target` for the player, `partyNtarget` otherwise);
 -- clicking it targets that unit.
 --
--- UPDATES: UNIT_TARGET per owner (RegisterUnitEvent on the button's own frame — the documented
--- deviation in docs/ARCHITECTURE.md) repaints name, color, marker and health, PLUS
+-- UPDATES: UNIT_TARGET per owner (RegisterUnitEvent on the button's own frame — not a deviation;
+-- see Event Subscriptions in docs/ARCHITECTURE.md) repaints name, color, marker and health, PLUS
 -- PLAYER_TARGET_CHANGED on the module's own target -- UNIT_TARGET does not fire for the player's
 -- own target change -- which repaints the player's button alone; RAID_TARGET_UPDATE repaints
 -- markers. A compound token gets no UNIT_HEALTH, so health comes from ONE repeating timer

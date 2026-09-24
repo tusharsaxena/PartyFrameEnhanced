@@ -261,21 +261,24 @@ assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many A
 
 -- ── ceilings ────────────────────────────────────────────────────────────────────────────────
 --
--- Measured on 2026-09-15, after the perf pass (docs/performance.md records the before/after): every
--- hot path at 0 bytes/iter except castStartStop at 16.6 — five full start/stop cycles per iteration,
--- the residue unattributed after the mock's own recorders were made allocation-free, and constant
--- across runs. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
+-- Set on 2026-09-15, after the perf pass (docs/performance.md records the before/after): every
+-- hot path at 0 bytes/iter except castStartStop at 16.6 then, five full start/stop cycles per
+-- iteration. Re-measured on 2026-09-24: castStartStop is 3.6 (it dropped at a8e3a44, the
+-- stand-down latch, and reads 3.6 or 5.4 from one commit to the next with no cast-path change;
+-- one tree always gives the same figure), and every other hot path is still 0. The ceilings were
+-- left where they were set. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
 -- it exists to catch — one extra table per iteration costs 64 bytes under this interpreter — so the
 -- smallest allocation anyone can add to one of these paths trips it. Raise one only by re-measuring
 -- and saying why; a rise IS the finding.
 --
 -- settingsDrag is reported and deliberately unasserted: it runs only while a player drags a control,
--- its figure is the structure signature string the reskin memo builds, and a guessed ceiling would
--- gate on nothing.
+-- a guessed ceiling would gate on nothing, and 288 of its 925.9 bytes are the kit mock's own garbage
+-- (six no-op closures its catch-all __index builds for RegisterForDrag and EnableMouse, which it
+-- does not define). docs/performance.md attributes each move by commit.
 local CEILINGS = {
   resolveUnchanged     = 24,
   anchorUnchanged      = 24,
-  castStartStop        = 41,   -- 16.6 measured + 24
+  castStartStop        = 41,   -- set from 16.6 (2026-09-15) + 24; measures 3.6 on 2026-09-24
   castTick             = 24,
   targetTickUnchanged  = 24,
   targetTickMoving     = 24,

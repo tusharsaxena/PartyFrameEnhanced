@@ -85,15 +85,43 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | resolve coalescing | 40 layout requests in one frame | — | — | exactly **1** resolve |
 | `resolveUnchanged` | a resolve that finds the frames it had | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `anchorUnchanged` | all three features' placement, nothing changed | 0 (**0 `SetPoint`**) | 0 | 0 `SetPoint`; ≤ 24 bytes |
-| `castStartStop` | start + stop on all five cast bars | 55 | 16.6 | ≤ 41 bytes |
+| `castStartStop` | start + stop on all five cast bars | 55 | 3.6 | ≤ 41 bytes |
 | `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
 | `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
-| `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 596 | reported only |
+| `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 925.9 | reported only |
 | `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off: 0 bracket calls (`debugprofilestop` + `Perf.Note`), the stand-in for instrumentation absent; same API count; off ≤ 24 bytes |
 
-Figures from 2026-09-15 (Lua 5.1.5, WSL2). Every ceiling is the measured figure plus 24 bytes — less
-than the 64 bytes one extra table costs, so the smallest allocation added to a hot path fails the run.
+Figures from 2026-09-24 (Lua 5.1.5, WSL2), three runs of `tests/perf.lua` that agreed to the last
+digit. Every ceiling was set at the figure measured on 2026-09-15 plus 24 bytes — less than the 64
+bytes one extra table costs, so the smallest allocation added to a hot path fails the run. None was
+moved when these figures were refreshed.
+
+**`castStartStop` is no longer 16.6.** Issue #12 asks where the 16.6 bytes per cast cycle came
+from. That figure dropped to 3.6 at `a8e3a44` (the stand-down latch) and has not come back. Since
+then the scenario reads 3.6 at some commits and 5.4 at others, including commits that touch no cast
+path (the PF-12 slash stub, the PF-15 locale strings); repeated runs of one tree always give the
+same figure. The residue follows the interpreter's memory layout, not the cast code, and both
+figures sit well under the 41-byte ceiling.
+
+### Where `settingsDrag` grew (596 → 925.9)
+
+Measured, not inferred: `tests/perf.lua` was run on every commit from `6722124` (the perf pass) to
+`f5d11ec` (PF-18), and each move was then isolated by removing the suspected lines from a scratch
+copy of the tree and re-running. The structure signature in `modules/Element.lua` is not the
+cause: after `6722124` itself, which added it and brought the drag down from 3.9 KB, every commit
+that touched that file measured the same as its parent.
+
+| Commit | Bytes / iter | Cause |
+|---|---|---|
+| `c381dc8`, `9089559` (LibKa0s v1.37.0, v1.39.0 re-vendors) | 606.9 → 606.7 → 595.9 | library side; this is the 596 the table used to show |
+| `285623b` (free placement grabbable by its name plate and its bars) | 595.9 → 885.9 | **the kit mock, not the addon.** `refreshHolder` now calls `RegisterForDrag` on the five elements and `EnableMouse` on the new grip. The mock frame defines neither, so its catch-all `__index` returns a fresh no-op closure on every call: six closures of 48 bytes each, 288 bytes. With those two calls removed the scenario reads 597.9. In the client both are C methods and allocate nothing in Lua |
+| `f14b096` (LibKa0s v1.47.0 re-vendor, `OptionsWidgets.lua` only) | 885.9 → 895.9 | library side |
+| `8aa8a10` (PF-11, settings on `LibKa0s-Schema-1.0`) | 895.9 → 935.9 | the only change on this path: `NS.SetByPath`, which the scenario calls, became the Schema instance's `Set` in place of the hand-written setter |
+| `f5d11ec` (PF-18) | 935.9 → 925.9 | a change to `tests/perf.lua` itself; no addon code moved |
+
+Take away the mock's 288 bytes and the drag costs about 638 bytes in the addon and the library
+together, against about 596 at the perf pass. PF-11's 40 bytes account for nearly all of the rise.
 
 ### What the pass changed (2026-09-15)
 

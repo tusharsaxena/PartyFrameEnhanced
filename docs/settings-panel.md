@@ -48,7 +48,7 @@ free-placement stacks are movable, so every row applies.
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
 | Lock frame | `locked` | **The addon's one preview switch** (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
-| Minimap button | `global.minimap.hide` | shows or hides the launcher's minimap button (launcher-§3). **The row says SHOWN and the stored key says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` registers them with `NS.RegisterGlobalSetting`) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons. It also **survives both resets** — *Reset all settings* and this page's own *Defaults* button — because the choice is a per-installation display preference, like the button's position; see *Resets* below. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged |
+| Minimap button | `global.minimap.hide` | shows or hides the launcher's minimap button (launcher-§3). **The row says SHOWN and the stored key says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` stamps them onto the composed row) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons. It also **survives both resets** — *Reset all settings* and this page's own *Defaults* button — because the choice is a per-installation display preference, like the button's position; see *Resets* below. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |
 
@@ -136,8 +136,9 @@ and the pet's health events are unregistered.
 - **One row is exempt from both** (launcher-§3): **Minimap button**, `global.minimap.hide`. Whether
   the button is on the minimap is a per-installation display preference, in the same class as the
   position the player dragged it to, so no reset may move it in either direction.
-  `settings/OptionsSetup.lua`'s `exemptFromReset` names that once and both resets read it — the
-  descriptor's `applyDefault`, which is the one call *Reset all settings* and **Defaults** both make.
-  It matters most for **Defaults**: `O.RestoreDefaults` vetoes nothing on its own, so without the
-  exemption the composed row's `default = true` put a hidden button back on the minimap.
+  `settings/Schema.lua`'s `NS.IsGlobalSetting` names that once. Its set is the schema instance's
+  `resetExempt`, which `ApplyDefault` honors inside the bulk bracket that *Reset all settings* and
+  **Defaults** both open, and Reset All's `skipRestoreAll` vetoes the row as well. It matters most
+  for **Defaults**: `O.RestoreDefaults` vetoes nothing on its own, so without the exemption the
+  composed row's `default = true` put a hidden button back on the minimap.
   `/pfe reset global.minimap.hide` still works — the exemption is for sweeps.

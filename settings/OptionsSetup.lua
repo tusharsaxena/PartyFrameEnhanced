@@ -18,9 +18,9 @@ local print = NS.Print
 -- rather than derived from where the value happens to live.
 --
 -- A GLOBAL ROW IS THE TEST, and it is this repo's own word for exactly that class: a stored row
--- outside the profile, registered through NS.RegisterGlobalSetting (settings/Schema.lua). Today
--- there is one, `global.minimap.hide`. Read at CALL time, because this file loads before
--- settings/General.lua registers it.
+-- outside the profile, named by NS.IsGlobalSetting (settings/Schema.lua). Today there is one,
+-- `global.minimap.hide`. The same set is the schema instance's `resetExempt`, which is what vetoes
+-- the row from the page-scoped Defaults sweep; this function is the Reset All veto's half.
 local function exemptFromReset(row)
     return type(row.path) == "string" and NS.IsGlobalSetting(row.path)
 end
@@ -46,20 +46,14 @@ local descriptor = {
     -- The single write seam, so a panel change takes exactly the path `/pfe set` takes.
     get          = function(path) return NS.GetSetting(path) end,
     set          = function(path, value) NS.SetByPath(path, value) end,
-    -- WHERE THE EXEMPTION ACTUALLY BITES, and it has to be here rather than on skipRestoreAll.
-    -- `skipRestoreAll` is read by ONE reset. The page-scoped *Defaults* button is the other, and
-    -- O.RestoreDefaults vetoes nothing at all — it hands every row on the page to this seam, and the
-    -- composed Minimap button row declares `default = true`, so before this guard a press of
-    -- Defaults on General put a deliberately hidden button straight back on the minimap. This is the
-    -- one call BOTH panel resets make, so naming the rule once here covers both.
-    --
-    -- Not on NS.ApplyDefault itself: that is also the schema CLI's seam, and `/pfe reset
-    -- global.minimap.hide` is a player naming one row on purpose rather than a sweep that happened
-    -- to reach it. The exemption is for sweeps.
-    applyDefault = function(row)
-        if exemptFromReset(row) then return end
-        NS.ApplyDefault(row)
-    end,
+    -- Forwarded at call time (tests/test_optionssetup.lua observes the Reset All veto through
+    -- NS.ApplyDefault). THE MINIMAP EXEMPTION BITES INSIDE IT: `skipRestoreAll` is read by ONE
+    -- reset, while the page-scoped *Defaults* button vetoes nothing and hands every row on the page
+    -- to this seam — and the composed Minimap button row declares `default = true`. Both panel
+    -- resets run inside the bulk bracket, and the schema instance's `resetExempt` refuses the row
+    -- there (settings/Schema.lua). Outside a bracket it does not: `/pfe reset global.minimap.hide`
+    -- is a player naming one row on purpose rather than a sweep that happened to reach it.
+    applyDefault = function(row) NS.ApplyDefault(row) end,
     allRows      = function() return NS.Schema end,
     rowsForPage  = function(pageKey) return NS.SchemaForPage(pageKey) end,
 

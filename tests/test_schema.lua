@@ -90,6 +90,7 @@ test("schema: ApplyDefault writes a COPY of a table default", function()
   assertFalse(stored == default, "the stored table must not be the default table")
   NS.db.profile.general.__probeColor = nil
   table.remove(NS.Schema)
+  NS.__schema.Reindex()
 end)
 
 test("schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat", function()
@@ -101,7 +102,7 @@ test("schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
   assertEqual(NS.ResolvePath(t, "a.missing.c"), nil)
 end)
 
--- ── the write seam, characterized (written before the seam moved to LibKa0s-Schema-1.0) ─────────
+-- ── the write seam, characterized before it moved to LibKa0s-Schema-1.0, re-pinned after ────────
 
 -- A throwaway row on the General page, taken out again afterwards. `trace` records, in order, the
 -- [Set] lines, the row's reactions and the CONFIG sections.
@@ -127,7 +128,7 @@ local function withProbe(fields, fn)
   for i = #NS.Schema, 1, -1 do
     if NS.Schema[i] == row then table.remove(NS.Schema, i) end
   end
-  if NS.SchemaRuntime then NS.SchemaRuntime.Reindex() end
+  NS.__schema.Reindex()
   NS.db.profile.general.__probe = nil
   if not ok then error(err, 0) end
 end
@@ -141,15 +142,37 @@ test("schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG
   end)
 end)
 
-test("schema: a refused write stores nothing, reacts to nothing and publishes nothing", function()
+test("schema: a refused write stores nothing, logs nothing, reacts to nothing and publishes nothing", function()
+  -- Re-pinned at the Schema adoption: the host seam's `%s refused` debug line is gone, because a
+  -- refused write is not a mutation (debug-logging-§10). The trace is empty, not merely reactionless.
   withProbe({ onChange = true, validate = function(v) return v ~= true end }, function(trace)
     local ok = NS.SetByPath("general.__probe", true)
     assertFalse(ok, "the seam answered false")
     assertEqual(NS.db.profile.general.__probe, nil, "nothing was stored")
-    for _, line in ipairs(trace) do
-      assertTrue(line:find("^onChange") == nil and line:find("^CONFIG") == nil, "ran: " .. line)
-    end
+    assertEqual(table.concat(trace, " | "), "", "no line, no reaction, no CONFIG")
   end)
+end)
+
+test("schema: a write to a path no row declares is refused and not stored", function()
+  -- Re-pinned at the Schema adoption: the host seam stored any path it was handed, so a typo'd key
+  -- became a setting nothing read and nothing reset (architecture-§5 scopes the seam to row paths).
+  local ok, err = NS.SetByPath("general.__nope", true)
+  assertFalse(ok, "the seam answered false")
+  assertTrue(type(err) == "string" and err:find("general.__nope", 1, true) ~= nil, tostring(err))
+  assertEqual(NS.db.profile.general.__nope, nil, "nothing was stored")
+end)
+
+test("schema: a table value is copied into the store, never aliased", function()
+  -- Re-pinned at the Schema adoption: the host seam stored the caller's table itself, so a later
+  -- edit to the argument reached into the profile.
+  local saved = NS.Util.DeepCopy(NS.GetSetting("castbar.barColor"))
+  local color = { r = 0.1, g = 0.2, b = 0.3, a = 1 }
+  NS.SetByPath("castbar.barColor", color)
+  local stored = NS.db.profile.castbar.barColor
+  assertFalse(stored == color, "the store holds a copy")
+  color.r = 0.9
+  assertEqual(stored.r, 0.1, "editing the argument afterwards does not reach the profile")
+  NS.SetByPath("castbar.barColor", saved)
 end)
 
 test("schema: a bulk act is ONE [Set] line counting only the rows it changed", function()
@@ -168,15 +191,23 @@ test("schema: a bulk act is ONE [Set] line counting only the rows it changed", f
 end)
 
 test("schema: a bracket that raises still closes, says so, and re-raises the same error", function()
+  -- The write is to a shipping row, not the probe: under LibKa0s-Schema-1.0 only a declared row is
+  -- writable, so the case must not lean on the probe outliving its own registration.
   withProbe({}, function(trace)
     local boom = {}
+    local before = NS.GetSetting("general.rangeFade")
     local ok, err = pcall(NS.Bulk.Run, "reset", "probe", function()
-      NS.SetByPath("general.__probe", true)
+      NS.SetByPath("general.rangeFade", not before)
       error(boom)
     end)
+    NS.SetByPath("general.rangeFade", before)
     assertFalse(ok)
     assertTrue(err == boom, "the error came back by identity")
-    assertEqual(trace[#trace], "Set reset probe: 1 rows (stopped by an error)")
+    local lines = {}
+    for _, line in ipairs(trace) do
+      if line:find(": %d+ rows") then lines[#lines + 1] = line end
+    end
+    assertEqual(table.concat(lines, " | "), "Set reset probe: 1 rows (stopped by an error)")
   end)
 end)
 
@@ -214,4 +245,24 @@ test("schema: without the library, /pfe disable and /pfe enable still write the 
   assertEqual(NS2.db.profile.enabled, false, "/pfe disable landed in the profile")
   NS2.Slash.__cli:OnSlash("enable")
   assertEqual(NS2.db.profile.enabled, true, "/pfe enable landed in the profile")
+end)
+
+test("schema: without the library, /pfe unlock and /pfe lock still write the stored path", function()
+  -- red under: a degraded seam that refuses `locked` for want of the composed row (issue #14).
+  local NS2 = dofile("tests/degraded_env.lua")()
+  NS2:InitDB()
+  assertEqual(NS2.FindSchemaRow("locked"), nil, "the composed row is absent on this build")
+  NS2.Slash.__cli:OnSlash("unlock")
+  assertEqual(NS2.db.profile.locked, false, "/pfe unlock landed in the profile")
+  NS2.Slash.__cli:OnSlash("lock")
+  assertEqual(NS2.db.profile.locked, true, "/pfe lock landed in the profile")
+end)
+
+test("schema: without the library, a row-less path outside writeThrough is refused and not stored", function()
+  -- red under: a degraded seam that stores any path it is handed -- a typo'd key becomes a setting
+  -- nothing reads and nothing resets. Only the declared writeThrough paths go through without a row.
+  local NS2 = dofile("tests/degraded_env.lua")()
+  NS2:InitDB()
+  assertFalse(NS2.SetByPath("general.__nope", true), "the seam answered false")
+  assertEqual(NS2.db.profile.general.__nope, nil, "nothing was stored")
 end)

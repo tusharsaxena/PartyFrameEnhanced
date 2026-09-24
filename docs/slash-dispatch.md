@@ -11,7 +11,7 @@ The landing page renders the same table.
 |---|---|---|
 | `help` | the command list | yes |
 | `config` (alias `options`) | opens the settings panel on its landing page (bare `/pfe` does the same); refused in combat with a gray notice | yes |
-| `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
+| `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. On a load without LibKa0s the row is absent and the write lands through the schema's `writeThrough` list, without the `onChange`. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
 | `list` | every setting and its value, grouped by page | yes |
 | `get <path>` | one setting's value | yes |
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |

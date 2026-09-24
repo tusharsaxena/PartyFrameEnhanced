@@ -21,17 +21,16 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
 and **LibKa0s v1.55.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
-launcher. The addon consumes eleven LibKa0s majors through one setup file each — Media
+launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
 (`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
-Launcher (`core/LauncherSetup.lua`), Slash (`settings/Slash.lua`) and Options
-(`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
+Launcher (`core/LauncherSetup.lua`), Schema (`settings/Schema.lua`), Slash (`settings/Slash.lua`)
+and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
 are created once at enable and never churn (so no pool), the addon handles no items, and it orders
-nothing (so no reorder list). **Schema is vendored and not adopted yet** (#14): the Schema document's
-library-less stub refuses a path with no row. On that build the Master controls composer is hollow,
-so `/pfe enable`, `/pfe disable` and `/pfe lock` would stop writing (`tests/test_schema.lua` pins
-it). `settings/Schema.lua` keeps its own runtime until that is settled upstream.
+nothing (so no reorder list). **Schema was adopted last** (#14): it waited on the library's
+`writeThrough` list (Schema minor 2), without which a library-less load, whose Master controls
+composer is hollow, would have stopped `/pfe enable`, `/pfe disable` and `/pfe lock` from writing.
 
 Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
 record, the first standards audit, the in-game smoke pass and the first party perf captures done.
@@ -59,9 +58,23 @@ every settings file, and OptionsSetup and ElementRows before every page; the TOC
 
 One schema (`settings/Schema.lua`) drives the panel, the CLI and the resets, and **one write seam** —
 `NS.SetByPath` — carries every write to a schema path: the panel (the Options descriptor's `set` /
-`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. The seam asks the row's `validate`
-first (the lock refuses an unlock in combat there, before anything is stored), then stores the value,
-runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publishes `CONFIG(<section>)`.
+`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. **The seam is the library's**:
+`settings/Schema.lua` builds one `LibKa0s-Schema-1.0` instance over `NS.Schema` and binds the host
+names onto its members (`NS.SetByPath = inst.Set`, `NS.FindSchemaRow`, `NS.ApplyDefault`, `NS.Bulk`,
+the reset count, `NS.ValidateSchema`). A write to a path no row declares is refused, never stored.
+The seam asks the row's `validate` first (the lock refuses an unlock in combat there, before
+anything is stored, and prints its own one line), then stores a copy of the value, logs one `[Set]`
+line (one per bulk act, counting only the rows that changed), runs the row's `onChange`, and
+publishes `CONFIG(<section>)` through the descriptor's `announce`.
+
+**`writeThrough = { "enabled", "locked" }`** (options-ui-§1 route (a)). On a library-less load the
+Master controls composer is hollow, so those two paths have no row, yet `/pfe enable|disable`
+(`runEnabled`), `/pfe lock|unlock` (`runLock`) and `modules/Preview.lua`'s `forceLock` (the combat,
+master-switch and perf re-lock) still write them. The instance and the host's degradation stub take
+the same list: a listed row-less path is stored raw, with no row's `onChange` and no CONFIG; any
+other row-less path is refused. On a full load the composed row takes the write as usual. The stub
+(`HostSchemaStub`, copied from the library's reference stub) is write-completing and log-silent;
+`tests/test_surface_parity.lua` pins it against the live instance and the library.
 
 - **Structural registries:** none. The player creates and deletes nothing.
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
@@ -72,14 +85,15 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
   unlocking already is its preview.
 - **Global rows:** `global.minimap.hide` (the launcher's minimap button) — stored, not session-only,
   but in the **account-wide** store rather than the profile, because launcher-§3 fixes LibDBIcon's own
-  table there. `settings/Schema.lua` carries a global registry beside the session one, and
-  `settings/General.lua` registers the get/set that invert the row's SHOWN sense onto LibDBIcon's
-  `hide` and call `NS.Launcher:SetShown`. The validator resolves such a path against `NS.defaults`
-  rather than `defaults.profile`, and the profile-reset tally skips it. **A global row survives every
-  reset the panel ships** — *Reset all settings* and a page's own **Defaults** button — because
-  launcher-§3 makes that a property of the setting; `settings/OptionsSetup.lua`'s `exemptFromReset`
-  is the one place that says so, and the descriptor's `applyDefault` is where it bites, that being
-  the single call both resets make. `/pfe reset <path>` is unaffected.
+  table there. `settings/General.lua` stamps the row's own `get`/`set` onto the composed row by path
+  (as it does the console row's), inverting the row's SHOWN sense onto LibDBIcon's `hide` and calling
+  `NS.Launcher:SetShown`; the library honors a row's own storage ahead of the profile.
+  `NS.IsGlobalSetting` names it: the validator resolves such a path against `NS.defaults` rather than
+  `defaults.profile`, and the profile-reset count skips it. **A global row survives every reset the
+  panel ships** — *Reset all settings* and a page's own **Defaults** button — because launcher-§3
+  makes that a property of the setting. The instance's `resetExempt` refuses it inside the bulk
+  bracket both panel resets open, and Reset All's `skipRestoreAll` vetoes it too. `/pfe reset <path>`
+  runs outside a bracket and is unaffected.
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).
@@ -310,9 +324,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
   untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
   target, but a disable leaves the bus registrations live. The modules' own `Suspend` hooks and the
   show ladder's stood-down rung still apply. `tests/test_bus.lua` pins it.
+- On a load without LibKa0s, `/pfe enable`, `/pfe disable`, `/pfe lock` and `/pfe unlock` store the
+  switch through the schema's `writeThrough` list but run no row `onChange`, because the composed row
+  is not there to carry one (unchanged from before the Schema adoption). The stored value is what the
+  next load reads. `tests/test_schema.lua` pins the writes.
 
 Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
-#1–#13 were filed from, and #14 is the deferred `LibKa0s-Schema-1.0` adoption.
+#1–#13 were filed from, and #14 was the deferred `LibKa0s-Schema-1.0` adoption, now landed.
 
 ## Documentation map
 

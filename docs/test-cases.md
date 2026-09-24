@@ -22,7 +22,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: tests/perf.lua derives both halves of its list too
 - loadorder: the loaded library registered — NS.Perf is the lib, not the stub
 
-### test_schema.lua (16)
+### test_schema.lua (20)
 
 - schema: validates with no shape errors and no unresolved paths
 - schema: the General page opens on the Master controls tab, in the canonical order
@@ -34,12 +34,16 @@ badge and any count quoted in the docs must agree with it.
 - schema: ApplyDefault writes a COPY of a table default
 - schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
 - schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG, once each
-- schema: a refused write stores nothing, reacts to nothing and publishes nothing
+- schema: a refused write stores nothing, logs nothing, reacts to nothing and publishes nothing
+- schema: a write to a path no row declares is refused and not stored
+- schema: a table value is copied into the store, never aliased
 - schema: a bulk act is ONE [Set] line counting only the rows it changed
 - schema: a bracket that raises still closes, says so, and re-raises the same error
 - schema: the counted profile reset counts rows off default, and never the global minimap row
 - schema: before the db opens, GetSetting answers the shipped default
 - schema: without the library, /pfe disable and /pfe enable still write the stored path
+- schema: without the library, /pfe unlock and /pfe lock still write the stored path
+- schema: without the library, a row-less path outside writeThrough is refused and not stored
 
 ### test_database.lua (6)
 
@@ -384,12 +388,14 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (8)
+### test_surface_parity.lua (10)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
 - parity: the DebugLog stub carries the whole live surface
 - parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface
+- parity: the Schema stub instance carries every member of the live instance
+- parity: the Schema stub library carries the lib-level primitives
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
 - parity: a bare /pfe runs `config` in the library-absent build too
@@ -427,7 +433,7 @@ badge and any count quoted in the docs must agree with it.
 | Suite | Cases |
 |-------|------:|
 | test_loadorder.lua | 13 |
-| test_schema.lua | 16 |
+| test_schema.lua | 20 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
@@ -454,8 +460,8 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 18 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 8 |
+| test_surface_parity.lua | 10 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **320** |
+| **Total** | **326** |

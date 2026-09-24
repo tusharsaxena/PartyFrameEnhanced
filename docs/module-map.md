@@ -37,7 +37,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 26 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color, raid markers | after UnitButtons |
 | 27 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
 | 28 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
-| 29 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 29 | `settings/Schema.lua` | the `LibKa0s-Schema-1.0` seam: the instance (registry, write seam, bracket, reset count, validation) bound onto the host names, and its degradation stub | before every page |
 | 30 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
 | 31 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
 | 32 | `settings/About.lua` | the landing page body | after OptionsSetup |

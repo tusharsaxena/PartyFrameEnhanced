@@ -25,10 +25,8 @@ local PARTY_GROUP = L["Party frames"]
 
 -- The console toggle is session state bound to the console window itself (options-ui-§15); both arms
 -- of core/DebugLogSetup.lua answer ConsoleCheckbox, so a library-less build still gets an honest row.
+-- Its get/set are stamped onto the composed row below, so the seam reads and writes the window.
 local DEBUG_CONSOLE_PATH = "state.debugConsole"
-if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
-    NS.RegisterSessionSetting(DEBUG_CONSOLE_PATH, NS.DebugLog:ConsoleCheckbox())
-end
 
 -- THE MINIMAP BUTTON'S ONE ROW (launcher-§3). The path is the composer's verbatim and unprefixed,
 -- because LibDBIcon's own table lives in the GLOBAL store, outside the block's profile prefix.
@@ -40,27 +38,38 @@ end
 -- a `show` key beside it would be a second copy free to disagree (anti-pattern #81).
 --
 -- THE ROW SURVIVES BOTH RESETS (launcher-§3): *Reset all settings* and the page-scoped *Defaults*
--- button. It is not stated here -- settings/OptionsSetup.lua's `exemptFromReset` is the one place --
--- but it is why the `default = true` the composer puts on this row never lands on a player who hid
--- the button on purpose.
+-- button. It is not stated here -- settings/Schema.lua's `resetExempt` and NS.IsGlobalSetting are
+-- the one place -- but it is why the `default = true` the composer puts on this row never lands on
+-- a player who hid the button on purpose.
 --
 -- The set calls the launcher's SetShown after storing, so the button follows the checkbox
 -- immediately rather than at the next reload. SetShown writes `hide` a second time with the same
 -- value, which the library documents and intends: a writer that is not this seam (a future verb, a
 -- migration) gets the store updated without having to remember the inversion again.
-local MINIMAP_PATH = "global.minimap.hide"
+local MINIMAP_PATH = NS.MINIMAP_PATH
 
-NS.RegisterGlobalSetting(MINIMAP_PATH, {
-    get = function()
-        local m = NS.db and NS.db.global and NS.db.global.minimap
-        return not (m and m.hide)
-    end,
-    set = function(shown)
-        local m = NS.db and NS.db.global and NS.db.global.minimap
-        if m then m.hide = not shown end
-        if NS.Launcher then NS.Launcher:SetShown(shown and true or false) end
-    end,
-})
+-- Where the two composed rows whose value is NOT in the profile keep it: stamped onto the rows by
+-- path as their own get/set, which LibKa0s-Schema-1.0's Get and Set honor ahead of the profile.
+-- The console is the window's own visibility; the minimap button is LibDBIcon's `hide`, inverted.
+local ownStorage = {
+    [MINIMAP_PATH] = {
+        get = function()
+            local m = NS.db and NS.db.global and NS.db.global.minimap
+            return not (m and m.hide)
+        end,
+        set = function(shown)
+            local m = NS.db and NS.db.global and NS.db.global.minimap
+            if m then m.hide = not shown end
+            if NS.Launcher then NS.Launcher:SetShown(shown and true or false) end
+        end,
+    },
+}
+-- Both arms of core/DebugLogSetup.lua answer ConsoleCheckbox, so a library-less build still gets
+-- an honest binding (its composer is hollow, so there is no row to stamp it on there anyway).
+if NS.DebugLog and NS.DebugLog.ConsoleCheckbox then
+    local console = NS.DebugLog:ConsoleCheckbox()
+    ownStorage[DEBUG_CONSOLE_PATH] = { get = console.get, set = console.set }
+end
 
 local masterRows, masterTail = H.MasterControls({
     prefix           = "",
@@ -100,14 +109,16 @@ local masterOnChange = {
     locked     = function(v) if NS.OnLockChanged then NS.OnLockChanged(v) end end,
     -- Declared empty on purpose: the console's own set() is the whole act.
     [DEBUG_CONSOLE_PATH] = function() end,
-    -- Likewise: the registered global set() stores `hide` and moves the button, and nothing this
-    -- addon draws reads the minimap table.
+    -- Likewise: the stamped set() stores `hide` and moves the button, and nothing this addon
+    -- draws reads the minimap table.
     [MINIMAP_PATH] = function() end,
 }
 
 for _, row in ipairs(masterRows) do
     local fn = masterOnChange[row.path]
     if fn then row.onChange = fn end
+    local own = ownStorage[row.path]
+    if own then row.get, row.set = own.get, own.set end
     if not row.sessionOnly then row.section = "master" end
     -- An unlock is refused at the seam, before it is stored — in combat, with the addon disabled,
     -- or during a perf-run suspend (modules/Preview.lua). Those three refusals came off the removed

@@ -57,6 +57,22 @@ test("parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface", function(
   T.assertSurfaceParity(NS2.__busLib, "LibKa0s-Bus-1.0")
 end)
 
+test("parity: the Schema stub instance carries every member of the live instance", function()
+  -- The instance surface is not in the library's member manifest, so the two-table form pins it
+  -- (LibKa0s docs/api/Schema/version-2-docs.md, "Pinning it").
+  local NS2 = loadDegraded()
+  assertTrue(NS2.__schema ~= nil and NS2.__schemaLib ~= NS.__schemaLib, "the degraded load took the stub")
+  T.assertSurfaceParity(NS.__schema, NS2.__schema, "schema instance vs host stub")
+end)
+
+test("parity: the Schema stub library carries the lib-level primitives", function()
+  local NS2 = loadDegraded()
+  T.assertSurfaceParity(NS2.__schemaLib, "LibKa0s-Schema-1.0", {
+    -- The stub's refusals are the host's own words, not a copy of the library's constants.
+    "STRINGS",
+  })
+end)
+
 test("parity: the Options stub carries every helper the degraded build can reach", function()
   local NS2 = loadDegraded()
   T.assertSurfaceParity(NS2.Helpers, "LibKa0s-Options-1.0", {

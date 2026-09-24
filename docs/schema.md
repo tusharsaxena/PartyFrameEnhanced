@@ -99,17 +99,34 @@ for the same reason, which is why the two are one table.
 consequence of the scope above. Whether the button is shown is a per-installation display
 preference, in the same class as the position the player dragged it to. So neither options-ui-§12's
 *Reset all settings* nor the page-scoped **Defaults** button on General may move it, in either
-direction. `settings/OptionsSetup.lua`'s `exemptFromReset` is the single place that says so: it
-answers on `NS.IsGlobalSetting(row.path)`, vetoes the row from `skipRestoreAll`, and — the half that
-actually bites — drops it from the descriptor's `applyDefault`, which is the one call *both* panel
-resets make. `/pfe reset global.minimap.hide` is deliberately still live: a player naming one row is
-not a sweep.
+direction. `settings/Schema.lua`'s `NS.IsGlobalSetting` is the single place that says so. Its set is
+the `LibKa0s-Schema-1.0` instance's `resetExempt`, so `ApplyDefault` refuses the row while a bulk
+bracket is open — and both panel resets run inside one — and `settings/OptionsSetup.lua` also vetoes
+it from `skipRestoreAll`. `/pfe reset global.minimap.hide` is deliberately still live: it runs
+outside a bracket, and a player naming one row is not a sweep.
 
 `hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.hide`,
 which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says
-**shown** and the key says **hidden**, so `settings/General.lua` registers the inverting get/set with
-`NS.RegisterGlobalSetting` and the seam bridges them once. **No migration:** this addon never stored
+**shown** and the key says **hidden**, so `settings/General.lua` stamps the inverting `get`/`set`
+onto the composed row by path, and the seam, which honors a row's own storage, bridges them once. **No migration:** this addon never stored
 a minimap table anywhere else, so the path is new rather than moved and `NS.SCHEMA_VERSION` stays at 1.
+
+## The write seam
+
+The seam is `LibKa0s-Schema-1.0`'s (library-stack-§7): `settings/Schema.lua` builds one instance
+over `NS.Schema` and binds `NS.SetByPath`, `NS.GetSetting`, `NS.FindSchemaRow`, `NS.ApplyDefault`,
+`NS.Bulk` and the reset count onto it. What that means for what is persisted:
+
+- **Only a declared row's path is written.** A path no row declares is refused and nothing is stored.
+- **A table value is copied in**, so the caller's table and the profile never alias.
+- **`writeThrough = { "enabled", "locked" }`.** On a load without LibKa0s the Master controls
+  composer is hollow and those two paths have no row, yet the host verbs (`/pfe enable|disable|lock|
+  unlock`) and `modules/Preview.lua`'s combat re-lock still write them. Both the instance and the
+  host's degradation stub store a listed row-less path raw, with no row `onChange`, and refuse every
+  other row-less path. With the library present the composed row always takes the write.
+- The two rows whose value is not in the profile, `state.debugConsole` (session only) and
+  `global.minimap.hide` (global), carry their own `get`/`set`, stamped on by
+  `settings/General.lua`.
 
 ## Migrations
 

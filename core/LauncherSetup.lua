@@ -7,18 +7,22 @@ local addonName, NS = ...
 -- two click handlers is the same feature written twice and is anti-pattern #81.
 --
 -- WHAT THIS FILE SUPPLIES, and it is only what is genuinely this addon's: the folder name, the
--- logo, what the left button does, how the settings panel opens, and the answers the status
--- tooltip asks for (enabled, locked, the version, the left-click hint). The library owns the rest --
--- the object, the registration, the idempotence, the pcall around the click, the disabled gate and
--- every line of the tooltip.
+-- logo, how the settings panel opens, and the accessor-and-toggle pairs for the states it has. The
+-- library owns the rest (launcher-§2, Launcher minor 4) -- the object, the registration, the
+-- idempotence, the pcall around the click, what each button does, every line of the tooltip, the
+-- options menu and when an entry is grayed. A host building its own menu or routing clicks itself
+-- is anti-pattern #81.
 --
--- THE RUNG IS (b) (launcher-§2, ADDONS.md). This addon has no primary window, and its PREVIEW
--- SWITCH is the lock: unlocking raises the stand-in party frame and paints the placeholders
--- (modules/Preview.lua), which is why options-ui-§15 exempts it from a Test mode row. So left-click
--- toggles the lock -- through NS.ToggleLock, the SAME seam `/pfe lock`, `/pfe unlock` and the
--- Lock frame checkbox all go through, never a second copy of that state. Right-click ALWAYS opens
--- the settings panel, on this addon as on every other, which is what lets the left button be spent
--- on something better.
+-- THE BUTTONS. Left-click opens the settings panel, in either state. Right-click opens the client's
+-- context menu with one checkbox per pair below, in the library's order: *Enabled* and *Locked*
+-- (ADDONS.md's row for this addon). There is no *Test mode* entry -- this addon's PREVIEW SWITCH is
+-- the lock: unlocking raises the stand-in party frame and paints the placeholders
+-- (modules/Preview.lua), which is why options-ui-§15 exempts it from a Test mode row -- and no *Show
+-- window* entry, because it has no primary window. Each toggle is the SAME function its slash verb
+-- runs, never a second copy of that state: `setEnabled` is NS.SetEnabled, the handler behind
+-- `/pfe enable` and `/pfe disable`; `toggleLock` is NS.ToggleLock, which drives the `locked` row
+-- `/pfe lock`, `/pfe unlock` and the Lock frame checkbox write. While the addon is disabled the
+-- library grays *Locked* and calls nothing for it; *Enabled* stays live.
 --
 -- WHY THE LIBRARY IS TOLD OUR NAME. `name` is the addon's FOLDER name and is used for BOTH
 -- registrations. It is not cosmetic: LibDBIcon keys the button's SAVED POSITION by it, so a second
@@ -66,34 +70,25 @@ NS.Launcher = Launcher:New({
     -- Register is called from the lifecycle rather than from here.
     minimap = function() return NS.db and NS.db.global and NS.db.global.minimap end,
 
-    -- Resolved at CLICK time, both of them: settings/OptionsSetup.lua and settings/Slash.lua load
-    -- long after this file, and either may be the degraded arm.
+    -- Resolved at CLICK time, every function below: settings/OptionsSetup.lua and
+    -- settings/Slash.lua load long after this file, and either may be the degraded arm. That is
+    -- also what keeps each toggle the verb's own handler rather than a copy taken at load.
     openSettings = function() NS.OpenOptionsPanel() end,
-    onClick      = function() NS.ToggleLock() end,
 
-    -- THE DISABLED GATE (launcher-§2, Launcher minor 2). While the Master-controls *Enable* row is
-    -- off the library refuses the left click itself and prints `disabledLine()`, so NS.ToggleLock is
-    -- not reached; its own gate stays for any other caller. The line is the slash gate's, never
-    -- re-spelled (slash-commands-§7), and the tooltip reads `/pfe enable` out of it.
+    -- THE PAIRS (launcher-§2, Launcher minor 4). Each accessor is asked on every hover and every
+    -- menu open, never cached; each toggle is the slash verb's handler. `setEnabled` is handed the
+    -- state the addon moves TO. `locked` absent reads as locked, as modules/Preview.lua reads it.
     isEnabled    = function() return NS.GetSetting("enabled") == true end,
-    disabledLine = function() return NS.DisabledLine() end,
-
-    -- THE STATUS TOOLTIP (launcher-§1, Launcher minor 3). The library draws all of it -- title,
-    -- Enabled, Locked, the two click hints -- on every hover, disabled or not; these only answer its
-    -- questions, each asked on every show and never cached. The states passed are the ones this
-    -- addon HAS: enabled, and the lock (the *Lock frame* row, read through the same NS.GetSetting
-    -- the row reads; `locked` absent reads as locked, as modules/Preview.lua reads it). There is NO
-    -- `isTestMode`: unlocking is this addon's preview and options-ui-§15 exempts it from a Test mode
-    -- row, so a `Test mode: Off` line would describe a state it does not have. No `onTooltipShow`
-    -- either -- there is nothing of the addon's own to add, and a title or hint of its own would be
-    -- a second copy (anti-pattern #89).
-    version      = function() return NS.Version() end,          -- the TOC's ## Version
+    setEnabled   = function(on) NS.SetEnabled(on) end,
     isLocked     = function() return NS.GetSetting("locked") ~= false end,
-    -- Rung (b)'s hint names what the NEXT click does, so it is asked per show, in the words of the
-    -- row it drives, through the addon's locale.
-    leftClickLabel = function()
-        return NS.GetSetting("locked") ~= false and NS.L["Unlock frame"] or NS.L["Lock frame"]
-    end,
+    toggleLock   = function() NS.ToggleLock() end,
+
+    -- THE STATUS TOOLTIP (launcher-§1). The library draws all of it -- title, Enabled, Locked and
+    -- the two fixed click hints -- on every hover, disabled or not. No `isTestMode` (a `Test mode:
+    -- Off` line would describe a state this addon does not have) and no `onTooltipShow` (there is
+    -- nothing of the addon's own to add, and a title or hint of its own would be a second copy,
+    -- anti-pattern #89).
+    version      = function() return NS.Version() end,          -- the TOC's ## Version
 
     -- Call-time forwarders: NS.Print is reclaimed from AceConsole in core/PartyFrameEnhanced.lua,
     -- and NS.Debug is the gated sink core/DebugLogSetup.lua binds.

@@ -173,9 +173,3 @@ L["Debug console"] = "Debug console"
 -- Migration runner (core/Database.lua)
 L["Settings migration to v%d failed; your settings were left as they were"] =
     "Settings migration to v%d failed; your settings were left as they were"
-
--- The launcher tooltip's left-click hint (core/LauncherSetup.lua, launcher-§1). The rest of the
--- tooltip's words are LibKa0s-Launcher-1.0's own strings; these two name what the rung-(b) click
--- will do next, in the words of the Master-controls *Lock frame* row it drives.
-L["Unlock frame"] = "Unlock frame"
-L["Lock frame"] = "Lock frame"

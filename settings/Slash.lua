@@ -122,26 +122,21 @@ function runLock(locked)
 end
 
 --- The collection's one disabled-refusal line (slash-commands-§7), asked of the CLI at call time.
---- Published so a refusal outside the dispatcher — the launcher's left click here, the Lock frame
---- row's validate in modules/Preview.lua — prints the same bytes the slash gate prints.
+--- Published so a refusal outside the dispatcher — NS.ToggleLock below, the Lock frame row's
+--- validate in modules/Preview.lua — prints the same bytes the slash gate prints.
 function NS.DisabledLine() return cli:DisabledLine() end
 
---- Flip the lock. THE ONE TOGGLE: the launcher's left click (core/LauncherSetup.lua, launcher-§2's
---- rung (b)) lands here, so the button drives the same `locked` path the Lock frame checkbox and
---- `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that state. An
---- unlock the row refuses leaves the lock where it was and runLock says nothing, which is the same
---- answer the checkbox gives.
+--- Flip the lock. THE ONE TOGGLE: the launcher menu's *Locked* entry (core/LauncherSetup.lua's
+--- `toggleLock`, launcher-§2) lands here, so the menu drives the same `locked` path the Lock frame
+--- checkbox and `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that
+--- state. An unlock the row refuses leaves the lock where it was and runLock says nothing, which is
+--- the same answer the checkbox gives.
 ---
---- REFUSED WHILE THE ADDON IS DISABLED (launcher-§2, slash-commands-§7). Rung (b) drives a preview
---- switch and a preview switch is a feature, so the left button prints the one line and does nothing
---- else — in particular it writes no SavedVariables. The line is `cli:DisabledLine()`, the same one
---- the slash gate prints, because the launcher MUST NOT re-spell it. Right-click is untouched: it
---- opens the settings panel in either state, which is one of the two routes the standard nominates
---- for reaching the panel, and rung (c)'s carve-out is the same rule read from the other side.
----
---- On the button the library's own gate answers first (core/LauncherSetup.lua passes `isEnabled`
---- and `disabledLine`, which the status tooltip needs too), so a disabled click prints this same
---- line there and never reaches here. The gate below stays for any other caller.
+--- REFUSED WHILE THE ADDON IS DISABLED (slash-commands-§7). The lock is this addon's preview switch
+--- and a preview switch is a feature, so a disabled call prints the one line and does nothing else —
+--- in particular it writes no SavedVariables. The line is `cli:DisabledLine()`, the same one the
+--- slash gate prints. On the button the library grays *Locked* while disabled and a grayed entry
+--- calls nothing, so the menu never reaches here disabled; the gate stays for any other caller.
 function NS.ToggleLock()
     if NS.GetSetting("enabled") ~= true then return print(NS.DisabledLine()) end
     runLock(NS.GetSetting("locked") ~= true)
@@ -163,6 +158,11 @@ function runEnabled(on)
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
     cli:CliGet("enabled")
 end
+
+--- The `/pfe enable` / `/pfe disable` handler, published for the launcher menu's *Enabled* entry
+--- (core/LauncherSetup.lua's `setEnabled`, launcher-§2), so the menu runs the verbs' own write,
+--- panel refresh and echo rather than a second copy of them.
+function NS.SetEnabled(on) runEnabled(on) end
 
 -- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing
 -- showing". Reads only public seams; changes nothing.

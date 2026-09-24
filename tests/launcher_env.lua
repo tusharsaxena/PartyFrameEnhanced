@@ -66,6 +66,11 @@ end
 return function(brokers, sv)
   Loader.addonName = "PartyFrameEnhanced"
   local mocks, NS = buildMocks(), {}
+  -- The client's context-menu API (Launcher minor 4's right click), installed as the global
+  -- `MenuUtil` the library resolves on every right click. `mocks.__menu` is the handle a suite
+  -- reads the opened menu through (`.last`, `:Click`, `:Checked`), and `.remove()` takes the API
+  -- away to reach the library's settings-panel fallback.
+  mocks.__menu = dofile("tests/mock_menu.lua")(mocks)
   local ldb, icons
   if brokers ~= false then
     ldb, icons = makeLDB(), makeIcon()

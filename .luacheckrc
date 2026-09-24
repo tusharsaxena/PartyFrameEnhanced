@@ -73,6 +73,11 @@ files["modules/TargetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/PetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/RangeFade.lua"] = { ignore = { "212/self" } }
 files["modules/Preview.lua"] = { ignore = { "212/self" } }
+
+-- tests/mock_menu.lua is LibKa0s v1.58.0's own client-menu fake, copied verbatim so a re-copy is a
+-- clean diff. It mirrors the client's `root:CreateCheckbox` / `element:SetEnabled` method shapes, so
+-- its methods take receivers they do not read, and the element's methods shadow the root's.
+files["tests/mock_menu.lua"] = { ignore = { "212/self", "432/self" } }
 files["modules/Anchor.lua"] = { ignore = { "212/self" } }
 
 -- SlashLib:New in the degraded stub mirrors the library's `lib:New(d)`, and Sl:LandingRows /

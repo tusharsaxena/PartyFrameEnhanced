@@ -303,11 +303,11 @@ test("disabled: two holds, one latch — releasing one never resurrects the othe
   assertEqual(#lc:Holds(), 0, "the hold set is empty")
 end)
 
-test("disabled: the launcher's LEFT click is refused and its RIGHT click is not", function()
-  -- launcher-§2 with slash-commands-§7: this addon is on rung (b) — its left click drives the lock,
-  -- which IS its preview switch, and a preview switch is a feature. Rung (c)'s carve-out does not
-  -- reach it. Right-click opens the settings panel in either state, because the ruling narrows the
-  -- SLASH surface and a mouse click is not a slash command.
+test("disabled: the launcher's LEFT click opens the panel and its menu grays every feature toggle", function()
+  -- launcher-§2 (standard v2.67.0) with slash-commands-§7: left-click opens the settings panel in
+  -- either state (the panel is setup, and where the addon is re-enabled), and right-click's menu
+  -- keeps *Enabled* live while *Locked* -- this addon's preview switch, a feature -- is grayed and
+  -- calls nothing. Neither click writes a SavedVariable or prints a line.
   --
   -- Its own world: tests/run.lua's harness deliberately has neither broker library, so the object
   -- with the OnClick on it only exists in the one tests/launcher_env.lua builds.
@@ -324,16 +324,19 @@ test("disabled: the launcher's LEFT click is refused and its RIGHT click is not"
   NS2.OpenOptionsPanel = function() opens = opens + 1 end
 
   obj.OnClick(obj, "LeftButton")
-  local printed = mocks2.__printed()
-  assertEqual(#printed, 1, "exactly one line")
-  assertTrue(printed[1]:find(NS2.Slash.__cli:DisabledLine(), 1, true) ~= nil,
-    "and it is the collection's line, not one the launcher re-spelled")
-  assertEqual(#mocks2.__svWrites(), 0, "a click on a disabled addon writes no SavedVariables")
-  assertEqual(NS2.GetSetting("locked"), true, "the lock did not move")
-  assertEqual(opens, 0, "and the left button did not quietly open the panel instead")
+  assertEqual(opens, 1, "left click opens the settings panel while disabled")
 
   obj.OnClick(obj, "RightButton")
-  assertEqual(opens, 1, "right click still opens the settings panel, in either state")
+  local menu = mocks2.__menu.last
+  assertTrue(menu ~= nil, "right click opens the options menu")
+  assertEqual(opens, 1, "and not the panel")
+  assertTrue(menu:Find("Enabled").enabled, "Enabled stays live")
+  assertFalse(menu:Find("Locked").enabled, "Locked is grayed")
+  menu:ForceClick("Locked")
+
+  assertEqual(#mocks2.__printed(), 0, "no line printed")
+  assertEqual(#mocks2.__svWrites(), 0, "a click on a disabled addon writes no SavedVariables")
+  assertEqual(NS2.GetSetting("locked"), true, "the lock did not move")
 end)
 
 -- The ten secure buttons (five target, five pet) whose visibility state drivers the stand-down

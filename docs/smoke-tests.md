@@ -77,14 +77,14 @@ One row per full pass. The newest row is the current iteration.
     reacting rather than stopping watching, and it is still paying the dispatch on every event the
     player switched it off to stop paying for.
 
-10d. Still **while disabled**, **left-click the minimap button**: one tagged line naming
-    `/pfe enable`, and nothing else — the elements do not unlock and no stand-in appears.
-    **Right-click** it: the settings panel opens, exactly as it does when the addon is running.
-    On the General page, **untick *Lock frame***: the same one tagged line (*Ka0s Party Frame
-    Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to ticked.
-    *Failure:* a left click that unlocks (it would be writing the stored tree of an addon the player
-    switched off), a right click that refuses, or a gray *cannot unlock* line from the checkbox — a
-    second wording of the one refusal (slash-commands-§7).
+10d. Still **while disabled**, **left-click the minimap button**: the settings panel opens, exactly
+    as it does when the addon is running, and nothing unlocks. **Right-click** it: the options menu
+    opens with *Enabled* unticked and live, and *Locked (enable the addon first)* grayed; clicking
+    the grayed entry does nothing. On the General page, **untick *Lock frame***: one tagged line
+    (*Ka0s Party Frame Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to
+    ticked. *Failure:* a menu entry that unlocks (it would be writing the stored tree of an addon the
+    player switched off), a left click that refuses, or a gray *cannot unlock* line from the checkbox
+    — a second wording of the one refusal (slash-commands-§7).
 
 10e. `/pfe enable` again, then `/reload`. Everything comes back, and it comes back from the settings
     **as they are now**: change a setting while the addon is disabled — `/pfe set castbar.enabled
@@ -336,27 +336,31 @@ EllesmereUI's, where noted.
 53. **The button is there, wearing the addon's own logo.** Log in → a round button on the minimap ring
     showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → the
     status tooltip (launcher-§1): `Ka0s Party Frame Enhanced  v<the TOC version>`, `Enabled: Yes`
-    (green), `Locked: Yes` (green), `Left-click: Unlock frame`, `Right-click: Open settings`, and no
-    `Test mode` line. Unlock (`/pfe unlock`) and hover again → `Locked: No` (red) and `Left-click: Lock
-    frame`. `/pfe disable` and hover → still shown, `Enabled: No` (red) and `Left-click: disabled —
-    /pfe enable`; left-click prints that one refusal line and nothing unlocks; `/pfe enable` after.
+    (green), `Locked: Yes` (green), `Left-click: Open settings`, `Right-click: Options menu`, and no
+    `Test mode` line. Unlock (`/pfe unlock`) and hover again → `Locked: No` (red), the same hints.
+    `/pfe disable` and hover → still shown, `Enabled: No` (red), the same hints; `/pfe enable` after.
     *Failure:* no tooltip while disabled, a title or hint drawn twice, or a `Test mode` line (anti-
     pattern #89). Drag it around the ring → it stays
     where you left it after `/reload`. *Failure:* a blank button is the 128 `.tga` not loading; a
     button that jumps back to its old angle on reload is `minimapPos` not being written to the table
     LibDBIcon was handed.
-54. **Left-click is the preview switch (rung b).** Left-click → the elements unlock exactly as
-    `/pfe unlock` unlocks them (stand-in out of a party, placeholders in one), and the General page's
-    *Lock frame* unticks if open. Left-click again → locked. In combat, left-click → the same gray
-    *cannot unlock during combat* and nothing moves. *Failure:* a left click that opens the settings
-    panel — the panel is already on the right button, so that is the rule skipped, not a choice
-    (launcher-§2, anti-pattern #81).
-55. **Right-click always opens the settings.** Right-click, locked or unlocked → the settings panel
-    opens on the landing page and the lock does not move. In combat → the same gray refusal `/pfe
-    config` gives.
+54. **Left-click always opens the settings.** Left-click, locked or unlocked, enabled or disabled →
+    the settings panel opens on the landing page and the lock does not move. In combat → the same
+    gray refusal `/pfe config` gives. *Failure:* a left click that unlocks — the retired rung (b)
+    (launcher-§2, standard v2.67.0).
+55. **Right-click opens the options menu.** Right-click → the client's context menu titled *Ka0s
+    Party Frame Enhanced*, with exactly two checkboxes, *Enabled* (ticked) and *Locked* (ticked),
+    and no *Test mode* or *Show window* entry. Click *Locked* → the elements unlock exactly as `/pfe
+    unlock` unlocks them (stand-in out of a party, placeholders in one), the General page's *Lock
+    frame* unticks if open, and the menu closes; right-click again → *Locked* unticked; click it →
+    locked. In combat, *Locked* → the same gray *cannot unlock during combat* and nothing moves.
+    Click *Enabled* → the same `enabled = false` echo `/pfe disable` prints and the addon goes down;
+    right-click → *Locked (enable the addon first)* grayed; click *Enabled* → back up with `/pfe
+    enable`'s echo. *Failure:* an entry whose effect or message differs from its slash verb's (a
+    second copy of the handler, anti-pattern #81), or a grayed entry that still acts.
 56. **The broker plugin is the same object.** With Titan Panel, ElvUI data texts or Bazooka installed,
-    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click unlocks, right-click
-    opens the settings. *Failure:* an empty value cell beside the icon means the object was registered
+    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click opens the settings,
+    right-click opens the same options menu. *Failure:* an empty value cell beside the icon means the object was registered
     as a `data source` rather than a `launcher`.
 57. **The Minimap button row, both ways.** General → Master controls → untick **Minimap button** → the
     button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.

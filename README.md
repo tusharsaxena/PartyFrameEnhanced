@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-348%2F348_passing-green)
+![Tests](https://img.shields.io/badge/Tests-353%2F353_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -65,10 +65,13 @@ joins or leaves during a pull, those frames hide until combat ends and then reap
 Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and typing `/pfe` on its
 own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full command list.
 
-There is a **minimap button** too. Left-click unlocks and re-locks the elements (it's the same switch
-as **Lock frame**), and right-click opens the settings. Hover it to see whether the addon is enabled
-and locked, and what a left-click will do; it answers even while the addon is switched off. If you use Titan Panel, ElvUI's data texts or
-Bazooka, the addon shows up there as well, and clicking it does exactly the same thing. To put the
+There is a **minimap button** too. Left-click opens the settings. Right-click opens a small menu with
+two checkboxes: **Enabled** turns the addon on or off (the same as `/pfe enable` / `/pfe disable`),
+and **Locked** unlocks and re-locks the elements (the same switch as **Lock frame**). While the addon
+is off, **Locked** is grayed out until you enable it again. Hover the button to see whether the addon
+is enabled and locked; it answers even while the addon is switched off. If you use Titan Panel,
+ElvUI's data texts or Bazooka, the addon shows up there as well, and clicking it does exactly the
+same thing. To put the
 button away, untick **Minimap button** on the **General** page; it stays away on every character and
 every profile until you tick it back.
 

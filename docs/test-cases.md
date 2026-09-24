@@ -358,7 +358,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: re-enabled, the addon rebuilds from CURRENT state
 - disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
-- disabled: the launcher's LEFT click is refused and its RIGHT click is not
+- disabled: the launcher's LEFT click opens the panel and its menu grays every feature toggle
 - disabled: out of combat, the target and pet state drivers are UNREGISTERED
 - disabled: re-enabled, the released state drivers are re-installed
 - disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
@@ -366,21 +366,26 @@ badge and any count quoted in the docs must agree with it.
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_launcher.lua (26)
+### test_launcher.lua (31)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
 - launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture names that file
 - launcher: the broker label is the BRAND NAME in plain text, never the Title or the folder
-- launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
-- launcher: the left click and `/pfe unlock` are the same seam, not two
-- launcher: RIGHT click always opens the settings panel
-- launcher: the descriptor claims the states this addon HAS -- enabled and a lock, no test mode
+- launcher: LEFT click opens the settings panel and moves nothing
+- launcher: LEFT click opens the settings panel while DISABLED too
+- launcher: RIGHT click opens the options menu -- title, then Enabled and Locked only
+- launcher: each menu entry shows the state read when the menu opens
+- launcher: the menu's Locked entry routes to NS.ToggleLock, the `/pfe lock|unlock` seam
+- launcher: the menu's Locked entry and `/pfe lock` write the one path through the one seam
+- launcher: the menu's Enabled entry routes to NS.SetEnabled, the `/pfe enable|disable` handler
+- launcher: while DISABLED the menu grays Locked and leaves Enabled live
+- launcher: with no client menu API, RIGHT click falls back to the settings panel
+- launcher: the descriptor passes the pairs this addon HAS, and none of the retired fields
 - launcher: each accessor reads the store the Master-controls rows read, on every call
-- launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two hints
-- launcher: tooltip while unlocked -- Locked: No, and the hint says the click will LOCK
-- launcher: tooltip while DISABLED -- still shown, Enabled: No, the hint is the refusal's pointer
-- launcher: the left-click label goes through the addon's locale
+- launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two fixed hints
+- launcher: tooltip while unlocked -- Locked: No, and no Test mode line in any state
+- launcher: tooltip while DISABLED -- still shown, Enabled: No, the same two hints
 - launcher: the Minimap button row is composed, stored, and in its canonical position
 - launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
 - launcher: the row's path is `global.minimap.shown`, and the old `hide` path is gone
@@ -480,10 +485,10 @@ badge and any count quoted in the docs must agree with it.
 | test_prose.lua | 15 |
 | test_slash.lua | 24 |
 | test_disabled.lua | 18 |
-| test_launcher.lua | 26 |
+| test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 12 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **348** |
+| **Total** | **353** |

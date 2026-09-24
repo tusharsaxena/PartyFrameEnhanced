@@ -161,3 +161,7 @@ L["Yes"] = "Yes"
 L["No"] = "No"
 L["Restore every General setting on this profile to its addon default."] =
     "Restore every General setting on this profile to its addon default."
+
+-- Migration runner (core/Database.lua)
+L["Settings migration to v%d failed; your settings were left as they were"] =
+    "Settings migration to v%d failed; your settings were left as they were"

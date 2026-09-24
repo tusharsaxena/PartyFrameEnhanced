@@ -128,10 +128,12 @@ NS.defaults.profile = {
 }
 
 NS.defaults.global = {
-    -- The account-wide schema stamp NS:RunMigrations walks from (savedvariables-§1). 1 is also the
-    -- "pre-ladder" value: AceDB copies defaults into an absent key before the runner reads it, so any
-    -- higher default would mark a stale store as already migrated.
-    schemaVersion = 1,
+    -- The account-wide schema stamp NS:RunMigrations walks from (savedvariables-§1). 0, never the
+    -- current version: AceDB strips a value equal to its default at logout, so a current-version
+    -- default never persists, and AceDB backfills a declared default onto a store with no stamp,
+    -- which would mark it as already migrated (WS-03). The runner owns the stamp and writes
+    -- NS.SCHEMA_VERSION (core/Database.lua) after the walk.
+    schemaVersion = 0,
 
     -- LibDBIcon's OWN table, and the only record of whether the minimap button is shown
     -- (launcher-§3). `hide` is the library's key and its sense is HIDDEN, while the Master controls

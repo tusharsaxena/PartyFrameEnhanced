@@ -41,10 +41,12 @@ badge and any count quoted in the docs must agree with it.
 - schema: before the db opens, GetSetting answers the shipped default
 - schema: without the library, /pfe disable and /pfe enable still write the stored path
 
-### test_database.lua (4)
+### test_database.lua (6)
 
-- database: InitDB opens the store with the shipped defaults and schema v1
+- database: InitDB stamps NS.SCHEMA_VERSION over a default of 0
 - database: RunMigrations is idempotent
+- database: a profile step runs over every stored profile, then stamps
+- database: a raising step leaves the stamp and prints one line; a rerun is a no-op
 - database: a counted profile reset restores defaults and publishes PROFILE once
 - database: a profile switch publishes PROFILE and VISIBILITY
 
@@ -418,7 +420,7 @@ badge and any count quoted in the docs must agree with it.
 |-------|------:|
 | test_loadorder.lua | 13 |
 | test_schema.lua | 16 |
-| test_database.lua | 4 |
+| test_database.lua | 6 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
 | test_mediasetup.lua | 3 |
@@ -448,4 +450,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **310** |
+| **Total** | **312** |

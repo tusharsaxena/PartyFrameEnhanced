@@ -82,7 +82,7 @@ now the `locked` row's validate.
 ## Global
 
 ```text
-global.schemaVersion = 1
+global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (1)
 global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
@@ -109,14 +109,30 @@ not a sweep.
 which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says
 **shown** and the key says **hidden**, so `settings/General.lua` registers the inverting get/set with
 `NS.RegisterGlobalSetting` and the seam bridges them once. **No migration:** this addon never stored
-a minimap table anywhere else, so the path is new rather than moved and `schemaVersion` stays at 1.
+a minimap table anywhere else, so the path is new rather than moved and `NS.SCHEMA_VERSION` stays at 1.
 
 ## Migrations
 
-`NS:RunMigrations` (`core/Database.lua`) walks an ordered ladder of `{ to = N, apply = fn }` steps
-above `global.schemaVersion`. **v1 is the shape v0.1.0 ships, so the ladder is empty.** A future
-stored-value change — a type change, a rename, a moved key — adds its step in the same change as the
-row, and records it here:
+`NS:RunMigrations` (`core/Database.lua`) walks an ordered ladder of
+`{ to = N, scope = "profile"|"global", apply = fn }` steps above `global.schemaVersion`, towards
+`NS.SCHEMA_VERSION`. **v1 is the shape v0.1.0 ships, so the ladder is empty.** A future stored-value
+change — a type change, a rename, a moved key — adds its step and raises `NS.SCHEMA_VERSION` in the
+same change as the row, and records it here.
+
+The rules the runner keeps (savedvariables-§1):
+
+- **The default is 0, and the runner owns the stamp.** `defaults/Profile.lua` declares
+  `global.schemaVersion = 0`, never the current version: AceDB strips a value equal to its default at
+  logout, so a current-version default would never persist, and AceDB backfills a declared default onto
+  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (1) after the walk, and that value
+  persists because it differs from the default.
+- **A profile step runs over every stored profile**, not just the active one: `apply` is called with
+  each table in AceDB's raw `profiles` (the active one included), or with the one profile on the
+  no-AceDB path. A global step is called with `global`. A raw stored profile has its defaults
+  stripped, so every step reads with a fallback and is idempotent against a fresh default profile.
+- **The stamp advances only past a step that returned without raising.** A step runs under `pcall`;
+  on failure the runner logs it to the debug console, prints one line, and stops with the stamp where
+  it was, so the next login retries it.
 
 | Version | Change | Step |
 |---|---|---|

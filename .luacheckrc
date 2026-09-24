@@ -12,25 +12,27 @@ exclude_files = { "libs/", "docs/audits/", "docs/reviews/", "_dev/", "tests/_kit
 -- and the variable.
 
 read_globals = {
-  "_G", "LibStub", "CreateFrame", "UIParent", "GetTime", "select", "wipe", "Mixin",
+  "_G", "LibStub", "CreateFrame", "UIParent", "select",
   "Settings", "C_Timer", "C_AddOns", "GetAddOnMetadata", "IsAddOnLoaded", "DEFAULT_CHAT_FRAME",
   "StaticPopup_Show", "hooksecurefunc", "InCombatLockdown", "UnitAffectingCombat",
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
-  "UnitExists", "UnitClass", "UnitName", "UnitGUID", "UnitIsPlayer", "UnitIsUnit", "UnitReaction",
-  "UnitHealth", "UnitHealthMax", "UnitHealthPercent", "UnitIsDeadOrGhost", "UnitIsConnected",
+  -- UnitExists is absent on purpose: a raw UnitExists(compound token) is the secret-value hazard
+  -- core/Compat.lua documents removing (the "No UnitExists shim" note), so a new call fails lint.
+  "UnitClass", "UnitName", "UnitIsPlayer", "UnitReaction",
+  "UnitHealth", "UnitHealthMax", "UnitHealthPercent",
   "UnitInRange",
   "UnitCastingInfo", "UnitChannelInfo", "UnitCastingDuration", "UnitChannelDuration",
   "UnitEmpoweredChannelDuration", "GetRaidTargetIndex", "SetRaidTargetIconTexture",
-  "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_Secrets", "C_CurveUtil",
+  "IsInRaid", "IsInGroup", "RAID_CLASS_COLORS", "issecretvalue", "C_CurveUtil",
   "Enum", "GetCVarBool", "CurveConstants",
   -- The stand-in's classic look (modules/StandIn.lua).
   "SetPortraitTexture", "UnitPowerType", "PowerBarColor",
   -- The client's own localized words for a stopped cast, displayed only.
   "INTERRUPTED", "FAILED",
   -- Secure frames (target and pet frames).
-  "RegisterStateDriver", "UnregisterStateDriver", "RegisterUnitWatch", "UnregisterUnitWatch",
+  "RegisterStateDriver", "UnregisterStateDriver",
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
-  "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "EllesmereUI", "ERFPartyHeader",
+  "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "ERFPartyHeader",
   "ERFPartySelfButton", "EventRegistry",
   -- EllesmereUI's saved settings: the stand-in's party frame size (modules/Providers.lua), read-only.
   "EllesmereUIDB",

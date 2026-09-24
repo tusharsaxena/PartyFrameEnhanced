@@ -142,6 +142,13 @@ badge and any count quoted in the docs must agree with it.
 - anchor: a section stripped of its defaulted point still pins, from the shipped default
 - anchor: unlocking gives the name plate a grabbable body and arms every element's drag
 
+### test_profile_switch.lua (4)
+
+- profile switch: Anchor places by the NEW profile even when it hears PROFILE first
+- profile switch: a real SetProfile each way follows the profile
+- profile switch: Reset all settings on a free profile returns it to attached
+- profile switch: copying a free profile in places by the copy
+
 ### test_castbars.lua (13)
 
 - castbars: each included unit's bar registers exactly the cast events, for its own unit
@@ -409,6 +416,7 @@ badge and any count quoted in the docs must agree with it.
 | test_compat.lua | 10 |
 | test_providers.lua | 12 |
 | test_anchor.lua | 9 |
+| test_profile_switch.lua | 4 |
 | test_castbars.lua | 13 |
 | test_targetframes.lua | 21 |
 | test_petframes.lua | 9 |
@@ -427,4 +435,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **293** |
+| **Total** | **297** |

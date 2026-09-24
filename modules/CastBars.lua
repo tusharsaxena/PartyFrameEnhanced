@@ -351,9 +351,14 @@ end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
 
+-- Anchor's reads are LIVE, never the `cfg` upvalue: the PROFILE handler that re-binds `cfg` may run
+-- after Anchor's own (modules/Anchor.lua, placementOf).
+local function liveSection() return NS.db.profile.castbar end
+
 local function slotSize()
     local scale = NS.GetSetting("scale") or 1
-    return (cfg.width or 140) * scale, (cfg.height or 16) * scale
+    local c = liveSection()
+    return (c.width or 140) * scale, (c.height or 16) * scale
 end
 
 function CastBars:OnEnable()
@@ -369,7 +374,7 @@ function CastBars:OnEnable()
     end
     NS.Anchor.Register({
         key = "castbar", label = L["Cast bars"], secure = false, elements = bars,
-        config = function() return cfg end,
+        config = liveSection,
         slotSize = slotSize,
         defaultPosition = { "CENTER", 0, -180 },
     })

@@ -136,10 +136,13 @@ function PetFrames:OnEnable()
     end
     NS.Anchor.Register({
         key = "pet", label = L["Pet frames"], secure = true, elements = buttons,
-        config = function() return cfg end,
+        -- LIVE reads, never the `cfg` upvalue: this feature's PROFILE handler may run after
+        -- Anchor's (modules/Anchor.lua, placementOf).
+        config = function() return NS.db.profile.pet end,
         slotSize = function()
             local scale = NS.GetSetting("scale") or 1
-            return (cfg.width or 80) * scale, (cfg.height or 14) * scale
+            local c = NS.db.profile.pet
+            return (c.width or 80) * scale, (c.height or 14) * scale
         end,
         defaultPosition = { "CENTER", -220, -180 },
     })

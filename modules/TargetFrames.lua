@@ -255,10 +255,13 @@ function TargetFrames:OnEnable()
     end
     NS.Anchor.Register({
         key = "target", label = L["Target frames"], secure = true, elements = buttons,
-        config = function() return cfg end,
+        -- LIVE reads, never the `cfg` upvalue: this feature's PROFILE handler may run after
+        -- Anchor's (modules/Anchor.lua, placementOf).
+        config = function() return NS.db.profile.target end,
         slotSize = function()
             local scale = NS.GetSetting("scale") or 1
-            return (cfg.width or 110) * scale, (cfg.height or 20) * scale
+            local c = NS.db.profile.target
+            return (c.width or 110) * scale, (c.height or 20) * scale
         end,
         defaultPosition = { "CENTER", 220, -180 },
     })

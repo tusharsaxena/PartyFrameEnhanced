@@ -183,9 +183,10 @@ end)
 
 -- THE PROFILE-SWITCH CRASH (in-game report, 2026-09-16). AceDB's SetProfile calls removeDefaults()
 -- on the OUTGOING profile table, stripping every key whose value still equals its default -- and
--- `point` / `relativePoint` are exactly that for any player who never moved them. Anchor's
--- MSG.PROFILE handler is registered before the feature modules' (it loads earlier in the TOC), so
--- it runs first and reads the stripped table through a config() the feature has not re-bound yet.
+-- `point` / `relativePoint` are exactly that for any player who never moved them. MSG.PROFILE
+-- handlers run in CallbackHandler's next() order, which is undefined, so the features' config()
+-- reads the live section (tests/test_profile_switch.lua pins that); this case pins the fallback
+-- for a section that still arrives stripped.
 -- red under: `local point, rel = cfg.point, cfg.relativePoint`, which sent nil into SetPoint and
 -- raised "Usage: SetPoint(point, ...)" mid-profile-change, taking the whole ApplyAll down with it.
 test("anchor: a section stripped of its defaulted point still pins, from the shipped default", function()

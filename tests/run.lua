@@ -67,6 +67,7 @@ Kit.run{
     "test_compat",
     "test_providers",
     "test_anchor",
+    "test_profile_switch",
     "test_castbars",
     "test_targetframes",
     "test_petframes",

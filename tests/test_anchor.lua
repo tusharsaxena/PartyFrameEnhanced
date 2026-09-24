@@ -57,7 +57,13 @@ local function probe(secure)
   return key, els
 end
 
+-- Hide the probe's holder as well as dropping its rows. Kit 26 creates frames shown, and a probe
+-- that is out of `order` is out of Anchor:Suspend's reach, so a holder left shown here would sit in
+-- test_disabled's frame census until the garbage collector happened to take it: green or red by
+-- allocation timing, not by anything the addon does.
 local function unregister(key)
+  local spec = Anchor.__features[key]
+  if spec and spec.holder then spec.holder:Hide() end
   Anchor.__features[key] = nil
   for i, k in ipairs(Anchor.__order) do
     if k == key then table.remove(Anchor.__order, i) break end

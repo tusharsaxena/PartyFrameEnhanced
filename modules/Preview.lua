@@ -84,8 +84,8 @@ local onCombat   -- PLAYER_REGEN_DISABLED's handler, defined below with forceLoc
 -- combat, to re-lock (review F-017: locked, neither has anything to do).
 local function listen(on)
     if on then
-        ev:RegisterEvent("GROUP_ROSTER_UPDATE", applyStandIn)
-        ev:RegisterEvent("PLAYER_REGEN_DISABLED", onCombat)
+        NS.SafeRegisterEvent(ev, "GROUP_ROSTER_UPDATE", applyStandIn, NS.RejectedEvents)
+        NS.SafeRegisterEvent(ev, "PLAYER_REGEN_DISABLED", onCombat, NS.RejectedEvents)
     else
         ev:UnregisterEvent("GROUP_ROSTER_UPDATE")
         ev:UnregisterEvent("PLAYER_REGEN_DISABLED")

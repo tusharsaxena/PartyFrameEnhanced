@@ -138,6 +138,7 @@ for _, key in ipairs({
     "suspended by a perf run", "Frame system: %s",
     "Range fade: %s", "copied from %s", "own range check (classic frames)", "waiting for party frames",
     "not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)", "none found", "frame", "Note: %s",
+    "Events the client refused: %s",
     "List all profiles", "Show current profile name", "Switch to profile",
     "Create new profile with defaults", "Copy settings from another profile", "Delete a profile",
     "Reset current profile to defaults", "Profile commands", "Usage: /pfe profile %s <name>",

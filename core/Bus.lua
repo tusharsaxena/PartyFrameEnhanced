@@ -78,11 +78,22 @@ function NS.NewBusTarget() return NS.busRecord:NewTarget() end
 function NS.BusStandDown() return NS.busRecord:StandDown() end
 
 --- Every bus receiver back, from the record as it is NOW. A replayed entry the client refused is
---- dropped from the record and named on the debug console; answers the number replayed.
+--- dropped from the record, appended to NS.RejectedEvents and named on the debug console; answers the
+--- number replayed.
 function NS.BusStandUp()
     local replayed, rejected = NS.busRecord:StandUp()
-    if #rejected > 0 and NS.Debug then
-        NS.Debug("Bus", "rejected on stand-up: %s", table.concat(rejected, ", "))
+    if #rejected > 0 then
+        -- The same host-owned list every SafeRegister* site writes (core/State.lua), each name once,
+        -- so `/pfe status` names a refusal whichever path met it. The record names an entry
+        -- "<kind>:<name>"; only an event is a name the client refuses.
+        local list = NS.RejectedEvents
+        for _, entry in ipairs(rejected) do
+            local name = entry:match("^event:(.+)$")
+            local seen = name == nil
+            for i = 1, #list do seen = seen or list[i] == name end
+            if not seen then list[#list + 1] = name end
+        end
+        if NS.Debug then NS.Debug("Bus", "rejected on stand-up: %s", table.concat(rejected, ", ")) end
     end
     return replayed
 end

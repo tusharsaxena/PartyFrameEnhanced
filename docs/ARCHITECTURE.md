@@ -163,6 +163,11 @@ addon rather than a preference.
 | `PLAYER_REGEN_DISABLED` and `GROUP_ROSTER_UPDATE`, both only while preview is on (`listen(on)`) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
 | `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
 
+Every row in this table registers through `NS.SafeRegisterEvent` / `NS.SafeRegisterUnitEvent` /
+`NS.SafeRegisterEvents` (LibKa0s-Core minor 8, published in `core/CoreSetup.lua`), so a name the client
+refuses costs only itself and lands once in `NS.RejectedEvents`, which `/pfe status` prints
+(events-frames-taint-§1; `docs/midnight-quirks.md`).
+
 **Every registration in this table except the last comes off while the addon is stood down** — for
 either reason. Not gated: unregistered. See *The disabled state is total* below.
 

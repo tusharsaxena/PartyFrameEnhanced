@@ -59,6 +59,31 @@ test("castbars: turning the feature off unregisters every unit; on registers the
   assertTrue(bars.party1.__unitEvents.UNIT_SPELLCAST_START ~= nil)
 end)
 
+test("castbars: a refused UNIT_SPELLCAST name leaves the bar's other cast events registered", function()
+  -- red under: a bare RegisterUnitEvent loop (the raise drops every event after the refused one)
+  mocks.__badEvents = { UNIT_SPELLCAST_DELAYED = true }
+  local ok, err = pcall(function()
+    NS.SetByPath("castbar.enabled", false)
+    NS.SetByPath("castbar.enabled", true)
+  end)
+  mocks.__badEvents = {}
+  local registered = bars.party1.__unitEvents
+  local missing = {}
+  for _, event in ipairs(CastBars.EVENTS) do
+    if event ~= "UNIT_SPELLCAST_DELAYED" and registered[event] == nil then missing[#missing + 1] = event end
+  end
+  local refused = false
+  for _, v in ipairs(NS.RejectedEvents or {}) do refused = refused or v == "UNIT_SPELLCAST_DELAYED" end
+  local rejected = NS.RejectedEvents
+  if type(rejected) == "table" then for i = #rejected, 1, -1 do rejected[i] = nil end end
+  -- Put the bars back as every other case expects them: all thirteen events.
+  NS.SetByPath("castbar.enabled", false)
+  NS.SetByPath("castbar.enabled", true)
+  assertTrue(ok, "the sync survived the refused name: " .. tostring(err))
+  assertEqual(#missing, 0, "still registered: " .. table.concat(missing, ", "))
+  assertTrue(refused, "the refused name is in NS.RejectedEvents")
+end)
+
 test("castbars: a cast start shows the bar with the name, icon and an engine-driven fill timer", function()
   mocks.Enum = { StatusBarTimerDirection = { ElapsedTime = 0, RemainingTime = 1 },
                  StatusBarInterpolation = { Immediate = 0 } }

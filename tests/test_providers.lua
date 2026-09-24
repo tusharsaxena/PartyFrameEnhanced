@@ -247,3 +247,57 @@ test("providers: suspended, requests do nothing and events come off", function()
   assertEqual(#editModeExits(), 1, "and the callback is back, once")
   mocks.__fireTimers()
 end)
+
+-- ── a name the client refuses (events-frames-taint-§1) ───────────────────────────────────────
+
+local function providersHold(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == Providers.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+local function countOf(list, name)
+  local n = 0
+  for _, v in ipairs(list or {}) do if v == name then n = n + 1 end end
+  return n
+end
+
+test("providers: a refused event name costs only itself, and is recorded once across a disable/enable", function()
+  -- red under: a bare RegisterEvent loop (the raise takes every later line of registerEvents with it)
+  mocks.__badEvents = { EDIT_MODE_LAYOUTS_UPDATED = true }
+  local ok, err = pcall(function()
+    for _ = 1, 2 do
+      NS.SetByPath("enabled", false)
+      NS.SetByPath("enabled", true)
+    end
+  end)
+  mocks.__badEvents = {}
+  local rejected = NS.RejectedEvents
+  local count = countOf(rejected, "EDIT_MODE_LAYOUTS_UPDATED")
+  local regen, loaded = providersHold("PLAYER_REGEN_ENABLED"), providersHold("ADDON_LOADED")
+  if type(rejected) == "table" then for i = #rejected, 1, -1 do rejected[i] = nil end end
+  mocks.__fireTimers()
+  assertTrue(ok, "the enable path survived the refused name: " .. tostring(err))
+  assertTrue(regen, "PLAYER_REGEN_ENABLED is still registered")
+  assertTrue(loaded, "ADDON_LOADED is still registered")
+  assertEqual(count, 1, "the refused name is recorded exactly once")
+end)
+
+test("providers: /pfe status names the events the client refused", function()
+  -- red under: runStatus that never reads NS.RejectedEvents
+  local function status()
+    local before = #mocks.__chat
+    NS.Slash:OnSlash("status")
+    local out = {}
+    for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+    return table.concat(out, "\n")
+  end
+  assertTrue(status():find("Events the client refused", 1, true) == nil, "quiet with nothing refused")
+  local rejected = NS.RejectedEvents
+  assertTrue(type(rejected) == "table", "NS.RejectedEvents is a host-owned list")
+  rejected[1], rejected[2] = "FOO_EVENT", "BAR_EVENT"
+  local out = status()
+  rejected[1], rejected[2] = nil, nil
+  assertTrue(out:find("Events the client refused: FOO_EVENT, BAR_EVENT", 1, true) ~= nil, out)
+end)

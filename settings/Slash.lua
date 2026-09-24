@@ -212,6 +212,10 @@ function runStatus()
     print("  " .. L["Range fade: %s"]:format(rangeFadeState()))
     local flags = statusFlags()
     if #flags > 0 then print("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
+    local rejected = NS.RejectedEvents
+    if #rejected > 0 then
+        print("  " .. L["Events the client refused: %s"]:format(table.concat(rejected, ", ")))
+    end
 end
 
 -- The guided run lives in LibKa0s-Perf; the library returns lines and this prints them

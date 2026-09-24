@@ -21,6 +21,25 @@ test("parity: the Core stub publishes everything core/CoreSetup.lua publishes li
   T.assertSurfaceParity(live, loadDegraded(), "Core stub")
 end)
 
+test("parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once", function()
+  -- red under: a stub body that calls the target bare (the raise escapes) or appends on every call.
+  local NS2 = loadDegraded()
+  assertTrue(NS2.SafeRegisterEvent ~= NS.SafeRegisterEvent, "the degraded load took the stub")
+  local target = {
+    RegisterEvent = function(_, event) if event == "BAD_EVENT" then error("unknown event") end end,
+    RegisterUnitEvent = function(_, event) if event == "BAD_EVENT" then error("unknown event") end end,
+  }
+  local rejected = {}
+  assertTrue(NS2.SafeRegisterEvent(target, "BAD_EVENT", nil, rejected) == false, "a raise answers false")
+  assertTrue(NS2.SafeRegisterEvent(target, "BAD_EVENT", nil, rejected) == false, "and again")
+  assertTrue(NS2.SafeRegisterUnitEvent(target, "BAD_EVENT", rejected, "party1") == false, "unit form too")
+  assertTrue(#rejected == 1 and rejected[1] == "BAD_EVENT", "appended exactly once")
+  assertTrue(NS2.SafeRegisterEvent(target, "GOOD_EVENT", nil, rejected) == true, "a known name answers true")
+  assertTrue(NS2.SafeRegisterEvents(target, { "GOOD_EVENT", "BAD_EVENT", "OTHER" }, nil, rejected) == 2,
+    "the array form counts what registered")
+  assertTrue(#rejected == 1, "still once")
+end)
+
 test("parity: the DebugLog stub carries the whole live surface", function()
   local NS2 = loadDegraded()
   T.assertSurfaceParity(NS2.DebugLog, "LibKa0s-DebugLog-1.0", {

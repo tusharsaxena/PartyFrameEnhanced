@@ -328,14 +328,19 @@ Providers.__ev = ev
 
 local ELLESMERE_ADDONS = { EllesmereUI = true, EllesmereUIRaidFrames = true }
 
+-- Each one refused costs only itself (events-frames-taint-§1): a bare block of RegisterEvent lines
+-- loses every line after the one that raised.
+local BURST_EVENTS = { "GROUP_ROSTER_UPDATE", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }
+
+local function onAddonLoaded(_, name)
+    if ELLESMERE_ADDONS[name] then burst() end
+end
+
 local function registerEvents()
-    ev:RegisterEvent("GROUP_ROSTER_UPDATE", burst)
-    ev:RegisterEvent("PLAYER_ENTERING_WORLD", burst)
-    ev:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED", burst)
-    ev:RegisterEvent("PLAYER_REGEN_ENABLED", Providers.Request)
-    ev:RegisterEvent("ADDON_LOADED", function(_, name)
-        if ELLESMERE_ADDONS[name] then burst() end
-    end)
+    local rejected = NS.RejectedEvents
+    NS.SafeRegisterEvents(ev, BURST_EVENTS, burst, rejected)
+    NS.SafeRegisterEvent(ev, "PLAYER_REGEN_ENABLED", Providers.Request, rejected)
+    NS.SafeRegisterEvent(ev, "ADDON_LOADED", onAddonLoaded, rejected)
 end
 
 -- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private. It is

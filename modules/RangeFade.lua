@@ -166,7 +166,7 @@ local function syncEvents()
     if want == listening then return end
     listening = want
     if want then
-        ev:RegisterEvent("UNIT_IN_RANGE_UPDATE", onRange)
+        NS.SafeRegisterEvent(ev, "UNIT_IN_RANGE_UPDATE", onRange, NS.RejectedEvents)
     else
         ev:UnregisterEvent("UNIT_IN_RANGE_UPDATE")
     end

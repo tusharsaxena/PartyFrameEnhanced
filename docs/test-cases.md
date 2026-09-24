@@ -117,7 +117,7 @@ badge and any count quoted in the docs must agree with it.
 - compat: without the library the guard stub answers what the library answers, fixture for fixture
 - compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires
 
-### test_providers.lua (14)
+### test_providers.lua (16)
 
 - providers: Blizzard classic maps party1..4 by unitToken and never the player
 - providers: Blizzard raid-style maps the player too, and follows a re-sort
@@ -133,6 +133,8 @@ badge and any count quoted in the docs must agree with it.
 - providers: enabled, exactly one EditMode.Exit callback is registered, owned by Providers
 - providers: suspended, the Edit Mode burst arms nothing even when reached directly
 - providers: suspended, requests do nothing and events come off
+- providers: a refused event name costs only itself, and is recorded once across a disable/enable
+- providers: /pfe status names the events the client refused
 
 ### test_anchor.lua (9)
 
@@ -153,11 +155,12 @@ badge and any count quoted in the docs must agree with it.
 - profile switch: Reset all settings on a free profile returns it to attached
 - profile switch: copying a free profile in places by the copy
 
-### test_castbars.lua (13)
+### test_castbars.lua (14)
 
 - castbars: each included unit's bar registers exactly the cast events, for its own unit
 - castbars: nothing in the addon registers a UNIT_SPELLCAST event globally
 - castbars: turning the feature off unregisters every unit; on registers them again
+- castbars: a refused UNIT_SPELLCAST name leaves the bar's other cast events registered
 - castbars: a cast start shows the bar with the name, icon and an engine-driven fill timer
 - castbars: a channel drains, and without the engine timer the bar is driven from the same object
 - castbars: the time text shows seconds left, refreshed at most ten times a second
@@ -381,9 +384,10 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (7)
+### test_surface_parity.lua (8)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
+- parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
 - parity: the DebugLog stub carries the whole live surface
 - parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface
 - parity: the Options stub carries every helper the degraded build can reach
@@ -433,10 +437,10 @@ badge and any count quoted in the docs must agree with it.
 | test_lifecycle.lua | 4 |
 | test_bus.lua | 12 |
 | test_compat.lua | 10 |
-| test_providers.lua | 14 |
+| test_providers.lua | 16 |
 | test_anchor.lua | 9 |
 | test_profile_switch.lua | 4 |
-| test_castbars.lua | 13 |
+| test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
 | test_rangefade.lua | 8 |
@@ -450,8 +454,8 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 18 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 7 |
+| test_surface_parity.lua | 8 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **316** |
+| **Total** | **320** |

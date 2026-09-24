@@ -114,7 +114,7 @@ local onRaidTarget   -- RAID_TARGET_UPDATE's handler, defined at the bottom of t
 local function syncModuleEvents(on)
     on = on and true or false
     if on == moduleListening then return end
-    if on then ev:RegisterEvent("RAID_TARGET_UPDATE", onRaidTarget)
+    if on then NS.SafeRegisterEvent(ev, "RAID_TARGET_UPDATE", onRaidTarget, NS.RejectedEvents)
     else ev:UnregisterEvent("RAID_TARGET_UPDATE") end
     moduleListening = on
 end
@@ -128,11 +128,12 @@ local function syncEvents()
         if (btn.__registered or false) ~= want then
             btn:UnregisterAllEvents()
             if want then
-                btn:RegisterUnitEvent("UNIT_PET", unit)
-                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
+                local rejected = NS.RejectedEvents
+                NS.SafeRegisterUnitEvent(btn, "UNIT_PET", rejected, unit)
+                NS.SafeRegisterUnitEvent(btn, "UNIT_NAME_UPDATE", rejected, btn.token)
                 if want == "health" then
-                    btn:RegisterUnitEvent("UNIT_HEALTH", btn.token)
-                    btn:RegisterUnitEvent("UNIT_MAXHEALTH", btn.token)
+                    NS.SafeRegisterUnitEvent(btn, "UNIT_HEALTH", rejected, btn.token)
+                    NS.SafeRegisterUnitEvent(btn, "UNIT_MAXHEALTH", rejected, btn.token)
                 end
             end
             btn.__registered = want

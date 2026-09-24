@@ -333,7 +333,9 @@ local function syncEvents()
         local el = bars[unit]
         if on and Units.IsIncluded(unit) then
             if not el.__registered then
-                for i = 1, #EVENTS do el:RegisterUnitEvent(EVENTS[i], unit) end
+                for i = 1, #EVENTS do
+                    NS.SafeRegisterUnitEvent(el, EVENTS[i], NS.RejectedEvents, unit)
+                end
                 el.__registered = true
                 changed = changed + 1
                 start(el)

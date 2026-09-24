@@ -121,3 +121,16 @@ fallback (`Compat.UseRaidStyleParty`).
 Blizzard's `CompactPartyFrame:RefreshMembers` and EllesmereUI's SecureGroupHeader both re-assign which
 frame shows which unit in secure code, during combat. Cast bars follow at once; the secure target and
 pet frames fade and re-anchor at `PLAYER_REGEN_ENABLED` (`modules/Anchor.lua`, spec §6.4).
+
+## An unknown event name raises
+
+The client raises `Attempt to register unknown event "<NAME>"` on a name it does not know, and a block
+of bare `RegisterEvent` lines loses every line after the one that raised. So every registration here
+goes through LibKa0s-Core's `NS.SafeRegisterEvent` / `SafeRegisterUnitEvent` / `SafeRegisterEvents`
+(`core/CoreSetup.lua`), which records a refused name once in `NS.RejectedEvents` and lets the rest of
+the block register; `/pfe status` prints the list when it is not empty. The probing trade-off: the
+library asks `C_EventUtils.IsEventValid` (or a private probe frame) before the target sees the name,
+because an AceEvent target only raises for an event's first registrant in the client-wide registry.
+That front gate is optional, not the guard. The pcall around the target's own call is what keeps one
+bad name from taking the block down, and it is the only rung the library-absent stub carries. Every
+name registered today is valid on 12.1.0, so this is insurance against a patch retiring one.

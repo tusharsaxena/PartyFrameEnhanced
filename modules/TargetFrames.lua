@@ -229,7 +229,11 @@ local function syncModuleEvents(on)
     on = on and true or false
     if on == moduleListening then return end
     for event, handler in pairs(moduleEvents) do
-        if on then ev:RegisterEvent(event, handler) else ev:UnregisterEvent(event) end
+        if on then
+            NS.SafeRegisterEvent(ev, event, handler, NS.RejectedEvents)
+        else
+            ev:UnregisterEvent(event)
+        end
     end
     moduleListening = on
 end
@@ -241,7 +245,7 @@ local function syncEvents()
         local btn = buttons[unit]
         if on and Units.IsIncluded(unit) then
             if not btn.__registered then
-                btn:RegisterUnitEvent("UNIT_TARGET", unit)
+                NS.SafeRegisterUnitEvent(btn, "UNIT_TARGET", NS.RejectedEvents, unit)
                 btn.__registered = true
             end
         elseif btn.__registered then

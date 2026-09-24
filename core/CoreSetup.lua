@@ -52,6 +52,28 @@ if not lib then
     NS.ApplySkin       = function() end
     NS.MakeCloseButton = function() return nil end
 
+    -- The pcalled event registration helper (events-frames-taint-§1), one rung: the pcall and the
+    -- once-only append to the caller's `rejected` list, no C_EventUtils front gate. The shape is
+    -- the Core version-8 doc's Degradation note; a stub is the path for a missing library, not a
+    -- second implementation.
+    local function safeRegister(method, target, event, rejected, ...)
+        if pcall(method, target, event, ...) then return true end
+        if type(rejected) == "table" then
+            for i = 1, #rejected do if rejected[i] == event then return false end end
+            rejected[#rejected + 1] = event
+        end
+        return false
+    end
+    NS.SafeRegisterEvent = function(t, e, h, r) return safeRegister(t.RegisterEvent, t, e, r, h) end
+    NS.SafeRegisterUnitEvent = function(f, e, r, ...)
+        return safeRegister(f.RegisterUnitEvent, f, e, r, ...)
+    end
+    NS.SafeRegisterEvents = function(t, events, h, r)
+        local n = 0
+        for _, e in ipairs(events) do if safeRegister(t.RegisterEvent, t, e, r, h) then n = n + 1 end end
+        return n
+    end
+
     local announced = false
     function NS.Print(...)
         local parts = { NS.PREFIX }
@@ -71,6 +93,14 @@ end
 NS.IsConcatSafe = lib.IsConcatSafe
 NS.SafeToString = lib.SafeToString
 NS.ResolveColor = lib.ResolveColor
+
+-- The pcalled event registration helper (events-frames-taint-§1, Core minor 8). Every RegisterEvent
+-- and RegisterUnitEvent in core/, modules/ and settings/ goes through one of these three, with
+-- NS.RejectedEvents (core/State.lua) as the list: one retired name then costs only itself, and the
+-- refused names are reachable from `/pfe status`.
+NS.SafeRegisterEvent     = lib.SafeRegisterEvent
+NS.SafeRegisterUnitEvent = lib.SafeRegisterUnitEvent
+NS.SafeRegisterEvents    = lib.SafeRegisterEvents
 
 -- The shared window edge, published flat so a module reaches it by name (standalone-windows).
 NS.SKIN      = lib.SKIN

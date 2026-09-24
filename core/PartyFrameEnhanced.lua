@@ -113,7 +113,7 @@ function armPendingRegen()
             flushSecure()
         end)
     end
-    regenWatch:RegisterEvent("PLAYER_REGEN_ENABLED")
+    NS.SafeRegisterEvent(regenWatch, "PLAYER_REGEN_ENABLED", nil, NS.RejectedEvents)
 end
 
 function disarmPendingRegen()
@@ -137,7 +137,9 @@ local LIFECYCLE_EVENTS = {
 }
 
 function addon:RegisterLifecycleEvents()
-    for event, method in pairs(LIFECYCLE_EVENTS) do self:RegisterEvent(event, method) end
+    for event, method in pairs(LIFECYCLE_EVENTS) do
+        NS.SafeRegisterEvent(self, event, method, NS.RejectedEvents)
+    end
 end
 
 --- Every registration this addon owns, actually unregistered; every timer canceled; every element

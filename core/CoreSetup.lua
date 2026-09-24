@@ -1,12 +1,13 @@
 local addonName, NS = ...
-NS.Util = NS.Util or {}
-local Util = NS.Util
 
 -- core/CoreSetup.lua — the LibKa0s-Core-1.0 seam: the secret-safe stringifier, the prefixed chat
 -- printer, the class-color resolver, the shared window skin and the close-button factory.
 --
 -- After core/Namespace.lua (NS.PREFIX) and before everything that prints: core/PerfSetup.lua and
 -- every settings file take NS.Print as a load-time upvalue.
+
+NS.Util = NS.Util or {}
+local Util = NS.Util
 
 -- The one cause clause every degraded seam appends its own "so <what> is unavailable" to.
 NS.LIBKA0S_MISSING = "The LibKa0s library is missing from this installation of Party Frame " ..

@@ -1,7 +1,7 @@
 local _, NS = ...
 
--- Session-only runtime state. Nothing here is ever written to SavedVariables; every field resets on
--- /reload.
+-- core/State.lua — session-only runtime state. Nothing here is ever written to SavedVariables;
+-- every field resets on /reload.
 --   debug     the debug-logging flag (debug-logging-§5), default off
 --   inCombat  the player's combat state, driven by the regen events (events-frames-taint-§2)
 --   preview   placeholder content on every enabled element (preview-mode): on exactly while the

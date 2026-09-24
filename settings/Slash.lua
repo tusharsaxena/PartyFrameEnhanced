@@ -1,6 +1,4 @@
 local _, NS = ...
-NS.Slash = NS.Slash or {}
-local Sl = NS.Slash
 
 -- settings/Slash.lua — NS.COMMANDS and the LibKa0s-Slash-1.0 descriptor (slash-commands).
 --
@@ -9,6 +7,9 @@ local Sl = NS.Slash
 -- invisible to the library) and the host verbs that reach into this addon's own state. The table is
 -- passed IN: the landing page renders the same one. Every word a player reads goes through NS.L
 -- (localization-§1).
+
+NS.Slash = NS.Slash or {}
+local Sl = NS.Slash
 
 local print = NS.Print
 local L = NS.L

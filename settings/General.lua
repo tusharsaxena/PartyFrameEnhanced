@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- settings/General.lua — the General page (options-ui-§13/§15):
 --
 --     [ Master controls ][ Party frames ]
@@ -12,8 +14,6 @@
 --
 -- Master controls is COMPOSED from one declaration (options-ui-§15, anti-pattern #73). Not
 -- frameless: the free-placement stacks are movable, so scale, alpha, lock and reset position apply.
-
-local _, NS = ...
 
 local L = NS.L
 local print = NS.Print

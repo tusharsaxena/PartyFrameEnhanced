@@ -1,8 +1,8 @@
+local _, NS = ...
+
 -- settings/ElementRows.lua — the row sets the three feature pages share: the Size & Position tab, and thin
 -- wrappers over the library's border and font composers so every page declares them the same way.
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
-
-local _, NS = ...
 
 local L = NS.L
 local H = NS.Helpers

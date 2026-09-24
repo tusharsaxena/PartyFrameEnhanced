@@ -1,9 +1,9 @@
+local _, NS = ...
+
 -- settings/Profiles.lua — the Profiles sub-page: AceDBOptions' table rendered by AceConfigDialog
 -- into an AceGUI group inside our canvas (options-ui-§3, the one sanctioned use of AceConfig). No
 -- Defaults button: profile management carries its own destructive controls. Skipped silently when
 -- AceDBOptions / AceConfigDialog is absent.
-
-local _, NS = ...
 
 local APPNAME = "PartyFrameEnhanced-Profiles"
 

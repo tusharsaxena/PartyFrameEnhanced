@@ -6,7 +6,7 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (14)
+### test_loadorder.lua (15)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
@@ -21,6 +21,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
 - loadorder: the runner loaded exactly the vendored XML's library files, in its order
 - loadorder: tests/perf.lua derives both halves of its list too
+- loadorder: every TOC-listed authored file opens on the namespace bootstrap
 - loadorder: the loaded library registered — NS.Perf is the lib, not the stub
 
 ### test_schema.lua (21)
@@ -68,11 +69,12 @@ badge and any count quoted in the docs must agree with it.
 - envsetup: NS.Version never answers nil — the fallback constant when no reader answers
 - envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
 
-### test_mediasetup.lua (3)
+### test_mediasetup.lua (4)
 
 - mediasetup: the console's monospace face is the library's, under this addon's folder
 - mediasetup: NS.Icon builds catalog paths from this addon's folder
 - mediasetup: without LibKa0s the face falls back to a real client font and icons answer nil
+- mediasetup: LOGO_PATH is the shipped logo, derived from the folder name
 
 ### test_debuglog.lua (4)
 
@@ -445,12 +447,12 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 14 |
+| test_loadorder.lua | 15 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
-| test_mediasetup.lua | 3 |
+| test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
@@ -477,4 +479,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **339** |
+| **Total** | **341** |

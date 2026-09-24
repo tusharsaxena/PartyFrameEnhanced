@@ -142,6 +142,26 @@ test("loadorder: tests/perf.lua derives both halves of its list too", function()
   assertTrue(src:find("Loader.xmlFiles", 1, true) ~= nil, "tests/perf.lua must derive from the XML")
 end)
 
+-- architecture-§1 puts the bootstrap on line 1; documentation-§9 puts the self-naming header
+-- directly beneath it (a blank line between is allowed).
+test("loadorder: every TOC-listed authored file opens on the namespace bootstrap", function()
+  for _, p in ipairs(Loader.tocFiles(TOC)) do
+    local lines = {}
+    for line in readFile(p):gmatch("([^\n]*)\n") do
+      lines[#lines + 1] = (line:gsub("\r$", ""))
+      if #lines == 4 then break end
+    end
+    assertTrue((lines[1] or ""):match("^local [%w_]+, NS = %.%.%.$") ~= nil,
+      p .. " line 1 must be the namespace bootstrap, got: " .. tostring(lines[1]))
+    local header = false
+    for i = 2, 4 do
+      local l = lines[i] or ""
+      if l == "-- " .. p or l:sub(1, #p + 4) == "-- " .. p .. " " then header = true end
+    end
+    assertTrue(header, p .. " must carry its `-- " .. p .. "` header on one of lines 2-4")
+  end
+end)
+
 test("loadorder: the loaded library registered — NS.Perf is the lib, not the stub", function()
   -- A short library list raises nothing: Perf would simply not register and NS.Perf would be the
   -- four-member stub, which every perf figure would then silently measure.

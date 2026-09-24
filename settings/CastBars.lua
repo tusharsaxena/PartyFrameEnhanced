@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- settings/CastBars.lua — the Cast Bars page:
 --
 --     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Icon ]
@@ -13,8 +15,6 @@
 --
 -- The cast-state colors are a PALETTE — one color per cast state — so they carry no class-color
 -- companion (options-ui-§17's one exemption).
-
-local _, NS = ...
 
 local L = NS.L
 local ElementRows = NS.ElementRows

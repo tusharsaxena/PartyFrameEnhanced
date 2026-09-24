@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- locales/enUS.lua — the canonical locale (localization-§1).
 --
 -- A metatable fallback returns the key itself, so an unlisted English string still renders and a
@@ -6,7 +8,6 @@
 --
 -- Every label and tooltip this addon authors has its key here. Labels the library's composers emit
 -- (Master controls, font/border/bar groups) are the library's own strings and are not listed.
-local _, NS = ...
 
 local L = setmetatable(NS.L or {}, { __index = function(_, k) return k end })
 NS.L = L

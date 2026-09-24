@@ -1,3 +1,5 @@
+local addonName, NS = ...
+
 -- core/MediaSetup.lua — the LibKa0s-Media-1.0 seam: the shared icon catalog, the monospace face and
 -- the bar textures, all of which ship inside the vendored payload (library-stack-§8).
 --
@@ -10,8 +12,6 @@
 --
 -- DEGRADED INSTALL: no LibKa0s means no art. Both functions answer nil, and callers draw something
 -- else — Constants falls back to a real client font. Nil is never papered over with a guessed path.
-
-local addonName, NS = ...
 
 local Media = LibStub and LibStub("LibKa0s-Media-1.0", true)
 

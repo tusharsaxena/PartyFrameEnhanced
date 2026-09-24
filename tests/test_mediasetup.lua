@@ -24,3 +24,12 @@ test("mediasetup: without LibKa0s the face falls back to a real client font and 
   assertEqual(NS2.Constants.FONT_MONO, NS2.Constants.FALLBACK_FONT)
   assertEqual(NS2.Icon("close"), nil)
 end)
+
+test("mediasetup: LOGO_PATH is the shipped logo, derived from the folder name", function()
+  assertEqual(NS.Constants.LOGO_PATH,
+    "Interface\\AddOns\\PartyFrameEnhanced\\media\\logos\\partyframeenhanced.logo.tga")
+  -- red under: a hand-typed folder name, which a rename of the addon folder would leave stale.
+  local NS3 = {}
+  assert(loadfile("core/Constants.lua"))("SomeAddon", NS3)
+  assertEqual(NS3.Constants.LOGO_PATH, "Interface\\AddOns\\SomeAddon\\media\\logos\\someaddon.logo.tga")
+end)

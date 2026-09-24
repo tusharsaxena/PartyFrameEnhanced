@@ -1,9 +1,9 @@
 local _, NS = ...
 
-local L = NS.L
-
 -- core/Database.lua — AceDB init and the migration runner (savedvariables). Called from
 -- OnInitialize, and directly by the headless harness.
+
+local L = NS.L
 
 --- Open the database, register the profile callbacks, and run the migration ladder.
 function NS:InitDB()

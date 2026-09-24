@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- settings/PetFrames.lua — the Pet Frames page:
 --
 --     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
@@ -10,8 +12,6 @@
 --     Border           the canonical border block
 --     Text             -- Font --  the canonical font block, then Show name · Show health percent
 --     Marker           Show raid marker (solo) / Anchor point (solo) / X offset · Y offset
-
-local _, NS = ...
 
 local L = NS.L
 local ElementRows = NS.ElementRows

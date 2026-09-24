@@ -8,7 +8,7 @@ local test, assertEqual, assertTrue, assertFalse, assertNil =
 
 local loadLauncher = dofile("tests/launcher_env.lua")
 
-local MINIMAP_PATH = "global.minimap.hide"
+local MINIMAP_PATH = "global.minimap.shown"
 local ICON = "Interface\\AddOns\\PartyFrameEnhanced\\media\\logos\\partyframeenhanced.logo.128.tga"
 
 -- One fully wired world, built once: every case below reads it or drives it and puts it back.
@@ -162,6 +162,75 @@ test("launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the b
   NS.SetByPath(MINIMAP_PATH, true)
 end)
 
+-- --- the row's CLI path reads in its own SHOWN sense (launcher-§3, WS-06) ------------------------
+--
+-- The path is the player's name for the row, so it says what the checkbox says: `global.minimap.shown`.
+-- The STORED key does not move -- it is LibDBIcon's `hide` -- so every existing player keeps their
+-- choice with no migration and no schema-version bump, and no `shown` key is ever stored beside it
+-- (anti-pattern #81: two records of one state, free to disagree).
+
+local function slashOut(ns, m, msg)
+  local before = #m.__chat
+  ns.Slash:OnSlash(msg)
+  local out = {}
+  for i = before + 1, #m.__chat do out[#out + 1] = m.__chat[i] end
+  return table.concat(out, "\n")
+end
+
+test("launcher: the row's path is `global.minimap.shown`, and the old `hide` path is gone", function()
+  -- red under: the path still named after LibDBIcon's storage key, or an alias kept beside it.
+  assertEqual(NS.MINIMAP_PATH, "global.minimap.shown")
+  assertTrue(NS.FindSchemaRow("global.minimap.shown") ~= nil, "the row answers to its shown-sense path")
+  assertNil(NS.FindSchemaRow("global.minimap.hide"), "no alias: the storage key is not a CLI path")
+  assertTrue(NS.IsGlobalSetting("global.minimap.shown"), "still the one global row")
+  assertFalse(NS.IsGlobalSetting("global.minimap.hide"))
+end)
+
+test("launcher: `/pfe get|set global.minimap.shown` invert onto the stored `hide`, never a `shown` key", function()
+  NS.SetByPath(MINIMAP_PATH, true)
+  assertEqual(NS.db.global.minimap.hide, false)
+  assertTrue(registration().shown, "the button is shown")
+  local got = slashOut(NS, mocks, "get global.minimap.shown")
+  assertTrue(got:find("true", 1, true) ~= nil, "get answers true while the button is shown: " .. got)
+
+  slashOut(NS, mocks, "set global.minimap.shown false")
+  assertEqual(NS.db.global.minimap.hide, true, "set ... false stores hide = true")
+  assertFalse(registration().shown, "and the button is hidden")
+  got = slashOut(NS, mocks, "get global.minimap.shown")
+  assertTrue(got:find("false", 1, true) ~= nil, "get answers false while the button is hidden: " .. got)
+  assertNil(rawget(NS.db.global.minimap, "shown"), "no `shown` key is ever stored")
+
+  local old = slashOut(NS, mocks, "get global.minimap.hide")
+  assertFalse(old:find("true", 1, true) ~= nil or old:find("false", 1, true) ~= nil,
+    "the old path answers no value: " .. old)
+  slashOut(NS, mocks, "set global.minimap.hide false")
+  assertEqual(NS.db.global.minimap.hide, true, "the old path writes nothing")
+
+  NS.SetByPath(MINIMAP_PATH, true)
+  assertNil(rawget(NS.db.global.minimap, "shown"), "still no `shown` key after a set")
+end)
+
+test("launcher: a legacy store with `hide = true` carries over -- no migration, no `shown` key", function()
+  -- red under: a rename that moved the stored key, or a path that reads the old key's polarity.
+  -- The store is exactly what an existing player's SavedVariables file holds today.
+  local sv = { global = { minimap = { hide = true, minimapPos = 200 } }, profiles = {} }
+  local NS2, mocks2, _, icons2 = loadLauncher(nil, sv)
+  local reg = icons2.__registrations.PartyFrameEnhanced
+  assertFalse(NS2.GetSetting("global.minimap.shown"), "the row reads hidden")
+  local got = slashOut(NS2, mocks2, "get global.minimap.shown")
+  assertTrue(got:find("false", 1, true) ~= nil, "`get` prints false: " .. got)
+  assertFalse(reg.shown, "the button stays hidden")
+  assertEqual(sv.global.minimap.minimapPos, 200, "the dragged position is untouched")
+  assertEqual(sv.global.minimap.hide, true, "the stored key is still LibDBIcon's `hide`")
+  assertNil(sv.global.minimap.shown, "no `shown` key after load")
+
+  slashOut(NS2, mocks2, "set global.minimap.shown true")
+  assertEqual(sv.global.minimap.hide, false, "set true lands on `hide`")
+  assertTrue(reg.shown, "and brings the button back")
+  assertEqual(sv.global.minimap.minimapPos, 200, "at its old dragged position")
+  assertNil(sv.global.minimap.shown, "no `shown` key is ever written to the raw SV after a set")
+end)
+
 test("launcher: LibDBIcon was handed the SAME table the row writes", function()
   -- red under: a copy passed to Register, which would be two records of one state -- and LibDBIcon
   -- writes `minimapPos` into it when the player drags the button (architecture-§5).
@@ -251,7 +320,7 @@ test("launcher: neither reset re-HIDES a shown button either", function()
   assertTrue(registration().shown)
 end)
 
-test("launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS", function()
+test("launcher: `/pfe reset global.minimap.shown` still works -- the exemption is for SWEEPS", function()
   -- The veto sits on the OPTIONS descriptor's applyDefault, which only the two panel resets call.
   -- A player naming the path themselves is a deliberate act on one row, not a sweep that happened
   -- to reach it, so the schema CLI keeps answering (slash-commands-§2 keeps `reset` live besides).

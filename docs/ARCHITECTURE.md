@@ -83,13 +83,15 @@ other row-less path is refused. On a full load the composed row takes the write 
 - **Session-only rows:** `state.debugConsole` (the console window's visibility) — one row, not two.
   `state.testMode` was the second until options-ui-§15 exempted this addon from the Test mode row:
   unlocking already is its preview.
-- **Global rows:** `global.minimap.hide` (the launcher's minimap button) — stored, not session-only,
+- **Global rows:** `global.minimap.shown` (the launcher's minimap button) — stored, not session-only,
   but in the **account-wide** store rather than the profile, because launcher-§3 fixes LibDBIcon's own
   table there. `settings/General.lua` stamps the row's own `get`/`set` onto the composed row by path
-  (as it does the console row's), inverting the row's SHOWN sense onto LibDBIcon's `hide` and calling
-  `NS.Launcher:SetShown`; the library honors a row's own storage ahead of the profile.
-  `NS.IsGlobalSetting` names it: the validator resolves such a path against `NS.defaults` rather than
-  `defaults.profile`, and the profile-reset count skips it. **A global row survives every reset the
+  (as it does the console row's), inverting the row's SHOWN sense onto LibDBIcon's stored
+  `global.minimap.hide` and calling `NS.Launcher:SetShown`; the library honors a row's own storage
+  ahead of the profile. The path reads in the row's own sense (launcher-§3) and is a CLI name only:
+  no `shown` key is ever stored (anti-pattern #81). `NS.IsGlobalSetting` names it: the validator
+  skips its resolution check (the path is not a storage path; the storage default is pinned by a
+  test instead), and the profile-reset count skips it. **A global row survives every reset the
   panel ships** — *Reset all settings* and a page's own **Defaults** button — because launcher-§3
   makes that a property of the setting. The instance's `resetExempt` refuses it inside the bulk
   bracket both panel resets open, and Reset All's `skipRestoreAll` vetoes it too. `/pfe reset <path>`
@@ -152,7 +154,7 @@ one icon, one label and one identity.
 | Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
 | Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state. **Refused while the addon is disabled** (launcher-§2): a preview switch is a feature, so it prints `cli:DisabledLine()` — the same line the slash gate prints, never re-spelled — and does nothing else, writing no SavedVariables. Rung (c)'s carve-out does not reach it |
 | Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other, in **either** state. The ruling narrows the *slash* surface and a mouse click is not a slash command; this click is one of the two routes that keep the panel reachable |
-| Visibility | one Master-controls row, `global.minimap.hide` (see *Settings Schema* → Global rows) |
+| Visibility | one Master-controls row, `global.minimap.shown`, inverting onto LibDBIcon's stored `hide` (see *Settings Schema* → Global rows) |
 | Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
 | Degradation | no stub. LibKa0s absent → no `NS.Launcher`, and its two callers already guard on it. LibDataBroker or LibDBIcon absent → the library reports it on one line and `Register` answers `false`; neither is a dependency, because LibKa0s is vendored into addons whose `libs/` folders are not identical |
 

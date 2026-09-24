@@ -23,8 +23,12 @@ NS.Schema = NS.Schema or {}
 -- keeps in the ACCOUNT-WIDE `db.global.minimap`. settings/General.lua stamps its get/set onto the
 -- composed row; here it is only the source of two rules. A profile reset cannot reach it, so the
 -- reset count skips it; and no SWEEP this addon ships may rewrite it (`resetExempt`), while a named
--- `/pfe reset global.minimap.hide` still does.
-local MINIMAP_PATH = "global.minimap.hide"
+-- `/pfe reset global.minimap.shown` still does.
+--
+-- THE PATH READS IN THE ROW'S OWN SENSE (launcher-§3): it is the player's CLI name for a checkbox
+-- that says SHOWN, so it is `global.minimap.shown`. The STORED key is still LibDBIcon's `hide`,
+-- which the row's get/set invert onto; no `shown` key is ever stored (anti-pattern #81).
+local MINIMAP_PATH = "global.minimap.shown"
 NS.MINIMAP_PATH = MINIMAP_PATH
 local GLOBAL_PATHS = { [MINIMAP_PATH] = true }
 
@@ -372,11 +376,13 @@ end
 
 local VALID_PAGES = { general = true, castbar = true, target = true, pet = true, profiles = true }
 
---- Where a row's declared default lives. A GLOBAL row's path is absolute over NS.defaults
---- (`global.minimap.hide`), not relative to defaults.profile; a Profiles page row is in no
---- defaults tree at all.
+--- Where a row's declared default lives: defaults.profile, or no tree at all. A Profiles page row
+--- is in none. Nor is the GLOBAL minimap row: its path (`global.minimap.shown`) names the row's own
+--- shown sense, while its get/set closures invert onto the stored `global.minimap.hide`, so the
+--- path is not a storage path and there is nothing for it to resolve against -- exempt the way a
+--- sessionOnly row is. The storage default is pinned by tests/test_schema.lua instead.
 local function defaultsRoot(_, row)
-    if NS.IsGlobalSetting(row.path) then return NS.defaults, 1 end
+    if NS.IsGlobalSetting(row.path) then return nil end
     if row.page == "profiles" then return nil end
     return NS.defaults and NS.defaults.profile, 1
 end

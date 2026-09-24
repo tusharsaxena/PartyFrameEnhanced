@@ -22,6 +22,17 @@ test("schema: validates with no shape errors and no unresolved paths", function(
   assertTrue(resolved > 0, "at least one path resolved")
 end)
 
+test("schema: the minimap row's STORAGE default is pinned where the validator no longer looks", function()
+  -- The row's path reads in its own shown sense (`global.minimap.shown`) while LibDBIcon stores
+  -- `hide`, so the resolution check cannot find the row's path in the defaults and is told to skip
+  -- it (a closure row). What it would have caught -- a storage key with no shipped default -- is
+  -- pinned here instead. red under: a defaults tree that dropped `global.minimap.hide`, or one that
+  -- declared a `shown` key (anti-pattern #81).
+  assertTrue(NS.defaults.global.minimap.hide ~= nil, "the stored key has a shipped default")
+  assertEqual(NS.defaults.global.minimap.hide, false, "shown by default")
+  assertEqual(NS.defaults.global.minimap.shown, nil, "no `shown` key is declared")
+end)
+
 test("schema: the General page opens on the Master controls tab, in the canonical order", function()
   local rows = NS.SchemaForPage("general")
   assertEqual(rows[1].group, "Master controls", "the first tab is Master controls (options-ui-§15)")
@@ -30,7 +41,7 @@ test("schema: the General page opens on the Master controls tab, in the canonica
     if row.group == "Master controls" then paths[#paths + 1] = row.path end
   end
   assertEqual(table.concat(paths, ","),
-    "enabled,visibility,scale,alpha,locked,state.debugConsole,global.minimap.hide",
+    "enabled,visibility,scale,alpha,locked,state.debugConsole,global.minimap.shown",
     "the canonical Master controls rows, in order, with nothing omitted but Test mode")
   -- Minimap button opens the fourth line and Test mode would have paired beside it (launcher-§3,
   -- compose minor 7). With no Test mode row the line is the minimap row alone, which is the shape
@@ -213,12 +224,12 @@ end)
 
 test("schema: the counted profile reset counts rows off default, and never the global minimap row", function()
   local base = NS.ProfileRowsOffDefault()
-  NS.SetByPath("global.minimap.hide", false)
+  NS.SetByPath("global.minimap.shown", false)
   assertEqual(NS.ProfileRowsOffDefault(), base, "a hidden minimap button is not a profile row")
   NS.SetByPath("general.provider", "blizzard")
   assertEqual(NS.ProfileRowsOffDefault(), base + 1, "one profile row moved")
   NS.SetByPath("general.provider", "auto")
-  NS.SetByPath("global.minimap.hide", true)
+  NS.SetByPath("global.minimap.shown", true)
 end)
 
 test("schema: before the db opens, GetSetting answers the shipped default", function()

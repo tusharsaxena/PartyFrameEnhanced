@@ -60,8 +60,10 @@ local function makeIcon()
 end
 
 --- Load the addon whole against a fresh mock. `brokers` false leaves LibDataBroker and LibDBIcon out.
+--- `sv`, when given, is the raw SavedVariables table InitDB opens -- a legacy store a suite seeds --
+--- and the previous global is put back once the db holds it.
 --- Returns the namespace, the mocks, and the two fakes (nil when `brokers` is false).
-return function(brokers)
+return function(brokers, sv)
   Loader.addonName = "PartyFrameEnhanced"
   local mocks, NS = buildMocks(), {}
   local ldb, icons
@@ -74,7 +76,10 @@ return function(brokers)
   end
   Loader.loadAll(Loader.xmlFiles("libs/LibKa0s/LibKa0s.xml"), NS, mocks)
   Loader.loadAll(Loader.tocFiles("PartyFrameEnhanced.toc"), NS, mocks)
+  local previous = _G.PartyFrameEnhancedDB
+  if sv then _G.PartyFrameEnhancedDB = sv end
   NS:InitDB()
+  if sv then _G.PartyFrameEnhancedDB = previous end
   NS.addon:OnEnable()
   while mocks.__fireTimers() > 0 do end
   return NS, mocks, ldb, icons

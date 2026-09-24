@@ -29,7 +29,9 @@ local PARTY_GROUP = L["Party frames"]
 local DEBUG_CONSOLE_PATH = "state.debugConsole"
 
 -- THE MINIMAP BUTTON'S ONE ROW (launcher-§3). The path is the composer's verbatim and unprefixed,
--- because LibDBIcon's own table lives in the GLOBAL store, outside the block's profile prefix.
+-- because LibDBIcon's own table lives in the GLOBAL store, outside the block's profile prefix. It
+-- reads in the row's own sense, `global.minimap.shown` (settings/Schema.lua), and is a CLI name
+-- only: nothing is ever stored under `shown`.
 --
 -- THE INVERSION IS THE ADDON'S, NOT THE LIBRARY'S, and it happens exactly once -- here, on the one
 -- write seam every other row goes through (options-ui-§1, architecture-§5). The row's boolean says

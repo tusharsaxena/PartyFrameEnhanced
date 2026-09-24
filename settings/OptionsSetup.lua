@@ -19,8 +19,9 @@ local print = NS.Print
 --
 -- A GLOBAL ROW IS THE TEST, and it is this repo's own word for exactly that class: a stored row
 -- outside the profile, named by NS.IsGlobalSetting (settings/Schema.lua). Today there is one,
--- `global.minimap.hide`. The same set is the schema instance's `resetExempt`, which is what vetoes
--- the row from the page-scoped Defaults sweep; this function is the Reset All veto's half.
+-- `global.minimap.shown` (stored as LibDBIcon's `hide`). The same set is the schema instance's
+-- `resetExempt`, which is what vetoes the row from the page-scoped Defaults sweep; this function is
+-- the Reset All veto's half.
 local function exemptFromReset(row)
     return type(row.path) == "string" and NS.IsGlobalSetting(row.path)
 end
@@ -51,7 +52,7 @@ local descriptor = {
     -- reset, while the page-scoped *Defaults* button vetoes nothing and hands every row on the page
     -- to this seam — and the composed Minimap button row declares `default = true`. Both panel
     -- resets run inside the bulk bracket, and the schema instance's `resetExempt` refuses the row
-    -- there (settings/Schema.lua). Outside a bracket it does not: `/pfe reset global.minimap.hide`
+    -- there (settings/Schema.lua). Outside a bracket it does not: `/pfe reset global.minimap.shown`
     -- is a player naming one row on purpose rather than a sweep that happened to reach it.
     applyDefault = function(row) NS.ApplyDefault(row) end,
     allRows      = function() return NS.Schema end,

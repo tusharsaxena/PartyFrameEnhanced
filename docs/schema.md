@@ -102,14 +102,21 @@ preference, in the same class as the position the player dragged it to. So neith
 direction. `settings/Schema.lua`'s `NS.IsGlobalSetting` is the single place that says so. Its set is
 the `LibKa0s-Schema-1.0` instance's `resetExempt`, so `ApplyDefault` refuses the row while a bulk
 bracket is open — and both panel resets run inside one — and `settings/OptionsSetup.lua` also vetoes
-it from `skipRestoreAll`. `/pfe reset global.minimap.hide` is deliberately still live: it runs
+it from `skipRestoreAll`. `/pfe reset global.minimap.shown` is deliberately still live: it runs
 outside a bracket, and a player naming one row is not a sweep.
 
-`hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.hide`,
-which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says
-**shown** and the key says **hidden**, so `settings/General.lua` stamps the inverting `get`/`set`
-onto the composed row by path, and the seam, which honors a row's own storage, bridges them once. **No migration:** this addon never stored
-a minimap table anywhere else, so the path is new rather than moved and `NS.SCHEMA_VERSION` stays at 1.
+`hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.shown`,
+which the composer takes verbatim (it is outside the block's profile prefix). The path reads in the
+row's own sense (launcher-§3): the row's boolean says **shown** and the stored key says **hidden**, so
+`settings/General.lua` stamps the inverting `get`/`set` onto the composed row by path, and the seam,
+which honors a row's own storage, bridges them once. No `shown` key is ever stored (anti-pattern #81).
+Because the path is not a storage path, `NS.ValidateSchema` skips its resolution check, and
+`tests/test_schema.lua` pins the storage default `global.minimap.hide` directly.
+
+**No migration.** The row's CLI path was `global.minimap.hide` until the launcher-§3 rename; the
+stored key did not move, so a player who hid the button keeps it hidden with no SavedVariables step,
+and `NS.SCHEMA_VERSION` stays at 1. The old path answers `Setting not found`; a macro running
+`/pfe set global.minimap.hide true` becomes `/pfe set global.minimap.shown false`.
 
 ## The write seam
 
@@ -125,7 +132,7 @@ over `NS.Schema` and binds `NS.SetByPath`, `NS.GetSetting`, `NS.FindSchemaRow`, 
   host's degradation stub store a listed row-less path raw, with no row `onChange`, and refuse every
   other row-less path. With the library present the composed row always takes the write.
 - The two rows whose value is not in the profile, `state.debugConsole` (session only) and
-  `global.minimap.hide` (global), carry their own `get`/`set`, stamped on by
+  `global.minimap.shown` (global, stored as `hide`), carry their own `get`/`set`, stamped on by
   `settings/General.lua`.
 
 ## Migrations

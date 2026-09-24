@@ -347,7 +347,11 @@ EllesmereUI's, where noted.
     button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.
     Then hide it from **LibDBIcon's own right-click menu** instead and reopen the panel → the checkbox
     is already unticked. *Failure:* the two disagreeing is a second copy of one state
-    (launcher-§3, anti-pattern #81).
+    (launcher-§3, anti-pattern #81). From the CLI: with the button visible, `/pfe get
+    global.minimap.shown` → `true`; `/pfe set global.minimap.shown false` hides it; `/reload` → still
+    hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not
+    found`. After logout the SavedVariables file shows `minimap = { hide = true, ... }` and no `shown`
+    key. *Failure:* a `shown` key in the file, or a button hidden before the upgrade coming back.
 58. **The button is account-wide furniture.** Hide the button, then: switch profiles (`/pfe profile
     new smoke`) → still hidden. Log in on a different character → still hidden. *Failure:* the button
     coming back on either means the table is profile-scoped, which launcher-§3 forbids.
@@ -356,7 +360,7 @@ EllesmereUI's, where noted.
     their defaults in the same press. Tick it back on and repeat both → it stays shown. *Failure:*
     either reset moving the row in either direction. Whether the button is on the minimap is a
     per-installation display preference, like the position it was dragged to, and no reset may touch
-    it (launcher-§3). `/pfe reset global.minimap.hide` is the deliberate exception and does reset it.
+    it (launcher-§3). `/pfe reset global.minimap.shown` is the deliberate exception and does reset it.
 
 ## T. Non-English client (locale)
 

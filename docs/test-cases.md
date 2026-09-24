@@ -22,9 +22,10 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: tests/perf.lua derives both halves of its list too
 - loadorder: the loaded library registered — NS.Perf is the lib, not the stub
 
-### test_schema.lua (20)
+### test_schema.lua (21)
 
 - schema: validates with no shape errors and no unresolved paths
+- schema: the minimap row's STORAGE default is pinned where the validator no longer looks
 - schema: the General page opens on the Master controls tab, in the canonical order
 - schema: General visibility is the four-value dropdown, not a boolean
 - schema: a write through the seam stores the value and publishes CONFIG once, by section
@@ -355,7 +356,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_launcher.lua (17)
+### test_launcher.lua (20)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
@@ -366,12 +367,15 @@ badge and any count quoted in the docs must agree with it.
 - launcher: RIGHT click always opens the settings panel
 - launcher: the Minimap button row is composed, stored, and in its canonical position
 - launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
+- launcher: the row's path is `global.minimap.shown`, and the old `hide` path is gone
+- launcher: `/pfe get|set global.minimap.shown` invert onto the stored `hide`, never a `shown` key
+- launcher: a legacy store with `hide = true` carries over -- no migration, no `shown` key
 - launcher: LibDBIcon was handed the SAME table the row writes
 - launcher: the minimap table is GLOBAL -- a profile switch leaves it alone
 - launcher: *Reset all settings* leaves a hidden button hidden
 - launcher: the page-scoped General *Defaults* button leaves a hidden button hidden
 - launcher: neither reset re-HIDES a shown button either
-- launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS
+- launcher: `/pfe reset global.minimap.shown` still works -- the exemption is for SWEEPS
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
@@ -435,7 +439,7 @@ badge and any count quoted in the docs must agree with it.
 | Suite | Cases |
 |-------|------:|
 | test_loadorder.lua | 13 |
-| test_schema.lua | 20 |
+| test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
@@ -460,10 +464,10 @@ badge and any count quoted in the docs must agree with it.
 | test_prose.lua | 15 |
 | test_slash.lua | 23 |
 | test_disabled.lua | 18 |
-| test_launcher.lua | 17 |
+| test_launcher.lua | 20 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 12 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **328** |
+| **Total** | **332** |

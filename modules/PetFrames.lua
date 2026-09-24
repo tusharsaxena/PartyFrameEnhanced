@@ -5,8 +5,9 @@ local _, NS = ...
 --
 -- UPDATES are all events, no ticker: UNIT_PET on the owner (a pet summoned, dismissed or swapped)
 -- repaints everything; UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE on the pet token repaint what
--- they name. Both are RegisterUnitEvent on the button's own frame (the documented deviation in
--- docs/ARCHITECTURE.md). RAID_TARGET_UPDATE repaints the markers, one pass on the module's own target.
+-- they name. Both are RegisterUnitEvent on the button's own frame (not a deviation; see Event
+-- Subscriptions in docs/ARCHITECTURE.md). RAID_TARGET_UPDATE repaints the markers, one pass on the
+-- module's own target.
 --
 -- COLOR: the stored bar color, or the OWNER's class color with "Use class color" on — the pet frame
 -- describes a party member's pet, and the owner's class is what identifies whose it is. An owner is

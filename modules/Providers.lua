@@ -292,6 +292,8 @@ end
 -- the shape of 100 × 50 raid frames against 200 × 80 party frames). The size EllesmereUI applies is
 -- partyFrameWidth × partyFrameHeight, or its own defaults of 125 × 60. Read-only; every step is
 -- nil-guarded, and the keys are EllesmereUI's own. The header rides along for its effective scale.
+-- Reading a suite's SavedVariables is a library-stack-§6 deviation, recorded in docs/ARCHITECTURE.md
+-- -> ## Documented deviations with its re-check trigger.
 local function ellesmereConfiguredSize()
     local db = EllesmereUIDB
     local profiles = type(db) == "table" and db.profiles

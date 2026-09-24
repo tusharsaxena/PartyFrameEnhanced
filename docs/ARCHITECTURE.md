@@ -192,7 +192,9 @@ The unit events above are registered only in a party (the party-only rule): each
 
 Lifecycle, roster and Edit Mode events use AceEvent, each module on its own target. The per-unit
 game events are registered with `RegisterUnitEvent` on each element's own frame, so the client filters
-by unit in C rather than dispatching every unit's event into Lua — a recorded deviation, below.
+by unit in C rather than dispatching every unit's event into Lua. That is not a deviation from
+events-frames-taint-§1: the registrations sit on the elements themselves, not on frames made for
+events, as the standard's v2.63.0 changelog (item 5) ruled when it retired this addon's register row.
 
 ## The disabled state is total
 
@@ -384,7 +386,7 @@ Frozen material named once as directories, never row by row: `automated-tests/<r
 
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
-| `events-frames-taint-§1` | `UNIT_SPELLCAST_*`, `UNIT_TARGET` and the pet unit events are registered with `RegisterUnitEvent` on each element's own frame, not through AceEvent | AceEvent-3.0 has no unit filter: routed through it, every cast by every unit the client knows (nameplates, raid, target, focus) is dispatched into Lua to be discarded. `RegisterUnitEvent` filters in C, so a disabled or excluded unit costs nothing. The frames are the elements themselves, not frames made for events. | 2026-09-15 | AceEvent or LibKa0s gains a unit-filtered registration |
+| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60 | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
 
 ### Files over the 1500-line cap
 

@@ -23,7 +23,9 @@ frame when that member is out of range.
   each one additive, but none ships in v1.0.1 (#2).
 - **Replace or restyle the party frames themselves.** It never hides, reparents, moves or calls into a
   Blizzard or EllesmereUI frame; it only reads their position and unit, and only through
-  `hooksecurefunc` / `HookScript`.
+  `hooksecurefunc` / `HookScript`. The one other read is EllesmereUI's configured party frame size,
+  taken read-only from its saved settings (`EllesmereUIDB`) to size the preview stand-in out of a
+  party (a recorded `library-stack-§6` deviation in `docs/ARCHITECTURE.md`).
 - **Auras, power, target-of-target, focus.** The target frame is a compact "who is my party member
   hitting or healing" readout, not a second unit frame.
 - **Its own range check.** The out-of-range fade copies the party frame's (on Blizzard classic,

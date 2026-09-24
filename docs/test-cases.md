@@ -388,7 +388,7 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (10)
+### test_surface_parity.lua (12)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
@@ -398,6 +398,8 @@ badge and any count quoted in the docs must agree with it.
 - parity: the Schema stub library carries the lib-level primitives
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
+- parity: the Slash stub's refusal format is the library's DISABLED_LINE_FORMAT, byte for byte
+- parity: the Slash stub prints plain rows and the one library-absent line
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
@@ -460,8 +462,8 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 18 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 10 |
+| test_surface_parity.lua | 12 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **326** |
+| **Total** | **328** |

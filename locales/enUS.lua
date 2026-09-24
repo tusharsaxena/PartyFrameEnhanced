@@ -149,7 +149,7 @@ for _, key in ipairs({
     "No profile named '%s' \226\128\148 /pfe profile list shows them",
     "Cannot copy the current profile onto itself",
     "Profile system requires AceDB-3.0", "Unknown profile subcommand '%s'",
-    "is unavailable.", "v%s \226\128\148 slash commands", "unknown command '%s'",
+    "%s is unavailable: the LibKa0s library did not load.", "v%s \226\128\148 slash commands", "unknown command '%s'",
     "/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on",
     "Slash Commands",
     "Player", "Party 1", "Party 2", "Party 3", "Party 4",

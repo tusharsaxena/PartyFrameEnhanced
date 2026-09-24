@@ -246,10 +246,16 @@ local PROFILE_HELP = {
     { "reset",         L["Reset current profile to defaults"] },
 }
 
+-- The library-absent row: the command, two spaces, the description. Used ONLY when SlashLib is
+-- absent; it is deliberately not the library's FormatRow (no colors, no em-dash separator), because
+-- a stub that re-implements the library's rendering is the drift slash-commands-§1 forbids.
+local function plainRow(cmd, desc) return cmd .. "  " .. desc end
+
 local function printProfileHelp()
     print(L["Profile commands"])
+    local formatRow = SlashLib.FormatRow or plainRow
     for _, row in ipairs(PROFILE_HELP) do
-        print("  " .. SlashLib.FormatRow("/pfe profile " .. row[1], row[2]))
+        print("  " .. formatRow("/pfe profile " .. row[1], row[2]))
     end
 end
 
@@ -348,16 +354,23 @@ local function allRows()
     return out
 end
 
--- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The host
--- verbs keep working; the schema CLI names the missing library. No formatter, parser or key/value
--- shape of the library's is copied here.
+-- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The stub
+-- is the shape LibKa0s docs/api/Slash/version-15-docs.md ("The degradation stub") prescribes under
+-- slash-commands-§1: the minimal OnSlash dispatch the rule sanctions, the library's refusal format
+-- copied verbatim (the ONE library string a stub may carry, pinned byte for byte against the live
+-- library by tests/test_surface_parity.lua), plain `cmd  desc` rows, and no library formatter or
+-- parser. The host verbs keep working; the schema CLI verbs print the one library-absent line.
+-- enable/disable/lock/unlock need nothing here: they write through the Schema seam's writeThrough
+-- list (route (a)), so the stored value lands without a composed row and nothing raises.
 if not SlashLib then
-    local missing = " " .. L["is unavailable."] .. " " .. NS.LIBKA0S_MISSING .. "."
-    SlashLib = { FormatRow = function(cmd, desc) return cmd .. " \226\128\148 " .. desc end }
+    local UNAVAILABLE = L["%s is unavailable: the LibKa0s library did not load."]
+    SlashLib = {}
 
-    -- The library's own format string, because the stub prints the SAME sentence the gate would:
-    -- the wording is the collection's, and a build without LibKa0s is still this collection's addon.
+    -- LibKa0s-Slash-1.0's DISABLED_LINE_FORMAT, verbatim: the stub prints the SAME sentence the
+    -- gate would, because the wording is the collection's (slash-commands-§7).
     local DISABLED_LINE = "%s is disabled \226\128\148 enable it with |cFFFFFF00%s|r"
+    -- Published for introspection only, and on the degraded load only: the pin reads it.
+    Sl.__disabledLineFormat = DISABLED_LINE
 
     function SlashLib:New(d)
         local stub = { SetRowAnnotator = function() end }
@@ -365,7 +378,7 @@ if not SlashLib then
             return DISABLED_LINE:format(d.brandName or d.slash, d.slash .. " enable")
         end
         local function absent(verb)
-            return function() print("/pfe " .. verb .. missing) end
+            return function() print(UNAVAILABLE:format("/pfe " .. verb)) end
         end
         for _, verb in ipairs({ "List", "Get", "Set", "Reset", "ResetAll" }) do
             stub["Cli" .. verb] = absent(verb:lower())
@@ -373,7 +386,7 @@ if not SlashLib then
         stub.LandingRows = function()
             local out = {}
             for _, e in ipairs(d.commands) do
-                out[#out + 1] = SlashLib.FormatRow("/pfe " .. e[1], e[2])
+                out[#out + 1] = plainRow("/pfe " .. e[1], e[2])
             end
             return out
         end

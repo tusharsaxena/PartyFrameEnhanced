@@ -321,21 +321,24 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 
-### test_disabled.lua (14)
+### test_disabled.lua (17)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
 - disabled: nothing is left armed to wake up
 - disabled: leaving Edit Mode while disabled arms nothing
 - disabled: every frame that was on screen is hidden, and refused at the source
+- disabled: the fade frames and the free-placement holders are hidden
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
 - disabled: re-enabled, the addon rebuilds from CURRENT state
+- disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
 - disabled: the launcher's LEFT click is refused and its RIGHT click is not
 - disabled: out of combat, the target and pet state drivers are UNREGISTERED
 - disabled: re-enabled, the released state drivers are re-installed
 - disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
+- disabled: in combat, the fade frames and holders hide once combat ends
 - disabled: the suite leaves the world enabled for the suites after it
 
 ### test_launcher.lua (17)
@@ -437,11 +440,11 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 23 |
-| test_disabled.lua | 14 |
+| test_disabled.lua | 17 |
 | test_launcher.lua | 17 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **306** |
+| **Total** | **309** |

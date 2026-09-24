@@ -132,6 +132,31 @@ test("disabled: every frame that was on screen is hidden, and refused at the sou
   assertEqual(#shownOwn(), 0, "and nothing of the addon's is left on screen")
 end)
 
+-- The eight container frames the addon owns and the kit's census only sees because CreateFrame now
+-- starts a frame shown (LK-05): one fade frame per unit, which the elements are parented to, and one
+-- free-placement holder per feature, which secure elements anchor to. Named directly, not filtered
+-- out of the census, so the step-5 claim about them does not rest on the baseline having caught them.
+local function containers()
+  local out = {}
+  for _, unit in ipairs(NS.Units.LIST) do out[#out + 1] = NS.RangeFade.Parent(unit) end
+  for _, key in ipairs(NS.Anchor.__order) do out[#out + 1] = NS.Anchor.__features[key].holder end
+  return out
+end
+
+local function assertContainers(shown, why)
+  local list = containers()
+  assertEqual(#list, #NS.Units.LIST + #NS.Anchor.__order, "every fade frame and every holder")
+  for _, f in ipairs(list) do
+    assertEqual(f:IsShown(), shown, tostring(f.__name) .. " " .. why)
+  end
+end
+
+test("disabled: the fade frames and the free-placement holders are hidden", function()
+  -- red under: drop the Hide from RangeFade:Suspend / Anchor:Suspend. Nothing in them is visible
+  -- while the elements are down, so only a direct look can tell (slash-commands-§7).
+  assertContainers(false, "is hidden while disabled")
+end)
+
 test("disabled: no game event produces a write, a line, or a frame", function()
   -- red under: any handler that acts on the disabled state — the collection's live example is an
   -- addon that writes `locked = true` and prints to chat on entering combat WHILE DISABLED, which is
@@ -243,6 +268,12 @@ test("disabled: re-enabled, the addon rebuilds from CURRENT state", function()
   NS.SetByPath("locked", false)
   settle()
   assertEqual(table.concat(regs(), "\n"), table.concat(R_on, "\n"), "and putting it back restores it")
+end)
+
+test("disabled: re-enabled, the fade frames and the holders are shown again", function()
+  -- red under: drop the Show from RangeFade:Resume / Anchor:Resume. The elements would come back as
+  -- children of a hidden frame, and every one of them would stay invisible.
+  assertContainers(true, "is shown again")
 end)
 
 test("disabled: two holds, one latch — releasing one never resurrects the other's addon", function()
@@ -383,6 +414,27 @@ test("disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED comple
   assertEqual(#driven(), #unitButtons(), "back up, every driver returns")
   NS.SetByPath("target.anchorMode", "attached")
   NS.SetByPath("pet.anchorMode", "attached")
+end)
+
+test("disabled: in combat, the fade frames and holders hide once combat ends", function()
+  -- red under: hide them outside NS.RunSecure. Secure buttons are parented to the fade frames and
+  -- anchored to the holders, so a hide under lockdown is the client's to block and blame on us.
+  enable(true)
+  settle()
+  assertContainers(true, "is shown while enabled")
+  local saved = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  enable(false)
+  assertContainers(true, "is left alone under lockdown")
+  assertTrue(NS.PendingSecureCount() > 0, "the hide is queued")
+
+  mocks.InCombatLockdown = saved
+  mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertContainers(false, "is hidden once combat ends")
+  assertEqual(NS.PendingSecureCount(), 0, "nothing is left queued")
+  enable(true)
+  settle()
+  assertContainers(true, "is shown again on stand-up")
 end)
 
 test("disabled: the suite leaves the world enabled for the suites after it", function()

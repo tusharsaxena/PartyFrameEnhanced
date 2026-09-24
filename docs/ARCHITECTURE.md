@@ -261,7 +261,11 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`). Their parent is
   their unit's fade frame (`modules/RangeFade.lua`), set at creation and never changed. The fade
-  frame is plain, never moved or hidden; only its alpha changes, and alpha is not protected.
+  frame is plain and never moved; its alpha changes freely, and alpha is not protected. It is hidden
+  on stand-down and shown on stand-up, before `NS.PublishVisibility`, through
+  `NS.RunSecure("fade:shown")`, so a stand-down in combat waits for `PLAYER_REGEN_ENABLED`. The
+  free-placement holders (`modules/Anchor.lua`), which secure buttons anchor to, do the same under
+  `holder:shown`.
 - **The out-of-range fade copies, it never calls in.** `modules/RangeFade.lua` post-hooks each member
   frame's `SetAlpha` and `SetAlphaFromBoolean` with `hooksecurefunc` and replays the call on its own
   fade frame. A secret flag goes to `SetAlphaFromBoolean` untouched; a secret number is tried on

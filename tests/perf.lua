@@ -224,19 +224,39 @@ local drag = measure("settingsDrag", 200, function(i)
   NS.SetByPath("castbar.barColor", { r = (i % 10) / 10, g = 0.5, b = 0, a = 1 })
 end)
 
--- 8. Zero overhead: the busiest event path with capture off vs on (performance-§2, §9).
+-- 8. Zero overhead: the busiest event path with capture off, pinned against the instrumentation
+--    being absent (performance-§2, §9). The bracket `local t0 = Perf.on and debugprofilestop()`
+--    cannot be compiled out, so "absent" is stood in for by counting the bracket's only two entry
+--    points — the clock read and Perf.Note — and requiring zero of either per iteration while
+--    Perf.on is false. A dormant bracket that reaches neither does exactly what an absent one does
+--    apart from one table read and one branch. Comparing capture-off with capture-on instead would
+--    pass a dormant bracket that allocated as much as an armed one. Modules resolve
+--    `debugprofilestop` through the mock environment and read `Perf.Note` off the shared instance
+--    at call time, so both wrappers see every bracket. No wall-clock assertion: timings here are
+--    orientation only.
 local function castOnce()
   mocks.__casts.party1 = CASTS.party1
   bars.party1:__fire("OnEvent", "UNIT_SPELLCAST_START", "party1")
   mocks.__casts.party1 = nil
   bars.party1:__fire("OnEvent", "UNIT_SPELLCAST_STOP", "party1")
 end
+local bracketCalls = 0
+local origClock, origNote = mocks.debugprofilestop, NS.Perf.Note
+mocks.debugprofilestop = function(...) bracketCalls = bracketCalls + 1; return origClock(...) end
+NS.Perf.Note = function(...) bracketCalls = bracketCalls + 1; return origNote(...) end
 local probeOff = measure("probeOverheadOff", N, castOnce)
+local bracketOffPerIter = bracketCalls / N
+bracketCalls = 0
 NS.Perf.on = true
 local probeOn = measure("probeOverheadOn", N, castOnce)
 NS.Perf.on = false
-assert_(probeOff.bytesPerIter <= probeOn.bytesPerIter + 1,
-  "a dormant bracket allocated more than an armed one — the gating idiom is wrong")
+local bracketOnPerIter = bracketCalls / N
+mocks.debugprofilestop, NS.Perf.Note = origClock, origNote
+assert_(bracketOffPerIter == 0,
+  ("a dormant bracket made %.1f clock/Perf.Note calls per pass; capture off must reach neither"):format(
+    bracketOffPerIter))
+-- The counters are live: the same path, armed, does reach them — otherwise the zero above is vacuous.
+assert_(bracketOnPerIter > 0, "the bracket counters saw no calls with capture on; the zero-overhead check is blind")
 assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many API calls a pass makes")
 
 -- ── ceilings ────────────────────────────────────────────────────────────────────────────────
@@ -286,6 +306,7 @@ print()
 local sp = {}
 for _, r in ipairs(results) do sp[#sp + 1] = ("%s %.1f"):format(r.name, r.setPointsPerIter) end
 print("SetPoint calls/iter: " .. table.concat(sp, ", "))
+print(("probeOverheadOff %g bracket calls/iter (capture on: %g)"):format(bracketOffPerIter, bracketOnPerIter))
 print()
 print("timings are for orientation only \226\128\148 compare scenarios within a run, never across machines")
 if #failures > 0 then

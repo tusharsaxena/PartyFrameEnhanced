@@ -90,7 +90,7 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
 | `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 596 | reported only |
-| `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off ≤ on + 1; same API count; off ≤ 24 bytes |
+| `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off: 0 bracket calls (`debugprofilestop` + `Perf.Note`), the stand-in for instrumentation absent; same API count; off ≤ 24 bytes |
 
 Figures from 2026-09-15 (Lua 5.1.5, WSL2). Every ceiling is the measured figure plus 24 bytes — less
 than the 64 bytes one extra table costs, so the smallest allocation added to a hot path fails the run.

@@ -413,11 +413,12 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (12)
+### test_surface_parity.lua (13)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
 - parity: the DebugLog stub carries the whole live surface
+- parity: the DebugLog stub's RunDiagnostics prints the library-absent line and writes nothing
 - parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface
 - parity: the Schema stub instance carries every member of the live instance
 - parity: the Schema stub library carries the lib-level primitives
@@ -427,6 +428,10 @@ badge and any count quoted in the docs must agree with it.
 - parity: the Slash stub prints plain rows and the one library-absent line
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
+
+### test_diagnostics_contract.lua (1)
+
+- diagnostics contract: debug-logging-§14 (skipped: Kit.diagnostics is not set in the runner, so this repo's dispatcher is not wired to the shared contract yet. Every Ka0s addon owes debug-logging-§14's report; wire Kit.diagnostics once the report exists)
 
 ### test_vendor_sync.lua (3)
 
@@ -487,8 +492,9 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 12 |
+| test_surface_parity.lua | 13 |
+| test_diagnostics_contract.lua | 1 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **353** |
+| **Total** | **355** |

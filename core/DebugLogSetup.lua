@@ -49,6 +49,24 @@ if not lib then
         LastLine        = function() return nil end,
         FindLine        = function() return nil end,
         MakeCloseButton = function() return nil end,
+        -- The diagnostics report (debug-logging-§14) needs the console it writes into, so the stub
+        -- says so on the collection's library-absent line, writes nothing and counts 0 lines.
+        -- BuildDiagnostics and DebugVerb carry the rest of the instance surface (DebugLog 14.1).
+        RunDiagnostics  = function()
+            if NS.Print and NS.L then
+                NS.Print(NS.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe diagnostics"))
+            end
+            return 0
+        end,
+        BuildDiagnostics = function()
+            return { lines = {}, dropped = 0, capped = false, capsHit = false }
+        end,
+        DebugVerb       = function(self, rest)
+            local word = (tostring(rest or ""):match("^%s*(%S*)") or ""):lower()
+            if word == "diagnostics" then self:RunDiagnostics() return true end
+            if word == "on" or word == "off" then self:SetEnabled(word == "on") return true end
+            return false
+        end,
         ConsoleCheckbox = function()
             return {
                 label   = NS.L["Debug console"],

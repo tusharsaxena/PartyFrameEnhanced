@@ -84,6 +84,7 @@ Kit.run{
     "test_launcher",
     "test_optionssetup",
     "test_surface_parity",
+    { name = "test_diagnostics_contract", dir = "tests/_kit/" },
     "test_vendor_sync",
     { name = "test_eol", dir = "tests/_kit/" },
     { name = "test_layout_cap", dir = "tests/_kit/" },

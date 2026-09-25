@@ -51,6 +51,27 @@ test("parity: the DebugLog stub carries the whole live surface", function()
   })
 end)
 
+test("parity: the DebugLog stub's RunDiagnostics prints the library-absent line and writes nothing", function()
+  -- red under: a stub RunDiagnostics that is a silent no-op (a player gets no answer), or one that
+  -- appends to the stub buffer (debug-logging-§14, LibKa0s DebugLog 14.1's stub contract).
+  local NS2, mocks2 = loadDegraded()
+  local D = NS2.DebugLog
+  NS2.Print("spend") -- the once-per-session missing-library notice rides the first printed line
+  local before = #mocks2.__chat
+  local n = D:RunDiagnostics()
+  local want = NS2.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe diagnostics")
+  assertTrue(n == 0, "counts 0 lines, got " .. tostring(n))
+  assertTrue(#mocks2.__chat == before + 1, "exactly one chat line")
+  assertTrue(mocks2.__chat[#mocks2.__chat]:sub(-#want) == want, "the library-absent line")
+  assertTrue(#D.buffer == 0, "nothing written to the buffer")
+  assertTrue(#D:BuildDiagnostics().lines == 0, "BuildDiagnostics is an empty report")
+
+  before = #mocks2.__chat
+  assertTrue(D:DebugVerb("DIAGNOSTICS") == true, "DebugVerb routes diagnostics in any case")
+  assertTrue(#mocks2.__chat == before + 1, "to the same one line")
+  assertTrue(D:DebugVerb("status") == false, "anything else stays the host's")
+end)
+
 test("parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface", function()
   local NS2 = loadDegraded()
   assertTrue(NS2.__busLib ~= nil and NS2.__busLib ~= NS.__busLib, "the degraded load took the stub")

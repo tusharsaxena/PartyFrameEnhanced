@@ -65,11 +65,12 @@ and a `brandName`, and the dispatcher does the rest; the refusal's wording lives
 the addon failing to understand, not the addon refusing. The same answer goes to a reserved verb the
 addon never registered: nothing was refused, so nothing says it was (`LibKa0s-Slash-1.0` minor 14).
 
-**The live set this addon declares** is the standard's twelve plus two of its own, on the same
+**The live set this addon declares** is the standard's thirteen reserved verbs (`diagnostics` joined
+them at `LibKa0s-Slash-1.0` minor 16) plus two of its own, on the same
 reasoning rather than as exceptions to it: **`status`** is a diagnostic like `debug` (it changes
 nothing, and its first flag is `addon disabled`, so refusing it would delete the answer), and
 **`profile`** is settings management in the class of the schema CLI. Declaring `liveVerbs` **replaces**
-the library's default, so the twelve are spelled out beside them. Widening is conformant; narrowing
+the library's default, so the thirteen are spelled out beside them. Widening is conformant; narrowing
 would not be.
 
 `tests/test_slash.lua` and `tests/test_disabled.lua` pin all of it: the bare `/pfe` opens the panel

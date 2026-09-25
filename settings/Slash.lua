@@ -68,8 +68,9 @@ NS.COMMANDS = {
 -- printer exists to end.
 --
 -- WHAT IS LIVE, AND IT IS A WIDENING RATHER THAN A NARROWING. The library's default is the
--- standard's twelve reserved verbs — help, config, version, enable, disable, debug, perf, get, set,
--- list, reset, resetall — plus the bare `/pfe`, which opens the settings panel. A player must be
+-- standard's thirteen reserved verbs — help, config, version, enable, disable, debug, perf, get, set,
+-- list, reset, resetall, diagnostics (Slash minor 16) — plus the bare `/pfe`, which opens the
+-- settings panel. A player must be
 -- able to READ AND REPAIR SETTINGS and to REACH THE PANEL while the addon is off, which is precisely
 -- when they are most likely to need to, and `enable` above all or the pair is one-way. This addon
 -- adds two of its own on that same reasoning rather than as exceptions to it:
@@ -80,7 +81,7 @@ NS.COMMANDS = {
 --   profile  settings management, in the class of the schema CLI: it switches, copies, creates and
 --            resets where settings live, and draws nothing.
 --
--- Passing this table REPLACES the library's default rather than adding to it, so the twelve are
+-- Passing this table REPLACES the library's default rather than adding to it, so the thirteen are
 -- spelled out here too. Widening is conformant and owes no deviation row; what a host must never do
 -- is REFUSE something on the standard's live set, and nothing is missing from the list below.
 --
@@ -89,7 +90,7 @@ NS.COMMANDS = {
 -- addon answers them on the one line and does nothing else.
 local LIVE_WHILE_DISABLED = {
     "help", "config", "version", "enable", "disable", "debug", "perf",
-    "get", "set", "list", "reset", "resetall",
+    "get", "set", "list", "reset", "resetall", "diagnostics",
     "status", "profile",
 }
 

@@ -231,3 +231,21 @@ case("rangefade: a perf run's suspend drops the range event and restores full al
   assertTrue(RangeFade.Listening(), "resumed from current settings")
   assertEqual(fade("party1").__alphaSet, 0.5)
 end)
+
+case("rangefade: UnitMap and HookedCount report the frame map and the hooks, read-only", function()
+  -- red under: handing out the live map (a reader could unmap a frame), or a count that ignores
+  -- the hooks this resolve added.
+  realHooks()
+  local hookedBefore = RangeFade.HookedCount()
+  local frames = installRaidStyle({ "player", "party1" })
+  Providers.Resolve()
+  local map = RangeFade.UnitMap()
+  assertTrue(map.party1 == frames.party1, "party1's frame")
+  assertTrue(map.player == frames.player, "the player's frame")
+  assertTrue(map.party2 == nil, "a unit with no frame is absent")
+  assertEqual(RangeFade.HookedCount(), hookedBefore + 2, "both member frames were hooked")
+  map.party1 = nil
+  assertTrue(RangeFade.UnitMap().party1 == frames.party1, "mutating the copy changes nothing")
+  frames.party1:SetAlpha(0.5)
+  assertEqual(fade("party1").__alphaSet, 0.5, "and the copy still reaches party1's fade")
+end)

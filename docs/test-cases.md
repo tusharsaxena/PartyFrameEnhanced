@@ -91,12 +91,14 @@ badge and any count quoted in the docs must agree with it.
 - perfsetup: live and stub both carry every Perf member the addon's source reads
 - perfsetup: without LibKa0s the stub carries every member the addon calls
 
-### test_lifecycle.lua (4)
+### test_lifecycle.lua (6)
 
 - lifecycle: a secure write out of combat runs at once
 - lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
+- lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued order
+- lifecycle: the session blocked-action counter counts only this addon's blocks
 
 ### test_bus.lua (13)
 
@@ -226,7 +228,7 @@ badge and any count quoted in the docs must agree with it.
 - petframes: the marker draws above the border
 - petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
-### test_rangefade.lua (8)
+### test_rangefade.lua (9)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -236,6 +238,7 @@ badge and any count quoted in the docs must agree with it.
 - rangefade: off, in preview, or with no party frame, every fade is full alpha
 - rangefade: status names which way the fade is running
 - rangefade: a perf run's suspend drops the range event and restores full alpha
+- rangefade: UnitMap and HookedCount report the frame map and the hooks, read-only
 
 ### test_party.lua (6)
 
@@ -472,7 +475,7 @@ badge and any count quoted in the docs must agree with it.
 | test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
-| test_lifecycle.lua | 4 |
+| test_lifecycle.lua | 6 |
 | test_bus.lua | 13 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
@@ -481,7 +484,7 @@ badge and any count quoted in the docs must agree with it.
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
-| test_rangefade.lua | 8 |
+| test_rangefade.lua | 9 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
 | test_standin.lua | 14 |
@@ -497,4 +500,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **355** |
+| **Total** | **358** |

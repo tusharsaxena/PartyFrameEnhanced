@@ -50,3 +50,28 @@ test("lifecycle: a blocked action blamed on this addon is logged, ungated", func
   NS.addon:OnActionBlocked("ADDON_ACTION_BLOCKED", "SomeOtherAddon", "Show")
   assertEqual(NS.DebugLog:BufferSize(), before + 1, "ours logged, another addon's ignored")
 end)
+
+test("lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued order", function()
+  -- red under: handing out the live queue (a reader could reorder or empty it) or listing a key
+  -- twice when a later write replaces it.
+  inCombat(true)
+  NS.RunSecure("k1", function() end)
+  NS.RunSecure("k2", function() end)
+  NS.RunSecure("k1", function() end)
+  local keys = NS.PendingSecureKeys()
+  assertEqual(table.concat(keys, ","), "k1,k2", "each key once, in first-queued order")
+  keys[1], keys[3] = nil, "bogus"
+  assertEqual(table.concat(NS.PendingSecureKeys(), ","), "k1,k2", "mutating the copy changes nothing")
+  inCombat(false)
+  NS.addon:OnLeaveCombat()
+  assertEqual(#NS.PendingSecureKeys(), 0, "empty once regen flushes")
+end)
+
+test("lifecycle: the session blocked-action counter counts only this addon's blocks", function()
+  -- red under: a counter that also counts other addons' blocks, or one that ignores FORBIDDEN.
+  local before = NS.BlockedActionCount()
+  NS.addon:OnActionBlocked("ADDON_ACTION_BLOCKED", "PartyFrameEnhanced", "SetPoint")
+  NS.addon:OnActionBlocked("ADDON_ACTION_FORBIDDEN", "PartyFrameEnhanced", "SetAttribute")
+  NS.addon:OnActionBlocked("ADDON_ACTION_BLOCKED", "SomeOtherAddon", "Show")
+  assertEqual(NS.BlockedActionCount(), before + 2, "ours counted, both events; another addon's not")
+end)

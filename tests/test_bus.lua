@@ -47,6 +47,39 @@ test("bus: no message has more than one sending file", function()
   end
 end)
 
+test("bus: every receiving module is named in its message's Consumers cell in docs/ARCHITECTURE.md", function()
+  -- Receivers derived from source: a RegisterMessage(NS.MSG.<KEY> …) call site in core/ or
+  -- modules/ makes that file's module a consumer the Message Bus table must name.
+  local receivers = {}
+  for _, path in ipairs(Loader.tocFiles("PartyFrameEnhanced.toc")) do
+    local module = path:match("^core/([%w_]+)%.lua$") or path:match("^modules/([%w_]+)%.lua$")
+    if module then
+      local f = io.open(path, "r")
+      local src = f:read("*a")
+      f:close()
+      for key in src:gmatch("RegisterMessage%(NS%.MSG%.([%u_]+)") do
+        receivers[key] = receivers[key] or {}
+        receivers[key][module] = true
+      end
+    end
+  end
+  local f = io.open("docs/ARCHITECTURE.md", "r")
+  local doc = f:read("*a")
+  f:close()
+  local checked = 0
+  for key, name in pairs(NS.MSG) do
+    local row = doc:match("\n| `" .. name .. "` |([^\n]*)")
+    assertTrue(row ~= nil, key .. ": no Message Bus row for " .. name)
+    local consumers = (row or ""):match("|([^|]*)|%s*$") or ""
+    for module in pairs(receivers[key] or {}) do
+      checked = checked + 1
+      assertTrue(consumers:find("%f[%w]" .. module .. "%f[%W]") ~= nil,
+        key .. ": " .. module .. " receives it but the Consumers cell omits it")
+    end
+  end
+  assertTrue(checked > 0, "found at least one receiver in source")
+end)
+
 -- ── the stand-down record (slash-commands-§7) ──────────────────────────────────────────────────
 --
 -- Characterization of what the record does for a receiver, written against the hand-written record

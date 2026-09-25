@@ -3,6 +3,8 @@ local _, NS = ...
 -- core/Database.lua — AceDB init and the migration runner (savedvariables). Called from
 -- OnInitialize, and directly by the headless harness.
 
+local L = NS.L
+
 --- Open the database, register the profile callbacks, and run the migration ladder.
 function NS:InitDB()
     local AceDB = LibStub and LibStub("AceDB-3.0", true)
@@ -28,21 +30,65 @@ function NS:InitDB()
     NS:RunMigrations()
 end
 
--- The account-wide ladder, in order: one row per schema version. v1 is the shape v0.1.0 ships, so
--- the ladder is empty; a future stored-value change adds `{ to = 2, apply = function() … end }` here
--- in the same change as the row it affects.
-local SCHEMA_STEPS = {}
+-- The schema this build writes: the runner's target (savedvariables-§1). v1 is the shape v0.1.0
+-- ships. The defaults declare `global.schemaVersion = 0` and never this value (defaults/Profile.lua
+-- says why); the runner owns the stamp.
+NS.SCHEMA_VERSION = 1
 
---- Walk every step above the stored version. Idempotent: a second call is a no-op.
+-- The ladder, in order: one row per schema version, shaped
+-- `{ to = N, scope = "profile"|"global", apply = function(tbl) … end }`. v1 is the shape v0.1.0
+-- ships, so the ladder is empty; a future stored-value change adds its row here, and raises
+-- NS.SCHEMA_VERSION, in the same change as the row it affects.
+--
+-- A "profile" step runs over every STORED profile, and a raw stored profile has its defaults
+-- stripped (AceDB's removeDefaults at logout, or it was never activated), so every step reads with
+-- a fallback and is idempotent against a fresh default profile.
+local SCHEMA_STEPS = {}
+NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
+
+--- The tables one step applies to: the account-wide table for a "global" step; for a "profile"
+--- step every stored profile — AceDB's raw `profiles` (which includes the active one; the kit's
+--- fake exposes it only as `db.sv.profiles`) — or the one profile the no-AceDB path has.
+local function targetsFor(step, db)
+    if step.scope == "global" then return { db.global } end
+    local stored = db.profiles or (db.sv and db.sv.profiles)
+    if not stored then return { db.profile } end
+    local list = {}
+    for _, p in pairs(stored) do
+        if type(p) == "table" then list[#list + 1] = p end
+    end
+    return list
+end
+
+--- Apply one step to every table it targets. Returns true and the count, or false and the error.
+local function applyStep(step, db)
+    local targets = targetsFor(step, db)
+    local ok, err = pcall(function()
+        for _, tbl in ipairs(targets) do step.apply(tbl) end
+    end)
+    return ok, ok and #targets or err
+end
+
+--- Walk every step above the stored stamp. The stamp advances only past a step that returned
+--- without raising; a failed step is logged, said once, and stops the walk with the stamp where it
+--- was, so the next login retries it. Idempotent: a second call is a no-op.
 function NS:RunMigrations()
-    local g = NS.db and NS.db.global
+    local db = NS.db
+    local g = db and db.global
     if not g then return end
-    g.schemaVersion = g.schemaVersion or 1
+    local stamp = g.schemaVersion or 0
     for _, step in ipairs(SCHEMA_STEPS) do
-        if g.schemaVersion < step.to then
-            step.apply(NS.db.profile)
-            NS.Debug("Migrate", "v%s \226\134\146 v%s", g.schemaVersion, step.to)
-            g.schemaVersion = step.to
+        if stamp < step.to then
+            local ok, result = applyStep(step, db)
+            if not ok then
+                NS.DebugLog:Add("Migrate", ("v%d failed: %s"):format(step.to, tostring(result)))
+                NS.Print(L["Settings migration to v%d failed; your settings were left as they were"]:format(step.to))
+                return
+            end
+            NS.Debug("Migrate", "v%d \226\134\146 v%d (%d profiles)", stamp, step.to, result)
+            stamp = step.to
+            g.schemaVersion = stamp
         end
     end
+    if stamp < NS.SCHEMA_VERSION then g.schemaVersion = NS.SCHEMA_VERSION end
 end

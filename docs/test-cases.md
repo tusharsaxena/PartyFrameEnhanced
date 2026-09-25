@@ -6,10 +6,11 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (13)
+### test_loadorder.lua (15)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
+- loadorder: LifecycleSetup loads before PerfSetup, and the TOC says why
 - loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
@@ -20,11 +21,13 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
 - loadorder: the runner loaded exactly the vendored XML's library files, in its order
 - loadorder: tests/perf.lua derives both halves of its list too
+- loadorder: every TOC-listed authored file opens on the namespace bootstrap
 - loadorder: the loaded library registered — NS.Perf is the lib, not the stub
 
-### test_schema.lua (16)
+### test_schema.lua (21)
 
 - schema: validates with no shape errors and no unresolved paths
+- schema: the minimap row's STORAGE default is pinned where the validator no longer looks
 - schema: the General page opens on the Master controls tab, in the canonical order
 - schema: General visibility is the four-value dropdown, not a boolean
 - schema: a write through the seam stores the value and publishes CONFIG once, by section
@@ -34,17 +37,23 @@ badge and any count quoted in the docs must agree with it.
 - schema: ApplyDefault writes a COPY of a table default
 - schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
 - schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG, once each
-- schema: a refused write stores nothing, reacts to nothing and publishes nothing
+- schema: a refused write stores nothing, logs nothing, reacts to nothing and publishes nothing
+- schema: a write to a path no row declares is refused and not stored
+- schema: a table value is copied into the store, never aliased
 - schema: a bulk act is ONE [Set] line counting only the rows it changed
 - schema: a bracket that raises still closes, says so, and re-raises the same error
 - schema: the counted profile reset counts rows off default, and never the global minimap row
 - schema: before the db opens, GetSetting answers the shipped default
 - schema: without the library, /pfe disable and /pfe enable still write the stored path
+- schema: without the library, /pfe unlock and /pfe lock still write the stored path
+- schema: without the library, a row-less path outside writeThrough is refused and not stored
 
-### test_database.lua (4)
+### test_database.lua (6)
 
-- database: InitDB opens the store with the shipped defaults and schema v1
+- database: InitDB stamps NS.SCHEMA_VERSION over a default of 0
 - database: RunMigrations is idempotent
+- database: a profile step runs over every stored profile, then stamps
+- database: a raising step leaves the stamp and prints one line; a rerun is a no-op
 - database: a counted profile reset restores defaults and publishes PROFILE once
 - database: a profile switch publishes PROFILE and VISIBILITY
 
@@ -60,17 +69,19 @@ badge and any count quoted in the docs must agree with it.
 - envsetup: NS.Version never answers nil — the fallback constant when no reader answers
 - envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
 
-### test_mediasetup.lua (3)
+### test_mediasetup.lua (4)
 
 - mediasetup: the console's monospace face is the library's, under this addon's folder
 - mediasetup: NS.Icon builds catalog paths from this addon's folder
 - mediasetup: without LibKa0s the face falls back to a real client font and icons answer nil
+- mediasetup: LOGO_PATH is the shipped logo, derived from the folder name
 
-### test_debuglog.lua (3)
+### test_debuglog.lua (4)
 
 - debuglog: NS.Debug is the instance's gated sink, bound bare
 - debuglog: enabling logging flips NS.State.debug and writes nothing to the profile
 - debuglog: without LibKa0s, `debug on` still sets the flag and acknowledges it
+- debuglog: the degraded stub's ack and checkbox label are routed through NS.L
 
 ### test_perfsetup.lua (5)
 
@@ -87,11 +98,12 @@ badge and any count quoted in the docs must agree with it.
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
 
-### test_bus.lua (12)
+### test_bus.lua (13)
 
 - bus: two receivers of one message on their own targets both fire
 - bus: every message is prefixed Ka0s_PartyFrameEnhanced_
 - bus: no message has more than one sending file
+- bus: every receiving module is named in its message's Consumers cell in docs/ARCHITECTURE.md
 - bus: a stand-down takes a receiver's events AND messages down, and a stand-up puts both back
 - bus: a stand-up replays the record as it is NOW, not a snapshot from the way down
 - bus: a method-name handler survives the round trip and is called as a method
@@ -115,7 +127,7 @@ badge and any count quoted in the docs must agree with it.
 - compat: without the library the guard stub answers what the library answers, fixture for fixture
 - compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires
 
-### test_providers.lua (12)
+### test_providers.lua (16)
 
 - providers: Blizzard classic maps party1..4 by unitToken and never the player
 - providers: Blizzard raid-style maps the player too, and follows a re-sort
@@ -128,9 +140,13 @@ badge and any count quoted in the docs must agree with it.
 - providers: a resolve that finds what it already had sends no LAYOUT
 - providers: any number of requests before the next frame cost one resolve
 - providers: a hooked member frame's unit change requests a resolve
+- providers: enabled, exactly one EditMode.Exit callback is registered, owned by Providers
+- providers: suspended, the Edit Mode burst arms nothing even when reached directly
 - providers: suspended, requests do nothing and events come off
+- providers: a refused event name costs only itself, and is recorded once across a disable/enable
+- providers: /pfe status names the events the client refused
 
-### test_anchor.lua (9)
+### test_anchor.lua (11)
 
 - anchor: attached pins each element to its unit's frame by the configured points
 - anchor: a pass that changes nothing makes no SetPoint call
@@ -141,12 +157,22 @@ badge and any count quoted in the docs must agree with it.
 - anchor: LAYOUT re-applies every registered feature
 - anchor: a section stripped of its defaulted point still pins, from the shipped default
 - anchor: unlocking gives the name plate a grabbable body and arms every element's drag
+- anchor: a holder opts out of the client's layout cache; the addon owns its position
+- anchor: a holder still builds on a client without SetDontSavePosition
 
-### test_castbars.lua (13)
+### test_profile_switch.lua (4)
+
+- profile switch: Anchor places by the NEW profile even when it hears PROFILE first
+- profile switch: a real SetProfile each way follows the profile
+- profile switch: Reset all settings on a free profile returns it to attached
+- profile switch: copying a free profile in places by the copy
+
+### test_castbars.lua (14)
 
 - castbars: each included unit's bar registers exactly the cast events, for its own unit
 - castbars: nothing in the addon registers a UNIT_SPELLCAST event globally
 - castbars: turning the feature off unregisters every unit; on registers them again
+- castbars: a refused UNIT_SPELLCAST name leaves the bar's other cast events registered
 - castbars: a cast start shows the bar with the name, icon and an engine-driven fill timer
 - castbars: a channel drains, and without the engine timer the bar is driven from the same object
 - castbars: the time text shows seconds left, refreshed at most ten times a second
@@ -158,12 +184,14 @@ badge and any count quoted in the docs must agree with it.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (21)
+### test_targetframes.lua (25)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
 - targetframes: attached with no party frame on screen, the driver is hide
 - targetframes: in combat a driver change is queued, never written, and lands at regen
+- targetframes: a driver changed and changed back in combat ends on the last request
+- targetframes: click to target unticked and re-ticked in combat stays on after combat
 - targetframes: click to target sets the attribute and the mouse, both ways
 - targetframes: UNIT_TARGET paints the name, health, percent and marker
 - targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise
@@ -177,22 +205,26 @@ badge and any count quoted in the docs must agree with it.
 - targetframes: preview shows every allowed button with placeholder content
 - targetframes: PLAYER_TARGET_CHANGED is registered ONCE, on the module, not per button
 - targetframes: PLAYER_TARGET_CHANGED repaints the player's target button
-- targetframes: suspended, no events, no ticker, every driver hide
+- targetframes: suspended, no events, no ticker, every driver unregistered
 - targetframes: a target that had not resolved at paint time is repainted by the ticker
 - targetframes: with Update health off, the ticker runs only until a pending target resolves
 - targetframes: the marker draws above the border
+- targetframes: the module's own events are held only while the feature is on and in a party
+- targetframes: the debug line's UnitName is not evaluated with debug off
 
-### test_petframes.lua (9)
+### test_petframes.lua (11)
 
 - petframes: each button acts on its owner's pet token
+- petframes: click to target unticked and re-ticked in combat stays on after combat
 - petframes: UNIT_PET listens on the owner, the health events on the pet token
 - petframes: a new pet paints fully; a health event repaints health only
 - petframes: Use class color takes the OWNER's class
 - petframes: Update health off drops the health events and draws the bar full
-- petframes: suspended, events come off and every driver is hide
+- petframes: suspended, events come off and every driver is unregistered
 - petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it
 - petframes: the marker sits on its configured point of the bar, nudged by its offsets
 - petframes: the marker draws above the border
+- petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
 ### test_rangefade.lua (8)
 
@@ -214,7 +246,7 @@ badge and any count quoted in the docs must agree with it.
 - party: preview skips the rule — unlocked solo, the free-placement placeholders show
 - party: /pfe status says so when you're not in a party
 
-### test_preview.lua (7)
+### test_preview.lua (8)
 
 - preview: unlocking turns preview on and makes free-placement holders grabbable
 - preview: unlocking in combat is refused, the stored lock stays, and the player is told why
@@ -223,8 +255,9 @@ badge and any count quoted in the docs must agree with it.
 - preview: neither /pfe preview nor /pfe test exists — lock and unlock are the switch
 - preview: a profile saved unlocked comes back in preview
 - status: names the frame system, each unit, each feature, and anything switched off
+- preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (12)
+### test_standin.lua (14)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -238,6 +271,8 @@ badge and any count quoted in the docs must agree with it.
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
 - standin: setting and clearing it resolve at once, each sending LAYOUT
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
+- standin: opts out of the client's layout cache; the addon places it every time
+- standin: still builds on a client without SetDontSavePosition
 
 ### test_preview_standin.lua (17)
 
@@ -245,7 +280,7 @@ badge and any count quoted in the docs must agree with it.
 - preview: in a party, unlocking is placeholders on the real frames and no stand-in
 - preview: in a raid it is the stand-in too
 - preview: it switches live — joining hides the stand-in, leaving brings it back, it stays on
-- preview: unlocking is refused in combat, disabled or suspended — one gray line each
+- preview: unlocking is refused in combat, disabled or suspended — one line each
 - preview: locking is never refused, so a refusal cannot strand the elements unlocked
 - preview: combat re-locks at PLAYER_REGEN_DISABLED (stand-in)
 - preview: combat re-locks at PLAYER_REGEN_DISABLED (party)
@@ -267,8 +302,8 @@ badge and any count quoted in the docs must agree with it.
 
 ### test_prose.lua (15)
 
-- prose: no authored file carries a British spelling from localization-5's published list
-- prose: the gate carries localization-5's two lists whole, and nothing of its own
+- prose: no authored file carries a British spelling from localization-§5's published list
+- prose: the gate carries localization-§5's two lists whole, and nothing of its own
 - prose self-test: the carve-out suppresses the named generated folder, and only it
 - prose self-test: a path the carve-out does not name is not covered by one that looks like it
 - prose self-test: a carve-out that is not a set of path strings is a failure, not a silence
@@ -283,7 +318,7 @@ badge and any count quoted in the docs must agree with it.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (19)
+### test_slash.lua (24)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -304,37 +339,64 @@ badge and any count quoted in the docs must agree with it.
 - slash: `unlock` refuses at the DISPATCHER, before the write seam
 - slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
 - slash: the live set still ANSWERS and still ACTS while the addon is off
+- slash: `profile new` on an existing name refuses and does NOT wipe it
+- slash: `profile use` on a missing name refuses and creates nothing
+- slash: `profile copy` refuses a missing name and the current profile, with no Lua error
+- slash: `profile delete` on a missing name refuses instead of claiming it deleted
+- slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (10)
+### test_disabled.lua (18)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
 - disabled: nothing is left armed to wake up
+- disabled: leaving Edit Mode while disabled arms nothing
 - disabled: every frame that was on screen is hidden, and refused at the source
+- disabled: the fade frames and the free-placement holders are hidden
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
 - disabled: re-enabled, the addon rebuilds from CURRENT state
+- disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
-- disabled: the launcher's LEFT click is refused and its RIGHT click is not
+- disabled: the launcher's LEFT click opens the panel and its menu grays every feature toggle
+- disabled: out of combat, the target and pet state drivers are UNREGISTERED
+- disabled: re-enabled, the released state drivers are re-installed
+- disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
+- disabled: in combat, the fade frames and holders hide once combat ends
+- disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_launcher.lua (17)
+### test_launcher.lua (31)
 
 - launcher: one object, registered twice under the addon's FOLDER name
 - launcher: Register is idempotent -- a second call builds no second button
 - launcher: the icon is the addon's own 128 logo, and the TOC's IconTexture names that file
 - launcher: the broker label is the BRAND NAME in plain text, never the Title or the folder
-- launcher: LEFT click toggles the lock through the addon's own seam -- rung (b)
-- launcher: the left click and `/pfe unlock` are the same seam, not two
-- launcher: RIGHT click always opens the settings panel
+- launcher: LEFT click opens the settings panel and moves nothing
+- launcher: LEFT click opens the settings panel while DISABLED too
+- launcher: RIGHT click opens the options menu -- title, then Enabled and Locked only
+- launcher: each menu entry shows the state read when the menu opens
+- launcher: the menu's Locked entry routes to NS.ToggleLock, the `/pfe lock|unlock` seam
+- launcher: the menu's Locked entry and `/pfe lock` write the one path through the one seam
+- launcher: the menu's Enabled entry routes to NS.SetEnabled, the `/pfe enable|disable` handler
+- launcher: while DISABLED the menu grays Locked and leaves Enabled live
+- launcher: with no client menu API, RIGHT click falls back to the settings panel
+- launcher: the descriptor passes the pairs this addon HAS, and none of the retired fields
+- launcher: each accessor reads the store the Master-controls rows read, on every call
+- launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two fixed hints
+- launcher: tooltip while unlocked -- Locked: No, and no Test mode line in any state
+- launcher: tooltip while DISABLED -- still shown, Enabled: No, the same two hints
 - launcher: the Minimap button row is composed, stored, and in its canonical position
 - launcher: the row's get/set INVERT onto LibDBIcon's `hide`, and move the button
+- launcher: the row's path is `global.minimap.shown`, and the old `hide` path is gone
+- launcher: `/pfe get|set global.minimap.shown` invert onto the stored `hide`, never a `shown` key
+- launcher: a legacy store with `hide = true` carries over -- no migration, no `shown` key
 - launcher: LibDBIcon was handed the SAME table the row writes
 - launcher: the minimap table is GLOBAL -- a profile switch leaves it alone
 - launcher: *Reset all settings* leaves a hidden button hidden
 - launcher: the page-scoped General *Defaults* button leaves a hidden button hidden
 - launcher: neither reset re-HIDES a shown button either
-- launcher: `/pfe reset global.minimap.hide` still works -- the exemption is for SWEEPS
+- launcher: `/pfe reset global.minimap.shown` still works -- the exemption is for SWEEPS
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
@@ -351,13 +413,18 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 
-### test_surface_parity.lua (7)
+### test_surface_parity.lua (12)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
+- parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
 - parity: the DebugLog stub carries the whole live surface
 - parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface
+- parity: the Schema stub instance carries every member of the live instance
+- parity: the Schema stub library carries the lib-level primitives
 - parity: the Options stub carries every helper the degraded build can reach
 - parity: the Slash stub carries every dispatcher member the addon calls
+- parity: the Slash stub's refusal format is the library's DISABLED_LINE_FORMAT, byte for byte
+- parity: the Slash stub prints plain rows and the one library-absent line
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
@@ -370,13 +437,13 @@ badge and any count quoted in the docs must agree with it.
 ### test_eol.lua (2)
 
 - eol: every tracked file carries the terminator .gitattributes declares for it
-- eol: .gitattributes is line-endings-5's canonical body for this repo kind
+- eol: .gitattributes is line-endings-§5's canonical body for this repo kind
 
 ### test_layout_cap.lua (13)
 
 - layoutcap: every authored file over the 1500-line cap is named in the census
 - layoutcap: no census row outlives the breach it records
-- layoutcap: every over-cap census row carries one of layout-1's three terminal states
+- layoutcap: every over-cap census row carries one of layout-§1's three terminal states
 - layoutcap: the census and the exempt set agree about which paths were exempted
 - layoutcap: an empty census is written as a result rather than left standing empty
 - layoutcap self-test: the parser reads the census nested under the register, and stops there
@@ -392,35 +459,36 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 13 |
-| test_schema.lua | 16 |
-| test_database.lua | 4 |
+| test_loadorder.lua | 15 |
+| test_schema.lua | 21 |
+| test_database.lua | 6 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 2 |
-| test_mediasetup.lua | 3 |
-| test_debuglog.lua | 3 |
+| test_mediasetup.lua | 4 |
+| test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 4 |
-| test_bus.lua | 12 |
+| test_bus.lua | 13 |
 | test_compat.lua | 10 |
-| test_providers.lua | 12 |
-| test_anchor.lua | 9 |
-| test_castbars.lua | 13 |
-| test_targetframes.lua | 21 |
-| test_petframes.lua | 9 |
+| test_providers.lua | 16 |
+| test_anchor.lua | 11 |
+| test_profile_switch.lua | 4 |
+| test_castbars.lua | 14 |
+| test_targetframes.lua | 25 |
+| test_petframes.lua | 11 |
 | test_rangefade.lua | 8 |
 | test_party.lua | 6 |
-| test_preview.lua | 7 |
-| test_standin.lua | 12 |
+| test_preview.lua | 8 |
+| test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 19 |
-| test_disabled.lua | 10 |
-| test_launcher.lua | 17 |
+| test_slash.lua | 24 |
+| test_disabled.lua | 18 |
+| test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
-| test_surface_parity.lua | 7 |
+| test_surface_parity.lua | 12 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **289** |
+| **Total** | **353** |

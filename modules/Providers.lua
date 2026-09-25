@@ -12,6 +12,7 @@ local _, NS = ...
 -- HookScript only, and every hook just REQUESTS a resolve; the resolve itself runs on the next frame,
 -- coalesced, so a burst of forty attribute changes during a re-sort costs one pass.
 
+local L      = NS.L
 local Perf   = NS.Perf
 local Compat = NS.Compat
 local Units  = NS.Units
@@ -58,7 +59,9 @@ end
 
 -- A structural change (roster, Edit Mode, an addon loading): resolve now, and again once frames that
 -- settle a frame or two late have settled. A newer burst supersedes an older one's follow-ups.
+-- Suspended, it arms nothing: the stand-down drops every trigger, and this holds even if one survives.
 local function burst()
+    if suspended then return end
     Providers.Request()
     burstGen = burstGen + 1
     local gen = burstGen
@@ -93,7 +96,7 @@ local function erfChild(header, i)
 end
 
 local ELLESMERE = {
-    id = "ellesmere", family = "ellesmere", label = "EllesmereUI", priority = 100,
+    id = "ellesmere", family = "ellesmere", label = L["EllesmereUI"], priority = 100,
     IsAvailable = function()
         return ERFPartyHeader ~= nil and Compat.IsAddOnLoaded("EllesmereUIRaidFrames")
     end,
@@ -116,7 +119,7 @@ local ELLESMERE = {
 }
 
 local BLIZZARD_RAID = {
-    id = "blizzard-raid", family = "blizzard", label = "Blizzard (raid-style)", priority = 50,
+    id = "blizzard-raid", family = "blizzard", label = L["Blizzard (raid-style)"], priority = 50,
     IsAvailable = function() return CompactPartyFrame ~= nil end,
     IsActive = function()
         return Compat.UseRaidStyleParty() and Compat.FrameVisible(CompactPartyFrame)
@@ -135,7 +138,7 @@ local BLIZZARD_RAID = {
 }
 
 local BLIZZARD_PARTY = {
-    id = "blizzard-party", family = "blizzard", label = "Blizzard (classic)", priority = 40,
+    id = "blizzard-party", family = "blizzard", label = L["Blizzard (classic)"], priority = 40,
     IsAvailable = function() return PartyFrame ~= nil end,
     IsActive = function()
         return not Compat.UseRaidStyleParty() and Compat.FrameVisible(PartyFrame)
@@ -289,6 +292,8 @@ end
 -- the shape of 100 × 50 raid frames against 200 × 80 party frames). The size EllesmereUI applies is
 -- partyFrameWidth × partyFrameHeight, or its own defaults of 125 × 60. Read-only; every step is
 -- nil-guarded, and the keys are EllesmereUI's own. The header rides along for its effective scale.
+-- Reading a suite's SavedVariables is a library-stack-§6 deviation, recorded in docs/ARCHITECTURE.md
+-- -> ## Documented deviations with its re-check trigger.
 local function ellesmereConfiguredSize()
     local db = EllesmereUIDB
     local profiles = type(db) == "table" and db.profiles
@@ -326,22 +331,36 @@ Providers.__ev = ev
 
 local ELLESMERE_ADDONS = { EllesmereUI = true, EllesmereUIRaidFrames = true }
 
+-- Each one refused costs only itself (events-frames-taint-§1): a bare block of RegisterEvent lines
+-- loses every line after the one that raised.
+local BURST_EVENTS = { "GROUP_ROSTER_UPDATE", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }
+
+local function onAddonLoaded(_, name)
+    if ELLESMERE_ADDONS[name] then burst() end
+end
+
 local function registerEvents()
-    ev:RegisterEvent("GROUP_ROSTER_UPDATE", burst)
-    ev:RegisterEvent("PLAYER_ENTERING_WORLD", burst)
-    ev:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED", burst)
-    ev:RegisterEvent("PLAYER_REGEN_ENABLED", Providers.Request)
-    ev:RegisterEvent("ADDON_LOADED", function(_, name)
-        if ELLESMERE_ADDONS[name] then burst() end
-    end)
+    local rejected = NS.RejectedEvents
+    NS.SafeRegisterEvents(ev, BURST_EVENTS, burst, rejected)
+    NS.SafeRegisterEvent(ev, "PLAYER_REGEN_ENABLED", Providers.Request, rejected)
+    NS.SafeRegisterEvent(ev, "ADDON_LOADED", onAddonLoaded, rejected)
+end
+
+-- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private. It is
+-- a registration like any other, so the stand-down drops it and the stand-up takes it back
+-- (slash-commands-§7): one callback per owner, so a second registration replaces the first.
+local function editModeCallback(on)
+    if not (EventRegistry and type(EventRegistry.RegisterCallback) == "function") then return end
+    if on then
+        pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
+    else
+        pcall(EventRegistry.UnregisterCallback, EventRegistry, "EditMode.Exit", Providers)
+    end
 end
 
 function Providers:OnEnable()
     registerEvents()
-    -- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private.
-    if EventRegistry and type(EventRegistry.RegisterCallback) == "function" then
-        pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
-    end
+    editModeCallback(true)
     burst()
 end
 
@@ -350,11 +369,13 @@ function Providers:Suspend()
     scheduled = false
     burstGen = burstGen + 1
     ev:UnregisterAllEvents()
+    editModeCallback(false)
 end
 
 function Providers:Resume()
     suspended = false
     registerEvents()
+    editModeCallback(true)
     burst()
 end
 

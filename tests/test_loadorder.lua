@@ -45,6 +45,13 @@ test("loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TO
     "the TOC line must carry the note saying its position is load-bearing")
 end)
 
+test("loadorder: LifecycleSetup loads before PerfSetup, and the TOC says why", function()
+  -- red under: moving LifecycleSetup below PerfSetup (Perf would be handed a nil lifecycle).
+  assertBefore("core/lifecyclesetup.lua", "core/perfsetup.lua", "Perf requires d.lifecycle")
+  assertTrue(readFile(TOC):find("publishes NS.lifecycle", 1, true) ~= nil,
+    "the TOC line must say LifecycleSetup's position is load-bearing")
+end)
+
 test("loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup", function()
   assertBefore("core/namespace.lua", "core/coresetup.lua", "the printer's prefix is NS.PREFIX")
   assertBefore("core/coresetup.lua", "core/perfsetup.lua", "PerfSetup's sinks print")
@@ -133,6 +140,26 @@ test("loadorder: tests/perf.lua derives both halves of its list too", function()
   local src = readFile("tests/perf.lua")
   assertTrue(src:find("Loader.tocFiles", 1, true) ~= nil, "tests/perf.lua must derive from the TOC")
   assertTrue(src:find("Loader.xmlFiles", 1, true) ~= nil, "tests/perf.lua must derive from the XML")
+end)
+
+-- architecture-§1 puts the bootstrap on line 1; documentation-§9 puts the self-naming header
+-- directly beneath it (a blank line between is allowed).
+test("loadorder: every TOC-listed authored file opens on the namespace bootstrap", function()
+  for _, p in ipairs(Loader.tocFiles(TOC)) do
+    local lines = {}
+    for line in readFile(p):gmatch("([^\n]*)\n") do
+      lines[#lines + 1] = (line:gsub("\r$", ""))
+      if #lines == 4 then break end
+    end
+    assertTrue((lines[1] or ""):match("^local [%w_]+, NS = %.%.%.$") ~= nil,
+      p .. " line 1 must be the namespace bootstrap, got: " .. tostring(lines[1]))
+    local header = false
+    for i = 2, 4 do
+      local l = lines[i] or ""
+      if l == "-- " .. p or l:sub(1, #p + 4) == "-- " .. p .. " " then header = true end
+    end
+    assertTrue(header, p .. " must carry its `-- " .. p .. "` header on one of lines 2-4")
+  end
 end)
 
 test("loadorder: the loaded library registered — NS.Perf is the lib, not the stub", function()

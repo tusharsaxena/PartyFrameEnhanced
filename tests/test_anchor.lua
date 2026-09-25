@@ -57,7 +57,13 @@ local function probe(secure)
   return key, els
 end
 
+-- Hide the probe's holder as well as dropping its rows. Kit 26 creates frames shown, and a probe
+-- that is out of `order` is out of Anchor:Suspend's reach, so a holder left shown here would sit in
+-- test_disabled's frame census until the garbage collector happened to take it: green or red by
+-- allocation timing, not by anything the addon does.
 local function unregister(key)
+  local spec = Anchor.__features[key]
+  if spec and spec.holder then spec.holder:Hide() end
   Anchor.__features[key] = nil
   for i, k in ipairs(Anchor.__order) do
     if k == key then table.remove(Anchor.__order, i) break end
@@ -177,9 +183,10 @@ end)
 
 -- THE PROFILE-SWITCH CRASH (in-game report, 2026-09-16). AceDB's SetProfile calls removeDefaults()
 -- on the OUTGOING profile table, stripping every key whose value still equals its default -- and
--- `point` / `relativePoint` are exactly that for any player who never moved them. Anchor's
--- MSG.PROFILE handler is registered before the feature modules' (it loads earlier in the TOC), so
--- it runs first and reads the stripped table through a config() the feature has not re-bound yet.
+-- `point` / `relativePoint` are exactly that for any player who never moved them. MSG.PROFILE
+-- handlers run in CallbackHandler's next() order, which is undefined, so the features' config()
+-- reads the live section (tests/test_profile_switch.lua pins that); this case pins the fallback
+-- for a section that still arrives stripped.
 -- red under: `local point, rel = cfg.point, cfg.relativePoint`, which sent nil into SetPoint and
 -- raised "Usage: SetPoint(point, ...)" mid-profile-change, taking the whole ApplyAll down with it.
 test("anchor: a section stripped of its defaulted point still pins, from the shipped default", function()
@@ -222,5 +229,40 @@ test("anchor: unlocking gives the name plate a grabbable body and arms every ele
     assertNil(els[unit]:GetScript("OnDragStart"), "a locked element must not be draggable")
     assertNil(els[unit].__dragButtons, "locking must CLEAR the drag, not register nil")
   end
+  unregister(key)
+end)
+
+-- Every NAMED frame built inside `fn` gets a recording SetDontSavePosition (or, with `present`
+-- false, a falsy one: a client without the method). Answers the name -> { args } record.
+local function withNamedFrames(present, fn)
+  local calls, orig = {}, mocks.CreateFrame
+  mocks.CreateFrame = function(frameType, name, ...)
+    local f = orig(frameType, name, ...)
+    if name then
+      rawset(f, "SetDontSavePosition", present and function(_, v) calls[name] = { v } end or false)
+    end
+    return f
+  end
+  local ok, err = pcall(fn)
+  mocks.CreateFrame = orig
+  if not ok then error(err, 0) end
+  return calls
+end
+
+test("anchor: a holder opts out of the client's layout cache; the addon owns its position", function()
+  -- red under: no SetDontSavePosition after SetMovable, which lets layout-local.txt restore a
+  -- dragged holder over the position the addon re-anchors it to.
+  local key
+  local calls = withNamedFrames(true, function() key = probe(false) end)
+  local rec = calls["PartyFrameEnhanced_" .. key .. "_Holder"]
+  assertTrue(rec ~= nil, "the holder never called SetDontSavePosition")
+  assertEqual(rec[1], true)
+  unregister(key)
+end)
+
+test("anchor: a holder still builds on a client without SetDontSavePosition", function()
+  local key
+  withNamedFrames(false, function() key = probe(false) end)
+  assertTrue(Anchor.__features[key].holder ~= nil)
   unregister(key)
 end)

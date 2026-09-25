@@ -93,3 +93,27 @@ test("status: names the frame system, each unit, each feature, and anything swit
   assertTrue(slash("status"):find("unlocked", 1, true) ~= nil)
   slash("lock")
 end)
+
+-- PLAYER_REGEN_DISABLED only matters while preview is on (review F-017): registered by listen(on)
+-- beside GROUP_ROSTER_UPDATE, read from the live registration set.
+local function previewHolds(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == NS.Preview.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+test("preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks", function()
+  -- red under: register it at file load
+  slash("lock")
+  assertFalse(previewHolds("PLAYER_REGEN_DISABLED"), "locked: nothing to re-lock")
+  slash("unlock")
+  assertTrue(previewHolds("PLAYER_REGEN_DISABLED"), "unlocked: combat must re-lock")
+  local before = #mocks.__chat
+  mocks.__fireEvent("PLAYER_REGEN_DISABLED")
+  local said = table.concat(mocks.__chat, "\n", before + 1)
+  mocks.__fireEvent("PLAYER_REGEN_ENABLED")
+  assertTrue(said:find("combat started", 1, true) ~= nil, said)
+  assertTrue(NS.GetSetting("locked"))
+  assertFalse(previewHolds("PLAYER_REGEN_DISABLED"), "re-locked: dropped again")
+end)

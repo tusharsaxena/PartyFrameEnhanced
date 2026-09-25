@@ -119,11 +119,15 @@ local function placementOf(spec, cfg)
     -- DEFAULTED, and not defensively: on a profile switch, copy or reset, AceDB calls
     -- removeDefaults() on the OUTGOING profile table, which strips every key whose value still
     -- equals its default. `point` and `relativePoint` are almost always exactly that -- most
-    -- players never move them -- so the table is left without them. This module's MSG.PROFILE
-    -- handler is registered before the feature modules' (it loads earlier in the TOC), so it runs
-    -- FIRST and reads that stripped table through a `spec.config()` whose upvalue the feature has
-    -- not re-bound yet. A nil then reaches SetPoint, which raises "Usage: SetPoint(point, ...)"
-    -- and takes the whole ApplyAll fan-out down with it, mid-profile-change.
+    -- players never move them -- so the table is left without them. The order MSG.PROFILE
+    -- handlers run in is UNDEFINED: CallbackHandler-1.0 dispatches with next() over per-target
+    -- tables (libs/CallbackHandler-1.0/CallbackHandler-1.0.lua:15-22), so it is hash order, not
+    -- TOC order. That is why every feature's `spec.config()` and `spec.slotSize()` read the LIVE
+    -- profile section rather than the `cfg` upvalue the feature re-binds in its own handler:
+    -- Anchor never depends on a feature having re-bound first. A section can still come without
+    -- the key (a reference held across the switch, a section with no AceDB defaults behind it),
+    -- and a nil would reach SetPoint, which raises
+    -- "Usage: SetPoint(point, ...)" and takes the whole ApplyAll fan-out down with it.
     -- Falling back to the shipped default is the same move positionOf() already makes for the
     -- holder, and it is correct rather than merely safe: the key is absent precisely BECAUSE its
     -- value is the default.
@@ -255,6 +259,8 @@ function Anchor.Register(spec)
     holder.grip:RegisterForDrag("LeftButton")
     holder.grip:Hide()
     holder:SetMovable(true)
+    -- Re-anchored from the addon's own stored or default position; a client-cached one is never wanted.
+    if holder.SetDontSavePosition then holder:SetDontSavePosition(true) end
     holder:SetClampedToScreen(true)
     holder:EnableMouse(false)
     holder:RegisterForDrag("LeftButton")
@@ -314,6 +320,26 @@ local function refreshHolder(spec)
         spec.holder.grip:EnableMouse(false)
         spec.holder.grip:Hide()
     end
+end
+
+-- The free-placement holders are on screen whenever the addon is up and hidden on stand-down.
+-- Secure elements anchor to them, so the change goes through the secure queue and, under lockdown,
+-- waits for PLAYER_REGEN_ENABLED; a later call under the same key replaces a queued one.
+local function showHolders(on)
+    NS.RunSecure("holder:shown", function()
+        for _, key in ipairs(order) do
+            local holder = features[key].holder
+            if on then holder:Show() else holder:Hide() end
+        end
+    end)
+end
+
+function Anchor:Suspend()
+    showHolders(false)
+end
+
+function Anchor:Resume()
+    showHolders(true)
 end
 
 --- Unlocked (preview) mode lets the free-placement holders be grabbed.

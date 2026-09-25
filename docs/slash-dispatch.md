@@ -11,7 +11,7 @@ The landing page renders the same table.
 |---|---|---|
 | `help` | the command list | yes |
 | `config` (alias `options`) | opens the settings panel on its landing page (bare `/pfe` does the same); refused in combat with a gray notice | yes |
-| `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
+| `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. On a load without LibKa0s the row is absent and the write lands through the schema's `writeThrough` list, without the `onChange`. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
 | `list` | every setting and its value, grouped by page | yes |
 | `get <path>` | one setting's value | yes |
 | `set <path> <value>` | sets a setting through the write seam; echoes the stored value | yes |
@@ -25,7 +25,7 @@ The landing page renders the same table.
 | `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |
-| `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management | no |
+| `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management. Every name is checked against the profile list first, and a bad one is refused on one line: `use` no longer creates a profile (a missing name is refused), `new` refuses a name that already exists instead of wiping it, `copy` refuses a missing name and the current profile, and `delete` refuses a missing name as well as the current profile | no |
 
 ## The disabled state
 
@@ -84,12 +84,17 @@ white values, no trailing colon; every line carries the cyan `[PFE]` tag through
 ## Degraded
 
 With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host verbs; the schema verbs
-(`list`, `get`, `set`, `reset`, `resetall`) each print one line naming the missing library. `enable`
-and `disable` still WRITE — only their echo degrades to that line — because the pair must never be
-one-way, whatever else is missing.
+(`list`, `get`, `set`, `reset`, `resetall`) each print the one library-absent line
+(`/pfe <verb> is unavailable: the LibKa0s library did not load.`). `enable` and `disable` still
+WRITE — through the schema's `writeThrough` list, and only their echo degrades to that line — because
+the pair must never be one-way, whatever else is missing. The stub is the shape the library's Slash
+document (minor 15, *The degradation stub*) prescribes: the help, landing and profile rows render as
+plain `cmd  desc`, with no copy of the library's formatter or parser.
 
 The stub carries the disabled gate too, in the library's shape: the same live set, the same
-after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same one-line refusal built from the same format string, and the same
-line under the `help` header. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
+after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same
+one-line refusal built from the same format string, and the same line under the `help` header. That
+format string is the one library string the stub carries, and `tests/test_surface_parity.lua` pins it
+byte for byte against the library's `DISABLED_LINE_FORMAT`. `core/LifecycleSetup.lua` likewise degrades to a hold-set latch of its
 own — the library's contract at its smallest, not a second mechanism — so a build without LibKa0s
 still stands down, and still stands up only when the last hold is released.

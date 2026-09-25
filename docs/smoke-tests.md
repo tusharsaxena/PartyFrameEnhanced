@@ -77,16 +77,41 @@ One row per full pass. The newest row is the current iteration.
     reacting rather than stopping watching, and it is still paying the dispatch on every event the
     player switched it off to stop paying for.
 
-10d. Still **while disabled**, **left-click the minimap button**: one tagged line naming
-    `/pfe enable`, and nothing else — the elements do not unlock and no stand-in appears.
-    **Right-click** it: the settings panel opens, exactly as it does when the addon is running.
-    *Failure:* a left click that unlocks (it would be writing the stored tree of an addon the player
-    switched off), or a right click that refuses.
+10d. Still **while disabled**, **left-click the minimap button**: the settings panel opens, exactly
+    as it does when the addon is running, and nothing unlocks. **Right-click** it: the options menu
+    opens with *Enabled* unticked and live, and *Locked (enable the addon first)* grayed; clicking
+    the grayed entry does nothing. On the General page, **untick *Lock frame***: one tagged line
+    (*Ka0s Party Frame Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to
+    ticked. *Failure:* a menu entry that unlocks (it would be writing the stored tree of an addon the
+    player switched off), a left click that refuses, or a gray *cannot unlock* line from the checkbox
+    — a second wording of the one refusal (slash-commands-§7).
 
 10e. `/pfe enable` again, then `/reload`. Everything comes back, and it comes back from the settings
     **as they are now**: change a setting while the addon is disabled — `/pfe set castbar.enabled
     false` — then `/pfe enable`, and the cast bars stay off. *Failure:* the addon standing up into
     the state it had when it went down.
+
+10f. **The target and pet frames through a stand-down, both ways.** In a party with a pet out and a
+    member targeting something, `/pfe disable` out of combat, then `/pfe enable` → the target and pet
+    frames return. Then enter combat, `/pfe disable` (the settings panel refuses every write in
+    combat, so the command is the route), and leave combat → no `ADDON_ACTION_BLOCKED` on the debug
+    console, and the frames are gone. `/pfe enable` out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
+    lockdown), or frames that stay gone after the re-enable (the release was not undone).
+
+10g. **Edit Mode through a stand-down.** In a party, `/pfe disable`, `/pfe debug on`, then open and
+    close Edit Mode (switch the party frames between raid-style and classic, so a resolve has
+    something to report) → no `[Provider]` line on the debug console. `/pfe enable`, then do the
+    same again → the resolve burst runs and a `[Provider]` line names the frames. *Failure:* a resolve line while disabled (the `EditMode.Exit`
+    callback survived the stand-down), or none after the re-enable (the stand-up did not take it back).
+
+10h. **The fade frames and holders through a stand-down in combat.** In a party, enter combat, then
+    `/pfe disable`. Still in combat,
+    `/run print(PartyFrameEnhanced_Fade_party1:IsShown(), PartyFrameEnhanced_castbar_Holder:IsShown())`
+    → `true true` (the hide waits for the lockdown to lift). Leave combat and run it again →
+    `false false`. `/pfe enable` → `true true`, and the elements come back where they were.
+    *Failure:* `ADDON_ACTION_BLOCKED` on the debug console (the hide was attempted under lockdown),
+    frames still shown after combat (the stand-down left them up), or frames still hidden after the
+    re-enable.
 
 ## C. Settings panel and the combat gate
 
@@ -129,6 +154,11 @@ One row per full pass. The newest row is the current iteration.
     does"*. `/pfe resetall` does the same act.
 20. `/pfe profile` → the sub-verb list; `/pfe profile new Test` → switched to a fresh `Test`;
     `/pfe profile use Default` → back.
+20a. **Bad profile names are refused.** `/pfe profile new Healer`; `/pfe set castbar.width 222`;
+    `/pfe profile use Default`; `/pfe profile new Healer` → one *already exists* line, and Healer
+    still has width 222. `/pfe profile copy Nope` and `/pfe profile copy <current>` → one refusal line
+    each, no Lua error frame. `/pfe profile use Typo` → refused, and `/pfe profile list` shows no
+    `Typo`. `/pfe profile delete Nope` → refused, no *Deleted* line.
 
 ## E. Debug console and perf harness
 
@@ -216,6 +246,10 @@ EllesmereUI's, where noted.
     a second straight away, with no need to retarget.
 36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
     target* → clicks pass through; ticking it back in combat applies when combat ends.
+36a. **Click to target toggled back in combat.** In combat, on Target Frames untick *Click to target*
+    and then tick it again before combat ends. After combat, left-click a target frame → you target
+    that unit. *Failure:* the frame ignores the click (the untick landed at regen and the re-tick was
+    lost), which needs a third toggle to recover.
 37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
     at once (the driver's `[combat]` clause) — no Lua error, no blocked-action message. Move a frame in
     free placement: refused in combat, allowed out of it.
@@ -300,29 +334,43 @@ EllesmereUI's, where noted.
 ## K. The launcher — minimap button and broker plugin
 
 53. **The button is there, wearing the addon's own logo.** Log in → a round button on the minimap ring
-    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → nothing
-    is required to appear (this addon supplies no tooltip yet). Drag it around the ring → it stays
+    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → the
+    status tooltip (launcher-§1): `Ka0s Party Frame Enhanced  v<the TOC version>`, `Enabled: Yes`
+    (green), `Locked: Yes` (green), `Left-click: Open settings`, `Right-click: Options menu`, and no
+    `Test mode` line. Unlock (`/pfe unlock`) and hover again → `Locked: No` (red), the same hints.
+    `/pfe disable` and hover → still shown, `Enabled: No` (red), the same hints; `/pfe enable` after.
+    *Failure:* no tooltip while disabled, a title or hint drawn twice, or a `Test mode` line (anti-
+    pattern #89). Drag it around the ring → it stays
     where you left it after `/reload`. *Failure:* a blank button is the 128 `.tga` not loading; a
     button that jumps back to its old angle on reload is `minimapPos` not being written to the table
     LibDBIcon was handed.
-54. **Left-click is the preview switch (rung b).** Left-click → the elements unlock exactly as
-    `/pfe unlock` unlocks them (stand-in out of a party, placeholders in one), and the General page's
-    *Lock frame* unticks if open. Left-click again → locked. In combat, left-click → the same gray
-    *cannot unlock during combat* and nothing moves. *Failure:* a left click that opens the settings
-    panel — the panel is already on the right button, so that is the rule skipped, not a choice
-    (launcher-§2, anti-pattern #81).
-55. **Right-click always opens the settings.** Right-click, locked or unlocked → the settings panel
-    opens on the landing page and the lock does not move. In combat → the same gray refusal `/pfe
-    config` gives.
+54. **Left-click always opens the settings.** Left-click, locked or unlocked, enabled or disabled →
+    the settings panel opens on the landing page and the lock does not move. In combat → the same
+    gray refusal `/pfe config` gives. *Failure:* a left click that unlocks — the retired rung (b)
+    (launcher-§2, standard v2.67.0).
+55. **Right-click opens the options menu.** Right-click → the client's context menu titled *Ka0s
+    Party Frame Enhanced*, with exactly two checkboxes, *Enabled* (ticked) and *Locked* (ticked),
+    and no *Test mode* or *Show window* entry. Click *Locked* → the elements unlock exactly as `/pfe
+    unlock` unlocks them (stand-in out of a party, placeholders in one), the General page's *Lock
+    frame* unticks if open, and the menu closes; right-click again → *Locked* unticked; click it →
+    locked. In combat, *Locked* → the same gray *cannot unlock during combat* and nothing moves.
+    Click *Enabled* → the same `enabled = false` echo `/pfe disable` prints and the addon goes down;
+    right-click → *Locked (enable the addon first)* grayed; click *Enabled* → back up with `/pfe
+    enable`'s echo. *Failure:* an entry whose effect or message differs from its slash verb's (a
+    second copy of the handler, anti-pattern #81), or a grayed entry that still acts.
 56. **The broker plugin is the same object.** With Titan Panel, ElvUI data texts or Bazooka installed,
-    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click unlocks, right-click
-    opens the settings. *Failure:* an empty value cell beside the icon means the object was registered
+    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click opens the settings,
+    right-click opens the same options menu. *Failure:* an empty value cell beside the icon means the object was registered
     as a `data source` rather than a `launcher`.
 57. **The Minimap button row, both ways.** General → Master controls → untick **Minimap button** → the
     button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.
-    Then hide it from **LibDBIcon's own right-click menu** instead and reopen the panel → the checkbox
-    is already unticked. *Failure:* the two disagreeing is a second copy of one state
-    (launcher-§3, anti-pattern #81).
+    (Right-click is the options menu, which carries no hide entry.) *Failure:* the checkbox and the
+    button disagreeing is a second copy of one state
+    (launcher-§3, anti-pattern #81). From the CLI: with the button visible, `/pfe get
+    global.minimap.shown` → `true`; `/pfe set global.minimap.shown false` hides it; `/reload` → still
+    hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not
+    found`. After logout the SavedVariables file shows `minimap = { hide = true, ... }` and no `shown`
+    key. *Failure:* a `shown` key in the file, or a button hidden before the upgrade coming back.
 58. **The button is account-wide furniture.** Hide the button, then: switch profiles (`/pfe profile
     new smoke`) → still hidden. Log in on a different character → still hidden. *Failure:* the button
     coming back on either means the table is profile-scoped, which launcher-§3 forbids.
@@ -331,7 +379,7 @@ EllesmereUI's, where noted.
     their defaults in the same press. Tick it back on and repeat both → it stays shown. *Failure:*
     either reset moving the row in either direction. Whether the button is on the minimap is a
     per-installation display preference, like the position it was dragged to, and no reset may touch
-    it (launcher-§3). `/pfe reset global.minimap.hide` is the deliberate exception and does reset it.
+    it (launcher-§3). `/pfe reset global.minimap.shown` is the deliberate exception and does reset it.
 
 ## T. Non-English client (locale)
 

@@ -23,8 +23,11 @@ local _, NS = ...
 -- UNLOCKING IS REFUSED IN COMBAT, with the addon disabled, and during a perf-run suspend. The
 -- clickable target and pet frames are secure: their state drivers cannot switch to "show" and
 -- nothing can be dragged until combat ends, so an unlock there would half-happen. The refusal puts
--- the stored value back and says why, in gray. LOCKING IS ALWAYS ALLOWED — whatever it cannot do at
--- once is queued for PLAYER_REGEN_ENABLED — so the refusal can never strand a player unlocked.
+-- the stored value back and says why: combat and a perf suspend in gray, and the disabled refusal
+-- as the collection's one line, NS.DisabledLine() (cli:DisabledLine(), slash-commands-§7), printed
+-- ungrayed exactly as the verbs and the launcher print it and never re-spelled here. LOCKING IS
+-- ALWAYS ALLOWED — whatever it cannot do at once is queued for PLAYER_REGEN_ENABLED — so the
+-- refusal can never strand a player unlocked.
 --
 -- ENTERING COMBAT RE-LOCKS, at PLAYER_REGEN_DISABLED while secure writes are still permitted, so no
 -- clickable placeholder and no stand-in anchor survives into the fight. That is where the old
@@ -37,7 +40,6 @@ NS.Preview = Preview
 
 local REFUSED_COMBAT = "|cff808080" ..
     L["cannot unlock during combat \226\128\148 the clickable frames cannot move until it ends"] .. "|r"
-local REFUSED_DISABLED  = "|cff808080" .. L["cannot unlock \226\128\148 the addon is disabled"] .. "|r"
 local REFUSED_SUSPENDED = "|cff808080" ..
     L["cannot unlock \226\128\148 a perf run has the addon suspended"] .. "|r"
 
@@ -76,11 +78,17 @@ end
 local ev = NS.NewBusTarget()
 Preview.__ev = ev
 
+local onCombat   -- PLAYER_REGEN_DISABLED's handler, defined below with forceLock
+
+-- What preview listens for, held only while preview is on: the roster, to swap the stand-in, and
+-- combat, to re-lock (review F-017: locked, neither has anything to do).
 local function listen(on)
     if on then
-        ev:RegisterEvent("GROUP_ROSTER_UPDATE", applyStandIn)
+        NS.SafeRegisterEvent(ev, "GROUP_ROSTER_UPDATE", applyStandIn, NS.RejectedEvents)
+        NS.SafeRegisterEvent(ev, "PLAYER_REGEN_DISABLED", onCombat, NS.RejectedEvents)
     else
         ev:UnregisterEvent("GROUP_ROSTER_UPDATE")
+        ev:UnregisterEvent("PLAYER_REGEN_DISABLED")
     end
 end
 
@@ -107,7 +115,12 @@ function NS.AcceptLock(locked)
     if locked ~= false then return true end   -- locking is always allowed
     local why
     if InCombatLockdown() then why = REFUSED_COMBAT
-    elseif NS.GetSetting("enabled") ~= true then why = REFUSED_DISABLED
+    elseif NS.GetSetting("enabled") ~= true then
+        -- The collection's line, read at call time, through the same printer the slash gate and
+        -- the launcher use, and not wrapped in gray: one line, one spelling, everywhere.
+        NS.Print(NS.DisabledLine())
+        if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+        return false
     elseif NS.Perf.suspended then why = REFUSED_SUSPENDED
     end
     if not why then return true end
@@ -151,9 +164,10 @@ function Preview:Suspend()
 end
 
 -- Combat re-locks while secure writes are still permitted, so nothing clickable survives into it.
-ev:RegisterEvent("PLAYER_REGEN_DISABLED", function()
+-- Registered by listen(on) above, only while preview is on.
+onCombat = function()
     forceLock(L["Locked \226\128\148 combat started"])
-end)
+end
 
 -- The disabled case is NOT here and is not an omission: the `enabled` row's onChange takes the
 -- latch's hold, which stands the addon down and ends preview through Suspend above, before this

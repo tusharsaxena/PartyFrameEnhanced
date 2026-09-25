@@ -1,38 +1,339 @@
 local _, NS = ...
 
--- settings/Schema.lua — the single source of truth for every user-facing setting (architecture-§5),
--- and the single write seam every writer goes through.
+-- settings/Schema.lua — the LibKa0s-Schema-1.0 seam (library-stack-§7). The single source of truth
+-- for every user-facing setting is the row array NS.Schema (architecture-§5); the machinery around
+-- it — the path primitives, the row index, the single write seam, the bulk bracket, the profile
+-- reset's count and the shape check — is the library's, bound here onto the host names every
+-- caller already uses, so no call site moved.
 --
 -- Each settings/<page>.lua registers its rows through NS.RegisterSchemaRows at file load. The
 -- panel (LibKa0s-Options-1.0), the CLI (LibKa0s-Slash-1.0: list/get/set/reset) and the reset paths
 -- all walk NS.Schema, so a new option is one row.
 --
--- Row fields this addon reads, beyond the library's own (docs/api Options "Row fields"):
+-- Row fields this addon reads, beyond the libraries' own (docs/api Options "Row fields", Schema
+-- "Row fields this major reads"):
 --   section  the CONFIG payload for the row: "master", "general", "castbar", "target", "pet".
 --            Derived from the path's first segment when absent; flat paths are "master".
---   onChange extra work beyond the CONFIG publish the seam always does.
---   validate function(value) → false to refuse a write before it is stored.
 --
 -- NO ROW CARRIES `disabledIf` on a color (options-ui-§17, anti-pattern #74).
 
 NS.Schema = NS.Schema or {}
 
--- path → row, maintained by RegisterSchemaRows. FindSchemaRow is on the write seam, which a color
--- picker drag reaches every 50 ms, so it is an index lookup rather than a walk.
-local byPath = {}
+-- THE ONE ROW STORED OUTSIDE THE PROFILE (launcher-§3): the minimap button, whose value LibDBIcon
+-- keeps in the ACCOUNT-WIDE `db.global.minimap`. settings/General.lua stamps its get/set onto the
+-- composed row; here it is only the source of two rules. A profile reset cannot reach it, so the
+-- reset count skips it; and no SWEEP this addon ships may rewrite it (`resetExempt`), while a named
+-- `/pfe reset global.minimap.shown` still does.
+--
+-- THE PATH READS IN THE ROW'S OWN SENSE (launcher-§3): it is the player's CLI name for a checkbox
+-- that says SHOWN, so it is `global.minimap.shown`. The STORED key is still LibDBIcon's `hide`,
+-- which the row's get/set invert onto; no `shown` key is ever stored (anti-pattern #81).
+local MINIMAP_PATH = "global.minimap.shown"
+NS.MINIMAP_PATH = MINIMAP_PATH
+local GLOBAL_PATHS = { [MINIMAP_PATH] = true }
 
--- ── registration and lookup ───────────────────────────────────────────────────────────────────
+--- Whether `path` lives in the global store rather than the profile. Asked by the reset count's
+--- predicate, the shape check's defaults root and settings/OptionsSetup.lua's Reset All veto.
+function NS.IsGlobalSetting(path)
+    return GLOBAL_PATHS[path] == true
+end
 
-function NS.RegisterSchemaRows(rows)
-    for _, row in ipairs(rows) do
-        NS.Schema[#NS.Schema + 1] = row
-        if row.path then byPath[row.path] = row end
+-- ── the degradation stub (LibKa0s docs/api/Schema/version-2-docs.md, "The degradation stub") ──
+--
+-- A library-less load still runs this addon's feature code and its host verbs, and both reach the
+-- seam: every show decision reads settings through it, and `/pfe enable|disable|lock|unlock`, the
+-- degraded Reset All and the combat re-lock (modules/Preview.lua forceLock) write through it. So
+-- the stub is WRITE-COMPLETING and LOG-SILENT: reads, writes, the row's reaction, the announce and
+-- the sweep veto are real; the [Set] line, the bracket's tally and the reset count, which only feed
+-- a debug console that build does not have, are not. Copied from LibKa0s tests/test_schema.lua's
+-- `referenceStub` (v1.56.0, Schema minor 2), whole: the instance parity pin needs every member.
+-- A deliberate, documented duplication — the section above names it and why.
+local HostSchemaStub = {}
+
+local function stubCopy(v)
+    if type(v) ~= "table" then return v end
+    local out = {}
+    for k, x in pairs(v) do out[k] = stubCopy(x) end
+    return out
+end
+
+function HostSchemaStub.SplitPath(path)
+    local parts = {}
+    if path ~= nil then
+        for seg in tostring(path):gmatch("[^%.]+") do parts[#parts + 1] = seg end
+    end
+    return parts
+end
+
+local function stubParts(p) return type(p) == "table" and p or HostSchemaStub.SplitPath(p) end
+
+function HostSchemaStub.Read(root, p, first)
+    local parts, node = stubParts(p), root
+    first = first or 1
+    if type(root) ~= "table" or #parts < first then return nil end
+    for i = first, #parts do
+        if type(node) ~= "table" then return nil end
+        node = node[parts[i]]
+    end
+    return node
+end
+
+function HostSchemaStub.Write(root, p, value, first)
+    local parts, node = stubParts(p), root
+    first = first or 1
+    if type(root) ~= "table" or #parts < first then return end
+    for i = first, #parts - 1 do
+        if type(node[parts[i]]) ~= "table" then node[parts[i]] = {} end
+        node = node[parts[i]]
+    end
+    node[parts[#parts]] = value
+end
+
+function HostSchemaStub.SameValue(a, b)
+    if a == b then return true end
+    if type(a) ~= "table" or type(b) ~= "table" then return false end
+    for k, v in pairs(a) do if not HostSchemaStub.SameValue(v, b[k]) then return false end end
+    for k in pairs(b) do if a[k] == nil then return false end end
+    return true
+end
+
+local STUB_BRAND = "PartyFrameEnhanced"
+
+--- The stub's registry: rows by reference, a linear first-match FindRow, Reindex a no-op.
+local function stubRegistry(S, d)
+    local rows = d.rows
+    function S.AllRows() return rows end
+    function S.FindRow(path)
+        if type(path) ~= "string" then return nil end
+        for _, row in ipairs(rows) do
+            if type(row) == "table" and row.path == path then return row end
+        end
+    end
+    function S.AddRows(list, at)
+        if type(list) ~= "table" then return 0 end
+        at = type(at) == "number" and math.floor(at) or #rows + 1
+        if at > #rows + 1 then at = #rows + 1 elseif at < 1 then at = 1 end
+        for i, row in ipairs(list) do table.insert(rows, at + i - 1, row) end
+        return #list
+    end
+    function S.Reindex() end
+end
+
+local function stubResolve(d, parts, id)
+    if type(d.resolveRoot) ~= "function" then return nil end
+    return d.resolveRoot(parts, id)
+end
+
+--- The write seam's order without its log and tally: refuse an unknown path (a listed writeThrough
+--- path is not unknown), validate, normalize, refuse a missing root. Answers the plan, or nil and
+--- the refusal. Set and SetMany share it.
+local function stubPrepare(S, d, through, path, value, id)
+    local row = S.FindRow(path) or through[path]
+    if not row then return nil, STUB_BRAND .. ": no setting " .. tostring(path) end
+    local w = { row = row, path = path, value = value, rid = id }
+    w.stored = type(row.set) ~= "function" and not row.sessionOnly
+    if w.stored then
+        w.parts = HostSchemaStub.SplitPath(path)
+        local r, f, got = stubResolve(d, w.parts, id)
+        if type(r) == "table" then w.root, w.first = r, f end
+        if got ~= nil then w.rid = got end
+    end
+    if type(row.validate) == "function" then
+        local ok, why = row.validate(value, w.rid)
+        if not ok then return nil, STUB_BRAND .. ": invalid value for " .. path, why end
+    end
+    if type(row.normalize) == "function" then
+        local out, why = row.normalize(value, w.rid)
+        if out == nil then return nil, STUB_BRAND .. ": invalid value for " .. path, why end
+        w.value = out
+    end
+    if w.stored and not w.root then return nil, STUB_BRAND .. ": nowhere to store " .. path end
+    return w
+end
+
+local function stubStore(w)
+    if type(w.row.set) == "function" then
+        w.row.set(w.value)
+    elseif w.stored then
+        HostSchemaStub.Write(w.root, w.parts, stubCopy(w.value), w.first)
     end
 end
 
-function NS.FindSchemaRow(path)
-    return byPath[path]
+local function stubReact(w)
+    if type(w.row.onChange) == "function" then w.row.onChange(w.value, w.rid) end
 end
+
+local function stubAnnounceAll(d, ws)
+    if #ws == 0 then return end
+    if type(d.announceBatch) == "function" then return d.announceBatch(ws, ws[1].rid) end
+    if type(d.announce) ~= "function" then return end
+    for _, w in ipairs(ws) do d.announce(w.row, w.path, w.value, w.rid) end
+end
+
+--- Set, and the all-or-nothing SetMany, over one shared preparation. Log-silent, so SetMany's
+--- `act` is not read at all.
+local function stubWrites(S, d, through)
+    function S.Set(path, value, id)
+        local w, err, why = stubPrepare(S, d, through, path, value, id)
+        if not w then return false, err, why end
+        stubStore(w)
+        stubReact(w)
+        if type(d.announce) == "function" then d.announce(w.row, path, w.value, w.rid) end
+        return true
+    end
+    function S.SetMany(entries, opts)
+        local id = type(opts) == "table" and opts.instanceId or nil
+        local ws = {}
+        for i, e in ipairs(type(entries) == "table" and entries or {}) do
+            if type(e) ~= "table" then e = {} end
+            local w, err, why = stubPrepare(S, d, through, e.path, e.value, id)
+            if not w then return false, err, why, i end
+            ws[i] = w
+        end
+        for _, w in ipairs(ws) do stubStore(w) end
+        for _, w in ipairs(ws) do stubReact(w) end
+        stubAnnounceAll(d, ws)
+        return true
+    end
+end
+
+--- The stub's bracket keeps its depth, because ApplyDefault's sweep veto reads it; it counts
+--- nothing, and the reset count exists only for a debug line, so it is 0 / nil.
+local function stubBracket(S)
+    local depth = 0
+    function S.BulkBegin() depth = depth + 1 end
+    function S.BulkEnd() if depth > 0 then depth = depth - 1 end end
+    function S.BulkRun(act, scope, fn)
+        S.BulkBegin(act, scope)
+        local ok, err = pcall(fn, { profileReset = false })
+        S.BulkEnd(act, scope)
+        if not ok then error(err, 0) end
+    end
+    function S.BulkAdd() end
+    function S.InBulk() return depth > 0 end
+    function S.CountOffDefault() return 0 end
+    function S.ResetCounted(fn) fn() end
+    function S.ConsumeResetCount() return nil end
+end
+
+-- Dot-defined with a placeholder receiver: called as SchemaLib:New{...}, like the library.
+function HostSchemaStub.New(_, d)
+    local S = {}
+    -- writeThrough: one synthetic row per listed path, built once. It has no validate, normalize,
+    -- set or onChange, so the store is raw (a copy) and announced; every other row-less path is
+    -- still refused.
+    local through = {}
+    for _, p in ipairs(type(d.writeThrough) == "table" and d.writeThrough or {}) do
+        if type(p) == "string" and p ~= "" then through[p] = { path = p, writeThrough = true } end
+    end
+    stubRegistry(S, d)
+    function S.Get(path, id)
+        local row = S.FindRow(path)
+        if row and type(row.get) == "function" then return row.get(id) end
+        if type(path) ~= "string" or (row and row.sessionOnly) then return nil end
+        local parts = HostSchemaStub.SplitPath(path)
+        local root, first = stubResolve(d, parts, id)
+        if type(root) ~= "table" then return nil end
+        return HostSchemaStub.Read(root, parts, first)
+    end
+    stubWrites(S, d, through)
+    stubBracket(S)
+    function S.Default(path)
+        local row = S.FindRow(path)
+        return row and stubCopy(row.default)
+    end
+    function S.ApplyDefault(row, id)
+        if type(row) ~= "table" or type(row.path) ~= "string" or row.default == nil then return false end
+        local exempt = d.resetExempt
+        if S.InBulk() and type(exempt) == "table" and exempt[row.path] then return false end
+        return S.Set(row.path, stubCopy(row.default), id)
+    end
+    function S.Validate()
+        if type(d.print) == "function" then
+            d.print(STUB_BRAND .. ": LibKa0s-Schema-1.0 is missing, so the schema was not checked")
+        end
+        return 0, 0, 0
+    end
+    return S
+end
+
+-- ── the instance ──────────────────────────────────────────────────────────────────────────────
+
+local SchemaLib = LibStub and LibStub("LibKa0s-Schema-1.0", true) or HostSchemaStub
+
+local function sectionOf(row)
+    if row.section then return row.section end
+    local first = row.path:match("^([^%.]+)%.")
+    return first or "master"
+end
+
+-- The one sender of CONFIG (architecture-§4).
+local function publishConfig(section)
+    if NS.bus then NS.bus:SendMessage(NS.MSG.CONFIG, section) end
+end
+
+-- What a profile reset can reach: not the global minimap row, and not a Profiles page row.
+local function profilePred(row)
+    return not NS.IsGlobalSetting(row.path) and row.page ~= "profiles"
+end
+
+local inst = SchemaLib:New({
+    rows        = NS.Schema,
+    resolveRoot = function() return NS.db and NS.db.profile, 1 end,
+    -- A session row stores nothing an element renders from, and a written-through path (below) is
+    -- a composed row that is not there to carry a reaction: neither is announced.
+    announce    = function(row)
+        if not row.sessionOnly and not row.writeThrough then publishConfig(sectionOf(row)) end
+    end,
+    -- Forwarded at call time: the debug sink and the chat printer are swapped under test.
+    debug        = function(tag, fmt, ...) NS.Debug(tag, fmt, ...) end,
+    debugEnabled = function() return NS.State and NS.State.debug end,
+    format       = function(row, v) return NS.FormatSchemaValue(row, v) end,
+    print        = function(line) if NS.Print then NS.Print(line) end end,
+    resetExempt  = GLOBAL_PATHS,
+    -- options-ui-§1 route (a). On a library-less load the Master controls composer is hollow, so
+    -- `enabled` and `locked` have no row there, but settings/Slash.lua's runEnabled and runLock and
+    -- modules/Preview.lua's forceLock (the combat, master-switch and perf re-lock) still write them.
+    -- Listed, the write lands raw, with no row's onChange; on a full load the composed row takes it.
+    writeThrough = { "enabled", "locked" },
+})
+
+-- Published for the surface-parity pins (tests/test_surface_parity.lua) and suite cleanup.
+NS.__schema, NS.__schemaLib = inst, SchemaLib
+
+-- ── the host names, bound onto the instance ──────────────────────────────────────────────────
+
+function NS.RegisterSchemaRows(rows) inst.AddRows(rows) end
+NS.FindSchemaRow = inst.FindRow
+NS.SetByPath     = inst.Set
+NS.ApplyDefault  = inst.ApplyDefault
+NS.Bulk = { Begin = inst.BulkBegin, End = inst.BulkEnd, Run = inst.BulkRun }
+
+-- Allocation-free on a warm path: tests/perf.lua's resolveUnchanged is pinned at 0 bytes/iter.
+NS.ResolvePath = SchemaLib.Read
+NS.SetPath     = SchemaLib.Write
+
+--- Read a setting: the row's own get, else the profile, else the shipped default (which is also
+--- the answer before the db opens).
+function NS.GetSetting(path)
+    local v = inst.Get(path)
+    if v ~= nil then return v end
+    return SchemaLib.Read(NS.defaults and NS.defaults.profile, path)
+end
+
+-- ── the profile reset's count (debug-logging-§10) ────────────────────────────────────────────
+--
+-- `[Set] reset profile '<name>' to defaults (N rows)` counts the rows the reset CHANGED, which only
+-- a caller running before the reset can know. Every reset this addon drives goes through
+-- NS.ResetProfileCounted; a reset it did not drive (an AceDBOptions button) logs no count.
+
+function NS.ProfileRowsOffDefault() return inst.CountOffDefault(profilePred) end
+
+function NS.ResetProfileCounted(db)
+    inst.ResetCounted(function() db:ResetProfile() end, profilePred)
+end
+
+NS.ConsumeResetCount = inst.ConsumeResetCount
 
 --- Rows for one page, grouped in first-registration order and ordered by `order` within a group.
 --- Sorting on `order` alone would interleave groups and break the tab partition (options-ui-§13).
@@ -53,241 +354,6 @@ function NS.SchemaForPage(pageKey)
     return out
 end
 
--- ── dotted paths ──────────────────────────────────────────────────────────────────────────────
-
---- The value at a dotted path, or nil. ALLOCATION-FREE, and that is measured rather than tidy:
---- the show decision reads `general.includePlayer` per element per pass and the provider pick reads
---- `general.provider` per resolve, and a `gmatch` walk built an iterator closure every time
---- (tests/perf.lua's resolveUnchanged went 88 → 0 bytes/iter). `sub` over a path this addon owns
---- yields strings Lua has already interned, so the walk creates nothing.
-function NS.ResolvePath(tbl, path)
-    if type(tbl) ~= "table" or type(path) ~= "string" then return nil end
-    local start = 1
-    local node = tbl
-    while true do
-        local dot = path:find(".", start, true)
-        local segment = path:sub(start, dot and dot - 1 or -1)
-        node = node[segment]
-        if dot == nil or node == nil then return node end
-        if type(node) ~= "table" then return nil end
-        start = dot + 1
-    end
-end
-
-function NS.SetPath(tbl, path, value)
-    if type(tbl) ~= "table" or type(path) ~= "string" then return end
-    local segments = {}
-    for segment in path:gmatch("[^%.]+") do segments[#segments + 1] = segment end
-    if #segments == 0 then return end
-    local node = tbl
-    for i = 1, #segments - 1 do
-        local key = segments[i]
-        if type(node[key]) ~= "table" then node[key] = {} end
-        node = node[key]
-    end
-    node[segments[#segments]] = value
-end
-
--- ── session settings ──────────────────────────────────────────────────────────────────────────
---
--- A row whose value is NOT in the profile: today only the Master controls tab's debug console
--- toggle (`state.debugConsole`), whose real home is the console window's own visibility.
-local sessionSettings = {}
-
-function NS.RegisterSessionSetting(path, spec)
-    if type(path) ~= "string" or type(spec) ~= "table" then return end
-    sessionSettings[path] = spec
-end
-
--- ── global settings ───────────────────────────────────────────────────────────────────────────
---
--- A STORED row whose value is not in the profile but in the ACCOUNT-WIDE global store: today only
--- the Master controls tab's minimap button (`global.minimap.hide`), which launcher-§3 fixes at
--- `db.global.minimap` so a profile switch cannot move the player's buttons -- a profile is how a
--- player configures what the addon DRAWS, while the ring of buttons around the minimap is furniture
--- they arranged once.
---
--- The composer takes that path VERBATIM and unprefixed, so it resolves against nothing under
--- `db.profile` and the ordinary read/write below would answer nil forever. The row's owner registers
--- how to read and write it instead -- the same shape a session row uses, for the same reason: the
--- seam stays the one seam, and where a value lives stays the owner's answer.
---
--- A global row is NOT sessionOnly. It is stored, and it SURVIVES EVERY RESET THIS ADDON SHIPS --
--- *Reset all settings* and a page's own *Defaults* button alike. That is launcher-§3's property
--- rather than an accident of scope, and settings/OptionsSetup.lua's `exemptFromReset` is the one
--- place that says so; NS.IsGlobalSetting below is what it asks.
-local globalSettings = {}
-
-function NS.RegisterGlobalSetting(path, spec)
-    if type(path) ~= "string" or type(spec) ~= "table" then return end
-    globalSettings[path] = spec
-end
-
---- Whether `path` is answered by the global registry rather than by the profile. Read by the schema
---- validator (which resolves a global path against NS.defaults, not defaults.profile) and by the
---- profile-reset tally (which must not count a row the reset cannot reach).
-function NS.IsGlobalSetting(path)
-    return globalSettings[path] ~= nil
-end
-
---- Read a setting: the session registry first, then the profile, then the shipped default.
-function NS.GetSetting(path)
-    local session = sessionSettings[path]
-    if session then return session.get() end
-    local global = globalSettings[path]
-    if global then return global.get() end
-    local db = NS.db
-    if db and db.profile then
-        local val = NS.ResolvePath(db.profile, path)
-        if val ~= nil then return val end
-    end
-    return NS.ResolvePath(NS.defaults and NS.defaults.profile, path)
-end
-
---- Store a setting without any side effect. Every caller outside this file uses NS.SetByPath.
-function NS.SetSetting(path, value)
-    local session = sessionSettings[path]
-    if session then
-        session.set(value)
-        return
-    end
-    local global = globalSettings[path]
-    if global then
-        global.set(value)
-        return
-    end
-    local db = NS.db
-    if db and db.profile then NS.SetPath(db.profile, path, value) end
-end
-
--- ── the write seam ────────────────────────────────────────────────────────────────────────────
-
-local function sectionOf(row)
-    if row.section then return row.section end
-    local first = row.path:match("^([^%.]+)%.")
-    return first or "master"
-end
-
--- The one sender of CONFIG (architecture-§4).
-local function publishConfig(section)
-    if NS.bus then NS.bus:SendMessage(NS.MSG.CONFIG, section) end
-end
-
--- The bulk bracket (debug-logging-§10): a bulk reset through this seam is ONE
--- `[Set] <act> <scope>: N rows` line. While a bracket is open the seam still stores, fires onChange
--- and publishes per row, but tallies the writes that CHANGED a value instead of logging each. A
--- depth, so a bracket inside a bracket is still one act; a whole-profile reset logs nothing here,
--- because NS.OnProfileReset logs it once.
-local bulkDepth, bulkWrites, bulkProfileReset, bulkFailed = 0, 0, false, false
-
-local function sameValue(a, b)
-    if a == b then return true end
-    if type(a) ~= "table" or type(b) ~= "table" then return false end
-    for k, v in pairs(a) do
-        if not sameValue(v, b[k]) then return false end
-    end
-    for k in pairs(b) do
-        if a[k] == nil then return false end
-    end
-    return true
-end
-
---- Write `value` at `path`, run the row's onChange, and publish CONFIG for the row's section. The
---- single write seam for every schema path (architecture-§5): the panel, `/pfe set`, `/pfe lock`,
---- resets — all land here, so the CLI and the panel cannot drift onto different code paths.
-function NS.SetByPath(path, value)
-    local row = byPath[path]
-    -- A row may refuse a value BEFORE anything is stored — the lock refuses an unlock in combat.
-    -- Refused here, the value never lands, so no writer has to put it back and no [Set] line
-    -- claims a write that did not stick (architecture-§5).
-    if row and row.validate and not row.validate(value) then
-        NS.Debug("Set", "%s refused", path)
-        return false
-    end
-    -- The old value is read only inside a bracket: outside one it is needed for nothing.
-    local changed = bulkDepth > 0 and not sameValue(NS.GetSetting(path), value)
-    NS.SetSetting(path, value)
-    if bulkDepth > 0 then
-        if changed then bulkWrites = bulkWrites + 1 end
-    elseif NS.State and NS.State.debug then
-        NS.Debug("Set", "%s = %s", path, row and NS.FormatSchemaValue(row, value) or tostring(value))
-    end
-    if not row then return true end
-    if row.onChange then row.onChange(value) end
-    -- Session rows store nothing an element renders from; nothing needs to hear about them.
-    if not row.sessionOnly then publishConfig(sectionOf(row)) end
-    return true
-end
-
-NS.Bulk = {}
-
-function NS.Bulk.Begin()
-    if bulkDepth == 0 then bulkWrites, bulkProfileReset, bulkFailed = 0, false, false end
-    bulkDepth = bulkDepth + 1
-end
-
---- `bulkEnd(act, scope, count, err, info)`'s shape; `count` is ignored, because N is the rows that
---- changed, not the rows the library walked.
-function NS.Bulk.End(act, scope, _, err, info)
-    if bulkDepth == 0 then return end
-    bulkDepth = bulkDepth - 1
-    if info and info.profileReset then bulkProfileReset = true end
-    if err ~= nil then bulkFailed = true end
-    if bulkDepth > 0 or bulkProfileReset then return end
-    NS.Debug("Set", "%s %s: %d rows%s", tostring(act), tostring(scope), bulkWrites,
-        bulkFailed and " (stopped by an error)" or "")
-end
-
---- Run a bulk act inside a bracket that always closes, even when the walk raises.
-function NS.Bulk.Run(act, scope, walk)
-    local info = { profileReset = false }
-    local ok, err = pcall(function()
-        NS.Bulk.Begin(act, scope)
-        walk(info)
-    end)
-    NS.Bulk.End(act, scope, nil, err, info)
-    if not ok then error(err, 0) end
-end
-
--- ── the profile reset's count (debug-logging-§10) ────────────────────────────────────────────
---
--- `[Set] reset profile '<name>' to defaults (N rows)` counts the rows the reset CHANGED, which only
--- a caller running before the reset can know. Every reset this addon drives goes through
--- NS.ResetProfileCounted; a reset it did not drive (an AceDBOptions button) logs no count.
-local pendingResetCount
-
-function NS.ProfileRowsOffDefault()
-    local n = 0
-    for _, row in ipairs(NS.Schema) do
-        -- A global row is skipped for the same reason a session row is: a profile reset cannot
-        -- reach it, so counting it would claim a write the reset never makes.
-        if row.path and not row.sessionOnly and not globalSettings[row.path] and row.page ~= "profiles"
-            and not sameValue(NS.GetSetting(row.path), row.default) then
-            n = n + 1
-        end
-    end
-    return n
-end
-
-function NS.ResetProfileCounted(db)
-    pendingResetCount = NS.ProfileRowsOffDefault()
-    local ok, err = pcall(db.ResetProfile, db)
-    pendingResetCount = nil
-    if not ok then error(err, 0) end
-end
-
-function NS.ConsumeResetCount()
-    local n = pendingResetCount
-    pendingResetCount = nil
-    return n
-end
-
---- Reset one row to its default through the seam, so it logs and reacts like any other write.
-function NS.ApplyDefault(row)
-    if row.default == nil then return end
-    NS.SetByPath(row.path, NS.Util.DeepCopy(row.default))
-end
-
 -- ── value formatting ──────────────────────────────────────────────────────────────────────────
 
 -- Resolved once at load: LibKa0s.xml loads in the lib block, long before this file.
@@ -305,68 +371,23 @@ end
 -- ── validation ────────────────────────────────────────────────────────────────────────────────
 --
 -- Run once when the panel registers. Catches a misspelled page or type, a missing path or group,
--- and (architecture-§5) any path that does not resolve against the defaults. Prints; never refuses.
+-- a duplicate path, and (architecture-§5) any stored path that does not resolve against the
+-- defaults. Prints; never refuses.
 
 local VALID_PAGES = { general = true, castbar = true, target = true, pet = true, profiles = true }
-local VALID_TYPES = { bool = true, number = true, string = true, color = true }
 
-local function schemaError(where, msg)
-    if NS.Print then NS.Print("|cffff0000schema error|r: " .. where .. ": " .. msg) end
+--- Where a row's declared default lives: defaults.profile, or no tree at all. A Profiles page row
+--- is in none. Nor is the GLOBAL minimap row: its path (`global.minimap.shown`) names the row's own
+--- shown sense, while its get/set closures invert onto the stored `global.minimap.hide`, so the
+--- path is not a storage path and there is nothing for it to resolve against -- exempt the way a
+--- sessionOnly row is. The storage default is pinned by tests/test_schema.lua instead.
+local function defaultsRoot(_, row)
+    if NS.IsGlobalSetting(row.path) then return nil end
+    if row.page == "profiles" then return nil end
+    return NS.defaults and NS.defaults.profile, 1
 end
 
---- Where a row's declared default lives, and what to call it in the error. A GLOBAL row's path is
---- absolute over NS.defaults (`global.minimap.hide`), not relative to defaults.profile. Still
---- resolved either way: architecture-§5's rule is that every row's path has a declared default
---- behind it, and where that default lives does not excuse a row from having one. Lifted out of
---- ValidateSchema rather than inlined, to keep that walk under the complexity gate.
-local function defaultsFor(row, profileDefaults)
-    if globalSettings[row.path] then return NS.defaults, "NS.defaults" end
-    return profileDefaults, "defaults.profile"
-end
-
---- The four declarative checks over one row: it names a path, a page and a type this addon knows,
---- and (options-ui-§13) a group to sit in unless it is a Profiles row, which the profiles page lays
---- out itself. Reports each independently rather than stopping at the first, so one bad row prints
---- everything wrong with it in a single pass. Returns the error count and whether the path is
---- usable, which is what decides if the caller can go on to resolve it against the defaults.
---- Lifted out of ValidateSchema rather than inlined, alongside defaultsFor above and for the same
---- reason: a run of independent guards reads to the complexity gate as branching, and what remains
---- in ValidateSchema is then the walk itself.
-local function validateRowShape(row, where)
-    local errors = 0
-    local hasPath = type(row.path) == "string" and row.path ~= ""
-    if not hasPath then
-        schemaError(where, "missing or empty `path`"); errors = errors + 1
-    end
-    if not VALID_PAGES[row.page] then
-        schemaError(where, "invalid `page` = " .. tostring(row.page)); errors = errors + 1
-    end
-    if not VALID_TYPES[row.type] then
-        schemaError(where, "invalid `type` = " .. tostring(row.type)); errors = errors + 1
-    end
-    if row.page ~= "profiles" and type(row.group) ~= "string" then
-        schemaError(where, "missing `group` (options-ui-§13)"); errors = errors + 1
-    end
-    return errors, hasPath
-end
-
---- Returns shape `errors`, paths `resolved` against defaults.profile, and `missing` paths.
+--- Returns shape `errors`, paths `resolved` against the defaults, and `missing` paths.
 function NS.ValidateSchema()
-    local errors, resolved, missing = 0, 0, 0
-    local defaults = (NS.defaults and NS.defaults.profile) or {}
-    for i, row in ipairs(NS.Schema) do
-        local where = "row #" .. i .. " (" .. tostring(row.path or "<no path>") .. ")"
-        local shapeErrors, hasPath = validateRowShape(row, where)
-        errors = errors + shapeErrors
-        if hasPath and row.page ~= "profiles" and not row.sessionOnly then
-            local against, label = defaultsFor(row, defaults)
-            if NS.ResolvePath(against, row.path) ~= nil then
-                resolved = resolved + 1
-            else
-                schemaError(where, "`path` does not resolve against " .. label)
-                missing = missing + 1
-            end
-        end
-    end
-    return errors, resolved, missing
+    return inst.Validate({ pages = VALID_PAGES, defaultsRoot = defaultsRoot })
 end

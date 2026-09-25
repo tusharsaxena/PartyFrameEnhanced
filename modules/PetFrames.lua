@@ -5,8 +5,9 @@ local _, NS = ...
 --
 -- UPDATES are all events, no ticker: UNIT_PET on the owner (a pet summoned, dismissed or swapped)
 -- repaints everything; UNIT_HEALTH / UNIT_MAXHEALTH / UNIT_NAME_UPDATE on the pet token repaint what
--- they name. Both are RegisterUnitEvent on the button's own frame (the documented deviation in
--- docs/ARCHITECTURE.md). RAID_TARGET_UPDATE repaints the markers, one pass on the module's own target.
+-- they name. Both are RegisterUnitEvent on the button's own frame (not a deviation; see Event
+-- Subscriptions in docs/ARCHITECTURE.md). RAID_TARGET_UPDATE repaints the markers, one pass on the
+-- module's own target.
 --
 -- COLOR: the stored bar color, or the OWNER's class color with "Use class color" on — the pet frame
 -- describes a party member's pet, and the owner's class is what identifies whose it is. An owner is
@@ -60,7 +61,14 @@ local function paintPreview(btn)
 end
 
 local function refresh(btn)
-    local allowed = not suspended and UnitButtons.Allowed(cfg, btn.unit)
+    -- Stood down, the driver is unregistered, not replaced with "hide" (slash-commands-§7); a
+    -- feature that is merely off keeps its "hide" driver. Resume's refreshAll re-installs it.
+    if suspended then
+        btn.__allowed = false
+        UnitButtons.Release(btn)
+        return
+    end
+    local allowed = UnitButtons.Allowed(cfg, btn.unit)
     btn.__allowed = allowed
     UnitButtons.ApplyDriver(btn, UnitButtons.Driver(btn.token, allowed, NS.State.preview))
     if not allowed then return end
@@ -80,7 +88,10 @@ local function onEvent(btn, event)
         UnitButtons.RenderName(btn, btn.token, cfg.showName)
     else
         paintAll(btn)   -- UNIT_PET: a different pet (or none) behind the token
-        NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
+        -- Guarded so the UnitName argument is not built at all with debug off.
+        if NS.State.debug then
+            NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
+        end
     end
     if t0 then Perf.Note("petEvent", debugprofilestop() - t0) end
 end
@@ -92,19 +103,38 @@ local function wantedEvents(on, unit)
     return gen.updateHealth and "health" or "name"
 end
 
+-- The module's own bus target. Hoisted above syncEvents, which holds RAID_TARGET_UPDATE on it
+-- while the feature is on and in a party; the message receivers are registered at the bottom.
+local ev = NS.NewBusTarget()
+PetFrames.__ev = ev
+local moduleListening = false
+local onRaidTarget   -- RAID_TARGET_UPDATE's handler, defined at the bottom of the file
+
+-- RAID_TARGET_UPDATE follows the same answer as the per-button registrations, so solo and
+-- feature-off pay no dispatch for it (review F-017). Re-registered only when that answer flips.
+local function syncModuleEvents(on)
+    on = on and true or false
+    if on == moduleListening then return end
+    if on then NS.SafeRegisterEvent(ev, "RAID_TARGET_UPDATE", onRaidTarget, NS.RejectedEvents)
+    else ev:UnregisterEvent("RAID_TARGET_UPDATE") end
+    moduleListening = on
+end
+
 local function syncEvents()
     local on = not suspended and cfg.enabled and Element.MasterShows() and Units.InParty()
+    syncModuleEvents(on)
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         local want = wantedEvents(on, unit)
         if (btn.__registered or false) ~= want then
             btn:UnregisterAllEvents()
             if want then
-                btn:RegisterUnitEvent("UNIT_PET", unit)
-                btn:RegisterUnitEvent("UNIT_NAME_UPDATE", btn.token)
+                local rejected = NS.RejectedEvents
+                NS.SafeRegisterUnitEvent(btn, "UNIT_PET", rejected, unit)
+                NS.SafeRegisterUnitEvent(btn, "UNIT_NAME_UPDATE", rejected, btn.token)
                 if want == "health" then
-                    btn:RegisterUnitEvent("UNIT_HEALTH", btn.token)
-                    btn:RegisterUnitEvent("UNIT_MAXHEALTH", btn.token)
+                    NS.SafeRegisterUnitEvent(btn, "UNIT_HEALTH", rejected, btn.token)
+                    NS.SafeRegisterUnitEvent(btn, "UNIT_MAXHEALTH", rejected, btn.token)
                 end
             end
             btn.__registered = want
@@ -136,10 +166,13 @@ function PetFrames:OnEnable()
     end
     NS.Anchor.Register({
         key = "pet", label = L["Pet frames"], secure = true, elements = buttons,
-        config = function() return cfg end,
+        -- LIVE reads, never the `cfg` upvalue: this feature's PROFILE handler may run after
+        -- Anchor's (modules/Anchor.lua, placementOf).
+        config = function() return NS.db.profile.pet end,
         slotSize = function()
             local scale = NS.GetSetting("scale") or 1
-            return (cfg.width or 80) * scale, (cfg.height or 14) * scale
+            local c = NS.db.profile.pet
+            return (c.width or 80) * scale, (c.height or 14) * scale
         end,
         defaultPosition = { "CENTER", -220, -180 },
     })
@@ -158,9 +191,6 @@ function PetFrames:Resume()
     syncEvents()
     refreshAll()
 end
-
-local ev = NS.NewBusTarget()
-PetFrames.__ev = ev
 
 local function whenReady(fn)
     return function(...) if cfg then fn(...) end end
@@ -185,11 +215,12 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 
--- Markers change for every unit at once; one repaint pass over the allowed buttons.
-ev:RegisterEvent("RAID_TARGET_UPDATE", whenReady(function()
+-- Markers change for every unit at once; one repaint pass over the allowed buttons. Held by
+-- syncModuleEvents above, only while the feature is on and in a party.
+onRaidTarget = whenReady(function()
     if NS.State.preview or not cfg.showMarker then return end
     for _, unit in ipairs(Units.LIST) do
         local btn = buttons[unit]
         if btn.__allowed then Compat.RaidMarker(btn.marker, btn.token) end
     end
-end))
+end)

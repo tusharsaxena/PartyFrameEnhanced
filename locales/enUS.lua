@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- locales/enUS.lua — the canonical locale (localization-§1).
 --
 -- A metatable fallback returns the key itself, so an unlisted English string still renders and a
@@ -6,7 +8,6 @@
 --
 -- Every label and tooltip this addon authors has its key here. Labels the library's composers emit
 -- (Master controls, font/border/bar groups) are the library's own strings and are not listed.
-local _, NS = ...
 
 local L = setmetatable(NS.L or {}, { __index = function(_, k) return k end })
 NS.L = L
@@ -28,7 +29,7 @@ L["Fade each party member's cast bar, target frame and pet frame along with thei
 
 -- Shared element rows (settings/ElementRows.lua)
 for _, key in ipairs({
-    "General", "Position", "Placement", "Attached to party frames", "Free placement", "Size",
+    "General", "Placement", "Attached to party frames", "Free placement", "Size",
     "Border", "Text", "Font", "Bar", "Fill", "Background", "Background color", "Icon",
     "Top left", "Top", "Top right", "Left", "Center", "Right", "Bottom left", "Bottom", "Bottom right",
     "Attach to party frames", "Down", "Up",
@@ -96,7 +97,6 @@ for _, key in ipairs({
 -- only switch (options-ui-§15), so every string here is worded around locking and unlocking.
 for _, key in ipairs({
     "(test)",
-    "cannot unlock \226\128\148 the addon is disabled",
     "cannot unlock \226\128\148 a perf run has the addon suspended",
     "Locked \226\128\148 combat started",
     "Locked \226\128\148 the addon was disabled",
@@ -131,23 +131,25 @@ for _, key in ipairs({
     "Print the addon version",
     "Profile management \226\128\148 try `/pfe profile` for the list",
     "Positions reset",
-    "All settings reset to defaults", "All settings reset to defaults.",
+    "All settings reset to defaults",
     "Cannot reset settings \226\128\148 the settings helpers failed to load",
-    "Cannot reset settings \226\128\148 the settings helpers failed to load.",
     "Elements locked", "Elements unlocked \226\128\148 drag them into place",
     "off", "on, free placement", "on, attached", "addon disabled", "visibility %s", "unlocked",
     "suspended by a perf run", "Frame system: %s",
     "Range fade: %s", "copied from %s", "own range check (classic frames)", "waiting for party frames",
     "not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)", "none found", "frame", "Note: %s",
+    "Events the client refused: %s",
     "List all profiles", "Show current profile name", "Switch to profile",
     "Create new profile with defaults", "Copy settings from another profile", "Delete a profile",
     "Reset current profile to defaults", "Profile commands", "Usage: /pfe profile %s <name>",
     "Available profiles", "(current)", "Current profile: %s", "Switched to profile '%s'",
     "Created and switched to new profile '%s'", "Copied settings from profile '%s'",
     "Cannot delete the current profile", "Deleted profile '%s'", "Profile reset to defaults",
+    "Profile '%s' already exists \226\128\148 use /pfe profile use or /pfe profile reset",
+    "No profile named '%s' \226\128\148 /pfe profile list shows them",
+    "Cannot copy the current profile onto itself",
     "Profile system requires AceDB-3.0", "Unknown profile subcommand '%s'",
-    "is unavailable.", "v%s \226\128\148 slash commands", "unknown command '%s'",
-    "/pfe %s does nothing while the addon is off \226\128\148 /pfe enable turns it back on",
+    "%s is unavailable: the LibKa0s library did not load.", "v%s \226\128\148 slash commands", "unknown command '%s'",
     "Slash Commands",
     "Player", "Party 1", "Party 2", "Party 3", "Party 4",
 }) do L[key] = key end
@@ -159,3 +161,15 @@ L["Yes"] = "Yes"
 L["No"] = "No"
 L["Restore every General setting on this profile to its addon default."] =
     "Restore every General setting on this profile to its addon default."
+
+-- Frame-system labels (modules/Providers.lua; "EllesmereUI" is listed with the General page above)
+L["Blizzard (raid-style)"] = "Blizzard (raid-style)"
+L["Blizzard (classic)"] = "Blizzard (classic)"
+
+-- The debug seam's degraded stub (core/DebugLogSetup.lua)
+L["debug logging %s"] = "debug logging %s"
+L["Debug console"] = "Debug console"
+
+-- Migration runner (core/Database.lua)
+L["Settings migration to v%d failed; your settings were left as they were"] =
+    "Settings migration to v%d failed; your settings were left as they were"

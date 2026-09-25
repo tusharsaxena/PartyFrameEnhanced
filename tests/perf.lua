@@ -224,38 +224,61 @@ local drag = measure("settingsDrag", 200, function(i)
   NS.SetByPath("castbar.barColor", { r = (i % 10) / 10, g = 0.5, b = 0, a = 1 })
 end)
 
--- 8. Zero overhead: the busiest event path with capture off vs on (performance-§2, §9).
+-- 8. Zero overhead: the busiest event path with capture off, pinned against the instrumentation
+--    being absent (performance-§2, §9). The bracket `local t0 = Perf.on and debugprofilestop()`
+--    cannot be compiled out, so "absent" is stood in for by counting the bracket's only two entry
+--    points — the clock read and Perf.Note — and requiring zero of either per iteration while
+--    Perf.on is false. A dormant bracket that reaches neither does exactly what an absent one does
+--    apart from one table read and one branch. Comparing capture-off with capture-on instead would
+--    pass a dormant bracket that allocated as much as an armed one. Modules resolve
+--    `debugprofilestop` through the mock environment and read `Perf.Note` off the shared instance
+--    at call time, so both wrappers see every bracket. No wall-clock assertion: timings here are
+--    orientation only.
 local function castOnce()
   mocks.__casts.party1 = CASTS.party1
   bars.party1:__fire("OnEvent", "UNIT_SPELLCAST_START", "party1")
   mocks.__casts.party1 = nil
   bars.party1:__fire("OnEvent", "UNIT_SPELLCAST_STOP", "party1")
 end
+local bracketCalls = 0
+local origClock, origNote = mocks.debugprofilestop, NS.Perf.Note
+mocks.debugprofilestop = function(...) bracketCalls = bracketCalls + 1; return origClock(...) end
+NS.Perf.Note = function(...) bracketCalls = bracketCalls + 1; return origNote(...) end
 local probeOff = measure("probeOverheadOff", N, castOnce)
+local bracketOffPerIter = bracketCalls / N
+bracketCalls = 0
 NS.Perf.on = true
 local probeOn = measure("probeOverheadOn", N, castOnce)
 NS.Perf.on = false
-assert_(probeOff.bytesPerIter <= probeOn.bytesPerIter + 1,
-  "a dormant bracket allocated more than an armed one — the gating idiom is wrong")
+local bracketOnPerIter = bracketCalls / N
+mocks.debugprofilestop, NS.Perf.Note = origClock, origNote
+assert_(bracketOffPerIter == 0,
+  ("a dormant bracket made %.1f clock/Perf.Note calls per pass; capture off must reach neither"):format(
+    bracketOffPerIter))
+-- The counters are live: the same path, armed, does reach them — otherwise the zero above is vacuous.
+assert_(bracketOnPerIter > 0, "the bracket counters saw no calls with capture on; the zero-overhead check is blind")
 assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many API calls a pass makes")
 
 -- ── ceilings ────────────────────────────────────────────────────────────────────────────────
 --
--- Measured on 2026-09-15, after the perf pass (docs/performance.md records the before/after): every
--- hot path at 0 bytes/iter except castStartStop at 16.6 — five full start/stop cycles per iteration,
--- the residue unattributed after the mock's own recorders were made allocation-free, and constant
--- across runs. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
+-- Set on 2026-09-15, after the perf pass (docs/performance.md records the before/after): every
+-- hot path at 0 bytes/iter except castStartStop at 16.6 then, five full start/stop cycles per
+-- iteration. Re-measured on 2026-09-24: castStartStop is 3.6 (it dropped at a8e3a44, the
+-- stand-down latch, and reads 3.6 or 5.4 from one commit to the next with no cast-path change;
+-- one tree always gives the same figure), and every other hot path is still 0. The ceilings were
+-- left where they were set. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
 -- it exists to catch — one extra table per iteration costs 64 bytes under this interpreter — so the
 -- smallest allocation anyone can add to one of these paths trips it. Raise one only by re-measuring
 -- and saying why; a rise IS the finding.
 --
 -- settingsDrag is reported and deliberately unasserted: it runs only while a player drags a control,
--- its figure is the structure signature string the reskin memo builds, and a guessed ceiling would
--- gate on nothing.
+-- a guessed ceiling would gate on nothing, and 288 of its 925.9 bytes are the kit mock's own garbage
+-- (six no-op closures its catch-all __index builds for RegisterForDrag and EnableMouse, which it
+-- does not define). docs/performance.md attributes each move by commit.
 local CEILINGS = {
   resolveUnchanged     = 24,
   anchorUnchanged      = 24,
-  castStartStop        = 41,   -- 16.6 measured + 24
+  castStartStop        = 41,   -- set from 16.6 (2026-09-15) + 24; measures 3.6 on 2026-09-24
   castTick             = 24,
   targetTickUnchanged  = 24,
   targetTickMoving     = 24,
@@ -286,6 +309,7 @@ print()
 local sp = {}
 for _, r in ipairs(results) do sp[#sp + 1] = ("%s %.1f"):format(r.name, r.setPointsPerIter) end
 print("SetPoint calls/iter: " .. table.concat(sp, ", "))
+print(("probeOverheadOff %g bracket calls/iter (capture on: %g)"):format(bracketOffPerIter, bracketOnPerIter))
 print()
 print("timings are for orientation only \226\128\148 compare scenarios within a run, never across machines")
 if #failures > 0 then

@@ -27,9 +27,13 @@ local function settle() while mocks.__fireTimers() > 0 do end end
 
 -- One registration rendered as a comparable string. The target is named where it has a name — which
 -- is every frame this addon creates — because the per-unit filter is what a careless rebuild widens,
--- and `UNIT_SPELLCAST_START` on the wrong bar has the same count and a different set.
+-- and `UNIT_SPELLCAST_START` on the wrong bar has the same count and a different set. Kit revision
+-- 26 also records every live EventRegistry callback, as `{ kind = "callback", event, owner }` with no
+-- `target` (LK-04), so the registrant is whichever of the two the entry carries.
 local function sig(r)
-  return (r.target.__name or r.kind) .. "|" .. r.kind .. "|" .. tostring(r.event) .. "|" .. tostring(r.unit)
+  local who = r.target or r.owner
+  local name = type(who) == "table" and who.__name or r.kind
+  return name .. "|" .. r.kind .. "|" .. tostring(r.event) .. "|" .. tostring(r.unit)
 end
 
 local function regs()
@@ -88,6 +92,9 @@ test("disabled: every registration the addon owns is UNREGISTERED, not gated", f
   -- with a flag the handlers read — the handlers would still early-return, every assertion about
   -- behavior would still pass, and this one would go red, which is the entire point of it.
   --
+  -- red under: drop editModeCallback(false) from Providers:Suspend — the 'callback|EditMode.Exit'
+  -- row the kit's recording EventRegistry reports (LK-04) survives the stand-down.
+  --
   -- Written through the WRITE SEAM, never by calling NS.StandDown directly: the route the checkbox
   -- and `/pfe disable` take is the route that has to work.
   enable(false)
@@ -106,6 +113,15 @@ test("disabled: nothing is left armed to wake up", function()
   assertEqual(#mocks.__timers(), 0, "and none is armed for the rest of the run")
 end)
 
+test("disabled: leaving Edit Mode while disabled arms nothing", function()
+  -- red under: drop editModeCallback(false) from Providers:Suspend AND the suspended guard in burst.
+  -- Leaving Edit Mode is the one trigger the bus record cannot stand down on its own. Two defenses
+  -- hold it: step 3 falsifies the unregister, and test_providers reaches burst() directly to
+  -- falsify the guard, because with the callback gone the client cannot reach it from here.
+  mocks.EventRegistry:TriggerEvent("EditMode.Exit")
+  assertEqual(#mocks.__timers(), 0, "no resolve and no follow-up is armed")
+end)
+
 test("disabled: every frame that was on screen is hidden, and refused at the source", function()
   for _, f in ipairs(F_on) do
     assertFalse(f:IsShown(), "still shown: " .. tostring(f.__name))
@@ -114,6 +130,31 @@ test("disabled: every frame that was on screen is hidden, and refused at the sou
   -- change, so the show ladder itself has to answer no.
   assertFalse(NS.Element.MasterShows(), "the show ladder's step 0 answers no")
   assertEqual(#shownOwn(), 0, "and nothing of the addon's is left on screen")
+end)
+
+-- The eight container frames the addon owns and the kit's census only sees because CreateFrame now
+-- starts a frame shown (LK-05): one fade frame per unit, which the elements are parented to, and one
+-- free-placement holder per feature, which secure elements anchor to. Named directly, not filtered
+-- out of the census, so the step-5 claim about them does not rest on the baseline having caught them.
+local function containers()
+  local out = {}
+  for _, unit in ipairs(NS.Units.LIST) do out[#out + 1] = NS.RangeFade.Parent(unit) end
+  for _, key in ipairs(NS.Anchor.__order) do out[#out + 1] = NS.Anchor.__features[key].holder end
+  return out
+end
+
+local function assertContainers(shown, why)
+  local list = containers()
+  assertEqual(#list, #NS.Units.LIST + #NS.Anchor.__order, "every fade frame and every holder")
+  for _, f in ipairs(list) do
+    assertEqual(f:IsShown(), shown, tostring(f.__name) .. " " .. why)
+  end
+end
+
+test("disabled: the fade frames and the free-placement holders are hidden", function()
+  -- red under: drop the Hide from RangeFade:Suspend / Anchor:Suspend. Nothing in them is visible
+  -- while the elements are down, so only a direct look can tell (slash-commands-§7).
+  assertContainers(false, "is hidden while disabled")
 end)
 
 test("disabled: no game event produces a write, a line, or a frame", function()
@@ -229,6 +270,12 @@ test("disabled: re-enabled, the addon rebuilds from CURRENT state", function()
   assertEqual(table.concat(regs(), "\n"), table.concat(R_on, "\n"), "and putting it back restores it")
 end)
 
+test("disabled: re-enabled, the fade frames and the holders are shown again", function()
+  -- red under: drop the Show from RangeFade:Resume / Anchor:Resume. The elements would come back as
+  -- children of a hidden frame, and every one of them would stay invisible.
+  assertContainers(true, "is shown again")
+end)
+
 test("disabled: two holds, one latch — releasing one never resurrects the other's addon", function()
   -- red under: a resume that calls a bare stand-up, or a `disable` that stands the addon up on its
   -- way out. This is the trap the latch exists for and it is reachable in the client: `/pfe disable`
@@ -256,11 +303,11 @@ test("disabled: two holds, one latch — releasing one never resurrects the othe
   assertEqual(#lc:Holds(), 0, "the hold set is empty")
 end)
 
-test("disabled: the launcher's LEFT click is refused and its RIGHT click is not", function()
-  -- launcher-§2 with slash-commands-§7: this addon is on rung (b) — its left click drives the lock,
-  -- which IS its preview switch, and a preview switch is a feature. Rung (c)'s carve-out does not
-  -- reach it. Right-click opens the settings panel in either state, because the ruling narrows the
-  -- SLASH surface and a mouse click is not a slash command.
+test("disabled: the launcher's LEFT click opens the panel and its menu grays every feature toggle", function()
+  -- launcher-§2 (standard v2.67.0) with slash-commands-§7: left-click opens the settings panel in
+  -- either state (the panel is setup, and where the addon is re-enabled), and right-click's menu
+  -- keeps *Enabled* live while *Locked* -- this addon's preview switch, a feature -- is grayed and
+  -- calls nothing. Neither click writes a SavedVariable or prints a line.
   --
   -- Its own world: tests/run.lua's harness deliberately has neither broker library, so the object
   -- with the OnClick on it only exists in the one tests/launcher_env.lua builds.
@@ -277,16 +324,139 @@ test("disabled: the launcher's LEFT click is refused and its RIGHT click is not"
   NS2.OpenOptionsPanel = function() opens = opens + 1 end
 
   obj.OnClick(obj, "LeftButton")
-  local printed = mocks2.__printed()
-  assertEqual(#printed, 1, "exactly one line")
-  assertTrue(printed[1]:find(NS2.Slash.__cli:DisabledLine(), 1, true) ~= nil,
-    "and it is the collection's line, not one the launcher re-spelled")
-  assertEqual(#mocks2.__svWrites(), 0, "a click on a disabled addon writes no SavedVariables")
-  assertEqual(NS2.GetSetting("locked"), true, "the lock did not move")
-  assertEqual(opens, 0, "and the left button did not quietly open the panel instead")
+  assertEqual(opens, 1, "left click opens the settings panel while disabled")
 
   obj.OnClick(obj, "RightButton")
-  assertEqual(opens, 1, "right click still opens the settings panel, in either state")
+  local menu = mocks2.__menu.last
+  assertTrue(menu ~= nil, "right click opens the options menu")
+  assertEqual(opens, 1, "and not the panel")
+  assertTrue(menu:Find("Enabled").enabled, "Enabled stays live")
+  assertFalse(menu:Find("Locked").enabled, "Locked is grayed")
+  menu:ForceClick("Locked")
+
+  assertEqual(#mocks2.__printed(), 0, "no line printed")
+  assertEqual(#mocks2.__svWrites(), 0, "a click on a disabled addon writes no SavedVariables")
+  assertEqual(NS2.GetSetting("locked"), true, "the lock did not move")
+end)
+
+-- The ten secure buttons (five target, five pet) whose visibility state drivers the stand-down
+-- releases. Their drivers are the one piece of the addon the registration census above cannot see:
+-- a state driver is registered with the client's secure state-driver manager, not as an event.
+local function unitButtons()
+  local out = {}
+  for _, feature in ipairs({ NS.TargetFrames, NS.PetFrames }) do
+    for _, unit in ipairs(NS.Units.LIST) do out[#out + 1] = feature.__buttons[unit] end
+  end
+  return out
+end
+
+local function driven()
+  local out = {}
+  for _, btn in ipairs(unitButtons()) do
+    if btn.__drivers and btn.__drivers.visibility then out[#out + 1] = btn.__key end
+  end
+  return out
+end
+
+local driversOn = {}
+
+test("disabled: out of combat, the target and pet state drivers are UNREGISTERED", function()
+  -- red under: keep the "hide" driver. A constant "hide" hides the buttons just as well, and every
+  -- visual assertion would still pass, but the secure state-driver manager keeps evaluating ten
+  -- conditions for an addon the player switched off (slash-commands-§7).
+  -- Unlocked, so preview puts a "show" driver on what it can: a baseline of all-"hide" drivers
+  -- would let a stand-up that re-installs "hide" everywhere pass the next case.
+  -- Free placement too: attached, a button with no party frame to sit on is not allowed even in
+  -- preview, and this harness has no frame system loaded. Restored after the combat case.
+  enable(true)
+  NS.SetByPath("target.anchorMode", "free")
+  NS.SetByPath("pet.anchorMode", "free")
+  NS.SetByPath("locked", false)
+  settle()
+  for _, btn in ipairs(unitButtons()) do driversOn[btn.__key] = btn.__drivers and btn.__drivers.visibility end
+  assertEqual(#driven(), #unitButtons(), "the baseline: every button has a driver while enabled")
+
+  enable(false)
+  assertEqual(table.concat(driven(), ", "), "", "no target or pet button keeps a visibility driver")
+  for _, btn in ipairs(unitButtons()) do
+    assertFalse(btn:IsShown(), btn.__key .. " is hidden")
+  end
+end)
+
+test("disabled: re-enabled, the released state drivers are re-installed", function()
+  -- red under: a Release that leaves the request memo (`__driverWant`) set, so the stand-up's
+  -- ApplyDriver skips the write as unchanged and the buttons never show again.
+  -- Standing down force-locks, so the baseline's preview is restored explicitly.
+  enable(true)
+  NS.SetByPath("locked", false)
+  settle()
+  for _, btn in ipairs(unitButtons()) do
+    assertTrue(btn.__drivers and btn.__drivers.visibility ~= nil, btn.__key .. " has a driver again")
+    assertEqual(btn.__drivers.visibility, driversOn[btn.__key], btn.__key .. " got its old driver back")
+  end
+  assertEqual(NS.TargetFrames.__buttons.party1.__drivers.visibility, "show", "the preview driver")
+end)
+
+test("disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it", function()
+  -- red under: keep the "hide" driver, or run UnregisterStateDriver under lockdown, which the client
+  -- blocks and blames on the addon.
+  local saved = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  enable(false)
+  assertEqual(#driven(), #unitButtons(), "nothing secure was touched under lockdown")
+  assertTrue(NS.PendingSecureCount() > 0, "the release is queued")
+
+  mocks.InCombatLockdown = saved
+  local ran = mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertEqual(ran, 1, "exactly one listener — the pending-secure watcher — was live to receive it")
+  assertEqual(table.concat(driven(), ", "), "", "and the queued release ran")
+  assertEqual(NS.PendingSecureCount(), 0, "nothing is left queued")
+  assertEqual(#regs(), 0, "and the watcher let go of the event the moment it fired")
+  enable(true)
+  settle()
+  assertEqual(#driven(), #unitButtons(), "back up, every driver returns")
+  NS.SetByPath("target.anchorMode", "attached")
+  NS.SetByPath("pet.anchorMode", "attached")
+end)
+
+test("disabled: in combat, the fade frames and holders hide once combat ends", function()
+  -- red under: hide them outside NS.RunSecure. Secure buttons are parented to the fade frames and
+  -- anchored to the holders, so a hide under lockdown is the client's to block and blame on us.
+  enable(true)
+  settle()
+  assertContainers(true, "is shown while enabled")
+  local saved = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  enable(false)
+  assertContainers(true, "is left alone under lockdown")
+  assertTrue(NS.PendingSecureCount() > 0, "the hide is queued")
+
+  mocks.InCombatLockdown = saved
+  mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertContainers(false, "is hidden once combat ends")
+  assertEqual(NS.PendingSecureCount(), 0, "nothing is left queued")
+  enable(true)
+  settle()
+  assertContainers(true, "is shown again on stand-up")
+end)
+
+test("disabled: unlocking through the seam prints only the collection line and writes nothing", function()
+  -- slash-commands-§7: the one refusal a disabled addon prints is cli:DisabledLine(), and the Lock
+  -- frame row (NS.AcceptLock, the `locked` row's validate) MUST NOT print a second wording.
+  -- red under: restore REFUSED_DISABLED
+  enable(false)
+  NS.db.profile.locked = true
+  local before = #mocks.__chat
+  local ok = NS.SetByPath("locked", false)
+  local out = {}
+  for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+  assertEqual(ok, false, "the seam reports the refused write")
+  assertEqual(#out, 1, "exactly one chat line")
+  local gate = #mocks.__chat
+  NS.Slash:OnSlash("unlock")
+  assertEqual(out[1], mocks.__chat[gate + 1], "byte for byte the line the slash gate prints")
+  assertTrue(out[1]:find(NS.Slash.__cli:DisabledLine(), 1, true) ~= nil, "the collection's line")
+  assertEqual(NS.db.profile.locked, true, "the stored lock did not move")
 end)
 
 test("disabled: the suite leaves the world enabled for the suites after it", function()

@@ -1,3 +1,5 @@
+local _, NS = ...
+
 -- settings/TargetFrames.lua — the Target Frames page:
 --
 --     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
@@ -14,8 +16,6 @@
 --
 -- The reaction colors are a palette (one color per reaction), so they carry no class-color companion
 -- (options-ui-§17's exemption).
-
-local _, NS = ...
 
 local L = NS.L
 local ElementRows = NS.ElementRows

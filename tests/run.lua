@@ -42,6 +42,7 @@ Kit.setSurfaceSource{
   ["LibKa0s-Slash-1.0"]    = NS.Slash and NS.Slash.__cli,
   ["LibKa0s-Bus-1.0"]      = mocks.LibStub("LibKa0s-Bus-1.0", true),
   ["LibKa0s-Compat-1.0"]   = mocks.LibStub("LibKa0s-Compat-1.0", true),
+  ["LibKa0s-Schema-1.0"]   = mocks.LibStub("LibKa0s-Schema-1.0", true),
 }
 
 _G.PFE_TEST = Kit.expose{
@@ -67,6 +68,7 @@ Kit.run{
     "test_compat",
     "test_providers",
     "test_anchor",
+    "test_profile_switch",
     "test_castbars",
     "test_targetframes",
     "test_petframes",

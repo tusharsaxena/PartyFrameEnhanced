@@ -60,10 +60,17 @@ local function makeIcon()
 end
 
 --- Load the addon whole against a fresh mock. `brokers` false leaves LibDataBroker and LibDBIcon out.
+--- `sv`, when given, is the raw SavedVariables table InitDB opens -- a legacy store a suite seeds --
+--- and the previous global is put back once the db holds it.
 --- Returns the namespace, the mocks, and the two fakes (nil when `brokers` is false).
-return function(brokers)
+return function(brokers, sv)
   Loader.addonName = "PartyFrameEnhanced"
   local mocks, NS = buildMocks(), {}
+  -- The client's context-menu API (Launcher minor 4's right click), installed as the global
+  -- `MenuUtil` the library resolves on every right click. `mocks.__menu` is the handle a suite
+  -- reads the opened menu through (`.last`, `:Click`, `:Checked`), and `.remove()` takes the API
+  -- away to reach the library's settings-panel fallback.
+  mocks.__menu = dofile("tests/mock_menu.lua")(mocks)
   local ldb, icons
   if brokers ~= false then
     ldb, icons = makeLDB(), makeIcon()
@@ -73,8 +80,21 @@ return function(brokers)
     mocks.__libs["LibDBIcon-1.0"] = icons
   end
   Loader.loadAll(Loader.xmlFiles("libs/LibKa0s/LibKa0s.xml"), NS, mocks)
+  -- Keep the descriptor core/LauncherSetup.lua hands the library, so a suite can pin its fields
+  -- (Launcher minor 3's tooltip fields above all) rather than only what the library drew from them.
+  local Launcher = mocks.LibStub("LibKa0s-Launcher-1.0", true)
+  if Launcher then
+    local new = Launcher.New
+    Launcher.New = function(self, d)
+      mocks.__launcherDescriptor = d
+      return new(self, d)
+    end
+  end
   Loader.loadAll(Loader.tocFiles("PartyFrameEnhanced.toc"), NS, mocks)
+  local previous = _G.PartyFrameEnhancedDB
+  if sv then _G.PartyFrameEnhancedDB = sv end
   NS:InitDB()
+  if sv then _G.PartyFrameEnhancedDB = previous end
   NS.addon:OnEnable()
   while mocks.__fireTimers() > 0 do end
   return NS, mocks, ldb, icons

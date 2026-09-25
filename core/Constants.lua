@@ -1,4 +1,8 @@
-local _, NS = ...
+local addonName, NS = ...
+
+-- core/Constants.lua — fixed values: fallback media, the monospace face, the landing-page logo
+-- path and the SetPoint anchor list.
+
 NS.Constants = NS.Constants or {}
 local C = NS.Constants
 
@@ -14,7 +18,7 @@ C.FONT_MONO = NS.MediaFont and NS.MediaFont("JetBrains Mono") or C.FALLBACK_FONT
 C.FONT_MONO_NAME = "JetBrains Mono"
 
 -- Landing-page logo (options-ui-§5): a .tga, because the client cannot load .png.
-C.LOGO_PATH = "Interface\\AddOns\\PartyFrameEnhanced\\media\\logos\\partyframeenhanced.logo.tga"
+C.LOGO_PATH = "Interface\\AddOns\\" .. addonName .. "\\media\\logos\\" .. addonName:lower() .. ".logo.tga"
 
 -- The nine SetPoint anchors, in the order the anchor dropdowns list them.
 C.POINTS = {

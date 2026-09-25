@@ -81,6 +81,40 @@ test("targetframes: in combat a driver change is queued, never written, and land
   NS.SetByPath("visibility", "always")
 end)
 
+test("targetframes: a driver changed and changed back in combat ends on the last request", function()
+  -- red under: compare against btn.__driver
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("visibility", "never")
+  NS.SetByPath("visibility", "always")
+  -- OnLeaveCombat re-publishes visibility after the flush, which would mask a stale queued "hide"
+  -- as a one-frame flicker; record every driver the flush and the republish install.
+  local installed, real = {}, mocks.RegisterStateDriver
+  mocks.RegisterStateDriver = function(frame, state, driver)
+    if frame == buttons.party1 then installed[#installed + 1] = driver end
+    return real(frame, state, driver)
+  end
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  mocks.RegisterStateDriver = real
+  assertEqual(buttons.party1.__drivers.visibility, "[@party1target,exists] show; hide")
+  assertEqual(table.concat(installed, " | "), "[@party1target,exists] show; hide",
+    "the queued write is the last request; the stale \"hide\" is never installed")
+end)
+
+test("targetframes: click to target unticked and re-ticked in combat stays on after combat", function()
+  -- red under: compare against btn.__clicks
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("target.clickToTarget", false)
+  NS.SetByPath("target.clickToTarget", true)
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  assertEqual(buttons.party1:GetAttribute("*type1"), "target")
+  assertEqual(buttons.party1.__clicks, true)
+  assertEqual(buttons.party1.__mouse, true)
+end)
+
 test("targetframes: click to target sets the attribute and the mouse, both ways", function()
   prep()
   assertEqual(buttons.party1:GetAttribute("*type1"), "target")
@@ -310,15 +344,17 @@ test("targetframes: PLAYER_TARGET_CHANGED repaints the player's target button", 
   drain()
 end)
 
-test("targetframes: suspended, no events, no ticker, every driver hide", function()
+test("targetframes: suspended, no events, no ticker, every driver unregistered", function()
   prep()
   target("party1", { name = "Boar", reaction = 2 })
   NS.lifecycle:Hold("perf")
   assertTrue(next(buttons.party1.__unitEvents) == nil)
   assertFalse(TargetFrames.TickerRunning())
-  assertEqual(buttons.party1.__drivers.visibility, "hide")
+  -- Unregistered, not replaced with "hide" (slash-commands-§7); the release re-installs it.
+  assertEqual(buttons.party1.__drivers.visibility, nil)
   NS.lifecycle:Release("perf")
   assertEqual(buttons.party1.__unitEvents.UNIT_TARGET[1], "party1")
+  assertEqual(buttons.party1.__drivers.visibility, "[@party1target,exists] show; hide")
   mocks.__units.party1target = nil
   drain()
 end)
@@ -372,4 +408,59 @@ test("targetframes: the marker draws above the border", function()
   local btn = buttons.party1
   assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
     "the marker's layer must stack above the border frame")
+end)
+
+-- SESSION-LONG REGISTRATIONS (review F-017). The two module-level events are the feature's, so they
+-- follow the feature's own syncEvents answer -- on and in a party -- exactly as the per-owner
+-- UNIT_TARGET registrations do. Read from the live registration set, not from a handler's early
+-- return: an early return is a draw gate, and it still pays the dispatch on every event.
+local MODULE_EVENTS = { "PLAYER_TARGET_CHANGED", "RAID_TARGET_UPDATE" }
+
+local function moduleHolds(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == TargetFrames.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+local function party(on)
+  mocks.__context.inGroup = on
+  NS.addon:OnRosterUpdate()
+end
+
+test("targetframes: the module's own events are held only while the feature is on and in a party",
+  function()
+  -- red under: register them at file load
+  prep()
+  party(true)
+  for _, e in ipairs(MODULE_EVENTS) do assertTrue(moduleHolds(e), e .. " held in a party, feature on") end
+  NS.SetByPath("target.enabled", false)
+  for _, e in ipairs(MODULE_EVENTS) do assertFalse(moduleHolds(e), e .. " dropped with the feature off") end
+  NS.SetByPath("target.enabled", true)
+  party(false)
+  for _, e in ipairs(MODULE_EVENTS) do assertFalse(moduleHolds(e), e .. " dropped solo") end
+  party(true)
+  for _, e in ipairs(MODULE_EVENTS) do assertTrue(moduleHolds(e), e .. " back in a party") end
+  drain()
+end)
+
+test("targetframes: the debug line's UnitName is not evaluated with debug off", function()
+  -- red under: build the NS.Debug argument unconditionally
+  prep()
+  party(true)
+  local base, calls = mocks.UnitName, 0
+  mocks.UnitName = function(u) calls = calls + 1; return base(u) end
+  local was = NS.State.debug
+  local function count(debugOn)
+    NS.State.debug = debugOn
+    calls = 0
+    target("party1", { name = "Boar", reaction = 2 })
+    return calls
+  end
+  local off, on = count(false), count(true)
+  NS.State.debug = was
+  mocks.UnitName = base
+  assertEqual(off, on - 1, "debug off skips exactly the debug argument's UnitName")
+  mocks.__units.party1target = nil
+  drain()
 end)

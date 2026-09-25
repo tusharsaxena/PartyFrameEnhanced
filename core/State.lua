@@ -1,7 +1,7 @@
 local _, NS = ...
 
--- Session-only runtime state. Nothing here is ever written to SavedVariables; every field resets on
--- /reload.
+-- core/State.lua — session-only runtime state. Nothing here is ever written to SavedVariables;
+-- every field resets on /reload.
 --   debug     the debug-logging flag (debug-logging-§5), default off
 --   inCombat  the player's combat state, driven by the regen events (events-frames-taint-§2)
 --   preview   placeholder content on every enabled element (preview-mode): on exactly while the
@@ -15,3 +15,8 @@ State.debug    = State.debug or false
 State.inCombat = State.inCombat or false
 State.preview  = State.preview or false
 State.inParty  = State.inParty or false
+
+-- The event names the client refused this session, in the order it refused them, each once. Host-
+-- owned (LibKa0s-Core's SafeRegister* keep no state): every registration site passes this list, the
+-- bus stand-up appends what its replay dropped, and `/pfe status` prints it (events-frames-taint-§1).
+NS.RejectedEvents = NS.RejectedEvents or {}

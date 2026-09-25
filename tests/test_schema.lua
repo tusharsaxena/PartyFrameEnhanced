@@ -22,6 +22,17 @@ test("schema: validates with no shape errors and no unresolved paths", function(
   assertTrue(resolved > 0, "at least one path resolved")
 end)
 
+test("schema: the minimap row's STORAGE default is pinned where the validator no longer looks", function()
+  -- The row's path reads in its own shown sense (`global.minimap.shown`) while LibDBIcon stores
+  -- `hide`, so the resolution check cannot find the row's path in the defaults and is told to skip
+  -- it (a closure row). What it would have caught -- a storage key with no shipped default -- is
+  -- pinned here instead. red under: a defaults tree that dropped `global.minimap.hide`, or one that
+  -- declared a `shown` key (anti-pattern #81).
+  assertTrue(NS.defaults.global.minimap.hide ~= nil, "the stored key has a shipped default")
+  assertEqual(NS.defaults.global.minimap.hide, false, "shown by default")
+  assertEqual(NS.defaults.global.minimap.shown, nil, "no `shown` key is declared")
+end)
+
 test("schema: the General page opens on the Master controls tab, in the canonical order", function()
   local rows = NS.SchemaForPage("general")
   assertEqual(rows[1].group, "Master controls", "the first tab is Master controls (options-ui-§15)")
@@ -30,7 +41,7 @@ test("schema: the General page opens on the Master controls tab, in the canonica
     if row.group == "Master controls" then paths[#paths + 1] = row.path end
   end
   assertEqual(table.concat(paths, ","),
-    "enabled,visibility,scale,alpha,locked,state.debugConsole,global.minimap.hide",
+    "enabled,visibility,scale,alpha,locked,state.debugConsole,global.minimap.shown",
     "the canonical Master controls rows, in order, with nothing omitted but Test mode")
   -- Minimap button opens the fourth line and Test mode would have paired beside it (launcher-§3,
   -- compose minor 7). With no Test mode row the line is the minimap row alone, which is the shape
@@ -90,6 +101,7 @@ test("schema: ApplyDefault writes a COPY of a table default", function()
   assertFalse(stored == default, "the stored table must not be the default table")
   NS.db.profile.general.__probeColor = nil
   table.remove(NS.Schema)
+  NS.__schema.Reindex()
 end)
 
 test("schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat", function()
@@ -101,7 +113,7 @@ test("schema: ResolvePath and SetPath walk dotted paths and leave flat keys flat
   assertEqual(NS.ResolvePath(t, "a.missing.c"), nil)
 end)
 
--- ── the write seam, characterized (written before the seam moved to LibKa0s-Schema-1.0) ─────────
+-- ── the write seam, characterized before it moved to LibKa0s-Schema-1.0, re-pinned after ────────
 
 -- A throwaway row on the General page, taken out again afterwards. `trace` records, in order, the
 -- [Set] lines, the row's reactions and the CONFIG sections.
@@ -127,7 +139,7 @@ local function withProbe(fields, fn)
   for i = #NS.Schema, 1, -1 do
     if NS.Schema[i] == row then table.remove(NS.Schema, i) end
   end
-  if NS.SchemaRuntime then NS.SchemaRuntime.Reindex() end
+  NS.__schema.Reindex()
   NS.db.profile.general.__probe = nil
   if not ok then error(err, 0) end
 end
@@ -141,15 +153,37 @@ test("schema: a write stores, logs one [Set] line, reacts, then publishes CONFIG
   end)
 end)
 
-test("schema: a refused write stores nothing, reacts to nothing and publishes nothing", function()
+test("schema: a refused write stores nothing, logs nothing, reacts to nothing and publishes nothing", function()
+  -- Re-pinned at the Schema adoption: the host seam's `%s refused` debug line is gone, because a
+  -- refused write is not a mutation (debug-logging-§10). The trace is empty, not merely reactionless.
   withProbe({ onChange = true, validate = function(v) return v ~= true end }, function(trace)
     local ok = NS.SetByPath("general.__probe", true)
     assertFalse(ok, "the seam answered false")
     assertEqual(NS.db.profile.general.__probe, nil, "nothing was stored")
-    for _, line in ipairs(trace) do
-      assertTrue(line:find("^onChange") == nil and line:find("^CONFIG") == nil, "ran: " .. line)
-    end
+    assertEqual(table.concat(trace, " | "), "", "no line, no reaction, no CONFIG")
   end)
+end)
+
+test("schema: a write to a path no row declares is refused and not stored", function()
+  -- Re-pinned at the Schema adoption: the host seam stored any path it was handed, so a typo'd key
+  -- became a setting nothing read and nothing reset (architecture-§5 scopes the seam to row paths).
+  local ok, err = NS.SetByPath("general.__nope", true)
+  assertFalse(ok, "the seam answered false")
+  assertTrue(type(err) == "string" and err:find("general.__nope", 1, true) ~= nil, tostring(err))
+  assertEqual(NS.db.profile.general.__nope, nil, "nothing was stored")
+end)
+
+test("schema: a table value is copied into the store, never aliased", function()
+  -- Re-pinned at the Schema adoption: the host seam stored the caller's table itself, so a later
+  -- edit to the argument reached into the profile.
+  local saved = NS.Util.DeepCopy(NS.GetSetting("castbar.barColor"))
+  local color = { r = 0.1, g = 0.2, b = 0.3, a = 1 }
+  NS.SetByPath("castbar.barColor", color)
+  local stored = NS.db.profile.castbar.barColor
+  assertFalse(stored == color, "the store holds a copy")
+  color.r = 0.9
+  assertEqual(stored.r, 0.1, "editing the argument afterwards does not reach the profile")
+  NS.SetByPath("castbar.barColor", saved)
 end)
 
 test("schema: a bulk act is ONE [Set] line counting only the rows it changed", function()
@@ -168,26 +202,34 @@ test("schema: a bulk act is ONE [Set] line counting only the rows it changed", f
 end)
 
 test("schema: a bracket that raises still closes, says so, and re-raises the same error", function()
+  -- The write is to a shipping row, not the probe: under LibKa0s-Schema-1.0 only a declared row is
+  -- writable, so the case must not lean on the probe outliving its own registration.
   withProbe({}, function(trace)
     local boom = {}
+    local before = NS.GetSetting("general.rangeFade")
     local ok, err = pcall(NS.Bulk.Run, "reset", "probe", function()
-      NS.SetByPath("general.__probe", true)
+      NS.SetByPath("general.rangeFade", not before)
       error(boom)
     end)
+    NS.SetByPath("general.rangeFade", before)
     assertFalse(ok)
     assertTrue(err == boom, "the error came back by identity")
-    assertEqual(trace[#trace], "Set reset probe: 1 rows (stopped by an error)")
+    local lines = {}
+    for _, line in ipairs(trace) do
+      if line:find(": %d+ rows") then lines[#lines + 1] = line end
+    end
+    assertEqual(table.concat(lines, " | "), "Set reset probe: 1 rows (stopped by an error)")
   end)
 end)
 
 test("schema: the counted profile reset counts rows off default, and never the global minimap row", function()
   local base = NS.ProfileRowsOffDefault()
-  NS.SetByPath("global.minimap.hide", false)
+  NS.SetByPath("global.minimap.shown", false)
   assertEqual(NS.ProfileRowsOffDefault(), base, "a hidden minimap button is not a profile row")
   NS.SetByPath("general.provider", "blizzard")
   assertEqual(NS.ProfileRowsOffDefault(), base + 1, "one profile row moved")
   NS.SetByPath("general.provider", "auto")
-  NS.SetByPath("global.minimap.hide", true)
+  NS.SetByPath("global.minimap.shown", true)
 end)
 
 test("schema: before the db opens, GetSetting answers the shipped default", function()
@@ -214,4 +256,24 @@ test("schema: without the library, /pfe disable and /pfe enable still write the 
   assertEqual(NS2.db.profile.enabled, false, "/pfe disable landed in the profile")
   NS2.Slash.__cli:OnSlash("enable")
   assertEqual(NS2.db.profile.enabled, true, "/pfe enable landed in the profile")
+end)
+
+test("schema: without the library, /pfe unlock and /pfe lock still write the stored path", function()
+  -- red under: a degraded seam that refuses `locked` for want of the composed row (issue #14).
+  local NS2 = dofile("tests/degraded_env.lua")()
+  NS2:InitDB()
+  assertEqual(NS2.FindSchemaRow("locked"), nil, "the composed row is absent on this build")
+  NS2.Slash.__cli:OnSlash("unlock")
+  assertEqual(NS2.db.profile.locked, false, "/pfe unlock landed in the profile")
+  NS2.Slash.__cli:OnSlash("lock")
+  assertEqual(NS2.db.profile.locked, true, "/pfe lock landed in the profile")
+end)
+
+test("schema: without the library, a row-less path outside writeThrough is refused and not stored", function()
+  -- red under: a degraded seam that stores any path it is handed -- a typo'd key becomes a setting
+  -- nothing reads and nothing resets. Only the declared writeThrough paths go through without a row.
+  local NS2 = dofile("tests/degraded_env.lua")()
+  NS2:InitDB()
+  assertFalse(NS2.SetByPath("general.__nope", true), "the seam answered false")
+  assertEqual(NS2.db.profile.general.__nope, nil, "nothing was stored")
 end)

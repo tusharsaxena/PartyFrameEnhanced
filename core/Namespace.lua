@@ -1,6 +1,7 @@
 local addonName, NS = ...
 
--- The addon's single private table (architecture-§1). Nothing is ever written to _G[addonName].
+-- core/Namespace.lua — the addon's single private table (architecture-§1). Nothing is ever written
+-- to _G[addonName].
 NS.name = addonName
 NS.version = "1.0.1"
 

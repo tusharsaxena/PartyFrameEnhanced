@@ -21,6 +21,25 @@ test("parity: the Core stub publishes everything core/CoreSetup.lua publishes li
   T.assertSurfaceParity(live, loadDegraded(), "Core stub")
 end)
 
+test("parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once", function()
+  -- red under: a stub body that calls the target bare (the raise escapes) or appends on every call.
+  local NS2 = loadDegraded()
+  assertTrue(NS2.SafeRegisterEvent ~= NS.SafeRegisterEvent, "the degraded load took the stub")
+  local target = {
+    RegisterEvent = function(_, event) if event == "BAD_EVENT" then error("unknown event") end end,
+    RegisterUnitEvent = function(_, event) if event == "BAD_EVENT" then error("unknown event") end end,
+  }
+  local rejected = {}
+  assertTrue(NS2.SafeRegisterEvent(target, "BAD_EVENT", nil, rejected) == false, "a raise answers false")
+  assertTrue(NS2.SafeRegisterEvent(target, "BAD_EVENT", nil, rejected) == false, "and again")
+  assertTrue(NS2.SafeRegisterUnitEvent(target, "BAD_EVENT", rejected, "party1") == false, "unit form too")
+  assertTrue(#rejected == 1 and rejected[1] == "BAD_EVENT", "appended exactly once")
+  assertTrue(NS2.SafeRegisterEvent(target, "GOOD_EVENT", nil, rejected) == true, "a known name answers true")
+  assertTrue(NS2.SafeRegisterEvents(target, { "GOOD_EVENT", "BAD_EVENT", "OTHER" }, nil, rejected) == 2,
+    "the array form counts what registered")
+  assertTrue(#rejected == 1, "still once")
+end)
+
 test("parity: the DebugLog stub carries the whole live surface", function()
   local NS2 = loadDegraded()
   T.assertSurfaceParity(NS2.DebugLog, "LibKa0s-DebugLog-1.0", {
@@ -36,6 +55,22 @@ test("parity: the Bus stub carries the whole LibKa0s-Bus-1.0 surface", function(
   local NS2 = loadDegraded()
   assertTrue(NS2.__busLib ~= nil and NS2.__busLib ~= NS.__busLib, "the degraded load took the stub")
   T.assertSurfaceParity(NS2.__busLib, "LibKa0s-Bus-1.0")
+end)
+
+test("parity: the Schema stub instance carries every member of the live instance", function()
+  -- The instance surface is not in the library's member manifest, so the two-table form pins it
+  -- (LibKa0s docs/api/Schema/version-2-docs.md, "Pinning it").
+  local NS2 = loadDegraded()
+  assertTrue(NS2.__schema ~= nil and NS2.__schemaLib ~= NS.__schemaLib, "the degraded load took the stub")
+  T.assertSurfaceParity(NS.__schema, NS2.__schema, "schema instance vs host stub")
+end)
+
+test("parity: the Schema stub library carries the lib-level primitives", function()
+  local NS2 = loadDegraded()
+  T.assertSurfaceParity(NS2.__schemaLib, "LibKa0s-Schema-1.0", {
+    -- The stub's refusals are the host's own words, not a copy of the library's constants.
+    "STRINGS",
+  })
 end)
 
 test("parity: the Options stub carries every helper the degraded build can reach", function()
@@ -61,9 +96,63 @@ test("parity: the Slash stub carries every dispatcher member the addon calls", f
   local NS2 = loadDegraded()
   assertTrue(type(NS.Slash.__cli) == "table" and type(NS2.Slash.__cli) == "table")
   T.assertSurfaceParity(NS2.Slash.__cli, "LibKa0s-Slash-1.0", {
-    -- Live-only, no call site here: the stub renders a plain help row instead.
+    -- Live-only, no call site here. The stub renders plain `cmd  desc` rows, never a copy of the
+    -- library's row formatter, header or list builder (LibKa0s docs/api/Slash/version-15-docs.md,
+    -- "The degradation stub"): a degraded help index is allowed to look degraded.
     "HelpHeader", "HelpRows", "BuildListLines", "CliVersion", "Text",
   })
+end)
+
+test("parity: the Slash stub's refusal format is the library's DISABLED_LINE_FORMAT, byte for byte", function()
+  -- red under: a stub that re-spells the refusal line, or does not publish the copy it carries.
+  -- The runner maps "LibKa0s-Slash-1.0" to the Slash INSTANCE; assertLibraryConstant falls back to
+  -- the mock's LibStub for this lib-level member (test kit revision 26).
+  local NS2 = loadDegraded()
+  assertTrue(NS.Slash.__disabledLineFormat == nil, "the live load publishes no copy")
+  T.assertLibraryConstant(NS2.Slash.__disabledLineFormat, "LibKa0s-Slash-1.0", "DISABLED_LINE_FORMAT")
+end)
+
+test("parity: the Slash stub prints plain rows and the one library-absent line", function()
+  -- red under: keep the FormatRow copy (its em-dash separator), or the old `missing` concatenation.
+  local NS2, mocks2 = loadDegraded()
+  local cli = NS2.Slash.__cli
+  local function dispatch(msg)
+    local before = #mocks2.__chat
+    cli:OnSlash(msg)
+    local out = {}
+    for i = before + 1, #mocks2.__chat do out[#out + 1] = mocks2.__chat[i] end
+    return out
+  end
+  dispatch("version") -- spend the once-per-session missing-library notice
+
+  local out = dispatch("help")
+  assertTrue(#out == 1 + #NS2.COMMANDS, "the header and one row per verb")
+  for i = 2, #out do
+    assertTrue(out[i]:find("/pfe ", 1, true) ~= nil, "a command row: " .. out[i])
+    assertTrue(out[i]:find("/pfe %S+  ") ~= nil, "two spaces after the verb: " .. out[i])
+    assertTrue(out[i]:find("/pfe %S+ \226\128\148 ") == nil, "no em-dash row separator: " .. out[i])
+  end
+  for _, row in ipairs(cli:LandingRows()) do
+    assertTrue(row:find("^/pfe %S+ \226\128\148 ") == nil, "landing row is plain: " .. row)
+  end
+
+  out = dispatch("list")
+  local want = NS2.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe list")
+  assertTrue(#out == 1, "exactly one line, got " .. #out)
+  assertTrue(out[1]:sub(-#want) == want, "the library-absent line: " .. tostring(out[1]))
+
+  -- No AceDB behind the degraded load: one honest line, no raise.
+  out = dispatch("profile")
+  assertTrue(#out == 1 and out[1]:find("Profile system requires AceDB-3.0", 1, true) ~= nil,
+    "profile with no AceDB answers on one line")
+  -- With a profile store, the sub-verb help renders plain rows through the stub's row shape.
+  NS2.db = { SetProfile = function() end }
+  out = dispatch("profile")
+  assertTrue(#out == 8, "the header and seven sub-verb rows, got " .. #out)
+  for i = 2, #out do
+    assertTrue(out[i]:find("/pfe profile %S+.-  %S") ~= nil, "plain profile row: " .. out[i])
+    assertTrue(out[i]:find("\226\128\148", 1, true) == nil, "no em dash: " .. out[i])
+  end
 end)
 
 test("parity: a bare /pfe runs `config` in the library-absent build too", function()

@@ -222,3 +222,41 @@ test("standin: cleared while suspended, it leaves the map at once and the resume
   reset()
   assertTrue(n >= 1, "the anchors must hear the stand-in is gone")
 end)
+
+-- A FRESH StandIn module (the suite's own is built once and cached), loaded under a mock view whose
+-- named frames carry a recording SetDontSavePosition, or a falsy one with `present` false.
+local function freshStandIn(present)
+  local calls = {}
+  local view = setmetatable({
+    CreateFrame = function(frameType, name, ...)
+      local f = mocks.CreateFrame(frameType, name, ...)
+      if name then
+        rawset(f, "SetDontSavePosition", present and function(_, v) calls[name] = { v } end or false)
+      end
+      return f
+    end,
+  }, { __index = mocks })
+  local ns2 = { Compat = NS.Compat, L = NS.L }
+  local Loader = dofile("tests/_kit/loader.lua")
+  Loader.addonName = "PartyFrameEnhanced"
+  Loader.load("modules/StandIn.lua", ns2, view)
+  return ns2.StandIn, calls
+end
+
+test("standin: opts out of the client's layout cache; the addon places it every time", function()
+  -- red under: no SetDontSavePosition after SetMovable, which lets layout-local.txt restore a
+  -- dragged stand-in over the position copied from the imitated frame.
+  local fresh, calls = freshStandIn(true)
+  local f = fresh.Frame()
+  local rec = calls.PartyFrameEnhancedStandIn
+  f:Hide()
+  assertTrue(rec ~= nil, "the stand-in never called SetDontSavePosition")
+  assertEqual(rec[1], true)
+end)
+
+test("standin: still builds on a client without SetDontSavePosition", function()
+  local fresh = freshStandIn(false)
+  local f = fresh.Frame()
+  f:Hide()
+  assertTrue(f ~= nil)
+end)

@@ -1,6 +1,4 @@
 local _, NS = ...
-NS.Slash = NS.Slash or {}
-local Sl = NS.Slash
 
 -- settings/Slash.lua — NS.COMMANDS and the LibKa0s-Slash-1.0 descriptor (slash-commands).
 --
@@ -9,6 +7,9 @@ local Sl = NS.Slash
 -- invisible to the library) and the host verbs that reach into this addon's own state. The table is
 -- passed IN: the landing page renders the same one. Every word a player reads goes through NS.L
 -- (localization-§1).
+
+NS.Slash = NS.Slash or {}
+local Sl = NS.Slash
 
 local print = NS.Print
 local L = NS.L
@@ -120,20 +121,24 @@ function runLock(locked)
     print(locked and L["Elements locked"] or L["Elements unlocked \226\128\148 drag them into place"])
 end
 
---- Flip the lock. THE ONE TOGGLE: the launcher's left click (core/LauncherSetup.lua, launcher-§2's
---- rung (b)) lands here, so the button drives the same `locked` path the Lock frame checkbox and
---- `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that state. An
---- unlock the row refuses leaves the lock where it was and runLock says nothing, which is the same
---- answer the checkbox gives.
+--- The collection's one disabled-refusal line (slash-commands-§7), asked of the CLI at call time.
+--- Published so a refusal outside the dispatcher — NS.ToggleLock below, the Lock frame row's
+--- validate in modules/Preview.lua — prints the same bytes the slash gate prints.
+function NS.DisabledLine() return cli:DisabledLine() end
+
+--- Flip the lock. THE ONE TOGGLE: the launcher menu's *Locked* entry (core/LauncherSetup.lua's
+--- `toggleLock`, launcher-§2) lands here, so the menu drives the same `locked` path the Lock frame
+--- checkbox and `/pfe lock` / `/pfe unlock` drive, through the same seam, and holds no copy of that
+--- state. An unlock the row refuses leaves the lock where it was and runLock says nothing, which is
+--- the same answer the checkbox gives.
 ---
---- REFUSED WHILE THE ADDON IS DISABLED (launcher-§2, slash-commands-§7). Rung (b) drives a preview
---- switch and a preview switch is a feature, so the left button prints the one line and does nothing
---- else — in particular it writes no SavedVariables. The line is `cli:DisabledLine()`, the same one
---- the slash gate prints, because the launcher MUST NOT re-spell it. Right-click is untouched: it
---- opens the settings panel in either state, which is one of the two routes the standard nominates
---- for reaching the panel, and rung (c)'s carve-out is the same rule read from the other side.
+--- REFUSED WHILE THE ADDON IS DISABLED (slash-commands-§7). The lock is this addon's preview switch
+--- and a preview switch is a feature, so a disabled call prints the one line and does nothing else —
+--- in particular it writes no SavedVariables. The line is `cli:DisabledLine()`, the same one the
+--- slash gate prints. On the button the library grays *Locked* while disabled and a grayed entry
+--- calls nothing, so the menu never reaches here disabled; the gate stays for any other caller.
 function NS.ToggleLock()
-    if NS.GetSetting("enabled") ~= true then return print(cli:DisabledLine()) end
+    if NS.GetSetting("enabled") ~= true then return print(NS.DisabledLine()) end
     runLock(NS.GetSetting("locked") ~= true)
 end
 
@@ -153,6 +158,11 @@ function runEnabled(on)
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
     cli:CliGet("enabled")
 end
+
+--- The `/pfe enable` / `/pfe disable` handler, published for the launcher menu's *Enabled* entry
+--- (core/LauncherSetup.lua's `setEnabled`, launcher-§2), so the menu runs the verbs' own write,
+--- panel refresh and echo rather than a second copy of them.
+function NS.SetEnabled(on) runEnabled(on) end
 
 -- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing
 -- showing". Reads only public seams; changes nothing.
@@ -207,6 +217,10 @@ function runStatus()
     print("  " .. L["Range fade: %s"]:format(rangeFadeState()))
     local flags = statusFlags()
     if #flags > 0 then print("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
+    local rejected = NS.RejectedEvents
+    if #rejected > 0 then
+        print("  " .. L["Events the client refused: %s"]:format(table.concat(rejected, ", ")))
+    end
 end
 
 -- The guided run lives in LibKa0s-Perf; the library returns lines and this prints them
@@ -237,10 +251,16 @@ local PROFILE_HELP = {
     { "reset",         L["Reset current profile to defaults"] },
 }
 
+-- The library-absent row: the command, two spaces, the description. Used ONLY when SlashLib is
+-- absent; it is deliberately not the library's FormatRow (no colors, no em-dash separator), because
+-- a stub that re-implements the library's rendering is the drift slash-commands-§1 forbids.
+local function plainRow(cmd, desc) return cmd .. "  " .. desc end
+
 local function printProfileHelp()
     print(L["Profile commands"])
+    local formatRow = SlashLib.FormatRow or plainRow
     for _, row in ipairs(PROFILE_HELP) do
-        print("  " .. SlashLib.FormatRow("/pfe profile " .. row[1], row[2]))
+        print("  " .. formatRow("/pfe profile " .. row[1], row[2]))
     end
 end
 
@@ -250,6 +270,15 @@ local function needsName(verb, fn)
         return fn(db, name)
     end
 end
+
+local function exists(db, name)
+    for _, n in ipairs(db:GetProfiles()) do
+        if n == name then return true end
+    end
+    return false
+end
+
+local NO_PROFILE = "No profile named '%s' \226\128\148 /pfe profile list shows them"
 
 local PROFILE_VERBS = {
     list = function(db)
@@ -262,17 +291,26 @@ local PROFILE_VERBS = {
     current = function(db)
         print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
+    -- SetProfile creates a profile on demand, so a typo would make one: refuse a missing name.
     use = needsName("use", function(db, name)
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:SetProfile(name)
         print(L["Switched to profile '%s'"]:format(name))
     end),
-    -- SetProfile first, then the reset, so the reset lands on the new profile.
+    -- SetProfile first, then the reset, so the reset lands on the new profile. An existing name is
+    -- refused: switching to it and resetting would wipe that whole profile.
     new = needsName("new", function(db, name)
+        if exists(db, name) then
+            return print(L["Profile '%s' already exists \226\128\148 use /pfe profile use or /pfe profile reset"]:format(name))
+        end
         db:SetProfile(name)
         NS.ResetProfileCounted(db)
         print(L["Created and switched to new profile '%s'"]:format(name))
     end),
+    -- AceDB-3.0's CopyProfile raises on both of these (:581-587); refuse them before it can.
     copy = needsName("copy", function(db, name)
+        if name == db:GetCurrentProfile() then return print(L["Cannot copy the current profile onto itself"]) end
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:CopyProfile(name)
         print(L["Copied settings from profile '%s'"]:format(name))
     end),
@@ -280,6 +318,8 @@ local PROFILE_VERBS = {
         if name == db:GetCurrentProfile() then
             return print(L["Cannot delete the current profile"])
         end
+        -- The silent delete would otherwise report 'Deleted' for a profile that never existed.
+        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
         db:DeleteProfile(name, true)
         print(L["Deleted profile '%s'"]:format(name))
     end),
@@ -319,16 +359,23 @@ local function allRows()
     return out
 end
 
--- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The host
--- verbs keep working; the schema CLI names the missing library. No formatter, parser or key/value
--- shape of the library's is copied here.
+-- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The stub
+-- is the shape LibKa0s docs/api/Slash/version-15-docs.md ("The degradation stub") prescribes under
+-- slash-commands-§1: the minimal OnSlash dispatch the rule sanctions, the library's refusal format
+-- copied verbatim (the ONE library string a stub may carry, pinned byte for byte against the live
+-- library by tests/test_surface_parity.lua), plain `cmd  desc` rows, and no library formatter or
+-- parser. The host verbs keep working; the schema CLI verbs print the one library-absent line.
+-- enable/disable/lock/unlock need nothing here: they write through the Schema seam's writeThrough
+-- list (route (a)), so the stored value lands without a composed row and nothing raises.
 if not SlashLib then
-    local missing = " " .. L["is unavailable."] .. " " .. NS.LIBKA0S_MISSING .. "."
-    SlashLib = { FormatRow = function(cmd, desc) return cmd .. " \226\128\148 " .. desc end }
+    local UNAVAILABLE = L["%s is unavailable: the LibKa0s library did not load."]
+    SlashLib = {}
 
-    -- The library's own format string, because the stub prints the SAME sentence the gate would:
-    -- the wording is the collection's, and a build without LibKa0s is still this collection's addon.
+    -- LibKa0s-Slash-1.0's DISABLED_LINE_FORMAT, verbatim: the stub prints the SAME sentence the
+    -- gate would, because the wording is the collection's (slash-commands-§7).
     local DISABLED_LINE = "%s is disabled \226\128\148 enable it with |cFFFFFF00%s|r"
+    -- Published for introspection only, and on the degraded load only: the pin reads it.
+    Sl.__disabledLineFormat = DISABLED_LINE
 
     function SlashLib:New(d)
         local stub = { SetRowAnnotator = function() end }
@@ -336,7 +383,7 @@ if not SlashLib then
             return DISABLED_LINE:format(d.brandName or d.slash, d.slash .. " enable")
         end
         local function absent(verb)
-            return function() print("/pfe " .. verb .. missing) end
+            return function() print(UNAVAILABLE:format("/pfe " .. verb)) end
         end
         for _, verb in ipairs({ "List", "Get", "Set", "Reset", "ResetAll" }) do
             stub["Cli" .. verb] = absent(verb:lower())
@@ -344,7 +391,7 @@ if not SlashLib then
         stub.LandingRows = function()
             local out = {}
             for _, e in ipairs(d.commands) do
-                out[#out + 1] = SlashLib.FormatRow("/pfe " .. e[1], e[2])
+                out[#out + 1] = plainRow("/pfe " .. e[1], e[2])
             end
             return out
         end
@@ -410,6 +457,9 @@ cli = SlashLib:New({
 
     -- Through the seam, so a CLI change takes the panel's path: [Set] line, onChange, CONFIG.
     get          = function(path) return NS.GetSetting(path) end,
+    -- Returns nothing, whatever the seam answered: a `/pfe set locked false` while disabled is
+    -- refused inside NS.AcceptLock, which prints the collection line, and the library then echoes
+    -- the unchanged stored value — the refusal and the echo, the same shape as before.
     set          = function(path, v)
         NS.SetByPath(path, v)
         if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end

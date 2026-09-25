@@ -1,11 +1,11 @@
+local addonName, NS = ...
+
 -- core/EnvSetup.lua — the LibKa0s-Env-1.0 seam: this addon's own TOC manifest and version
 -- (library-stack-§7).
 --
 -- The library is told our FOLDER name (the first vararg), because a vendored copy cannot know
 -- which folder it sits in. The degraded arm runs the same C_AddOns → deprecated global → nil ladder
 -- the library runs, so `/pfe version` and the landing page's Notes line survive a missing LibKa0s.
-
-local addonName, NS = ...
 
 local Env = LibStub and LibStub("LibKa0s-Env-1.0", true)
 

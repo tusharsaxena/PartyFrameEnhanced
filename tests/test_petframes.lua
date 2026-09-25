@@ -22,6 +22,18 @@ test("petframes: each button acts on its owner's pet token", function()
   assertEqual(buttons.party3.__drivers.visibility, "[@partypet3,exists] show; hide")
 end)
 
+test("petframes: click to target unticked and re-ticked in combat stays on after combat", function()
+  -- red under: compare against btn.__clicks
+  prep()
+  mocks.InCombatLockdown = function() return true end
+  NS.SetByPath("pet.clickToTarget", false)
+  NS.SetByPath("pet.clickToTarget", true)
+  mocks.InCombatLockdown = function() return false end
+  NS.addon:OnLeaveCombat()
+  assertEqual(buttons.party1:GetAttribute("*type1"), "target")
+  assertEqual(buttons.party1.__clicks, true)
+end)
+
 test("petframes: UNIT_PET listens on the owner, the health events on the pet token", function()
   local ev = buttons.party2.__unitEvents
   assertEqual(ev.UNIT_PET[1], "party2")
@@ -78,13 +90,15 @@ test("petframes: Update health off drops the health events and draws the bar ful
   mocks.__units.partypet2 = nil
 end)
 
-test("petframes: suspended, events come off and every driver is hide", function()
+test("petframes: suspended, events come off and every driver is unregistered", function()
   prep()
   NS.lifecycle:Hold("perf")
   assertTrue(next(buttons.party1.__unitEvents) == nil)
-  assertEqual(buttons.party1.__drivers.visibility, "hide")
+  -- Unregistered, not replaced with "hide" (slash-commands-§7); the release re-installs it.
+  assertEqual(buttons.party1.__drivers.visibility, nil)
   NS.lifecycle:Release("perf")
   assertEqual(buttons.party1.__unitEvents.UNIT_PET[1], "party1")
+  assertEqual(buttons.party1.__drivers.visibility, "[@partypet1,exists] show; hide")
 end)
 
 test("petframes: a new pet paints its raid marker; RAID_TARGET_UPDATE repaints it", function()
@@ -134,4 +148,32 @@ test("petframes: the marker draws above the border", function()
   local btn = buttons.party1
   assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
     "the marker's layer must stack above the border frame")
+end)
+
+-- SESSION-LONG REGISTRATIONS (review F-017): RAID_TARGET_UPDATE follows the feature's syncEvents
+-- answer -- on and in a party -- like the per-button events, read from the live registration set.
+local function moduleHolds(event)
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.target == NS.PetFrames.__ev and r.kind == "event" and r.event == event then return true end
+  end
+  return false
+end
+
+local function party(on)
+  mocks.__context.inGroup = on
+  NS.addon:OnRosterUpdate()
+end
+
+test("petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party", function()
+  -- red under: register it at file load
+  prep()
+  party(true)
+  assertTrue(moduleHolds("RAID_TARGET_UPDATE"), "held in a party, feature on")
+  NS.SetByPath("pet.enabled", false)
+  assertFalse(moduleHolds("RAID_TARGET_UPDATE"), "dropped with the feature off")
+  NS.SetByPath("pet.enabled", true)
+  party(false)
+  assertFalse(moduleHolds("RAID_TARGET_UPDATE"), "dropped solo")
+  party(true)
+  assertTrue(moduleHolds("RAID_TARGET_UPDATE"), "back in a party")
 end)

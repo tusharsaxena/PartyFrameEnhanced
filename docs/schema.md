@@ -82,12 +82,14 @@ now the `locked` row's validate.
 ## Global
 
 ```text
-global.schemaVersion = 1
+global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (1)
 global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
 `global.minimap` is **LibDBIcon-1.0's own table**, handed straight to its `:Register` and written by
-it too — `hide` from the button's right-click menu, `minimapPos` when the player drags the button
+it too — `hide` when the Master-controls **Minimap button** row shows or hides the button
+(`NS.Launcher:SetShown`; the right-click menu carries only *Enabled* and *Locked*), `minimapPos` when
+the player drags the button
 (architecture-§5 governs both). The declared default above is what materializes it.
 
 It is **global rather than profile** because launcher-§3 fixes it there: a profile is how a player
@@ -99,24 +101,64 @@ for the same reason, which is why the two are one table.
 consequence of the scope above. Whether the button is shown is a per-installation display
 preference, in the same class as the position the player dragged it to. So neither options-ui-§12's
 *Reset all settings* nor the page-scoped **Defaults** button on General may move it, in either
-direction. `settings/OptionsSetup.lua`'s `exemptFromReset` is the single place that says so: it
-answers on `NS.IsGlobalSetting(row.path)`, vetoes the row from `skipRestoreAll`, and — the half that
-actually bites — drops it from the descriptor's `applyDefault`, which is the one call *both* panel
-resets make. `/pfe reset global.minimap.hide` is deliberately still live: a player naming one row is
-not a sweep.
+direction. `settings/Schema.lua`'s `NS.IsGlobalSetting` is the single place that says so. Its set is
+the `LibKa0s-Schema-1.0` instance's `resetExempt`, so `ApplyDefault` refuses the row while a bulk
+bracket is open — and both panel resets run inside one — and `settings/OptionsSetup.lua` also vetoes
+it from `skipRestoreAll`. `/pfe reset global.minimap.shown` is deliberately still live: it runs
+outside a bracket, and a player naming one row is not a sweep.
 
-`hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.hide`,
-which the composer takes verbatim (it is outside the block's profile prefix). The row's boolean says
-**shown** and the key says **hidden**, so `settings/General.lua` registers the inverting get/set with
-`NS.RegisterGlobalSetting` and the seam bridges them once. **No migration:** this addon never stored
-a minimap table anywhere else, so the path is new rather than moved and `schemaVersion` stays at 1.
+`hide` is addressed by the Master-controls **Minimap button** row at the path `global.minimap.shown`,
+which the composer takes verbatim (it is outside the block's profile prefix). The path reads in the
+row's own sense (launcher-§3): the row's boolean says **shown** and the stored key says **hidden**, so
+`settings/General.lua` stamps the inverting `get`/`set` onto the composed row by path, and the seam,
+which honors a row's own storage, bridges them once. No `shown` key is ever stored (anti-pattern #81).
+Because the path is not a storage path, `NS.ValidateSchema` skips its resolution check, and
+`tests/test_schema.lua` pins the storage default `global.minimap.hide` directly.
+
+**No migration.** The row's CLI path was `global.minimap.hide` until the launcher-§3 rename; the
+stored key did not move, so a player who hid the button keeps it hidden with no SavedVariables step,
+and `NS.SCHEMA_VERSION` stays at 1. The old path answers `Setting not found`; a macro running
+`/pfe set global.minimap.hide true` becomes `/pfe set global.minimap.shown false`.
+
+## The write seam
+
+The seam is `LibKa0s-Schema-1.0`'s (library-stack-§7): `settings/Schema.lua` builds one instance
+over `NS.Schema` and binds `NS.SetByPath`, `NS.GetSetting`, `NS.FindSchemaRow`, `NS.ApplyDefault`,
+`NS.Bulk` and the reset count onto it. What that means for what is persisted:
+
+- **Only a declared row's path is written.** A path no row declares is refused and nothing is stored.
+- **A table value is copied in**, so the caller's table and the profile never alias.
+- **`writeThrough = { "enabled", "locked" }`.** On a load without LibKa0s the Master controls
+  composer is hollow and those two paths have no row, yet the host verbs (`/pfe enable|disable|lock|
+  unlock`) and `modules/Preview.lua`'s combat re-lock still write them. Both the instance and the
+  host's degradation stub store a listed row-less path raw, with no row `onChange`, and refuse every
+  other row-less path. With the library present the composed row always takes the write.
+- The two rows whose value is not in the profile, `state.debugConsole` (session only) and
+  `global.minimap.shown` (global, stored as `hide`), carry their own `get`/`set`, stamped on by
+  `settings/General.lua`.
 
 ## Migrations
 
-`NS:RunMigrations` (`core/Database.lua`) walks an ordered ladder of `{ to = N, apply = fn }` steps
-above `global.schemaVersion`. **v1 is the shape v0.1.0 ships, so the ladder is empty.** A future
-stored-value change — a type change, a rename, a moved key — adds its step in the same change as the
-row, and records it here:
+`NS:RunMigrations` (`core/Database.lua`) walks an ordered ladder of
+`{ to = N, scope = "profile"|"global", apply = fn }` steps above `global.schemaVersion`, towards
+`NS.SCHEMA_VERSION`. **v1 is the shape v0.1.0 ships, so the ladder is empty.** A future stored-value
+change — a type change, a rename, a moved key — adds its step and raises `NS.SCHEMA_VERSION` in the
+same change as the row, and records it here.
+
+The rules the runner keeps (savedvariables-§1):
+
+- **The default is 0, and the runner owns the stamp.** `defaults/Profile.lua` declares
+  `global.schemaVersion = 0`, never the current version: AceDB strips a value equal to its default at
+  logout, so a current-version default would never persist, and AceDB backfills a declared default onto
+  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (1) after the walk, and that value
+  persists because it differs from the default.
+- **A profile step runs over every stored profile**, not just the active one: `apply` is called with
+  each table in AceDB's raw `profiles` (the active one included), or with the one profile on the
+  no-AceDB path. A global step is called with `global`. A raw stored profile has its defaults
+  stripped, so every step reads with a fallback and is idempotent against a fresh default profile.
+- **The stamp advances only past a step that returned without raising.** A step runs under `pcall`;
+  on failure the runner logs it to the debug console, prints one line, and stops with the stamp where
+  it was, so the next login retries it.
 
 | Version | Change | Step |
 |---|---|---|

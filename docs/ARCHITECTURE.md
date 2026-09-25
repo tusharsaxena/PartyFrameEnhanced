@@ -1,9 +1,9 @@
 # Architecture — Ka0s Party Frame Enhanced
 
 The engineer's hub. Each section summarizes and links to its topic doc; the design record behind it is
-[superpowers/specs/2026-09-15-party-frame-enhanced-design.md](superpowers/specs/2026-09-15-party-frame-enhanced-design.md),
-and the build's progress is the ledger in
-[superpowers/plans/2026-09-15-party-frame-enhanced-v0.1.0.md](superpowers/plans/2026-09-15-party-frame-enhanced-v0.1.0.md).
+[superpowers/specs/2026-09-15-party-frame-enhanced-design.md](superpowers/specs/2026-09-15-party-frame-enhanced-design.md).
+The resume point is this document and the repo's GitHub issues: the v0.1.0 build plan under
+[superpowers/plans/](superpowers/plans/) is history, not a live ledger.
 
 ## Overview
 
@@ -20,28 +20,35 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.55.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
-launcher. The addon consumes eleven LibKa0s majors through one setup file each — Media
+and **LibKa0s v1.58.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
 (`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
-Launcher (`core/LauncherSetup.lua`), Slash (`settings/Slash.lua`) and Options
-(`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
+Launcher (`core/LauncherSetup.lua`), Schema (`settings/Schema.lua`), Slash (`settings/Slash.lua`)
+and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
 are created once at enable and never churn (so no pool), the addon handles no items, and it orders
-nothing (so no reorder list). **Schema is vendored and not adopted yet** (#14): the Schema document's
-library-less stub refuses a path with no row. On that build the Master controls composer is hollow,
-so `/pfe enable`, `/pfe disable` and `/pfe lock` would stop writing (`tests/test_schema.lua` pins
-it). `settings/Schema.lua` keeps its own runtime until that is settled upstream.
+nothing (so no reorder list). **Schema was adopted last** (#14): it waited on the library's
+`writeThrough` list (Schema minor 2), without which a library-less load, whose Master controls
+composer is hollow, would have stopped `/pfe enable`, `/pfe disable` and `/pfe lock` from writing.
 
 Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
 record, the first standards audit, the in-game smoke pass and the first party perf captures done.
 Master carries unreleased work since that tag, waiting for the next version bump: every element fades
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
-placement block the anchor mode uses; and LibKa0s is re-vendored, now at v1.55.0. What the addon
-took from that run is v1.46.1's settings-page combat lock, and v1.55.0's Bus and Compat majors
-([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)). v1.47.0 to v1.54.2 is the drag-handle
-widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither.
+placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
+click and an Enabled / Locked options menu on a right click; and LibKa0s is re-vendored, now at
+v1.58.0. What the addon
+took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
+([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
+minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed
+shape ([revendor/2026-09-23-v1.56.0/](revendor/2026-09-23-v1.56.0/05_SUMMARY.md)), v1.57.0's
+Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md))
+and v1.58.0's Launcher minor 4 left click and options menu
+([revendor/2026-09-25-v1.58.0/](revendor/2026-09-25-v1.58.0/05_SUMMARY.md)). v1.47.0 to
+v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
+([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
 
 ## Module Map
 
@@ -59,9 +66,23 @@ every settings file, and OptionsSetup and ElementRows before every page; the TOC
 
 One schema (`settings/Schema.lua`) drives the panel, the CLI and the resets, and **one write seam** —
 `NS.SetByPath` — carries every write to a schema path: the panel (the Options descriptor's `set` /
-`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. The seam asks the row's `validate`
-first (the lock refuses an unlock in combat there, before anything is stored), then stores the value,
-runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publishes `CONFIG(<section>)`.
+`applyDefault`), `/pfe set`, `/pfe lock`/`unlock` and every reset. **The seam is the library's**:
+`settings/Schema.lua` builds one `LibKa0s-Schema-1.0` instance over `NS.Schema` and binds the host
+names onto its members (`NS.SetByPath = inst.Set`, `NS.FindSchemaRow`, `NS.ApplyDefault`, `NS.Bulk`,
+the reset count, `NS.ValidateSchema`). A write to a path no row declares is refused, never stored.
+The seam asks the row's `validate` first (the lock refuses an unlock in combat there, before
+anything is stored, and prints its own one line), then stores a copy of the value, logs one `[Set]`
+line (one per bulk act, counting only the rows that changed), runs the row's `onChange`, and
+publishes `CONFIG(<section>)` through the descriptor's `announce`.
+
+**`writeThrough = { "enabled", "locked" }`** (options-ui-§1 route (a)). On a library-less load the
+Master controls composer is hollow, so those two paths have no row, yet `/pfe enable|disable`
+(`runEnabled`), `/pfe lock|unlock` (`runLock`) and `modules/Preview.lua`'s `forceLock` (the combat,
+master-switch and perf re-lock) still write them. The instance and the host's degradation stub take
+the same list: a listed row-less path is stored raw, with no row's `onChange` and no CONFIG; any
+other row-less path is refused. On a full load the composed row takes the write as usual. The stub
+(`HostSchemaStub`, copied from the library's reference stub) is write-completing and log-silent;
+`tests/test_surface_parity.lua` pins it against the live instance and the library.
 
 - **Structural registries:** none. The player creates and deletes nothing.
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
@@ -70,16 +91,19 @@ runs the row's `onChange`, logs one `[Set]` line (one per bulk act), and publish
 - **Session-only rows:** `state.debugConsole` (the console window's visibility) — one row, not two.
   `state.testMode` was the second until options-ui-§15 exempted this addon from the Test mode row:
   unlocking already is its preview.
-- **Global rows:** `global.minimap.hide` (the launcher's minimap button) — stored, not session-only,
+- **Global rows:** `global.minimap.shown` (the launcher's minimap button) — stored, not session-only,
   but in the **account-wide** store rather than the profile, because launcher-§3 fixes LibDBIcon's own
-  table there. `settings/Schema.lua` carries a global registry beside the session one, and
-  `settings/General.lua` registers the get/set that invert the row's SHOWN sense onto LibDBIcon's
-  `hide` and call `NS.Launcher:SetShown`. The validator resolves such a path against `NS.defaults`
-  rather than `defaults.profile`, and the profile-reset tally skips it. **A global row survives every
-  reset the panel ships** — *Reset all settings* and a page's own **Defaults** button — because
-  launcher-§3 makes that a property of the setting; `settings/OptionsSetup.lua`'s `exemptFromReset`
-  is the one place that says so, and the descriptor's `applyDefault` is where it bites, that being
-  the single call both resets make. `/pfe reset <path>` is unaffected.
+  table there. `settings/General.lua` stamps the row's own `get`/`set` onto the composed row by path
+  (as it does the console row's), inverting the row's SHOWN sense onto LibDBIcon's stored
+  `global.minimap.hide` and calling `NS.Launcher:SetShown`; the library honors a row's own storage
+  ahead of the profile. The path reads in the row's own sense (launcher-§3) and is a CLI name only:
+  no `shown` key is ever stored (anti-pattern #81). `NS.IsGlobalSetting` names it: the validator
+  skips its resolution check (the path is not a storage path; the storage default is pinned by a
+  test instead), and the profile-reset count skips it. **A global row survives every reset the
+  panel ships** — *Reset all settings* and a page's own **Defaults** button — because launcher-§3
+  makes that a property of the setting. The instance's `resetExempt` refuses it inside the bulk
+  bracket both panel resets open, and Reset All's `skipRestoreAll` vetoes it too. `/pfe reset <path>`
+  runs outside a bracket and is unaffected.
 
 Shapes, defaults and the migration ladder: [schema.md](schema.md). The panel tree:
 [settings-panel.md](settings-panel.md). Profiles: [profiles.md](profiles.md).
@@ -104,9 +128,9 @@ Limitations).
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade) |
-| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`) |
+| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing) |
 | `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state) |
 
 ## Slash Commands
 
@@ -136,15 +160,16 @@ one icon, one label and one identity.
 | Name | `PartyFrameEnhanced`, the **folder** name, on **both** registrations — LibDBIcon keys the button's saved position by it, so a second spelling would drop the angle the player dragged it to |
 | Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
 | Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
-| Left click | **rung (b)** — `NS.ToggleLock`, the addon's existing preview switch. Unlocking *is* the preview here (options-ui-§15's exemption), and the launcher drives the same `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` drive, through `NS.SetByPath`, holding no copy of that state. **Refused while the addon is disabled** (launcher-§2): a preview switch is a feature, so it prints `cli:DisabledLine()` — the same line the slash gate prints, never re-spelled — and does nothing else, writing no SavedVariables. Rung (c)'s carve-out does not reach it |
-| Right click | **always** `NS.OpenOptionsPanel` — on this addon as on every other, in **either** state. The ruling narrows the *slash* surface and a mouse click is not a slash command; this click is one of the two routes that keep the panel reachable |
-| Visibility | one Master-controls row, `global.minimap.hide` (see *Settings Schema* → Global rows) |
+| Left click | **always** `NS.OpenOptionsPanel` (`openSettings`), on this addon as on every other, in **either** state (launcher-§2, standard v2.67.0; Launcher minor 4). The settings panel is setup and is where a disabled addon is re-enabled; this click and the bare `/pfe` are the two routes to it |
+| Right click | **the options menu**, the client's own context menu built by the library (`MenuUtil.CreateContextMenu`), titled with the label, one checkbox per pair the descriptor passes: *Enabled* (`isEnabled` + `setEnabled` = `NS.SetEnabled`, the `/pfe enable` / `/pfe disable` handler, so the write, the panel refresh and the `enabled = …` echo are the verbs' own) and *Locked* (`isLocked` + `toggleLock` = `NS.ToggleLock`, the seam that drives the `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` write, holding no copy of that state). These are ADDONS.md's entries for this addon. No *Test mode* (unlocking is the preview, options-ui-§15) and no *Show window* (no primary window). **While disabled** the library grays *Locked* — `Locked (enable the addon first)` — and a grayed entry calls nothing, so no SavedVariable is written; *Enabled* stays live. `NS.ToggleLock` keeps its own `cli:DisabledLine()` gate for any other caller. Where the client has no `MenuUtil`, right-click opens the panel instead |
+| Tooltip | **drawn by the library** (launcher-§1, Launcher minor 3), on every hover and **while disabled**: `Ka0s Party Frame Enhanced  v<## Version>`, `Enabled: Yes\|No`, `Locked: Yes\|No`, `Left-click: Open settings`, `Right-click: Options menu`. The descriptor only answers its questions (`isEnabled`, `isLocked`, `version` = `NS.Version()`), each read on every show. **No `Test mode` line**: the addon passes no `isTestMode`. No `onTooltipShow`: nothing of the addon's own to add |
+| Visibility | one Master-controls row, `global.minimap.shown`, inverting onto LibDBIcon's stored `hide` (see *Settings Schema* → Global rows) |
 | Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
 | Degradation | no stub. LibKa0s absent → no `NS.Launcher`, and its two callers already guard on it. LibDataBroker or LibDBIcon absent → the library reports it on one line and `Register` answers `false`; neither is a dependency, because LibKa0s is vendored into addons whose `libs/` folders are not identical |
 
 There is deliberately **no** setting that disables the broker object and none that reassigns either
-button: a broker display already offers its own per-plugin toggle, and the rung is a property of the
-addon rather than a preference.
+button: a broker display already offers its own per-plugin toggle, and what each button does is the
+library's, the same on every addon (launcher-§2), rather than a preference.
 
 ## Event Subscriptions
 
@@ -155,12 +180,18 @@ addon rather than a preference.
 | `ADDON_ACTION_BLOCKED` / `_FORBIDDEN` | `core/PartyFrameEnhanced.lua` | log a blocked action blamed on this addon, ungated |
 | `GROUP_ROSTER_UPDATE` | `core/PartyFrameEnhanced.lua` | the party-only flip (`NS.Units.InParty`): republish VISIBILITY |
 | `GROUP_ROSTER_UPDATE`, `PLAYER_ENTERING_WORLD`, `EDIT_MODE_LAYOUTS_UPDATED`, `PLAYER_REGEN_ENABLED`, `ADDON_LOADED` (EllesmereUI) | `modules/Providers.lua` (AceEvent, own target) | re-resolve the unit → frame map |
+| `EditMode.Exit` (EventRegistry callback) | `modules/Providers.lua` | re-resolve after Edit Mode closes |
 | `UNIT_SPELLCAST_*` ×13 (per unit, `RegisterUnitEvent`) | `modules/CastBars.lua` | cast bars |
-| `UNIT_TARGET` (per owner, `RegisterUnitEvent`); `PLAYER_TARGET_CHANGED` and `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/TargetFrames.lua` | target frames. `UNIT_TARGET` never fires for the player's own target, hence `PLAYER_TARGET_CHANGED`; the client does not dispatch unit events (such as `UNIT_NAME_UPDATE`) for compound tokens, so the repeating timer also repaints whole any shown button whose unit was unresolved (nil name) when it was painted -- e.g. a new member's target. Health comes from the same gated repeating timer |
-| `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent`; `RAID_TARGET_UPDATE` (AceEvent, the module's own target) | `modules/PetFrames.lua` | pet frames |
+| `UNIT_TARGET` (per owner, `RegisterUnitEvent`); `PLAYER_TARGET_CHANGED` and `RAID_TARGET_UPDATE` (AceEvent, the module's own target) -- all held only while the feature is on and in a party (`syncEvents`) | `modules/TargetFrames.lua` | target frames. `UNIT_TARGET` never fires for the player's own target, hence `PLAYER_TARGET_CHANGED`; the client does not dispatch unit events (such as `UNIT_NAME_UPDATE`) for compound tokens, so the repeating timer also repaints whole any shown button whose unit was unresolved (nil name) when it was painted -- e.g. a new member's target. Health comes from the same gated repeating timer |
+| `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent`; `RAID_TARGET_UPDATE` (AceEvent, the module's own target) -- all held only while the feature is on and in a party (`syncEvents`) | `modules/PetFrames.lua` | pet frames |
 | `UNIT_IN_RANGE_UPDATE` (AceEvent, the module's own target; registered only while the fade is on, in a party, on Blizzard's classic frames) | `modules/RangeFade.lua` | the classic frames' own range check: `PartyMemberFrame` never fades for range, so there is nothing to copy. On EllesmereUI and raid-style frames the fade comes from post-hooks on each member frame's `SetAlpha` / `SetAlphaFromBoolean` instead, and no event is registered |
-| `PLAYER_REGEN_DISABLED` (always), `GROUP_ROSTER_UPDATE` (registered only while preview is on) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
+| `PLAYER_REGEN_DISABLED` and `GROUP_ROSTER_UPDATE`, both only while preview is on (`listen(on)`) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
 | `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
+
+Every row in this table registers through `NS.SafeRegisterEvent` / `NS.SafeRegisterUnitEvent` /
+`NS.SafeRegisterEvents` (LibKa0s-Core minor 8, published in `core/CoreSetup.lua`), so a name the client
+refuses costs only itself and lands once in `NS.RejectedEvents`, which `/pfe status` prints
+(events-frames-taint-§1; `docs/midnight-quirks.md`).
 
 **Every registration in this table except the last comes off while the addon is stood down** — for
 either reason. Not gated: unregistered. See *The disabled state is total* below.
@@ -170,7 +201,9 @@ The unit events above are registered only in a party (the party-only rule): each
 
 Lifecycle, roster and Edit Mode events use AceEvent, each module on its own target. The per-unit
 game events are registered with `RegisterUnitEvent` on each element's own frame, so the client filters
-by unit in C rather than dispatching every unit's event into Lua — a recorded deviation, below.
+by unit in C rather than dispatching every unit's event into Lua. That is not a deviation from
+events-frames-taint-§1: the registrations sit on the elements themselves, not on frames made for
+events, as the standard's v2.63.0 changelog (item 5) ruled when it retired this addon's register row.
 
 ## The disabled state is total
 
@@ -203,7 +236,12 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
 
 1. the lifecycle events come off the addon object;
 2. every module's `Suspend` runs — every `RegisterUnitEvent` on every element frame actually
-   **unregistered**, every timer and `OnUpdate` canceled;
+   **unregistered**, every timer and `OnUpdate` canceled, and the ten target and pet buttons' secure
+   visibility state drivers **unregistered** (`UnitButtons.Release`), not replaced with `"hide"`:
+   at once out of combat, deferred to `PLAYER_REGEN_ENABLED` in combat. A feature that is merely
+   switched off keeps its `"hide"` driver; only the stand-down releases it. Providers also
+   unregisters its `EditMode.Exit` EventRegistry callback, and its resolve burst arms nothing while
+   suspended;
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;
@@ -255,7 +293,11 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`). Their parent is
   their unit's fade frame (`modules/RangeFade.lua`), set at creation and never changed. The fade
-  frame is plain, never moved or hidden; only its alpha changes, and alpha is not protected.
+  frame is plain and never moved; its alpha changes freely, and alpha is not protected. It is hidden
+  on stand-down and shown on stand-up, before `NS.PublishVisibility`, through
+  `NS.RunSecure("fade:shown")`, so a stand-down in combat waits for `PLAYER_REGEN_ENABLED`. The
+  free-placement holders (`modules/Anchor.lua`), which secure buttons anchor to, do the same under
+  `holder:shown`.
 - **The out-of-range fade copies, it never calls in.** `modules/RangeFade.lua` post-hooks each member
   frame's `SetAlpha` and `SetAlphaFromBoolean` with `hooksecurefunc` and replays the call on its own
   fade frame. A secret flag goes to `SetAlphaFromBoolean` untouched; a secret number is tried on
@@ -295,9 +337,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
   untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
   target, but a disable leaves the bus registrations live. The modules' own `Suspend` hooks and the
   show ladder's stood-down rung still apply. `tests/test_bus.lua` pins it.
+- On a load without LibKa0s, `/pfe enable`, `/pfe disable`, `/pfe lock` and `/pfe unlock` store the
+  switch through the schema's `writeThrough` list but run no row `onChange`, because the composed row
+  is not there to carry one (unchanged from before the Schema adoption). The stored value is what the
+  next load reads. `tests/test_schema.lua` pins the writes.
 
 Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
-#1–#13 were filed from, and #14 is the deferred `LibKa0s-Schema-1.0` adoption.
+#1–#13 were filed from, and #14 was the deferred `LibKa0s-Schema-1.0` adoption, now landed.
 
 ## Documentation map
 
@@ -321,7 +367,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | `slash-dispatch.md` | Present | 17 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims (trigger: three or more) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims — 14 `function Compat.X` statements plus the `Compat.IsSecret` assignment; count both forms with `grep -cE '^function Compat\.\|^Compat\.[A-Za-z]+ *=' core/Compat.lua` (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
 
@@ -349,7 +395,7 @@ Frozen material named once as directories, never row by row: `automated-tests/<r
 
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
-| `events-frames-taint-§1` | `UNIT_SPELLCAST_*`, `UNIT_TARGET` and the pet unit events are registered with `RegisterUnitEvent` on each element's own frame, not through AceEvent | AceEvent-3.0 has no unit filter: routed through it, every cast by every unit the client knows (nameplates, raid, target, focus) is dispatched into Lua to be discarded. `RegisterUnitEvent` filters in C, so a disabled or excluded unit costs nothing. The frames are the elements themselves, not frames made for events. | 2026-09-15 | AceEvent or LibKa0s gains a unit-filtered registration |
+| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60 | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
 
 ### Files over the 1500-line cap
 

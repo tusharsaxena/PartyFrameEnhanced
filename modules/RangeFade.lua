@@ -8,8 +8,9 @@ local _, NS = ...
 -- alpha into its children's, so the elements keep every alpha of their own -- the Master alpha, the
 -- mid-combat reshuffle fade (modules/Anchor.lua), the cast bar's fade-out -- untouched. That split is
 -- not a nicety: the alpha copied below can be SECRET, and a secret cannot be multiplied in Lua.
--- The fade frames are plain, never moved, never hidden, and the secure target and pet buttons are
--- parented to them at creation (OnEnable, out of combat); alpha is not a protected property.
+-- The fade frames are plain and never moved; they are shown whenever the addon is up and hidden on
+-- stand-down. The secure target and pet buttons are parented to them at creation (OnEnable, out of
+-- combat), so the hide and the show go through the secure queue; alpha is not a protected property.
 --
 -- HOW EACH FRAME SYSTEM FADES, and so what this copies (Blizzard 12.1.0 source, EllesmereUI as
 -- installed):
@@ -165,7 +166,7 @@ local function syncEvents()
     if want == listening then return end
     listening = want
     if want then
-        ev:RegisterEvent("UNIT_IN_RANGE_UPDATE", onRange)
+        NS.SafeRegisterEvent(ev, "UNIT_IN_RANGE_UPDATE", onRange, NS.RejectedEvents)
     else
         ev:UnregisterEvent("UNIT_IN_RANGE_UPDATE")
     end
@@ -185,15 +186,27 @@ function RangeFade:OnEnable()
     update()
 end
 
+-- Shown or hidden as one: secure buttons are parented to the fade frames, so under lockdown the
+-- change waits for PLAYER_REGEN_ENABLED, and a later call under the same key replaces it.
+local function showFades(on)
+    NS.RunSecure("fade:shown", function()
+        for _, f in pairs(fades) do
+            if on then f:Show() else f:Hide() end
+        end
+    end)
+end
+
 function RangeFade:Suspend()
     suspended = true
     ev:UnregisterEvent("UNIT_IN_RANGE_UPDATE")
     listening = false
     refresh()
+    showFades(false)
 end
 
 function RangeFade:Resume()
     suspended = false
+    showFades(true)
     update()
 end
 

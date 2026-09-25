@@ -14,7 +14,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 3 | `core/Compat.lua` | every version-variant client call and secret guard ([compat-layer.md](compat-layer.md)) | conventional: reached at call time |
 | 4 | `core/MediaSetup.lua` | `NS.Icon`, `NS.MediaFont`, the one `Media.RegisterLSM` | **load-bearing**: before Constants |
 | 5 | `core/Constants.lua` | fallback media, `FONT_MONO`, logo path, the nine anchor points | reads NS.MediaFont at load |
-| 6 | `core/State.lua` | session state: `debug`, `inCombat`, `preview`, `inParty`, `test` | conventional |
+| 6 | `core/State.lua` | session state: `debug`, `inCombat`, `preview`, `inParty` | conventional |
 | 7 | `core/Bus.lua` | `NS.bus`, the `NS.busRecord` stand-down record (`LibKa0s-Bus-1.0`), `NS.NewBusTarget` / `NS.BusStandDown` / `NS.BusStandUp`, the `NS.MSG` catalog (`Bus.Catalog`) | before anything that subscribes |
 | 8 | `core/Util.lua` | LSM handle and fetch, deep copy, fill-defaults | conventional |
 | 9 | `core/EnvSetup.lua` | `NS.Meta`, `NS.Version` over LibKa0s-Env | conventional |
@@ -22,7 +22,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 11 | `core/LifecycleSetup.lua` | `NS.lifecycle`: the one `LibKa0s-Lifecycle-1.0` latch, its `disabled` / `perf` holds, `NS.IsStoodDown`, `NS.ApplyEnabled` | **load-bearing**: `core/PerfSetup.lua` requires `descriptor.lifecycle`, so the instance must exist before it |
 | 12 | `core/PerfSetup.lua` | `NS.Perf`: buckets, and the latch the harness takes its `perf` hold on | **load-bearing**: before every module's `local Perf = NS.Perf` |
 | 13 | `core/DebugLogSetup.lua` | `NS.DebugLog`, `NS.Debug` | **load-bearing**: after Constants, State, CoreSetup |
-| 14 | `core/LauncherSetup.lua` | `NS.Launcher`: the one LibDataBroker object, its icon, its rung-(b) left click and the right click that always opens the panel (launcher-§1/§2) | conventional: every seam is reached at click or `Register` time, and `Register` runs in `addon:OnEnable` |
+| 14 | `core/LauncherSetup.lua` | `NS.Launcher`: the one LibDataBroker object, its icon, the left click's `openSettings`, and the accessor-and-toggle pairs the library's status tooltip and right-click options menu read (enabled + `NS.SetEnabled`, locked + `NS.ToggleLock`, version) (launcher-§1/§2) | conventional: every seam is reached at click or `Register` time, and `Register` runs in `addon:OnEnable` |
 | 15 | `core/Units.lua` | the five units, their target and pet tokens, labels, the include rule, the party-only rule (`InParty`) | conventional |
 | 16 | `core/Database.lua` | AceDB init, the migration ladder | conventional (called at OnInitialize) |
 | 17 | `core/PartyFrameEnhanced.lua` | AceAddon promotion, lifecycle, combat flag, the party flip, secure-write queue, module registry, VISIBILITY/PROFILE sender | after the seams it reclaims and calls |
@@ -37,7 +37,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 26 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color, raid markers | after UnitButtons |
 | 27 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
 | 28 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
-| 29 | `settings/Schema.lua` | schema registry, dotted paths, the write seam, the bulk bracket, validation | before every page |
+| 29 | `settings/Schema.lua` | the `LibKa0s-Schema-1.0` seam: the instance (registry, write seam, bracket, reset count, validation) bound onto the host names, and its degradation stub | before every page |
 | 30 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
 | 31 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
 | 32 | `settings/About.lua` | the landing page body | after OptionsSetup |

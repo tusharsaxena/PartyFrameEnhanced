@@ -10,9 +10,9 @@ local _, NS = ...
 -- the stop/interrupt events, never from comparing a remaining time.
 --
 -- EVENTS are registered per unit on the bar's own frame with RegisterUnitEvent, only while the
--- feature is on and the unit included, so the client filters by unit in C (a documented deviation
--- from events-frames-taint-§1, docs/ARCHITECTURE.md). Nothing here registers a global
--- UNIT_SPELLCAST_* event.
+-- feature is on and the unit included, so the client filters by unit in C (not a deviation; see
+-- Event Subscriptions in docs/ARCHITECTURE.md). Nothing here registers a global UNIT_SPELLCAST_*
+-- event.
 --
 -- A stop, a failure or an interrupt RE-DERIVES the unit's cast before acting on it, instead of
 -- matching cast ids (which can be secret): a new cast that started before the old one's stop arrived
@@ -333,7 +333,9 @@ local function syncEvents()
         local el = bars[unit]
         if on and Units.IsIncluded(unit) then
             if not el.__registered then
-                for i = 1, #EVENTS do el:RegisterUnitEvent(EVENTS[i], unit) end
+                for i = 1, #EVENTS do
+                    NS.SafeRegisterUnitEvent(el, EVENTS[i], NS.RejectedEvents, unit)
+                end
                 el.__registered = true
                 changed = changed + 1
                 start(el)
@@ -351,9 +353,14 @@ end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
 
+-- Anchor's reads are LIVE, never the `cfg` upvalue: the PROFILE handler that re-binds `cfg` may run
+-- after Anchor's own (modules/Anchor.lua, placementOf).
+local function liveSection() return NS.db.profile.castbar end
+
 local function slotSize()
     local scale = NS.GetSetting("scale") or 1
-    return (cfg.width or 140) * scale, (cfg.height or 16) * scale
+    local c = liveSection()
+    return (c.width or 140) * scale, (c.height or 16) * scale
 end
 
 function CastBars:OnEnable()
@@ -369,7 +376,7 @@ function CastBars:OnEnable()
     end
     NS.Anchor.Register({
         key = "castbar", label = L["Cast bars"], secure = false, elements = bars,
-        config = function() return cfg end,
+        config = liveSection,
         slotSize = slotSize,
         defaultPosition = { "CENTER", 0, -180 },
     })

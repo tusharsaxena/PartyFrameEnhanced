@@ -1,8 +1,8 @@
+local _, NS = ...
+
 -- settings/About.lua — the landing page's body (options-ui-§5): logo, the TOC's Notes line, a
 -- "Slash Commands" heading and one row per NS.COMMANDS entry, generated so it cannot drift from
 -- `/pfe help`. The renderer is the library's (BuildLandingPage); this file only says what goes on it.
-
-local _, NS = ...
 
 local Helpers = NS.Helpers
 

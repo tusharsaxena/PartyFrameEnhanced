@@ -87,7 +87,9 @@ global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
 `global.minimap` is **LibDBIcon-1.0's own table**, handed straight to its `:Register` and written by
-it too — `hide` from the button's right-click menu, `minimapPos` when the player drags the button
+it too — `hide` when the Master-controls **Minimap button** row shows or hides the button
+(`NS.Launcher:SetShown`; the right-click menu carries only *Enabled* and *Locked*), `minimapPos` when
+the player drags the button
 (architecture-§5 governs both). The declared default above is what materializes it.
 
 It is **global rather than profile** because launcher-§3 fixes it there: a profile is how a player

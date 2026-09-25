@@ -364,8 +364,8 @@ EllesmereUI's, where noted.
     as a `data source` rather than a `launcher`.
 57. **The Minimap button row, both ways.** General → Master controls → untick **Minimap button** → the
     button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.
-    Then hide it from **LibDBIcon's own right-click menu** instead and reopen the panel → the checkbox
-    is already unticked. *Failure:* the two disagreeing is a second copy of one state
+    (Right-click is the options menu, which carries no hide entry.) *Failure:* the checkbox and the
+    button disagreeing is a second copy of one state
     (launcher-§3, anti-pattern #81). From the CLI: with the button visible, `/pfe get
     global.minimap.shown` → `true`; `/pfe set global.minimap.shown false` hides it; `/reload` → still
     hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not

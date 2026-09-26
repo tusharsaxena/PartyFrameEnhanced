@@ -85,7 +85,7 @@ end)
 -- Characterization of what the record does for a receiver, written against the hand-written record
 -- before it moved to LibKa0s-Bus-1.0 and kept unchanged after. Every probe empties itself at the
 -- end: a probe made through the tracked factory is part of the record, and a later stand-down case
--- would otherwise replay it (LibKa0s docs/api/Bus/version-1-docs.md, Known limitation 3).
+-- would otherwise replay it (LibKa0s docs/api/Bus/version-2-docs.md, Known limitation 3).
 
 local EVENT = "PLAYER_TARGET_CHANGED"
 

@@ -118,7 +118,7 @@ test("parity: the Slash stub carries every dispatcher member the addon calls", f
   assertTrue(type(NS.Slash.__cli) == "table" and type(NS2.Slash.__cli) == "table")
   T.assertSurfaceParity(NS2.Slash.__cli, "LibKa0s-Slash-1.0", {
     -- Live-only, no call site here. The stub renders plain `cmd  desc` rows, never a copy of the
-    -- library's row formatter, header or list builder (LibKa0s docs/api/Slash/version-15-docs.md,
+    -- library's row formatter, header or list builder (LibKa0s docs/api/Slash/version-16-docs.md,
     -- "The degradation stub"): a degraded help index is allowed to look degraded.
     "HelpHeader", "HelpRows", "BuildListLines", "CliVersion", "Text",
   })

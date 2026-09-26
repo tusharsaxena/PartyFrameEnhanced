@@ -32,7 +32,7 @@ AceEvent:Embed(NS.bus)
 -- places to forget and the tenth module is the one that forgets. Every receiver comes from
 -- NS.NewBusTarget, so the record is the one place that can know them all.
 --
--- The record is LibKa0s-Bus-1.0's (docs/api/Bus/version-1-docs.md): it remembers what each target
+-- The record is LibKa0s-Bus-1.0's (docs/api/Bus/version-2-docs.md): it remembers what each target
 -- is registered for, takes events and messages down at the stand-down, and replays the record as it
 -- is NOW at the stand-up, so a module that dropped or gained a registration while the addon was
 -- down comes back right (performance-§6). A registration made while down is recorded and goes live

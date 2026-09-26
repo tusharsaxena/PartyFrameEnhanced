@@ -371,7 +371,7 @@ local function allRows()
 end
 
 -- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The stub
--- is the shape LibKa0s docs/api/Slash/version-15-docs.md ("The degradation stub") prescribes under
+-- is the shape LibKa0s docs/api/Slash/version-16-docs.md ("The degradation stub") prescribes under
 -- slash-commands-§1: the minimal OnSlash dispatch the rule sanctions, the library's refusal format
 -- copied verbatim (the ONE library string a stub may carry, pinned byte for byte against the live
 -- library by tests/test_surface_parity.lua), plain `cmd  desc` rows, and no library formatter or

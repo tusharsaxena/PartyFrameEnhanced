@@ -1,0 +1,1 @@
+fixed: DX-PF sections, both forms, disabled path, secret and combat safety verified and gate re-run green; two seams (PendingRegenArmed armed=true, IsStandIn marker) had no falsifying test, pinned in DR-PF-03R 0dea46f (383/0, luacheck 0/0, lizard clean)

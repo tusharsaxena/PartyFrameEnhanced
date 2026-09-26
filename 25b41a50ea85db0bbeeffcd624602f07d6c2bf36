@@ -1,0 +1,1 @@
+fixed: docs complete and accurate against code and rulings; debug.md tag table missed the ungated Perf tag (and ungated Migrate/perf lines), fixed in ed41249; gate re-run green 383/0, luacheck 0/0, lizard clean

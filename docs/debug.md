@@ -3,8 +3,9 @@
 Party Frame Enhanced has two debug surfaces, and both write into the same window:
 
 - **The debug console** is `LibKa0s-DebugLog-1.0`'s window. Tagged `NS.Debug` lines land there while
-  the session flag is on, and a blocked or forbidden action this addon caused lands there whatever
-  the flag says.
+  the session flag is on. Three kinds of line land there whatever the flag says: a blocked or
+  forbidden action this addon caused, a settings migration step that failed, and a perf capture's
+  output.
 - **The diagnostics report** is a one-shot snapshot of the addon's state, written into the console
   by `/pfe diagnostics` (`debug-logging-§14`). It is the reason this page exists (`documentation-§3`,
   Tier 2): every Ka0s addon ships the report, and a maintainer reading a pasted one needs to know what
@@ -49,7 +50,7 @@ and the stub says so once.
 | `Init` | the library, from `core/DebugLogSetup.lua`'s summary | The session summary when logging goes on |
 | `Set` | the schema write seam (`settings/Schema.lua`), `core/PartyFrameEnhanced.lua` | Every setting write, profile reset and profile copy |
 | `Profile` | `core/PartyFrameEnhanced.lua` | A profile switch |
-| `Migrate` | `core/Database.lua` | The schema migration steps that ran |
+| `Migrate` | `core/Database.lua` | The schema migration steps that ran; a step that failed (ungated) |
 | `Party` | `core/PartyFrameEnhanced.lua` | Joining or leaving a party, which turns the addon's display on or off |
 | `Combat` | `core/PartyFrameEnhanced.lua` | Leaving combat, with what was deferred during it |
 | `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write queued in combat and the flush after it; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
@@ -60,6 +61,7 @@ and the stub says so once.
 | `Target` | `modules/TargetFrames.lua` | Who each member targets; the health ticker starting and stopping |
 | `Pet` | `modules/PetFrames.lua` | A member's pet appearing or going |
 | `Preview` | `modules/Preview.lua` | Preview on and off, and the stand-in's look and size |
+| `Perf` | the library's perf harness, through `core/PerfSetup.lua`'s `log` | A perf capture's progress and results (ungated: a capture is an explicit act) |
 | `Cfg` | the library, from `settings/OptionsSetup.lua` | The settings panel opened, or refused in combat |
 | `Launcher` | the library, from `core/LauncherSetup.lua` | The launcher's clicks and menu |
 | `Diag` | the library | The report's markers, identity header, failed sections and `truncated` line |

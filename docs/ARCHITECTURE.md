@@ -38,8 +38,8 @@ Master carries unreleased work since that tag, waiting for the next version bump
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
-click and an Enabled / Locked options menu on a right click; and LibKa0s is re-vendored, now at
-v1.62.0. What the addon
+click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
+diagnostics report for bug reports; and LibKa0s is re-vendored, now at v1.62.0. What the addon
 took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
 ([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
 minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed

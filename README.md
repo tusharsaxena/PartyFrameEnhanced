@@ -37,57 +37,47 @@ of the three can live in its own movable stack instead.
 ## Usage
 
 Install it and join a party. Each member gets a cast bar across the top of their frame, a target
-frame just to the right, and their pet's frame below that. A unit with no party frame on screen gets
-nothing until it has one, which is why your own row doesn't appear in Blizzard's classic party
-layout: that layout never shows you.
+frame just to the right, and their pet's frame below that. Everything starts locked. Type
+`/pfe unlock`, or untick **Lock frame** on the **General** page, and every bar and frame fills with
+made-up data so you can see what you're arranging. Solo, you get a stand-in party frame to hang them
+on. `/pfe lock` brings the real data back. It won't unlock in combat, and a pull locks it for you.
 
-To move things around, type `/pfe unlock` or untick **Lock frame** on the **General** page. Every bar
-and frame fills with made-up data, so you can arrange it all without waiting for a pull. Solo, you
-get a stand-in party frame to hang them on. You nudge attached elements with the offset sliders on
-each feature's **Size & Position** tab, and drag free-placement stacks wherever you want them. Lock
-again and the real data comes back.
+Setting it up the way you like takes three steps. The **Cast Bars**, **Target Frames** and
+**Pet Frames** pages are laid out the same way, so you do each step once per feature.
 
-**Cast Bars**, **Target Frames** and **Pet Frames** each get their own settings page, with tabs for
-size and position, the bar, the border and the text. That's also where you switch a feature to
-**Free placement**, and the tab then shows only the settings for the placement you picked. The
-**General** page picks which party frames to attach to. Leave it on **Automatic** unless you run
-both UIs.
+1. Pick what you want. The first box on each page's **General** tab turns that feature on or off,
+   so switch off anything you don't need. The **General** page decides whether you get a row for
+   yourself too (**Include my own row**) and which party frames to attach to. Leave **Frame system** on
+   **Automatic** unless you run both Blizzard's frames and EllesmereUI's.
+2. Place each feature on its **Size & Position** tab. Attached, it sits on each party frame, and
+   the anchor points and X and Y offsets nudge it into place. Switch **Anchor mode** to **Free
+   placement** and all five go in one stack you drag wherever you want, with a growth direction and
+   spacing. The tab only shows the settings for the mode you picked.
+3. Make it look right. The **Bar**, **Border** and **Text** tabs hold the textures, colors and
+   fonts. Cast bars get a color for each kind of cast, target frames can color NPCs by how they
+   feel about you, and target and pet frames have a **Marker** tab for the raid marker.
 
-When someone wanders out of range, their cast bar, target frame and pet frame dim along with their
-party frame, to whatever opacity that frame uses. Blizzard's classic party frames never dim, so with
-those the addon does the dimming itself: half opacity once a member is past about 40 yards. **Fade with party frames** on
-the **General** page turns this off.
+When someone wanders out of range, their cast bar, target frame and pet frame dim with their party
+frame. The minimap button opens the settings on a left click, and a right click gives you
+**Enabled** and **Locked** switches. You can hide it on the **General** page.
 
-Target and pet frames are secure buttons, the same kind Blizzard's own unit frames are made of, so
-clicking them works in combat. The catch is that the game won't let any addon move one mid-fight. If
-someone joins or leaves during a pull, those frames hide until combat ends, then come back in the right
-spot.
-
-Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and typing `/pfe` on its
-own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full command list.
-
-There's a **minimap button** too. Left-click it for the settings. Right-click it for a small menu
-with two checkboxes: **Enabled** turns the addon on or off (the same as `/pfe enable` /
-`/pfe disable`), and **Locked** unlocks and re-locks the elements (the same switch as **Lock frame**).
-While the addon is off, **Locked** stays grayed out until you enable it again. Hovering the button
-tells you whether the addon is enabled and locked, and that works even when it's switched off. If you
-use Titan Panel, ElvUI's data texts or Bazooka, the addon shows up there as well, and clicking it
-there does the same thing.
-
-Don't want the button? Untick **Minimap button** on the **General** page. It stays hidden on every
-character and every profile until you tick it back.
+Everything else is under Settings → AddOns → Ka0s Party Frame Enhanced, which `/pfe` opens, and
+`/pfe help` (or `/partyframeenhanced help`) lists every command.
 
 ## How it works
+
+In Midnight, a lot of what a party member is doing is secret to addons, a cast's name and timing
+included. An addon can hand those values to the game to draw, but it can't read them. Party Frame
+Enhanced is built around that, so a pull can't break it.
 
 1. When your group or your layout changes, the addon checks the party frames on screen and works out
    which frame shows which party member. It only reads them. It never moves, hides or restyles them.
 2. Each cast bar, target frame and pet frame gets pinned to the frame showing its party member, or put
    in its feature's stack if that feature is in free placement.
-3. Cast bars start and stop on the game's own cast events and animate from the game's cast timer.
-   Target frames update the moment a member switches target, and their health refreshes a few times a
-   second while they're visible. Pet frames follow the pet's health events.
-4. In Midnight, a lot of combat information is hidden from addons. Party Frame Enhanced never tries to
-   read it. It hands those values straight to the game to draw, so a pull can't break it.
+3. Cast bars start and stop on the game's own cast events. The bar gets the game's cast timer as it
+   is and the game runs the countdown, so the addon never reads the time left. Target frames update
+   the moment a member switches target, and their health refreshes a few times a second while
+   they're visible. Pet frames follow the pet's health events.
 
 ## FAQ
 

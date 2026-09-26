@@ -146,6 +146,45 @@ case("diagnostics: the secure-write queue's keys, the flush listener and the blo
   assertTrue(has(lines, "blocked actions this session: " .. (blocked + 1)), "the session's count")
 end)
 
+case("diagnostics: stood down with a write queued in combat, the flush listener reads armed", function()
+  -- red under: a PendingRegenArmed that answers false whatever the listener's registration, which
+  -- would hide the one event a stood-down addon keeps (slash-commands-§7) from the report that asks
+  NS.SetByPath("enabled", false)
+  settle()
+  mocks.InCombatLockdown = function() return true end
+  NS.RunSecure("diag:down", function() end)
+  local lines = report()
+  mocks.InCombatLockdown = function() return false end
+  mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertTrue(has(lines, "queued keys: diag:down"), "the write waits in the queue")
+  assertTrue(has(lines, "flush listener armed=true"), "and the regen listener is armed for it")
+  assertEqual(NS.PendingSecureCount(), 0, "combat's end flushed it")
+  assertFalse(NS.PendingRegenArmed(), "and released the listener")
+end)
+
+case("diagnostics: a unit pinned to the stand-in is marked as such", function()
+  -- red under: an IsStandIn that never recognizes the stand-in, so a solo preview's party1 row reads
+  -- like a real party frame
+  local ctx = mocks.__context
+  local inGroup, inRaid = ctx.inGroup, ctx.inRaid
+  ctx.inGroup, ctx.inRaid = false, false
+  mocks.__fireEvent("GROUP_ROSTER_UPDATE")
+  settle()
+  NS.SetByPath("locked", false)
+  settle()
+  local lines = report()
+  NS.SetByPath("locked", true)
+  ctx.inGroup, ctx.inRaid = inGroup, inRaid
+  mocks.__fireEvent("GROUP_ROSTER_UPDATE")
+  settle()
+  assertTrue(NS.StandIn.IsStandIn(NS.StandIn.Frame()), "the seam knows the stand-in")
+  assertFalse(NS.StandIn.IsStandIn(nil), "and nothing else")
+  local party1 = lines[find(lines, "frame party1:")]
+  assertTrue(party1:find("(stand-in)", 1, true) ~= nil, "party1 names the stand-in: " .. party1)
+  assertFalse(lines[find(lines, "frame party2:")]:find("(stand-in)", 1, true) ~= nil,
+    "and no other unit is marked")
+end)
+
 case("diagnostics: the frame system, the unit map and the range fade", function()
   local lines = report()
   assertTrue(has(lines, "frames: setting=auto active="), "the provider setting and what resolved")

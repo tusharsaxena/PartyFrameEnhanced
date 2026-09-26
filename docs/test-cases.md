@@ -371,7 +371,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_diagnostics.lua (15)
+### test_diagnostics.lua (17)
 
 - diagnostics: the console carries the brand and reads the sections at run time
 - diagnostics: every DX-PF section is present, in order
@@ -379,6 +379,8 @@ badge and any count quoted in the docs must agree with it.
 - diagnostics: per feature per unit, the element fields and the secure wants
 - diagnostics: the free-placement position prints stored and applied
 - diagnostics: the secure-write queue's keys, the flush listener and the blocked count
+- diagnostics: stood down with a write queued in combat, the flush listener reads armed
+- diagnostics: a unit pinned to the stand-in is marked as such
 - diagnostics: the frame system, the unit map and the range fade
 - diagnostics: stood down, runtime sections say so and stored settings still print
 - diagnostics: a raising read costs exactly one line and the next section still runs
@@ -519,7 +521,7 @@ badge and any count quoted in the docs must agree with it.
 | test_prose.lua | 15 |
 | test_slash.lua | 24 |
 | test_disabled.lua | 19 |
-| test_diagnostics.lua | 15 |
+| test_diagnostics.lua | 17 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 13 |
@@ -527,4 +529,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **381** |
+| **Total** | **383** |

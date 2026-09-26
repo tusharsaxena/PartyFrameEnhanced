@@ -33,6 +33,19 @@ and `luacheck .`.
 3. Add its value to `general.provider`'s dropdown and its label to `locales/enUS.lua`.
 4. Test detection, unit reading (including a secret attribute) and a re-sort.
 
+## Add a section to the diagnostics report
+
+1. Write a `local function name(out)` in `modules/Diagnostics.lua` and add `{ "name", name }` to
+   `Diagnostics.Sections()` where it belongs in the report's order.
+2. Print through `out:add(tag, fmt, ...)`, `out:list` or `out:joined`, passing values raw: the library
+   stringifies each one through `NS.SafeToString`, so never compare, concatenate or test a value
+   first. A list is capped for you.
+3. Read only. No setting, secure write, registration, timer, show or hide, and no API that
+   `docs/debug.md`'s "What it does not do" rules out. If the section needs state another file keeps
+   private, add a read-only accessor there that returns a copy.
+4. Add a case to `tests/test_diagnostics.lua` (the section-order case lists every section), and
+   update the section table in `docs/debug.md`.
+
 ## Add a perf bracket
 
 1. Declare the bucket (and its `within`) in `core/PerfSetup.lua`.

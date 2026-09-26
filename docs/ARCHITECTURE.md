@@ -47,7 +47,7 @@ shape ([revendor/2026-09-23-v1.56.0/](revendor/2026-09-23-v1.56.0/05_SUMMARY.md)
 Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md))
 v1.58.0's Launcher minor 4 left click and options menu
 ([revendor/2026-09-25-v1.58.0/](revendor/2026-09-25-v1.58.0/05_SUMMARY.md)), and v1.60.0's DebugLog
-14.1 diagnostics report, not yet wired, and Slash minor 16's live `diagnostics` verb
+14.1 diagnostics report (`/pfe diagnostics`, sections in `modules/Diagnostics.lua`, [debug.md](debug.md)) and Slash minor 16's live `diagnostics` verb
 ([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)). v1.47.0 to
 v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
 ([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
@@ -136,16 +136,16 @@ Limitations).
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, seventeen verbs in `NS.COMMANDS` — the twelve reserved ones
-(`enable` and `disable` among them, aliases for the `enabled` row and never a second switch) plus
+`/pfe` and `/partyframeenhanced`, eighteen verbs in `NS.COMMANDS` — the thirteen reserved ones
+(`enable` and `disable` among them, aliases for the `enabled` row and never a second switch, and
+`diagnostics`, which writes the report [debug.md](debug.md) describes) plus
 `resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
 `OnInitialize` in either state, so `/pfe` answers while the addon is disabled and the pair is never
 one-way (slash-commands-§2). What it answers then is the **whole reserved set, behaving normally** —
 and the bare `/pfe` opens the settings panel, which is the case that settled the standard's v2.57.0
 reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/Slash.lua` hands it an
 `isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the standard's thirteen reserved verbs plus this
-addon's `status` and `profile`; `diagnostics` is on it although no verb of that name is registered
-yet, so today it gets the unknown-command answer in either state), and the library refuses everything else on one line it owns the
+addon's `status` and `profile`, so the report runs while the addon is disabled), and the library refuses everything else on one line it owns the
 wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
 are what is left. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
@@ -360,19 +360,19 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | `schema.md` | SavedVariables, defaults, named non-setting state, migrations |
 | `settings-panel.md` | The `Tab \| Covers` table and the page → tab → row tree |
 | `data-flow.md` | Frames found → elements placed → elements filled → shown or not |
-| `common-tasks.md` | Recipes: a setting, a verb, a provider, a bracket, a string, a re-vendor |
+| `common-tasks.md` | Recipes: a setting, a verb, a provider, a report section, a bracket, a string, a re-vendor |
 
 ### Conditional (documentation-§3, Tier 2)
 
 | Doc | Status | Trigger |
 |---|---|---|
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
-| `slash-dispatch.md` | Present | 17 commands in `NS.COMMANDS` (trigger: eight or more) |
+| `slash-dispatch.md` | Present | 18 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims — 14 `function Compat.X` statements plus the `Compat.IsSecret` assignment; count both forms with `grep -cE '^function Compat\.\|^Compat\.[A-Za-z]+ *=' core/Compat.lua` (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
-| `debug.md` | Not applicable | No debug surface beyond the LibKa0s console |
+| `debug.md` | Present | The diagnostics report is a debug surface (`/pfe diagnostics`, `modules/Diagnostics.lua`) |
 
 ### Verification and record (documentation-§3)
 

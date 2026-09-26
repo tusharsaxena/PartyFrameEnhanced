@@ -1,9 +1,10 @@
 local addonName, NS = ...
 
 -- core/DebugLogSetup.lua — the LibKa0s-DebugLog-1.0 seam (debug-logging). The console, the copy
--- window, both formatters, the 1500-line buffer and the enable seam are the library's. This file
--- supplies the frame-name prefix, the title, the monospace font, where the flag lives and what the
--- [Init] line says.
+-- window, both formatters, the line buffer (its size is the library's MAX_BUFFER) and the enable
+-- seam are the library's. This file supplies the frame-name prefix, the title, the monospace font,
+-- where the flag lives, what the [Init] line says, and the diagnostics report's brand, chat line
+-- and sections hook.
 --
 -- After core/Constants.lua (FONT_MONO), core/State.lua (the flag) and core/CoreSetup.lua (the
 -- printer), before anything that calls NS.Debug.

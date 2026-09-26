@@ -91,6 +91,9 @@ modules\PetFrames.lua
 modules\StandIn.lua
 # LOAD-BEARING: after StandIn — Preview drives the stand-in, and reaches NS.Anchor and NS.Providers.
 modules\Preview.lua
+# Conventional: the diagnostics report's sections (debug-logging-§14). core\DebugLogSetup.lua asks
+# for them at RUN time and every seam they read is reached through NS then, so nothing resolves at load.
+modules\Diagnostics.lua
 
 # Settings (last — depend on everything else being initialized)
 # LOAD-BEARING: publishes NS.RegisterSchemaRows and the write seam, which every settings page calls

@@ -21,7 +21,7 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 10 | `core/CoreSetup.lua` | printer, stringifier, class-color resolver, skin, `NS.MakeCloseButton` | **load-bearing**: after Namespace, before anything that prints |
 | 11 | `core/LifecycleSetup.lua` | `NS.lifecycle`: the one `LibKa0s-Lifecycle-1.0` latch, its `disabled` / `perf` holds, `NS.IsStoodDown`, `NS.ApplyEnabled` | **load-bearing**: `core/PerfSetup.lua` requires `descriptor.lifecycle`, so the instance must exist before it |
 | 12 | `core/PerfSetup.lua` | `NS.Perf`: buckets, and the latch the harness takes its `perf` hold on | **load-bearing**: before every module's `local Perf = NS.Perf` |
-| 13 | `core/DebugLogSetup.lua` | `NS.DebugLog`, `NS.Debug` | **load-bearing**: after Constants, State, CoreSetup |
+| 13 | `core/DebugLogSetup.lua` | `NS.DebugLog`, `NS.Debug`; the console descriptor, including the diagnostics report's brand, its one localized chat line and the call-time `diagnostics` hook that asks `modules/Diagnostics.lua` for its sections; the library-absent stub, whose `RunDiagnostics` prints the one library-absent line | **load-bearing**: after Constants, State, CoreSetup |
 | 14 | `core/LauncherSetup.lua` | `NS.Launcher`: the one LibDataBroker object, its icon, the left click's `openSettings`, and the accessor-and-toggle pairs the library's status tooltip and right-click options menu read (enabled + `NS.SetEnabled`, locked + `NS.ToggleLock`, version) (launcher-§1/§2) | conventional: every seam is reached at click or `Register` time, and `Register` runs in `addon:OnEnable` |
 | 15 | `core/Units.lua` | the five units, their target and pet tokens, labels, the include rule, the party-only rule (`InParty`) | conventional |
 | 16 | `core/Database.lua` | AceDB init, the migration ladder | conventional (called at OnInitialize) |
@@ -37,16 +37,17 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 26 | `modules/PetFrames.lua` | pet frames: owner and pet-token events, the owner's class color, raid markers | after UnitButtons |
 | 27 | `modules/StandIn.lua` | the stand-in party frame preview raises out of a party: three looks, the size and position copy, drag | before Preview, which drives it |
 | 28 | `modules/Preview.lua` | preview, with the lock as its only switch (options-ui-§15): the two shapes it takes, the live switch, the refusals and exits | **load-bearing**: after StandIn, Anchor and Providers, which it drives |
-| 29 | `settings/Schema.lua` | the `LibKa0s-Schema-1.0` seam: the instance (registry, write seam, bracket, reset count, validation) bound onto the host names, and its degradation stub | before every page |
-| 30 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
-| 31 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
-| 32 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 33 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
-| 34 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
-| 35 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
-| 36 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
-| 37 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
-| 38 | `settings/Profiles.lua` | the AceDBOptions page | last |
+| 29 | `modules/Diagnostics.lua` | `NS.Diagnostics.Sections()`: the sections of `/pfe diagnostics` (identity, settings, party, frames, placement, elements, rangefade, secure, events), read-only ([debug.md](debug.md)) | conventional: `core/DebugLogSetup.lua` asks for the sections at run time, and every seam they read is reached through NS then |
+| 30 | `settings/Schema.lua` | the `LibKa0s-Schema-1.0` seam: the instance (registry, write seam, bracket, reset count, validation) bound onto the host names, and its degradation stub | before every page |
+| 31 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`, and `diagnostics`; `runDebug` hands `debug diagnostics` to the same report), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
+| 32 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
+| 33 | `settings/About.lua` | the landing page body | after OptionsSetup |
+| 34 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup |
+| 35 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 36 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows |
+| 37 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows |
+| 38 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows |
+| 39 | `settings/Profiles.lua` | the AceDBOptions page | last |
 
 ## Tests
 

@@ -6,7 +6,7 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (15)
+### test_loadorder.lua (16)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
@@ -16,6 +16,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
 - loadorder: Preview loads after StandIn, and the TOC says why
+- loadorder: modules/Diagnostics.lua loads after the console and before the settings
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
 - loadorder: every derived path exists on disk
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
@@ -91,12 +92,14 @@ badge and any count quoted in the docs must agree with it.
 - perfsetup: live and stub both carry every Perf member the addon's source reads
 - perfsetup: without LibKa0s the stub carries every member the addon calls
 
-### test_lifecycle.lua (4)
+### test_lifecycle.lua (6)
 
 - lifecycle: a secure write out of combat runs at once
 - lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
+- lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued order
+- lifecycle: the session blocked-action counter counts only this addon's blocks
 
 ### test_bus.lua (13)
 
@@ -226,7 +229,7 @@ badge and any count quoted in the docs must agree with it.
 - petframes: the marker draws above the border
 - petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
-### test_rangefade.lua (8)
+### test_rangefade.lua (9)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -236,6 +239,7 @@ badge and any count quoted in the docs must agree with it.
 - rangefade: off, in preview, or with no party frame, every fade is full alpha
 - rangefade: status names which way the fade is running
 - rangefade: a perf run's suspend drops the range event and restores full alpha
+- rangefade: UnitMap and HookedCount report the frame map and the hooks, read-only
 
 ### test_party.lua (6)
 
@@ -345,7 +349,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 - slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (18)
+### test_disabled.lua (19)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -355,6 +359,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: the fade frames and the free-placement holders are hidden
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
+- disabled: both diagnostics forms write a report, and it says the addon is stood down
 - disabled: re-enabled, the addon rebuilds from CURRENT state
 - disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
@@ -365,6 +370,26 @@ badge and any count quoted in the docs must agree with it.
 - disabled: in combat, the fade frames and holders hide once combat ends
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
+
+### test_diagnostics.lua (17)
+
+- diagnostics: the console carries the brand and reads the sections at run time
+- diagnostics: every DX-PF section is present, in order
+- diagnostics: the always-print rows print at their defaults, other defaults do not
+- diagnostics: per feature per unit, the element fields and the secure wants
+- diagnostics: the free-placement position prints stored and applied
+- diagnostics: the secure-write queue's keys, the flush listener and the blocked count
+- diagnostics: stood down with a write queued in combat, the flush listener reads armed
+- diagnostics: a unit pinned to the stand-in is marked as such
+- diagnostics: the frame system, the unit map and the range fade
+- diagnostics: stood down, runtime sections say so and stored settings still print
+- diagnostics: a raising read costs exactly one line and the next section still runs
+- diagnostics: a secret value reaches no comparison and prints as the sentinel
+- diagnostics: over the cap, the report ends in the truncated line and then the end marker
+- diagnostics: the report writes no setting, queues no secure write and registers nothing
+- diagnostics: the sections file calls no API the report must never call
+- diagnostics: the one chat line is the locale's, with the line count
+- diagnostics: without LibKa0s, both forms print the one library-absent line
 
 ### test_launcher.lua (31)
 
@@ -429,9 +454,15 @@ badge and any count quoted in the docs must agree with it.
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
-### test_diagnostics_contract.lua (1)
+### test_diagnostics_contract.lua (7)
 
-- diagnostics contract: debug-logging-§14 (skipped: Kit.diagnostics is not set in the runner, so this repo's dispatcher is not wired to the shared contract yet. Every Ka0s addon owes debug-logging-§14's report; wire Kit.diagnostics once the report exists)
+- diagnostics contract: both forms run the report
+- diagnostics contract: the debug word is matched in any case
+- diagnostics contract: both markers carry the brand and the end counts the report
+- diagnostics contract: the report appends after what the console already holds
+- diagnostics contract: the report lands with logging off and leaves it off
+- diagnostics contract: both forms run while the addon is disabled
+- diagnostics contract: no other name runs the report
 
 ### test_vendor_sync.lua (3)
 
@@ -464,7 +495,7 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 15 |
+| test_loadorder.lua | 16 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
@@ -472,7 +503,7 @@ badge and any count quoted in the docs must agree with it.
 | test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
-| test_lifecycle.lua | 4 |
+| test_lifecycle.lua | 6 |
 | test_bus.lua | 13 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
@@ -481,7 +512,7 @@ badge and any count quoted in the docs must agree with it.
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
-| test_rangefade.lua | 8 |
+| test_rangefade.lua | 9 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
 | test_standin.lua | 14 |
@@ -489,12 +520,13 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 24 |
-| test_disabled.lua | 18 |
+| test_disabled.lua | 19 |
+| test_diagnostics.lua | 17 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 13 |
-| test_diagnostics_contract.lua | 1 |
+| test_diagnostics_contract.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **355** |
+| **Total** | **383** |

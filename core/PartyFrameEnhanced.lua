@@ -75,6 +75,14 @@ function NS.PendingSecureCount()
     return #pendingOrder
 end
 
+--- The queued keys in first-queued order, as a copy: a reader (the diagnostics report) can never
+--- reorder or drain the live queue.
+function NS.PendingSecureKeys()
+    local keys = {}
+    for i, key in ipairs(pendingOrder) do keys[i] = key end
+    return keys
+end
+
 local function flushSecure()
     if #pendingOrder == 0 then return end
     local order = pendingOrder
@@ -118,6 +126,11 @@ end
 
 function disarmPendingRegen()
     if regenWatch then regenWatch:UnregisterAllEvents() end
+end
+
+--- Whether the pending-secure listener is live right now (the diagnostics report).
+function NS.PendingRegenArmed()
+    return regenWatch ~= nil and regenWatch:IsEventRegistered("PLAYER_REGEN_ENABLED") == true
 end
 
 -- ── the stand-down, reached from the latch in core/LifecycleSetup.lua ────────────────────────
@@ -244,8 +257,16 @@ end
 
 -- A blocked or forbidden action is always a bug in this addon's secure handling. The client names
 -- the addon it blames; only ours is logged, and ungated, because it must be seen to be fixed.
+-- The session count of those, for the diagnostics report; reset only by a reload.
+local blockedActions = 0
+
+function NS.BlockedActionCount()
+    return blockedActions
+end
+
 function addon:OnActionBlocked(event, blamed, func)
     if blamed ~= addonName then return end
+    blockedActions = blockedActions + 1
     if NS.DebugLog and NS.DebugLog.Add then
         NS.DebugLog:Add("Secure", ("%s: %s"):format(event, NS.SafeToString(func)))
     end

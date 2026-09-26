@@ -22,7 +22,8 @@ The landing page renders the same table.
 | `unlock` | unlocks them for dragging, with placeholder content; refused in combat with a gray notice. **Refuses while the addon is disabled**, at the dispatcher — before the write seam | no |
 | ~~`test`~~ | **Removed** (options-ui-§15). Unlocking already is this addon's preview, so `unlock` / `lock` are the switch and a second verb for the same state was the finding (anti-pattern #80). What it did — placeholders at the real party frames in a party, a stand-in party frame for party1 out of one, refused in combat, disabled or suspended; ends when combat starts | no |
 | `status` | the detected frame system, which units have a frame, each feature's state, how the out-of-range fade is running (copied from a frame system, the classic frames' own range check, waiting, or off), whether preview is up and on what, and anything switched off (including not being in a party) | no |
-| `debug [on\|off]` | bare: toggles the console window; `on`/`off`: the session logging flag | yes |
+| `debug [on\|off\|diagnostics]` | bare (or any other word): toggles the console window; `on`/`off`: the session logging flag; `diagnostics`, in any case: the diagnostics report, the same as the verb below | yes |
+| `diagnostics` | writes the diagnostics report into the debug console, after whatever it already holds, whether logging is on or off, and reveals the console. These two forms are the only ones: `/pfe diag`, `/pfe dump` and `/pfe dx` are unknown commands, and `/pfe debug diag` toggles the console. What it prints: [debug.md](debug.md) | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |
 | `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management. Every name is checked against the profile list first, and a bad one is refused on one line: `use` no longer creates a profile (a missing name is refused), `new` refuses a name that already exists instead of wiping it, `copy` refuses a missing name and the current profile, and `delete` refuses a missing name as well as the current profile | no |
@@ -40,12 +41,13 @@ stand-down was trying to reclaim. The addon is inert; its command surface is not
 `Sl:Register` runs in `addon:OnInitialize` in either state, so `/pfe` is always registered.
 
 **Every reserved verb answers, and the bare `/pfe` opens the settings panel.** `help`, `config`,
-`version`, `enable`, `disable`, `debug`, `perf` and the whole schema CLI — `get`, `set`, `list`,
+`version`, `enable`, `disable`, `debug`, `diagnostics`, `perf` and the whole schema CLI — `get`, `set`, `list`,
 `reset`, `resetall` — all behave exactly as they do when the addon is running. A player must be able
 to read and repair settings and to reach the panel while the addon is off, which is precisely when
-they are most likely to need to, and `enable` above all or the switch only goes one way. `debug` and
-`perf` are diagnostics rather than features: the usual reason to reach for either is that the addon
-is misbehaving.
+they are most likely to need to, and `enable` above all or the switch only goes one way. `debug`,
+`diagnostics` and `perf` are diagnostics rather than features: the usual reason to reach for any of
+them is that the addon is misbehaving. The report says the addon is stood down rather than printing
+empty data.
 
 > The standard narrowed this surface to `enable` and `help` at v2.56.0 and **reversed it at
 > v2.57.0**, after `/pfe` on a disabled addon answered with a refusal instead of the panel — the one
@@ -86,7 +88,8 @@ white values, no trailing colon; every line carries the cyan `[PFE]` tag through
 
 With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host verbs; the schema verbs
 (`list`, `get`, `set`, `reset`, `resetall`) each print the one library-absent line
-(`/pfe <verb> is unavailable: the LibKa0s library did not load.`). `enable` and `disable` still
+(`/pfe <verb> is unavailable: the LibKa0s library did not load.`), and both forms of the report print
+the same line for `/pfe diagnostics` from the DebugLog stub in `core/DebugLogSetup.lua`. `enable` and `disable` still
 WRITE — through the schema's `writeThrough` list, and only their echo degrades to that line — because
 the pair must never be one-way, whatever else is missing. The stub is the shape the library's Slash
 document (minor 15, *The degradation stub*) prescribes: the help, landing and profile rows render as

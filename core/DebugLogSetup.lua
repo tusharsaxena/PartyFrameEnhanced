@@ -1,9 +1,10 @@
 local addonName, NS = ...
 
 -- core/DebugLogSetup.lua — the LibKa0s-DebugLog-1.0 seam (debug-logging). The console, the copy
--- window, both formatters, the 1500-line buffer and the enable seam are the library's. This file
--- supplies the frame-name prefix, the title, the monospace font, where the flag lives and what the
--- [Init] line says.
+-- window, both formatters, the line buffer (its size is the library's MAX_BUFFER) and the enable
+-- seam are the library's. This file supplies the frame-name prefix, the title, the monospace font,
+-- where the flag lives, what the [Init] line says, and the diagnostics report's brand, chat line
+-- and sections hook.
 --
 -- After core/Constants.lua (FONT_MONO), core/State.lua (the flag) and core/CoreSetup.lua (the
 -- printer), before anything that calls NS.Debug.
@@ -87,6 +88,9 @@ NS.DebugLog = lib:New({
     -- question from `name`, answered with the same string here.
     addonName = addonName,
     title     = "Party Frame Enhanced",
+    -- The full brand, named in both diagnostics markers so a paste holding several addons' reports
+    -- can be split. The same spelling settings/Slash.lua gives the dispatcher.
+    brandName = "Ka0s Party Frame Enhanced",
     font      = NS.Constants.FONT_MONO,
     slash     = "/pfe",
 
@@ -107,6 +111,16 @@ NS.DebugLog = lib:New({
             NS.SafeToString(schemaVer or "?"), NS.SafeToString(profile or "?"),
             NS.SafeToString(provider or "none"))
     end,
+
+    -- The diagnostics report's sections (debug-logging-§14), asked for each time a report runs:
+    -- modules/Diagnostics.lua loads after this file.
+    diagnostics = function() return NS.Diagnostics and NS.Diagnostics.Sections() or {} end,
+
+    -- The report's one chat line, through the locale (localization-§1). The report BODY is English
+    -- diagnostic text, like every trace line, and never goes through NS.L.
+    L = {
+        DIAG_WRITTEN = NS.L["Diagnostic report written to the debug console: %d lines. Use Copy to share it."],
+    },
 
     -- So a console opened by `/pfe debug` moves the checkbox on an already-open options panel.
     onVisibilityChanged = function()

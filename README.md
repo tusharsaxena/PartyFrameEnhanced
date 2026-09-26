@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-354%2F354_passing-green)
+![Tests](https://img.shields.io/badge/Tests-383%2F383_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -105,7 +105,15 @@ every profile until you tick it back.
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | They come back when combat ends. The game doesn't let addons move clickable frames in combat. |
 | The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
-| Something looks wrong and you want to report it | Type `/pfe debug on`, reproduce it, then `/pfe debug` to open the log and copy it into your issue. |
+| Something looks wrong and I want to report it | Follow [Reporting a bug](#reporting-a-bug) below. |
+
+## Reporting a bug
+
+1. Type `/pfe debug on` and reproduce the bug.
+2. Type `/pfe diagnostics`.
+3. If the debug window isn't open, open it with `/pfe debug`. Press **Copy**, copy the entire output, and include it with your bug report.
+
+The report is added after the debug trace in the same window, so one copy carries both.
 
 ## Issues and feature requests
 

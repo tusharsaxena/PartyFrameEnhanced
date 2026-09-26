@@ -257,6 +257,13 @@ function Providers.ActiveId()
     return active and active.id or nil
 end
 
+--- The resolve's own flags, as a fresh table (the diagnostics report): suspended by a stand-down,
+--- a next-frame resolve already queued, and a map edited while suspended that the next live resolve
+--- has to publish.
+function Providers.ResolveState()
+    return { suspended = suspended, scheduled = scheduled, stale = stale }
+end
+
 -- ── test mode's stand-in (docs/superpowers/specs/2026-09-15-test-mode-design.md §3) ─────────────
 
 --- Put test mode's stand-in in party1's place (a real frame still wins), or remove it with nil.

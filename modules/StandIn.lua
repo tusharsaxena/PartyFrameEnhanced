@@ -242,3 +242,9 @@ end
 function StandIn.IsShown()
     return frame ~= nil and frame:IsShown() == true
 end
+
+--- Whether `f` is the stand-in, without building it (the diagnostics report names the frame each
+--- unit is pinned to, and must not stand anything up to ask).
+function StandIn.IsStandIn(f)
+    return frame ~= nil and f == frame
+end

@@ -215,6 +215,21 @@ function RangeFade.Listening()
     return listening
 end
 
+--- The unit -> party frame map the hooks read, as a copy keyed by unit (the diagnostics report).
+function RangeFade.UnitMap()
+    local map = {}
+    for frame, unit in pairs(unitOf) do map[unit] = frame end
+    return map
+end
+
+--- How many party frames carry this module's post-hooks. Hooks are never removed, so the count
+--- only grows within a session.
+function RangeFade.HookedCount()
+    local n = 0
+    for _ in pairs(hooked) do n = n + 1 end
+    return n
+end
+
 --- What the fade is doing, for `/pfe status`: "off" (the setting, a suspend or preview), "idle" (no
 --- frame system on screen), "range" (classic frames: this module's own UnitInRange check) or
 --- "copy" (copied from the party frames).

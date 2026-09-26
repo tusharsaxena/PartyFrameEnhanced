@@ -23,7 +23,7 @@ One row per full pass. The newest row is the current iteration.
 | B | Slash surface | any Retail |
 | C | Settings panel and the combat gate | any Retail, a target dummy |
 | D | Resets and profiles | any Retail |
-| E | Debug console and perf harness | any Retail |
+| E | Debug console, diagnostics report and perf harness | any Retail; a party and a dungeon for step 23d |
 | F | Cast bars | a party (a follower dungeon works), a target dummy |
 | G | Target frames | a party, mobs to target |
 | H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
@@ -46,9 +46,9 @@ One row per full pass. The newest row is the current iteration.
 ## B. Slash surface
 
 4. `/pfe` alone → the settings panel opens on the landing page (in combat: the gray refusal
-   instead). `/pfe help` → the help block: a version line and seventeen verbs (help, config, enable,
-   disable, list, get, set, reset, resetall, resetposition, lock, unlock, status, debug, perf,
-   version, profile), each a gold `/pfe <verb>`, an em dash and a white description.
+   instead). `/pfe help` → the help block: a version line and eighteen verbs (help, config, enable,
+   disable, list, get, set, reset, resetall, resetposition, lock, unlock, status, debug, diagnostics,
+   perf, version, profile), each a gold `/pfe <verb>`, an em dash and a white description.
 5. `/partyframeenhanced` and `/partyframeenhanced help` → the same as `/pfe` and `/pfe help`.
 6. `/pfe wibble` → `unknown command 'wibble'` then help.
 7. `/pfe version` → `[PFE] v1.0.1`.
@@ -160,7 +160,7 @@ One row per full pass. The newest row is the current iteration.
     each, no Lua error frame. `/pfe profile use Typo` → refused, and `/pfe profile list` shows no
     `Typo`. `/pfe profile delete Nope` → refused, no *Deleted* line.
 
-## E. Debug console and perf harness
+## E. Debug console, diagnostics report and perf harness
 
 21. `/pfe debug` → the console window opens (monospace font, the collection's close/copy/clear marks,
     not a `×` glyph); `/pfe debug` again → it closes. The logging flag is untouched by both.
@@ -175,6 +175,29 @@ One row per full pass. The newest row is the current iteration.
     `targetRender` per `targetTick` pass is **at most the number of members with a target**. Paste the
     buffer into `/wow-addon:perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer
     members have targets (hidden buttons being repainted), or no `petEvent` row with a pet out.
+23b. **The diagnostics report appends, ungated.** `/pfe debug on`, join or leave a party (or `/pfe
+    unlock` and `/pfe lock`) so a few trace lines land, then `/pfe diagnostics`. The trace is still
+    there, above `==== Ka0s Party Frame Enhanced diagnostics begin ====`; the report ends with
+    `==== Ka0s Party Frame Enhanced diagnostics end: N line(s) ====`; one chat line reads
+    `Diagnostic report written to the debug console: N lines. Use Copy to share it.` The sections run
+    in the order [debug.md](debug.md) lists (`[State]`, `[Set]`, `[Party]`, `[Frames]`, `[Place]`,
+    `[Elem]`, `[Fade]`, `[Secure]`, `[Events]`). Then `/pfe debug off`, close the console and run
+    `/pfe debug diagnostics`: the console opens, the whole report lands again below the first, the
+    header still reads logging off, and the next party change writes no trace line. *Failure:* the
+    console cleared, a report cut short with logging off, or the flag turned on.
+23c. **Copy.** Press **Copy** and paste into a text editor: the trace, both markers and the brand are
+    there, with no `|c` color codes or `|T` textures in the text. `/partyframeenhanced diagnostics`
+    and `/partyframeenhanced debug diagnostics` give the same report as the short slash.
+23d. **In combat, and while disabled.** In a party, run `/pfe diagnostics` in combat, and once more
+    inside a dungeon while a party member casts. No Lua error; a value the client keeps secret prints
+    as `<secret>`, never as an error line. Then `/pfe disable`, and run `/pfe diagnostics` and
+    `/pfe debug diagnostics`: both write a full report whose state lines read `enabled=false
+    stoodDown=true`, and `[Frames]` and `[Fade]` say stood down. `/pfe enable` afterwards.
+23e. **No short name.** `/pfe diag` → `unknown command 'diag'` and the help; `/pfe debug diag` →
+    shows or hides the console like any other word after `debug`. Neither writes a report.
+23f. **The buffer cap.** With logging on, drive enough traced activity (party changes, unlock and
+    lock, repeated `/pfe diagnostics`) to pass 3000 lines. The footer counter reads `N / 3000 lines`
+    and pins at 3000, and **Copy** opens without a noticeable hitch.
 
 ## F. Cast bars
 

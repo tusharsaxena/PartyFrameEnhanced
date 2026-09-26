@@ -32,6 +32,7 @@ archaeology, for the same reason a skip is never a pass (`automated-tests-§4`).
 
 | Run | Commit | Tree | Version | Lint w/e | Files | Tests | Perf | NLOC | Funcs | Avg NLOC | Avg CCN | Max CCN | CCN warn | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [`20260926-193107`](20260926-193107/) | `09cc55e` | clean | 1.0.1 | 0/0 | 75 | 383/0/383 | pass | 9976 | 1318 | 6.3 | 2.1 | 14 | 0 | **green** |
 | [`20260926-160553`](20260926-160553/) | `8250bd2` | clean | 1.0.1 | 0/0 | 75 | 383/0/383 | pass | 9976 | 1318 | 6.3 | 2.1 | 14 | 0 | **green** |
 | [`20260924-110428`](20260924-110428/) | `c888121` | clean | 1.0.1 | 0/0 | 72 | 342/0/342 | pass | 9154 | 1192 | 6.3 | 2.2 | 14 | 0 | **green** |
 | [`20260918-121606`](20260918-121606/) | unknown | unknown | 1.0.0 → 1.0.1 | 0/0 | 70 | 227/0/227 | pass | 7378 | 942 | 6.3 | 2.2 | 14 | 0 | **green** |
@@ -47,10 +48,10 @@ archaeology, for the same reason a skip is never a pass (`automated-tests-§4`).
 ## Test suite
 
 **383 cases** — 383 passed, 0 failed, 0 skipped. The generated inventory
-[`20260926-160553/test-cases.md`](20260926-160553/test-cases.md) is the authority on which cases existed at this run;
+[`20260926-193107/test-cases.md`](20260926-193107/test-cases.md) is the authority on which cases existed at this run;
 `docs/test-cases.md` is that same list at HEAD.
 
-Moved **342 → 383** since the previous run.
+Unchanged from the previous run at 383 cases.
 
 No case reported a `skip`, so passed and total agree and nothing in this row claims coverage
 that was not exercised.
@@ -67,26 +68,26 @@ to whoever thinks to open `.luacheckrc`.
 ## Perf
 
 **9 scenarios** from `tests/perf.lua`; the measurements are in
-[`20260926-160553/perf.json`](20260926-160553/perf.json).
+[`20260926-193107/perf.json`](20260926-193107/perf.json).
 
 | `scenario` | `iters` | `ms/iter` | `api/iter` | `bytes/iter` |
 |---|---|---|---|---|
-| `resolveUnchanged` | 1000 | 0.00858 | 0.0 | 0.0 |
-| `anchorUnchanged` | 1000 | 0.00552 | 0.0 | 0.0 |
-| `castStartStop` | 1000 | 0.02724 | 55.0 | 3.6 |
-| `castTick` | 1000 | 0.00317 | 10.0 | 0.0 |
-| `targetTickUnchanged` | 1000 | 0.00246 | 0.0 | 0.0 |
-| `targetTickMoving` | 1000 | 0.00612 | 15.0 | 0.0 |
-| `settingsDrag` | 200 | 0.04624 | 25.0 | 925.9 |
-| `probeOverheadOff` | 1000 | 0.00529 | 11.0 | 0.0 |
-| `probeOverheadOn` | 1000 | 0.00662 | 11.0 | 0.5 |
+| `resolveUnchanged` | 1000 | 0.00969 | 0.0 | 0.0 |
+| `anchorUnchanged` | 1000 | 0.00657 | 0.0 | 0.0 |
+| `castStartStop` | 1000 | 0.02919 | 55.0 | 3.6 |
+| `castTick` | 1000 | 0.00351 | 10.0 | 0.0 |
+| `targetTickUnchanged` | 1000 | 0.00274 | 0.0 | 0.0 |
+| `targetTickMoving` | 1000 | 0.00600 | 15.0 | 0.0 |
+| `settingsDrag` | 200 | 0.04469 | 25.0 | 925.9 |
+| `probeOverheadOff` | 1000 | 0.00507 | 11.0 | 0.0 |
+| `probeOverheadOn` | 1000 | 0.00742 | 11.0 | 0.5 |
 
 `perf` never fails a run and never blocks a commit — it is recorded, read and compared, not
 thresholded (`performance-§9`). It does gate the **tag** (`automated-tests-§3`).
 
 ## Complexity watch list
 
-Current as of [`20260926-160553`](20260926-160553/) — **this run's measurement, not its diff.** Max CCN **14** across 1318
+Current as of [`20260926-193107`](20260926-193107/) — **this run's measurement, not its diff.** Max CCN **14** across 1318
 functions, **0** of them warned on; 0 file(s) in the 1000–1500 band and 0 over the 1500 cap
 (`layout-§1`).
 
@@ -100,10 +101,14 @@ cell is this file saying something crossed and nobody has ruled on it yet.
 | Function | CCN | Location | Disposition |
 |---|---|---|---|
 
+None.
+
 ### Files by `layout-§1` band
 
 | Band | File | LOC | Disposition |
 |---|---|---|---|
+
+None.
 
 `lizard` counts every `and`/`or` short-circuit as a decision, so in Lua a run of
 `t.k = rec.k or D.k` defaulting lines scores high with no visible branching at all: a large CCN

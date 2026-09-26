@@ -6,7 +6,7 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (15)
+### test_loadorder.lua (16)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
@@ -16,6 +16,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
 - loadorder: Preview loads after StandIn, and the TOC says why
+- loadorder: modules/Diagnostics.lua loads after the console and before the settings
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
 - loadorder: every derived path exists on disk
 - loadorder: the runner loaded exactly the TOC's files, in the TOC's order
@@ -348,7 +349,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
 - slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (18)
+### test_disabled.lua (19)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -358,6 +359,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: the fade frames and the free-placement holders are hidden
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
+- disabled: both diagnostics forms write a report, and it says the addon is stood down
 - disabled: re-enabled, the addon rebuilds from CURRENT state
 - disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
@@ -368,6 +370,24 @@ badge and any count quoted in the docs must agree with it.
 - disabled: in combat, the fade frames and holders hide once combat ends
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
+
+### test_diagnostics.lua (15)
+
+- diagnostics: the console carries the brand and reads the sections at run time
+- diagnostics: every DX-PF section is present, in order
+- diagnostics: the always-print rows print at their defaults, other defaults do not
+- diagnostics: per feature per unit, the element fields and the secure wants
+- diagnostics: the free-placement position prints stored and applied
+- diagnostics: the secure-write queue's keys, the flush listener and the blocked count
+- diagnostics: the frame system, the unit map and the range fade
+- diagnostics: stood down, runtime sections say so and stored settings still print
+- diagnostics: a raising read costs exactly one line and the next section still runs
+- diagnostics: a secret value reaches no comparison and prints as the sentinel
+- diagnostics: over the cap, the report ends in the truncated line and then the end marker
+- diagnostics: the report writes no setting, queues no secure write and registers nothing
+- diagnostics: the sections file calls no API the report must never call
+- diagnostics: the one chat line is the locale's, with the line count
+- diagnostics: without LibKa0s, both forms print the one library-absent line
 
 ### test_launcher.lua (31)
 
@@ -432,9 +452,15 @@ badge and any count quoted in the docs must agree with it.
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
-### test_diagnostics_contract.lua (1)
+### test_diagnostics_contract.lua (7)
 
-- diagnostics contract: debug-logging-§14 (skipped: Kit.diagnostics is not set in the runner, so this repo's dispatcher is not wired to the shared contract yet. Every Ka0s addon owes debug-logging-§14's report; wire Kit.diagnostics once the report exists)
+- diagnostics contract: both forms run the report
+- diagnostics contract: the debug word is matched in any case
+- diagnostics contract: both markers carry the brand and the end counts the report
+- diagnostics contract: the report appends after what the console already holds
+- diagnostics contract: the report lands with logging off and leaves it off
+- diagnostics contract: both forms run while the addon is disabled
+- diagnostics contract: no other name runs the report
 
 ### test_vendor_sync.lua (3)
 
@@ -467,7 +493,7 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 15 |
+| test_loadorder.lua | 16 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
@@ -492,12 +518,13 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 24 |
-| test_disabled.lua | 18 |
+| test_disabled.lua | 19 |
+| test_diagnostics.lua | 15 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 13 |
-| test_diagnostics_contract.lua | 1 |
+| test_diagnostics_contract.lua | 7 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **358** |
+| **Total** | **381** |

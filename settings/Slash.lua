@@ -51,6 +51,10 @@ NS.COMMANDS = {
         function() runStatus() end},
     {"debug",    L["Toggle the debug console \226\128\148 `on`/`off` enable/disable logging"],
         function(rest) runDebug(rest) end},
+    -- debug-logging-§14: the one top-level form of the report; `debug diagnostics` is the other,
+    -- and there is no third. It reads state only, so it is live while disabled.
+    {"diagnostics", L["Write the diagnostics report to the debug console"],
+        function() NS.DebugLog:RunDiagnostics() end},
     {"perf",     L["Measure performance \226\128\148 try `/pfe perf` for the workflow"],
         function(rest) runPerf(rest) end},
     {"version",  L["Print the addon version"],
@@ -231,8 +235,14 @@ function runPerf(rest)
 end
 
 -- `/pfe debug` toggles the WINDOW; `on`/`off` go through the one SetEnabled seam (debug-logging-§5).
+-- `diagnostics` is tested FIRST, in any case, and runs the report (debug-logging-§14); every other
+-- word, `diag` included, is an ordinary unknown word and toggles the window.
 function runDebug(rest)
-    local sub = ((rest or ""):match("^(%S*)") or ""):lower()
+    local sub = ((rest or ""):match("^%s*(%S*)") or ""):lower()
+    if sub == "diagnostics" then
+        NS.DebugLog:RunDiagnostics()
+        return
+    end
     if sub == "on" or sub == "off" then
         NS.DebugLog:SetEnabled(sub == "on")
         return

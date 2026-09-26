@@ -27,7 +27,7 @@ test("slash: the reserved verbs are all present", function()
   local have = {}
   for _, e in ipairs(NS.COMMANDS) do have[e[1]] = true end
   for _, verb in ipairs({ "help", "config", "list", "get", "set", "reset", "resetall", "debug",
-                          "enable", "disable", "perf", "version" }) do
+                          "enable", "disable", "perf", "version", "diagnostics" }) do
     assertTrue(have[verb], "reserved verb missing: " .. verb)
   end
 end)
@@ -167,7 +167,7 @@ end)
 --
 -- The dispatcher surviving the disabled state (above) is one half; what it ANSWERS is the other. A
 -- verb that drives the addon's features refuses on one tagged line naming `/pfe enable` and does
--- nothing else, while the twelve reserved verbs plus this addon's two diagnostics stay live.
+-- nothing else, while the thirteen reserved verbs plus this addon's own `status` and `profile` stay live.
 
 -- The collection's ONE refusal line, matched by SHAPE rather than by its words: the wording lives in
 -- LibKa0s-Slash-1.0 (`lib.DISABLED_LINE_FORMAT`, `cli:DisabledLine()`) and is not this addon's to

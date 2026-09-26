@@ -52,6 +52,22 @@ _G.PFE_TEST = Kit.expose{
   loadedLibFiles   = LIB_FILES,
 }
 
+-- The consumer facts for the kit's shared diagnostics contract (debug-logging-§14), run against
+-- this addon's own dispatcher: both forms, while disabled, append, ungated, the markers, and
+-- `diag` not running the report. tests/test_diagnostics.lua adds the DX-PF sections.
+Kit.diagnostics = {
+  brand       = "Ka0s Party Frame Enhanced",
+  dispatch    = function(line) NS.Slash:OnSlash(line) end,
+  console     = function() return NS.DebugLog end,
+  -- The flag directly, with no chat line: the case is about the report, not the ack.
+  setDebug    = function(on) NS.State.debug = on and true or false end,
+  -- Through the write seam, the same path `/pfe disable` takes, so the latch really stands down.
+  setDisabled = function(off)
+    NS.SetByPath("enabled", not off)
+    while mocks.__fireTimers() > 0 do end
+  end,
+}
+
 Kit.run{
   dir = "tests/",
   suites = {
@@ -81,6 +97,7 @@ Kit.run{
     { name = "test_prose", dir = "tests/_kit/" },
     "test_slash",
     "test_disabled",
+    "test_diagnostics",
     "test_launcher",
     "test_optionssetup",
     "test_surface_parity",

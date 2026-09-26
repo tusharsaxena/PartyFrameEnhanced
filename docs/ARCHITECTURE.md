@@ -54,7 +54,7 @@ v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this
 
 ## Module Map
 
-Thirty-eight files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Thirty-nine files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup before PerfSetup (which requires the latch),
 PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element

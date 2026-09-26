@@ -127,6 +127,7 @@ for _, key in ipairs({
     "Unlock the elements to drag them, with placeholder content",
     "Show which party frames were found and what each feature is doing",
     "Toggle the debug console \226\128\148 `on`/`off` enable/disable logging",
+    "Write the diagnostics report to the debug console",
     "Measure performance \226\128\148 try `/pfe perf` for the workflow",
     "Print the addon version",
     "Profile management \226\128\148 try `/pfe profile` for the list",
@@ -169,6 +170,10 @@ L["Blizzard (classic)"] = "Blizzard (classic)"
 -- The debug seam's degraded stub (core/DebugLogSetup.lua)
 L["debug logging %s"] = "debug logging %s"
 L["Debug console"] = "Debug console"
+
+-- The diagnostics report's one chat line (core/DebugLogSetup.lua; debug-logging-§14)
+L["Diagnostic report written to the debug console: %d lines. Use Copy to share it."] =
+    "Diagnostic report written to the debug console: %d lines. Use Copy to share it."
 
 -- Migration runner (core/Database.lua)
 L["Settings migration to v%d failed; your settings were left as they were"] =

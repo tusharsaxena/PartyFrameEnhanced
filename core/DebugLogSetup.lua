@@ -87,6 +87,9 @@ NS.DebugLog = lib:New({
     -- question from `name`, answered with the same string here.
     addonName = addonName,
     title     = "Party Frame Enhanced",
+    -- The full brand, named in both diagnostics markers so a paste holding several addons' reports
+    -- can be split. The same spelling settings/Slash.lua gives the dispatcher.
+    brandName = "Ka0s Party Frame Enhanced",
     font      = NS.Constants.FONT_MONO,
     slash     = "/pfe",
 
@@ -107,6 +110,16 @@ NS.DebugLog = lib:New({
             NS.SafeToString(schemaVer or "?"), NS.SafeToString(profile or "?"),
             NS.SafeToString(provider or "none"))
     end,
+
+    -- The diagnostics report's sections (debug-logging-§14), asked for each time a report runs:
+    -- modules/Diagnostics.lua loads after this file.
+    diagnostics = function() return NS.Diagnostics and NS.Diagnostics.Sections() or {} end,
+
+    -- The report's one chat line, through the locale (localization-§1). The report BODY is English
+    -- diagnostic text, like every trace line, and never goes through NS.L.
+    L = {
+        DIAG_WRITTEN = NS.L["Diagnostic report written to the debug console: %d lines. Use Copy to share it."],
+    },
 
     -- So a console opened by `/pfe debug` moves the checkbox on an already-open options panel.
     onVisibilityChanged = function()

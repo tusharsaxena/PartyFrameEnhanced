@@ -108,6 +108,15 @@ test("loadorder: Preview loads after StandIn, and the TOC says why", function()
   end
 end)
 
+test("loadorder: modules/Diagnostics.lua loads after the console and before the settings", function()
+  -- Conventional, not load-bearing: the console asks for the sections at run time. Pinned so the file
+  -- cannot silently drop out of the TOC, which would leave `/pfe diagnostics` writing a report with
+  -- the library's header and none of this addon's sections.
+  assertBefore("core/debuglogsetup.lua", "modules/diagnostics.lua", "the console exists first")
+  assertBefore("modules/preview.lua", "modules/diagnostics.lua", "after every module it reads")
+  assertBefore("modules/diagnostics.lua", "settings/schema.lua", "modules load before settings")
+end)
+
 test("loadorder: tocFiles skips libs, directives and comments, and uses forward slashes", function()
   for _, p in ipairs(Loader.tocFiles(TOC)) do
     assertFalse(p:lower():match("^libs/"), "a libs/ path leaked into the derived list: " .. p)

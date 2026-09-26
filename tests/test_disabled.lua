@@ -244,6 +244,29 @@ test("disabled: the whole reserved surface still answers, and only feature verbs
   assertEqual(NS.GetSetting("enabled"), false, "and none of that turned the addon back on")
 end)
 
+test("disabled: both diagnostics forms write a report, and it says the addon is stood down", function()
+  -- red under: `diagnostics` missing from LIVE_WHILE_DISABLED (the gate refuses it on the one line),
+  -- or a `debug` handler that tests `on`/`off` and toggles the window before it ever sees the word.
+  -- The report is exactly what a player reaches for when a switched-off addon is the question.
+  enable(false)
+  local D = NS.DebugLog
+  local refusal = NS.Slash.__cli:DisabledLine()
+  for _, form in ipairs({ "diagnostics", "debug diagnostics" }) do
+    local before, chat = #D.buffer, #mocks.__chat
+    NS.Slash:OnSlash(form)
+    local wrote = table.concat(D.buffer, "\n", before + 1)
+    assertTrue(wrote:find("Ka0s Party Frame Enhanced diagnostics begin", 1, true) ~= nil,
+      "/pfe " .. form .. " wrote a report while disabled")
+    assertTrue(wrote:find("latch: enabled=false stoodDown=true", 1, true) ~= nil,
+      "and its header says the addon is stood down")
+    for i = chat + 1, #mocks.__chat do
+      assertTrue(mocks.__chat[i]:find(refusal, 1, true) == nil, "/pfe " .. form .. " was refused")
+    end
+  end
+  assertEqual(NS.GetSetting("enabled"), false, "and running it turned nothing back on")
+  enable(true)
+end)
+
 test("disabled: re-enabled, the addon rebuilds from CURRENT state", function()
   -- red under: a stand-up that replays a snapshot taken on the way down. The second half changes a
   -- setting WHILE the addon is off, which a snapshot cannot know about (performance-§6).

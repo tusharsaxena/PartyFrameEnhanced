@@ -41,7 +41,8 @@ the right-click options menu.
 
 The suites test what is **this addon's**: each setup file's descriptor and degradation stub, the
 schema and its write seam, the slash table, the lifecycle and the secure-write queue, the providers,
-the anchor engine, the three features, preview mode and perf-bucket coverage. The library's own
+the anchor engine, the three features, preview mode, the diagnostics report's sections
+(`tests/test_diagnostics.lua`) and perf-bucket coverage. The library's own
 internals are tested in the LibKa0s repo and not again here (testing-§8).
 
 Four suites arrive with the vendored kit and are wired by the pair form testing-§9 prescribes,
@@ -49,8 +50,8 @@ Four suites arrive with the vendored kit and are wired by the pair form testing-
 carries the terminator `.gitattributes` declares, and `.gitattributes` itself is line-endings-§5's
 canonical body), `test_layout_cap`, which holds the `### Files over the 1500-line cap` census in
 [ARCHITECTURE.md](./ARCHITECTURE.md) against every authored `.lua` file the repo tracks (layout-§1),
-and `test_diagnostics_contract` (debug-logging-§14's report), one declared skip until the report
-exists and `Kit.diagnostics` is wired.
+and `test_diagnostics_contract` (debug-logging-§14's report), which runs against this addon's own
+dispatcher through the `Kit.diagnostics` facts `tests/run.lua` sets.
 A kit suite left undeclared, or shadowed by a bare entry, reddens the kit's suite inventory.
 
 `tests/test_disabled.lua` is the stand-down conformance suite slash-commands-§7 requires, and it is

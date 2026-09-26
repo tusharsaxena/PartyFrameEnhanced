@@ -128,6 +128,11 @@ function disarmPendingRegen()
     if regenWatch then regenWatch:UnregisterAllEvents() end
 end
 
+--- Whether the pending-secure listener is live right now (the diagnostics report).
+function NS.PendingRegenArmed()
+    return regenWatch ~= nil and regenWatch:IsEventRegistered("PLAYER_REGEN_ENABLED") == true
+end
+
 -- ── the stand-down, reached from the latch in core/LifecycleSetup.lua ────────────────────────
 --
 -- ONE TEARDOWN, TWO REASONS TO REACH IT (slash-commands-§7). `perf` and `disabled` are two named

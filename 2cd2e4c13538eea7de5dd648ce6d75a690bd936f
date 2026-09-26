@@ -1,0 +1,1 @@
+clean: DR-PF-07 empty record verified; gate re-run 383/0, luacheck 0/0, lizard clean, max 578 lines; AUD-01 steps 1-6 re-checked (README section matches STD-17 for /pfe, hand-written LIVE_WHILE_DISABLED is a superset of Slash 16 LIVE_VERBS incl. diagnostics); test-cases.md equals --list; three-place reference and EOL clean

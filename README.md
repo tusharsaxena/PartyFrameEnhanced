@@ -10,15 +10,15 @@ Party frames show you everyone's health. They don't show you what the healer is 
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
 party member's frame: a cast bar, a small frame for whatever they're targeting, and one for their pet.
 
-It works with Blizzard's party frames (classic or raid-style) and with EllesmereUI's, and it figures
-out which one you're using and attaches itself to it. If you'd rather not tie anything to your party
-frames, any of the three can live in its own movable stack instead.
+It works with Blizzard's party frames (classic or raid-style) and with EllesmereUI's. It figures out
+which one you're using and attaches to it. If you'd rather not tie anything to your party frames, any
+of the three can live in its own movable stack instead.
 
-- **Cast bars** change color with the kind of cast, carry a small shield when the cast can't be
-  interrupted, and flash red when it gets interrupted.
-- **Target frames** show the target's name, health and raid marker, colored by class for players and
-  by hostility for everything else. Clicking one targets that unit.
-- **Pet frames** show the pet's name, health and raid marker, and a click targets the pet.
+- Cast bars change color with the kind of cast. They show a small shield when the cast can't be
+  interrupted, and flash red when someone interrupts it.
+- Target frames show the target's name, health and raid marker. Players are colored by class and
+  everything else by hostility. Click one to target that unit.
+- Pet frames show the pet's name, health and raid marker, and clicking one targets the pet.
 
 ## Screenshots
 
@@ -55,25 +55,27 @@ both UIs.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim along with their
 party frame, to whatever opacity that frame uses. Blizzard's classic party frames never dim, so with
-those the addon does it for them, at half opacity past about 40 yards. **Fade with party frames** on
+those the addon does the dimming itself: half opacity once a member is past about 40 yards. **Fade with party frames** on
 the **General** page turns this off.
 
 Target and pet frames are secure buttons, the same kind Blizzard's own unit frames are made of, so
-clicking them works in combat. The game also refuses to let any addon move one mid-fight. If someone
-joins or leaves during a pull, those frames hide until combat ends and then reappear in the right spot.
+clicking them works in combat. The catch is that the game won't let any addon move one mid-fight. If
+someone joins or leaves during a pull, those frames hide until combat ends, then come back in the right
+spot.
 
 Every option is under **Settings → AddOns → Ka0s Party Frame Enhanced**, and typing `/pfe` on its
 own takes you there. `/pfe help` (or `/partyframeenhanced help`) prints the full command list.
 
-There is a **minimap button** too. Left-click opens the settings. Right-click opens a small menu with
-two checkboxes: **Enabled** turns the addon on or off (the same as `/pfe enable` / `/pfe disable`),
-and **Locked** unlocks and re-locks the elements (the same switch as **Lock frame**). While the addon
-is off, **Locked** is grayed out until you enable it again. Hover the button to see whether the addon
-is enabled and locked; it answers even while the addon is switched off. If you use Titan Panel,
-ElvUI's data texts or Bazooka, the addon shows up there as well, and clicking it does exactly the
-same thing. To put the
-button away, untick **Minimap button** on the **General** page; it stays away on every character and
-every profile until you tick it back.
+There's a **minimap button** too. Left-click it for the settings. Right-click it for a small menu
+with two checkboxes: **Enabled** turns the addon on or off (the same as `/pfe enable` /
+`/pfe disable`), and **Locked** unlocks and re-locks the elements (the same switch as **Lock frame**).
+While the addon is off, **Locked** stays grayed out until you enable it again. Hovering the button
+tells you whether the addon is enabled and locked, and that works even when it's switched off. If you
+use Titan Panel, ElvUI's data texts or Bazooka, the addon shows up there as well, and clicking it
+there does the same thing.
+
+Don't want the button? Untick **Minimap button** on the **General** page. It stays hidden on every
+character and every profile until you tick it back.
 
 ## How it works
 
@@ -85,7 +87,7 @@ every profile until you tick it back.
    Target frames update the moment a member switches target, and their health refreshes a few times a
    second while they're visible. Pet frames follow the pet's health events.
 4. In Midnight, a lot of combat information is hidden from addons. Party Frame Enhanced never tries to
-   read it; it passes those values straight to the game to draw, which is why a pull can't break it.
+   read it. It hands those values straight to the game to draw, so a pull can't break it.
 
 ## FAQ
 
@@ -113,14 +115,14 @@ every profile until you tick it back.
 2. Type `/pfe diagnostics`.
 3. If the debug window isn't open, open it with `/pfe debug`. Press **Copy**, copy the entire output, and include it with your bug report.
 
-The report is added after the debug trace in the same window, so one copy carries both.
+The diagnostics report goes in below the debug trace, in the same window, so one copy gets you both.
 
 ## Issues and feature requests
 
-Bugs and feature requests are tracked at
+I track bugs and feature requests at
 [https://github.com/tusharsaxena/PartyFrameEnhanced/issues](https://github.com/tusharsaxena/PartyFrameEnhanced/issues).
 Please file them there rather than in comments. That list is the addon's whole backlog, so anything
-filed there gets seen.
+you file there gets seen.
 
 ## Version History
 

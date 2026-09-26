@@ -47,7 +47,8 @@ nothing cannot be mistaken for one that measured everything.
   **Generated** by the runner and overwritten in place, so the git history of that one path is the
   trend line. The one hand-written cell is the watch list's `Disposition` column.
 - **`<YYYYMMDD-HHMMSS>/`** — one frozen bundle per run: `manifest.json`, one file per suite, and
-  `ANALYSIS.md` (written by hand for a release run). Bundles are **never edited** and **never pruned**.
+  `ANALYSIS.md`, the hand-written write-up: required for a release run and written for most others
+  (`automated-tests-§5`). Bundles are **never edited** and **never pruned**.
 
 Offline perf records live in the bundle of the run that produced them. **In-game** captures cannot be
 produced by a script, so they keep their own store at [`../perf-analysis/`](../perf-analysis/).

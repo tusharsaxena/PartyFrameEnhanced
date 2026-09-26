@@ -1,0 +1,1 @@
+clean: NR-PF-01 matches its task; libs/LibKa0s equals tag v1.61.0 (c6183bd) byte for byte, kit untouched, stub NavRail proven by parity case failing without it; gate 383/0/0, luacheck 0/0, lizard clean, CRLF intact

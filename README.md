@@ -130,3 +130,8 @@ you file there gets seen.
 |---|---|---|
 | 1.0.1 | 2026-09-18 | - Fixed the target frame of someone who joins your party while already targeting something: it stayed blank and red until they changed target, and now fills in with the right name and color straight away. |
 | 1.0.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |
+
+## Credits
+
+The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), licensed under the SIL
+Open Font License 1.1. It ships inside the bundled LibKa0s payload, with its license text beside it.

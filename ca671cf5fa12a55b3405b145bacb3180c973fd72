@@ -1,0 +1,1 @@
+clean: README ## Reporting a bug matches STD-17 verbatim with /pfe (no link, step 3 per owner ruling), placed between Troubleshooting and Issues; STD-18 row points at it; CRLF kept; gate re-run 383/0, luacheck 0/0, lizard clean, max 578 lines

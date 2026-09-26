@@ -32,9 +32,10 @@ nothing (so no reorder list). **Schema was adopted last** (#14): it waited on th
 `writeThrough` list (Schema minor 2), without which a library-less load, whose Master controls
 composer is hollow, would have stopped `/pfe enable`, `/pfe disable` and `/pfe lock` from writing.
 
-Build status: v1.0.1 is the latest release, shipped with the offline perf pass, the release-candidate
-record, the first standards audit, the in-game smoke pass and the first party perf captures done.
-Master carries unreleased work since that tag, waiting for the next version bump: every element fades
+Build status: v1.1.0 is the latest release (2026-09-27), gated on the release run
+[automated-tests/20260927-030324/](automated-tests/20260927-030324/ANALYSIS.md). v1.0.1 shipped with the
+offline perf pass, the release-candidate record, the first standards audit, the in-game smoke pass and
+the first party perf captures done. What v1.1.0 adds over v1.0.1: every element fades
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left

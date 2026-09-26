@@ -118,6 +118,7 @@ you file there gets seen.
 
 | Version | Date | Highlights |
 |---|---|---|
+| 1.1.0 | 2026-09-27 | - When a party member is out of range, their cast bar, target frame and pet frame fade with their party frame. Turn off **Fade with party frames** if you'd rather they didn't.<br>- Raid markers draw above the border, pet frames get their own raid marker, and the marker sits at the top of the bar by default.<br>- The minimap button's tooltip shows whether the addon is enabled and locked. Left-click opens settings, and right-click gives you Enabled and Locked switches.<br>- `/pfe diagnostics` writes a report to paste into a bug report, and the README has a new "Reporting a bug" section.<br>- The Size & Position tab only shows the settings for the placement you picked, and the settings panel stays locked during combat. |
 | 1.0.1 | 2026-09-18 | - Fixed the target frame of someone who joins your party while already targeting something: it stayed blank and red until they changed target, and now fills in with the right name and color straight away. |
 | 1.0.0 | 2026-09-18 | - First version: cast bars, target frames and pet frames for your party, attached to Blizzard or EllesmereUI party frames or placed freely. |
 

@@ -161,7 +161,7 @@ and returns 0.
 ## Where else this is pinned
 
 The command rows are in [slash-dispatch.md](slash-dispatch.md), and the player-facing steps are the
-README's `## Reporting a bug`. The in-game checks are steps 21 to 23f in
+README's `## Reporting a bug`. The in-game checks are DIAG-1 to DIAG-9 in
 [smoke-tests.md](smoke-tests.md). The suites are `tests/test_diagnostics.lua` (this addon's
 sections), the kit's shared `tests/_kit/test_diagnostics_contract.lua` (wired in `tests/run.lua`),
 `tests/test_disabled.lua` and `tests/test_slash.lua`.

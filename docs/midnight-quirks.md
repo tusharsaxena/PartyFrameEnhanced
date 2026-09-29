@@ -87,7 +87,7 @@ member frame and replays them on its own per-unit fade frame:
 - a secret **flag** goes to `SetAlphaFromBoolean` untouched, which takes it by design;
 - a secret **number** is tried on `SetAlpha` under `pcall`. If the client refuses it, the raid-style
   frame's own `outOfRange` flag (possibly secret too) goes through `SetAlphaFromBoolean` instead.
-  Which path runs in an instance is smoke step 47b;
+  Which path runs in an instance is smoke check FADE-2;
 - the fade frame's `GetAlpha` is never read back. After `SetAlphaFromBoolean` it is secret, and it
   never has to be multiplied with anything: the elements are the fade frame's children, so the
   client multiplies the two alphas itself.

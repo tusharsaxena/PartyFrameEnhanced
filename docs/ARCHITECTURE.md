@@ -338,7 +338,7 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - The out-of-range fade copies the party frame. On Blizzard's classic layout, which does not fade,
   it is the fixed ~40-yard `UnitInRange` check at 0.5. Spell-based ranges and a per-feature opacity
   are #13. Whether the client takes a **secret number** on `SetAlpha` is unverified, so the
-  raid-style copy has a fallback through the frame's `outOfRange` flag (smoke step 47b).
+  raid-style copy has a fallback through the frame's `outOfRange` flag (smoke check FADE-2).
 - The logo is a generated placeholder (#10).
 - On a load without LibKa0s the bus has no stand-down record: `core/Bus.lua` falls back to the
   untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
@@ -383,7 +383,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | Doc | Covers |
 |---|---|
 | `testing.md` | The harness, lint, the green commit gate, the release gate, the vendored-payload check |
-| `smoke-tests.md` | The in-game smoke-test suite, including the non-English-client step |
+| `smoke-tests.md` | The in-game smoke-test suite, including the `## Non-English client` checks (LOC) |
 | `test-cases.md` | The generated case inventory (authoritative pass count) |
 | `performance.md` | Buckets, the bracket idiom, the latch the perf hold is taken on, the offline scenarios |
 | `automated-tests/README.md` | What the automated-test record is and how to produce it |

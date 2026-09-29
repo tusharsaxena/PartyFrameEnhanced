@@ -22,7 +22,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
-| COMBAT-1 – 7 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, re-sort and toggles |
+| COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
 | DIAG-1 – 9 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
@@ -294,7 +294,8 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   retarget. Result:
 - **UNIT-11. Click to target.** Click a target frame → you target that unit, in combat too. Click a pet
   frame → you target the pet. Out of combat, untick *Click to target* on Target Frames → clicks pass
-  through; tick it back → clicks target again (toggling it in combat is COMBAT-7). Result:
+  through; tick it back → clicks target again (toggling it in combat, through `/pfe set`, is
+  COMBAT-7). Result:
 
 ## Out-of-range fade
 
@@ -386,21 +387,35 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   combat* line, nothing previews or moves, and *Lock frame* stays ticked on an open General page.
   Right-click the minimap button and click *Locked* → the same line, and nothing moves. `/pfe lock`
   still works. Result:
-- **COMBAT-5. Visibility and moves in combat.** In combat, change *General visibility* to *Only out of
-  combat* → the frames hide at once (the driver's `[combat]` clause), with no Lua error and no
-  blocked-action message. In free placement, moving a frame is refused in combat and allowed out of it.
-  Result:
+- **COMBAT-5. General visibility in combat.** The panel is locked in combat (COMBAT-2), so this check
+  uses the command. In a party with a member targeting something, `/pfe debug on`, and out of combat
+  `/pfe set visibility outOfCombat` → nothing changes yet. Pull a dummy → the target and pet frames
+  hide at once (the state driver's `[combat]` clause), and no cast bar shows while members cast. Still
+  in combat, `/pfe set visibility always` → cast bars show again on the next cast, the target and pet
+  frames stay hidden, and the console shows `[Secure] queued driver:Target:…`. Leave combat → `[Secure]
+  flushed …` and the target and pet frames come back. *Failure:* a Lua error, an
+  `ADDON_ACTION_BLOCKED` line, or a target frame shown in combat while the setting is *Only out of
+  combat*. Result:
 - **COMBAT-6. Re-sort in combat.** Raid-style or EllesmereUI frames sorted by role, `/pfe debug on`:
   have someone join or leave mid-pull → the cast bars follow the members to their new frames straight
   away; the target frames whose party frame moved fade out, then reappear beside the right member when
   combat ends, and the console shows `[Secure] queued …` then `[Secure] flushed …`. With a member out
   of range, the clickable frames still fade with their party frame through the reshuffle. *Failure:* a
   target frame beside the wrong member during combat, or an `ADDON_ACTION_BLOCKED` line. Result:
-- **COMBAT-7. Click to target toggled in combat.** Out of combat, untick *Click to target* on Target
-  Frames. In combat, tick it back → it applies when combat ends, and clicks target again. In another
-  combat, untick it and tick it again before combat ends; after combat, left-click a target frame →
-  you target that unit. *Failure:* the frame ignores the click (the untick landed at regen and the
-  re-tick was lost), which needs a third toggle to recover. Result:
+- **COMBAT-7. Click to target toggled in combat.** The panel is locked in combat (COMBAT-2), so this
+  check uses the command. Out of combat, `/pfe set target.clickToTarget false` → a click on a target
+  frame passes through. Pull a dummy, and in combat `/pfe set target.clickToTarget true` → clicks
+  still pass through until combat ends, then target again. In the next combat, `/pfe set
+  target.clickToTarget false` and then `/pfe set target.clickToTarget true` before combat ends; after
+  combat, left-click a target frame → you target that unit. *Failure:* the frame ignores the click
+  (the untick landed at regen and the re-tick was lost), which needs a third toggle to recover.
+  Result:
+- **COMBAT-8. Nothing moves in combat.** In a party, `/pfe set target.anchorMode free` and `/pfe
+  unlock`, then pull a dummy → combat locks the preview (COMBAT-3). In combat, with a member
+  targeting the dummy, left-drag their target frame → nothing moves, with no Lua error and no
+  `ADDON_ACTION_BLOCKED`. Leave combat, `/pfe unlock`, and drag the *Target frames* plate → it moves
+  (PREV-3). Then `/pfe lock`, `/pfe resetposition` and `/pfe set target.anchorMode attached`.
+  *Failure:* the stack moving in combat. Result:
 
 ## Debug console, diagnostics and perf
 
@@ -488,8 +503,8 @@ Checks:
 
 ## Pending sign-off
 
-The last full pass on record is v0.1.0 (2026-09-18). The launcher checks were re-run on 2026-09-25 and
-the diagnostics checks on 2026-09-26. The checks below cover behavior that arrived or changed after
+The last full pass on record is v0.1.0 (2026-09-18). The minimap button checks were re-run on
+2026-09-25 and the diagnostics checks on 2026-09-26. The checks below cover behavior that arrived or changed after
 those passes and have no recorded result yet. Fill in each one's `Result:` line, then remove its row.
 
 | ID | Origin (old step) | What is owed |
@@ -503,7 +518,13 @@ those passes and have no recorded result yet. Fill in each one's `Result:` line,
 | PROFILE-9 | D 20a | the sub-verbs refuse bad names (PF-01, 2026-09-24) |
 | UNIT-3 | G 34a | a new member's target fills in (1.0.1, 2026-09-18) |
 | UNIT-7 – 9 | G 35c, 35d | the pet raid marker and the marker above the border (2026-09-19) |
+| UNIT-10 | G 35b | the `health ticker started` line followed at once by `stopped` is expected: the unresolved-target repaint (1.0.1, 2026-09-18) |
 | FADE-1 – 4 | I 47a – 47d | the out-of-range fade (2026-09-18) |
+| LAUNCH-5 | K 56 | the broker's right-click opens the options menu (M6, 2026-09-25; the 2026-09-25 re-run names only the minimap button) |
 | LAUNCH-6 | K 57 | the CLI half, `global.minimap.shown` (PF-13, 2026-09-24) |
+| LAUNCH-8 | K 59 | `/pfe reset global.minimap.shown` resets the row (PF-13, 2026-09-24) |
 | COMBAT-2 | C 16 | the combat lock cover (2026-09-20) |
-| COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24) |
+| COMBAT-5 | G 37 | visibility changed in combat, now through `/pfe set` since the combat lock (2026-09-20) refuses the panel |
+| COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
+| COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24), now through `/pfe set` |
+| COMBAT-8 | G 37 | nothing moves in combat, rewritten with a named drag for the same reason as COMBAT-5 |

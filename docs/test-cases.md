@@ -322,7 +322,7 @@ badge and any count quoted in the docs must agree with it.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (24)
+### test_slash.lua (32)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -334,7 +334,8 @@ badge and any count quoted in the docs must agree with it.
 - slash: `unlock` and `lock` write `locked` through the seam
 - slash: `set` parses and stores a schema value, `reset` puts it back
 - slash: `perf` prints what the harness returns
-- slash: `profile` with no argument prints the sub-verb list
+- slash: NS.COMMANDS holds the eighteen verbs in their documented order
+- slash: bare `profile` lists the profiles, current marked, then the sub-verb help
 - slash: an unknown verb says so and prints help
 - slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
 - slash: `enable` echoes the stored value in the shared `path = value` shape
@@ -347,9 +348,16 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile use` on a missing name refuses and creates nothing
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
+- slash: `profile <name>` switches to an existing profile and the profile handler runs
+- slash: `profile use <name>` switches through the same library path
+- slash: `profile <unknown>` refuses, lists the profiles and creates nothing
+- slash: `profile <name>` keeps case, so a wrong-case name is refused with a did-you-mean
+- slash: `profile "<name with spaces>"` strips the quotes and keeps the spaces
+- slash: a sub-verb matches in any case, and the current profile is already on
+- slash: `profile <name>` refuses in combat and switches nothing
 - slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (19)
+### test_disabled.lua (20)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -360,6 +368,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
 - disabled: both diagnostics forms write a report, and it says the addon is stood down
+- disabled: `profile` is live -- it lists and it switches while the addon is off
 - disabled: re-enabled, the addon rebuilds from CURRENT state
 - disabled: re-enabled, the fade frames and the holders are shown again
 - disabled: two holds, one latch — releasing one never resurrects the other's addon
@@ -520,8 +529,8 @@ badge and any count quoted in the docs must agree with it.
 | test_preview_standin.lua | 17 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 24 |
-| test_disabled.lua | 19 |
+| test_slash.lua | 32 |
+| test_disabled.lua | 20 |
 | test_diagnostics.lua | 17 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
@@ -530,4 +539,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **384** |
+| **Total** | **393** |

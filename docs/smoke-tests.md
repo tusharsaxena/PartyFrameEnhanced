@@ -152,7 +152,7 @@ One row per full pass. The newest row is the current iteration.
     affected."* → **Yes** → settings are back at defaults, you are still on the same profile, and the
     profile list is unchanged. The button's tooltip names *"the same thing Profiles → Reset Profile
     does"*. `/pfe resetall` does the same act.
-20. `/pfe profile` → the sub-verb list; `/pfe profile new Test` → switched to a fresh `Test`;
+20. `/pfe profile` → the profile list, current marked, then the sub-verb list; `/pfe profile new Test` → switched to a fresh `Test`;
     `/pfe profile use Default` → back.
 20a. **Bad profile names are refused.** `/pfe profile new Healer`; `/pfe set castbar.width 222`;
     `/pfe profile use Default`; `/pfe profile new Healer` → one *already exists* line, and Healer

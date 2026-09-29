@@ -267,6 +267,38 @@ test("disabled: both diagnostics forms write a report, and it says the addon is 
   enable(true)
 end)
 
+test("disabled: `profile` is live -- it lists and it switches while the addon is off", function()
+  -- red under: `profile` missing from LIVE_WHILE_DISABLED (the gate refuses it on the one line). A
+  -- profile is where the settings live, so switching one is settings repair, in the class of `set`
+  -- (slash-commands-§7). The addon is switched off on a profile of its own, `Off`; the starting
+  -- profile is still on, so switching back to it stands the addon up through the profile handler's
+  -- ReevaluateEnabled.
+  local start = NS.db:GetCurrentProfile()
+  NS.db:SetProfile("Off")
+  settle()
+  enable(false)
+  assertTrue(NS.IsStoodDown(), "stood down on `Off`")
+  local refusal = NS.Slash.__cli:DisabledLine()
+  assertTrue(NS.Slash.__liveWhileDisabled.profile == true, "profile is on the published live set")
+
+  local chat = #mocks.__chat
+  NS.Slash:OnSlash("profile")
+  NS.Slash:OnSlash("profile " .. start)
+  settle()
+  local switched, up = NS.db:GetCurrentProfile(), not NS.IsStoodDown()
+  local lines = table.concat(mocks.__chat, "\n", chat + 1)
+
+  NS.db:SetProfile(start)
+  NS.db:DeleteProfile("Off", true)
+  settle()
+
+  assertTrue(lines:find(refusal, 1, true) == nil, "neither form was refused")
+  assertTrue(lines:find("Off (current)", 1, true) ~= nil, "the bare form listed the profiles")
+  assertEqual(switched, start, "the named form switched")
+  assertTrue(up, "and the enabled profile stood the addon back up")
+  assertEqual(NS.GetSetting("enabled"), true, "the starting profile was never switched off")
+end)
+
 test("disabled: re-enabled, the addon rebuilds from CURRENT state", function()
   -- red under: a stand-up that replays a snapshot taken on the way down. The second half changes a
   -- setting WHILE the addon is off, which a snapshot cannot know about (performance-§6).

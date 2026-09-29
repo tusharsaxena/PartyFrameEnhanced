@@ -162,15 +162,21 @@ test("parity: the Slash stub prints plain rows and the one library-absent line",
   assertTrue(#out == 1, "exactly one line, got " .. #out)
   assertTrue(out[1]:sub(-#want) == want, "the library-absent line: " .. tostring(out[1]))
 
-  -- No AceDB behind the degraded load: one honest line, no raise.
+  -- No AceDB behind the degraded load: the stub's CliProfile answers on one line, no raise.
+  want = NS2.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe profile")
   out = dispatch("profile")
-  assertTrue(#out == 1 and out[1]:find("Profile system requires AceDB-3.0", 1, true) ~= nil,
-    "profile with no AceDB answers on one line")
-  -- With a profile store, the sub-verb help renders plain rows through the stub's row shape.
-  NS2.db = { SetProfile = function() end }
+  assertTrue(#out == 1 and out[1]:sub(-#want) == want, "profile with no store answers on one line")
+  -- With a profile store, bare `profile` is the list (the stub's one library-absent line, since the
+  -- list is the library's) and then the sub-verb help in the stub's plain row shape: 1 + 1 + 7.
+  NS2.db = {
+    SetProfile = function() end,
+    GetCurrentProfile = function() return "Default" end,
+    GetProfiles = function(_, t) t = t or {}; t[1] = "Default"; return t, 1 end,
+  }
   out = dispatch("profile")
-  assertTrue(#out == 8, "the header and seven sub-verb rows, got " .. #out)
-  for i = 2, #out do
+  assertTrue(#out == 9, "the list line, the help header and seven sub-verb rows, got " .. #out)
+  assertTrue(out[1]:sub(-#want) == want, "the list is the library-absent line: " .. tostring(out[1]))
+  for i = 3, #out do
     assertTrue(out[i]:find("/pfe profile %S+.-  %S") ~= nil, "plain profile row: " .. out[i])
     assertTrue(out[i]:find("\226\128\148", 1, true) == nil, "no em dash: " .. out[i])
   end

@@ -95,8 +95,32 @@ test("slash: `perf` prints what the harness returns", function()
   assertTrue(#slash("perf") > 0)
 end)
 
-test("slash: `profile` with no argument prints the sub-verb list", function()
-  assertTrue(joined(slash("profile")):find("Profile commands", 1, true) ~= nil)
+test("slash: NS.COMMANDS holds the eighteen verbs in their documented order", function()
+  -- red under: a verb added, dropped or moved without docs/ARCHITECTURE.md's Slash Commands table,
+  -- docs/slash-dispatch.md and the help index moving with it. `profile` keeps its one row: the
+  -- `profile <name>` form is a word of that verb, not a nineteenth.
+  local names = {}
+  for _, e in ipairs(NS.COMMANDS) do names[#names + 1] = e[1] end
+  assertEqual(table.concat(names, ","), "help,config,enable,disable,list,get,set,reset,resetall,"
+    .. "resetposition,lock,unlock,status,debug,diagnostics,perf,version,profile")
+end)
+
+test("slash: bare `profile` lists the profiles, current marked, then the sub-verb help", function()
+  -- red under: the old bare form, which printed only the sub-verb help and never said which
+  -- profiles exist. The list is the library's (Slash minor 17), so it reads as every addon's does.
+  local out = slash("profile")
+  local current = NS.db:GetCurrentProfile()
+  local list, help
+  for i, line in ipairs(out) do
+    if not list and line:find("Profiles|r", 1, true) then list = i end
+    if line:find("Profile commands", 1, true) then help = i end
+  end
+  assertEqual(list, 1, "the list header comes first")
+  assertTrue(out[1]:find("Profiles:", 1, true) == nil, "and carries no trailing colon")
+  assertTrue(joined(out):find(current .. " (current)", 1, true) ~= nil, "the current profile is marked")
+  assertTrue(joined(out):find("/pfe profile <name> switches profile", 1, true) ~= nil, "the hint row")
+  assertTrue(help ~= nil and help > list, "the sub-verb help follows the list")
+  assertEqual(#out - help, 7, "seven sub-verb rows under the help header")
 end)
 
 test("slash: an unknown verb says so and prints help", function()
@@ -337,7 +361,8 @@ test("slash: `profile new` on an existing name refuses and does NOT wipe it", fu
 end)
 
 test("slash: `profile use` on a missing name refuses and creates nothing", function()
-  -- red under: `use` straight through SetProfile, which makes a profile out of any typo.
+  -- red under: `use` straight through SetProfile, which makes a profile out of any typo. `use`
+  -- routes through the library's ProfileSwitch, so the refusal is its line and then the list.
   local start = NS.db:GetCurrentProfile()
   local out = slash("profile use Typo")
   local created, current = hasProfile("Typo"), NS.db:GetCurrentProfile()
@@ -345,8 +370,8 @@ test("slash: `profile use` on a missing name refuses and creates nothing", funct
 
   assertTrue(not created, "no 'Typo' profile")
   assertEqual(current, start, "still on the starting profile")
-  assertEqual(#out, 1, "one line")
-  assertTrue(out[1]:find("No profile named 'Typo'", 1, true) ~= nil, "the no-profile line")
+  assertTrue(out[1]:find("No profile named 'Typo'.", 1, true) ~= nil, "the no-profile line first")
+  assertTrue(joined(out):find("Profiles|r", 1, true) ~= nil, "then the list of what does exist")
 end)
 
 test("slash: `profile copy` refuses a missing name and the current profile, with no Lua error", function()
@@ -378,6 +403,117 @@ test("slash: `profile delete` on a missing name refuses instead of claiming it d
   assertEqual(#out, 1, "one line")
   assertTrue(joined(out):find("Deleted profile", 1, true) == nil, "no false 'Deleted' line")
   assertTrue(out[1]:find("No profile named 'Missing'", 1, true) ~= nil, "the no-profile line")
+end)
+
+-- --- `/pfe profile <name>` through LibKa0s-Slash-1.0 minor 17 ------------------------------------
+--
+-- A first word that is a sub-verb (in any case) runs that sub-verb; anything else is a profile name
+-- and goes to cli:CliProfile, which strips one pair of quotes, keeps case and inner spaces, switches
+-- only to a profile that exists and never creates one.
+
+local function settle() while mocks.__fireTimers() > 0 do end end
+
+-- Makes `names` exist without leaving the starting profile, and answers a cleanup for them.
+local function withProfiles(names, fn)
+  local start = NS.db:GetCurrentProfile()
+  for _, name in ipairs(names) do NS.db:SetProfile(name) end
+  NS.db:SetProfile(start)
+  settle()
+  local ok, err = pcall(fn, start)
+  NS.db:SetProfile(start)
+  for _, name in ipairs(names) do
+    if hasProfile(name) then NS.db:DeleteProfile(name, true) end
+  end
+  settle()
+  if not ok then error(err, 0) end
+end
+
+test("slash: `profile <name>` switches to an existing profile and the profile handler runs", function()
+  -- red under: the old unknown-sub-verb branch, which answered `Unknown profile subcommand` for a
+  -- perfectly good profile name. The switch is AceDB's, so the host's own OnProfileChanged runs:
+  -- one PROFILE publish, which every module rebuilds from.
+  withProfiles({ "Healer" }, function()
+    local published = 0
+    local target = NS.NewBusTarget()
+    target:RegisterMessage(NS.MSG.PROFILE, function() published = published + 1 end)
+    local out = slash("profile Healer")
+    local current = NS.db:GetCurrentProfile()
+    target:UnregisterMessage(NS.MSG.PROFILE)
+
+    assertEqual(current, "Healer", "switched")
+    assertEqual(#out, 1, "one line")
+    assertTrue(out[1]:find("Switched to profile 'Healer'.", 1, true) ~= nil, "the switched line")
+    assertEqual(published, 1, "the profile handler ran and published PROFILE once")
+  end)
+end)
+
+test("slash: `profile use <name>` switches through the same library path", function()
+  withProfiles({ "Healer" }, function()
+    local out = slash("profile use Healer")
+    assertEqual(NS.db:GetCurrentProfile(), "Healer", "switched")
+    assertTrue(out[1]:find("Switched to profile 'Healer'.", 1, true) ~= nil, "the library's line")
+  end)
+end)
+
+test("slash: `profile <unknown>` refuses, lists the profiles and creates nothing", function()
+  -- red under: SetProfile on the typed name, which AceDB answers by creating the profile.
+  withProfiles({}, function(start)
+    local out = slash("profile Typo")
+    assertTrue(not hasProfile("Typo"), "no 'Typo' profile")
+    assertEqual(NS.db:GetCurrentProfile(), start, "still on the starting profile")
+    assertTrue(out[1]:find("No profile named 'Typo'.", 1, true) ~= nil, "the refusal first")
+    assertTrue(joined(out):find(start .. " (current)", 1, true) ~= nil, "then the list")
+  end)
+end)
+
+test("slash: `profile <name>` keeps case, so a wrong-case name is refused with a did-you-mean", function()
+  -- red under: lowercasing the whole argument with the sub-verb, which would miss `Healer` from
+  -- `healer` and, worse, create `healer`. Profile names are case-sensitive AceDB keys.
+  withProfiles({ "Healer" }, function(start)
+    local out = slash("profile healer")
+    assertEqual(NS.db:GetCurrentProfile(), start, "no switch")
+    assertTrue(not hasProfile("healer"), "nothing created")
+    assertTrue(out[1]:find("No profile named 'healer'.", 1, true) ~= nil, "refused")
+    assertTrue(out[2]:find("Did you mean 'Healer'?", 1, true) ~= nil, "with the one near match")
+  end)
+end)
+
+test("slash: `profile \"<name with spaces>\"` strips the quotes and keeps the spaces", function()
+  withProfiles({ "Tank Two" }, function(start)
+    slash("profile \"Tank Two\"")
+    assertEqual(NS.db:GetCurrentProfile(), "Tank Two", "double quotes stripped")
+    NS.db:SetProfile(start)
+    slash("profile 'Tank Two'")
+    assertEqual(NS.db:GetCurrentProfile(), "Tank Two", "single quotes stripped")
+    NS.db:SetProfile(start)
+    slash("profile Tank Two")
+    assertEqual(NS.db:GetCurrentProfile(), "Tank Two", "and unquoted, the whole line is the name")
+  end)
+end)
+
+test("slash: a sub-verb matches in any case, and the current profile is already on", function()
+  withProfiles({}, function(start)
+    local out = slash("profile LIST")
+    assertTrue(out[1]:find("Profiles|r", 1, true) ~= nil, "`LIST` ran the list sub-verb")
+    out = slash("profile Current")
+    assertTrue(out[1]:find("Current profile: " .. start, 1, true) ~= nil, "`Current` ran current")
+    out = slash("profile " .. start)
+    assertEqual(#out, 1, "one line")
+    assertTrue(out[1]:find("Already on profile '" .. start .. "'.", 1, true) ~= nil, "already on it")
+  end)
+end)
+
+test("slash: `profile <name>` refuses in combat and switches nothing", function()
+  withProfiles({ "Healer" }, function(start)
+    local saved = mocks.InCombatLockdown
+    mocks.InCombatLockdown = function() return true end
+    local out = slash("profile Healer")
+    local viaUse = slash("profile use Healer")
+    mocks.InCombatLockdown = saved
+    assertEqual(NS.db:GetCurrentProfile(), start, "no switch")
+    assertTrue(out[1]:find("Can't switch profiles in combat.", 1, true) ~= nil, "the combat line")
+    assertTrue(viaUse[1]:find("Can't switch profiles in combat.", 1, true) ~= nil, "`use` too")
+  end)
 end)
 
 test("slash: `status` prints the frame system's label through NS.L", function()

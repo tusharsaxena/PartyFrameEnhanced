@@ -148,7 +148,10 @@ reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/S
 `isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the standard's thirteen reserved verbs plus this
 addon's `status` and `profile`, so the report runs while the addon is disabled), and the library refuses everything else on one line it owns the
 wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
-are what is left. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
+`profile use <name>`) through the library's `cli:CliProfile` / `cli:ProfileSwitch` (Slash minor 17),
+given the store through the descriptor's `profiles` field, so an unknown name is refused and never
+created. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Launcher
 

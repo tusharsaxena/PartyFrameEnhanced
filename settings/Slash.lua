@@ -291,23 +291,17 @@ end
 
 local NO_PROFILE = "No profile named '%s' \226\128\148 /pfe profile list shows them"
 
+-- `list` and `use` are the library's (LibKa0s-Slash-1.0 minor 17), so the list and the switch read
+-- the same in every addon: `cli:CliProfile("")` prints the list, current marked, and
+-- `cli:ProfileSwitch` switches only to a profile that exists. SetProfile creates a profile on
+-- demand, so a typo would make one; the library never hands it a name the store does not list.
+-- The switch's one debug line is the host's: OnProfileChanged in core/PartyFrameEnhanced.lua.
 local PROFILE_VERBS = {
-    list = function(db)
-        print(L["Available profiles"])
-        local current = db:GetCurrentProfile()
-        for _, name in ipairs(db:GetProfiles()) do
-            print("  " .. name .. ((name == current) and (" " .. L["(current)"]) or ""))
-        end
-    end,
+    list = function() cli:CliProfile("") end,
     current = function(db)
         print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
-    -- SetProfile creates a profile on demand, so a typo would make one: refuse a missing name.
-    use = needsName("use", function(db, name)
-        if not exists(db, name) then return print(L[NO_PROFILE]:format(name)) end
-        db:SetProfile(name)
-        print(L["Switched to profile '%s'"]:format(name))
-    end),
+    use = needsName("use", function(_, name) cli:ProfileSwitch(name) end),
     -- SetProfile first, then the reset, so the reset lands on the new profile. An existing name is
     -- refused: switching to it and resetting would wipe that whole profile.
     new = needsName("new", function(db, name)
@@ -340,21 +334,32 @@ local PROFILE_VERBS = {
     end,
 }
 
-function runProfile(rest)
+-- The store the sub-verbs act on: AceDB's three profile methods, the same duck type the library
+-- checks. The AceDB-less fallback in core/Database.lua is a plain table and is not one.
+local function profileStore()
     local db = NS.db
-    if not db or not db.SetProfile then
-        return print(L["Profile system requires AceDB-3.0"])
+    if type(db) == "table" and type(db.GetProfiles) == "function"
+        and type(db.GetCurrentProfile) == "function" and type(db.SetProfile) == "function" then
+        return db
     end
-    -- Only the verb is lowercased: AceDB profile names are case-sensitive.
-    local sub, subarg = (rest or ""):match("^(%S*)%s*(.*)$")
-    sub = (sub or ""):lower()
-    if sub == "" then return printProfileHelp() end
-    local handler = PROFILE_VERBS[sub]
-    if not handler then
-        print(L["Unknown profile subcommand '%s'"]:format(sub))
+end
+
+-- `/pfe profile` bare lists the profiles and then the sub-verb help; a first word that is a sub-verb,
+-- in any case, runs it; anything else is a profile NAME and goes to the library whole, which strips
+-- one pair of quotes and keeps case and inner spaces (AceDB profile names are case-sensitive). A
+-- profile named like a sub-verb is reached with `use <name>`.
+function runProfile(rest)
+    local db = profileStore()
+    -- No store: the library's one answer (or, library-absent, the stub's) and nothing else.
+    if not db then return cli:CliProfile("") end
+    local sub, subarg = (rest or ""):match("^%s*(%S*)%s*(.-)%s*$")
+    if sub == "" then
+        cli:CliProfile("")
         return printProfileHelp()
     end
-    return handler(db, subarg)
+    local handler = PROFILE_VERBS[sub:lower()]
+    if handler then return handler(db, subarg) end
+    return cli:CliProfile(rest)
 end
 
 -- ── the dispatcher ────────────────────────────────────────────────────────────────────────────
@@ -469,6 +474,9 @@ cli = SlashLib:New({
     -- `label` (launcher-§1). One brand spelling, not a second invented for this one line.
     brandName    = "Ka0s Party Frame Enhanced",
     liveVerbs    = LIVE_WHILE_DISABLED,
+    -- The profile store for cli:CliProfile / cli:ProfileSwitch (Slash minor 17), asked at call time:
+    -- NS.db is built at ADDON_LOADED, after this file runs.
+    profiles     = function() return NS.db end,
 
     print   = function(line) print(line) end,
     version = NS.Version,

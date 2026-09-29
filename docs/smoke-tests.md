@@ -139,8 +139,8 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   press General's *Reset all settings* → a popup reading, verbatim, *"Reset this profile to the addon's
   defaults? Everything you have configured or added in it is discarded — your other profiles are not
   affected."* → **Yes** → the settings are back at their defaults, you are still on the same profile,
-  and the profile list is unchanged. The button's tooltip names *"the same thing Profiles → Reset
-  Profile does"*. `/pfe resetall` does the same act. Result:
+  and the profile list is unchanged. The button's tooltip names *"the same thing Profiles -> Reset
+  Profile does"*, with a plain `->` for the arrow. `/pfe resetall` does the same act. Result:
 
 ## Enable, disable and stand-down
 
@@ -350,15 +350,17 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **LAUNCH-6. The Minimap button row, both ways.** General → Master controls → untick **Minimap
   button** → the button disappears at once, not at the next reload. `/reload` → still gone. Tick it →
   back. (Right-click is the options menu, which carries no hide entry.) From the CLI, with the button
-  visible: `/pfe get global.minimap.shown` → `true`; `/pfe set global.minimap.shown false` hides it;
-  `/reload` → still hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` →
-  `Setting not found`. After a logout the SavedVariables file shows `minimap = { hide = true, ... }`
-  and no `shown` key. *Failure:* the checkbox and the button disagreeing (a second copy of one state,
-  launcher-§3, anti-pattern #81), a `shown` key in the file, or a button hidden before the upgrade
-  coming back. Result:
-- **LAUNCH-7. The button is account-wide.** Hide the button, then switch profiles (`/pfe profile
-  Test`) → still hidden. Log in on a different character → still hidden. *Failure:* the button coming
-  back on either means the table is profile-scoped, which launcher-§3 forbids. Result:
+  visible: `/pfe get global.minimap.shown` → `global.minimap.shown = true`; `/pfe set
+  global.minimap.shown false` → `global.minimap.shown = false`, and the button hides; `/reload` →
+  still hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not
+  found: global.minimap.hide`. After a logout the SavedVariables file's `minimap` table holds
+  `["hide"] = true` and no `shown` key. *Failure:* the checkbox and the button disagreeing (a second
+  copy of one state, launcher-§3, anti-pattern #81), a `shown` key in the file, or a button hidden
+  before the upgrade coming back. Result:
+- **LAUNCH-7. The button is account-wide.** Hide the button, then switch to another profile with
+  `/pfe profile Test` (or `/pfe profile Default` if you are on Test) → `Switched to profile '<name>'.`,
+  and the button is still hidden. Log in on a different character → still hidden. *Failure:* the
+  button coming back on either means the table is profile-scoped, which launcher-§3 forbids. Result:
 - **LAUNCH-8. It survives both resets.** With the button hidden, press *Reset all settings* → still
   hidden. Press General's **Defaults** → still hidden, while the other General rows go back to their
   defaults in the same press. Show it and repeat both → it stays shown. `/pfe reset
@@ -504,30 +506,43 @@ Checks:
 
 ## Pending sign-off
 
-The last full pass on record is v0.1.0 (2026-09-18). The minimap button checks were re-run on
-2026-09-25 and the diagnostics checks on 2026-09-26. The checks below cover behavior that arrived or changed after
-those passes and have no recorded result yet. Fill in each one's `Result:` line, then remove its row.
+The checks below have no recorded pass for what they now expect. That covers two kinds. The first is
+an older check whose behavior arrived or changed after its last pass, or that a smoke list in a
+Ka0sAddonsCommonTasks plan owes and nobody ran. The second is a check that is new in this rewrite, or
+whose expected result was corrected against the code in it. The passes on record are the v0.1.0 full
+pass (2026-09-18), the minimap button re-run after M6 (2026-09-25: left-click, right-click menu and
+tooltip, out of combat) and the diagnostics checks (2026-09-26). Session PF of
+`2026-09-23-REVIEW_AND_STANDARDS_AUDIT_REMEDIATION/06_SMOKE_TESTS.md` (PF.1 to PF.12) and its Q.10
+were never run. Fill in each check's `Result:` line, then remove its row.
 
 | ID | Origin (old step) | What is owed |
 |---|---|---|
-| STATE-4 | B 10d | the *Lock frame* refusal while disabled (PF-07, 2026-09-24) |
-| STATE-6 | B 10f | the target and pet state drivers through a stand-down (PF-04, 2026-09-24) |
-| STATE-7 | B 10g | Edit Mode through a stand-down (PF-05, 2026-09-24) |
-| STATE-8 | B 10h | the fade frames and holders through a stand-down in combat (PF-06, 2026-09-24) |
+| SLASH-1 | B 4 | the help block's eighteenth verb, `diagnostics` (DR-PF-03, 2026-09-26); the v0.1.0 pass saw seventeen |
+| PANEL-2 | C 12 | corrected in this rewrite: three General tabs, where the old step named two |
+| PANEL-3 | C 13 | corrected in this rewrite: the *Fade with party frames* row (2026-09-18, after the v0.1.0 pass) |
 | PANEL-6 | F 31a | Size & Position draws only the block the anchor mode uses (2026-09-19) |
-| PROFILE-3 – 8 | D 20, and new | the list, `profile <name>` and its refusals (SP-PF-02, 2026-09-29) |
-| PROFILE-9 | D 20a | the sub-verbs refuse bad names (PF-01, 2026-09-24) |
+| PROFILE-2 | D 20 | the `Created and switched to new profile 'Test'` line, quoted for the first time in this rewrite |
+| PROFILE-3 – 8 | D 20, D 20a, and new | the list, `profile <name>` and its refusals (SP-PF-02, 2026-09-29) |
+| PROFILE-9 | D 20a | the sub-verbs refuse bad names (PF-01, 2026-09-24; owed as PF.3) |
+| PROFILE-10 | D 19 | corrected in this rewrite: the tooltip's arrow is a plain `->` |
+| STATE-4 | B 10d | the *Lock frame* refusal while disabled (PF-07, 2026-09-24; owed as PF.5) |
+| STATE-6 | B 10f | the target and pet state drivers through a stand-down (PF-04, 2026-09-24; owed as PF.7) |
+| STATE-7 | B 10g | Edit Mode through a stand-down (PF-05, 2026-09-24; owed as PF.6) |
+| STATE-8 | B 10h | the fade frames and holders through a stand-down in combat (PF-06, 2026-09-24; owed as PF.8) |
+| STATE-9 | J 52 | new in this rewrite: no placeholder or stand-in is left on screen after the disable |
 | UNIT-3 | G 34a | a new member's target fills in (1.0.1, 2026-09-18) |
 | UNIT-7 – 9 | G 35c, 35d | the pet raid marker and the marker above the border (2026-09-19) |
 | UNIT-10 | G 35b | the `health ticker started` line followed at once by `stopped` is expected: the unresolved-target repaint (1.0.1, 2026-09-18) |
 | FADE-1 – 4 | I 47a – 47d | the out-of-range fade (2026-09-18) |
-| LAUNCH-5 | K 56 | the broker's right-click opens the options menu (M6, 2026-09-25; the 2026-09-25 re-run names only the minimap button) |
-| LAUNCH-6 | K 57 | the CLI half, `global.minimap.shown` (PF-13, 2026-09-24) |
-| LAUNCH-8 | K 59 | `/pfe reset global.minimap.shown` resets the row (PF-13, 2026-09-24) |
-| COMBAT-1 | K 54 | the launcher's left-click in combat gives the settings refusal (M6, 2026-09-25; the 2026-09-25 re-run names only out-of-combat clicks) |
+| LAUNCH-5 | K 56 | the broker's right-click opens the options menu (M6, 2026-09-25; the re-run names only the minimap button) |
+| LAUNCH-6 | K 57 | the CLI half, `global.minimap.shown` (PF-13, 2026-09-24; owed as PF.1, PF.2 and PF.12), with the echo and `Setting not found` lines corrected in this rewrite |
+| LAUNCH-7 | K 58 | the profile switch now goes through the new `profile <name>` verb (SP-PF-02) |
+| LAUNCH-8 | K 59 | both resets leave the row alone (owed as PF.10 after the PF-11 schema adoption, 2026-09-24), and `/pfe reset global.minimap.shown` resets it (PF-13) |
+| COMBAT-1 | K 54 | the launcher's left-click in combat gives the settings refusal (M6, 2026-09-25; the re-run clicked out of combat only) |
 | COMBAT-2 | C 16 | the combat lock cover (2026-09-20) |
+| COMBAT-3 | J 52, C 12 | `Locked — combat started` after PF-09 moved preview's combat listener (2026-09-24; owed as Q.10) |
 | COMBAT-4 | K 55 | the options menu's *Locked* in combat gives the unlock refusal (M6, 2026-09-25; the menu is new in M6) |
 | COMBAT-5 | G 37 | visibility changed in combat, now through `/pfe set` since the combat lock (2026-09-20) refuses the panel |
 | COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
-| COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24), now through `/pfe set` |
+| COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24; owed as PF.9), now through `/pfe set` |
 | COMBAT-8 | G 37 | nothing moves in combat, rewritten with a named drag for the same reason as COMBAT-5 |

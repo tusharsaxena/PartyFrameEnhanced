@@ -1,0 +1,1 @@
+OK SP-PF-03 no defects inside the S4 review bar: coverage complete (all 90 old checks mapped), expected strings match code and LibKa0s, Pending sign-off matches the clarified policy, references updated, no duplicates, shape conforms; gate 393/0 and luacheck 0/0

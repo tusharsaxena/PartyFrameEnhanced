@@ -1,0 +1,1 @@
+OK SP-PF-02 pass: lib/kit byte-identical to v1.63.0 (dd7a774); descriptor profiles, stub CliProfile+ProfileSwitch, sub-tree per S3.2, tests mutation-verified (8 mutants killed), docs consistent, CRLF clean, gate 393/0/0 + luacheck 0/0

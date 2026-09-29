@@ -40,16 +40,18 @@ with its party member's frame when they are out of range; the raid marker draws 
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
 click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
-diagnostics report for bug reports; and LibKa0s is re-vendored, now at v1.63.0. What the addon
+diagnostics report for bug reports; and LibKa0s is re-vendored, v1.62.0 in the release and now at v1.63.0. What the addon
 took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
 ([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
 minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed
 shape ([revendor/2026-09-23-v1.56.0/](revendor/2026-09-23-v1.56.0/05_SUMMARY.md)), v1.57.0's
-Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md))
+Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md)),
 v1.58.0's Launcher minor 4 left click and options menu
 ([revendor/2026-09-25-v1.58.0/](revendor/2026-09-25-v1.58.0/05_SUMMARY.md)), and v1.60.0's DebugLog
 14.1 diagnostics report (`/pfe diagnostics`, sections in `modules/Diagnostics.lua`, [debug.md](debug.md)) and Slash minor 16's live `diagnostics` verb
-([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)). v1.47.0 to
+([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)); and, since the
+release, v1.63.0's Slash minor 17 profile verb, which `/pfe profile <name>` and `profile use` route
+through ([revendor/2026-09-29-v1.63.0/](revendor/2026-09-29-v1.63.0/05_SUMMARY.md)). v1.47.0 to
 v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
 ([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
 
@@ -396,7 +398,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | `superpowers/` | The v0.1.0 design spec and the checkpointed build plan (directory) |
 
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
-`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and — when it exists — `reviews/`.
+`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and `reviews/`.
 
 ## Documented deviations
 

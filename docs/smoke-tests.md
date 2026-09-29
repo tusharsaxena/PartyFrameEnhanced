@@ -76,12 +76,13 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **PANEL-1. Landing page.** Out of combat, `/pfe config` → Settings opens on **Ka0s Party Frame
   Enhanced**: the logo renders, and the Notes line and the slash-command list show (the same rows as
   `/pfe help`). Result:
-- **PANEL-2. General → Master controls.** Open **General** → a two-tab strip, **Master controls** then
-  **Party frames**. Master controls holds, in order, *Enable Party Frame Enhanced* · *General
-  visibility* / *Master scale* · *Master alpha* / *Lock frame* · *Debug console* / *Minimap button*,
-  then the button pair *Reset position* · *Reset all settings*. *General visibility* is a dropdown of
-  four: Always, Only in combat, Only out of combat, Never. *Failure:* a box labeled *Test mode* is the
-  duplicate-switch finding (options-ui-§15 exempts this addon; anti-pattern #80). Result:
+- **PANEL-2. General → Master controls.** Open **General** → a three-tab strip, **Master controls**,
+  **Party frames**, **Health updates** (UNIT-10 checks that tab's controls). Master controls holds,
+  in order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
+  *Lock frame* · *Debug console* / *Minimap button*, then the button pair *Reset position* · *Reset
+  all settings*. *General visibility* is a dropdown of four: Always, Only in combat, Only out of
+  combat, Never. *Failure:* a box labeled *Test mode* is the duplicate-switch finding (options-ui-§15
+  exempts this addon; anti-pattern #80). Result:
 - **PANEL-3. General → Party frames.** The **Party frames** tab → *Frame system* (Automatic / Blizzard
   / EllesmereUI), *Include my own row* and *Fade with party frames*. Result:
 - **PANEL-4. The Defaults button.** It renders in the dark/gold options style, not as a red stone
@@ -523,7 +524,9 @@ those passes and have no recorded result yet. Fill in each one's `Result:` line,
 | LAUNCH-5 | K 56 | the broker's right-click opens the options menu (M6, 2026-09-25; the 2026-09-25 re-run names only the minimap button) |
 | LAUNCH-6 | K 57 | the CLI half, `global.minimap.shown` (PF-13, 2026-09-24) |
 | LAUNCH-8 | K 59 | `/pfe reset global.minimap.shown` resets the row (PF-13, 2026-09-24) |
+| COMBAT-1 | K 54 | the launcher's left-click in combat gives the settings refusal (M6, 2026-09-25; the 2026-09-25 re-run names only out-of-combat clicks) |
 | COMBAT-2 | C 16 | the combat lock cover (2026-09-20) |
+| COMBAT-4 | K 55 | the options menu's *Locked* in combat gives the unlock refusal (M6, 2026-09-25; the menu is new in M6) |
 | COMBAT-5 | G 37 | visibility changed in combat, now through `/pfe set` since the combat lock (2026-09-20) refuses the panel |
 | COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
 | COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24), now through `/pfe set` |

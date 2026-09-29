@@ -68,8 +68,9 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **SLASH-5. List.** `/pfe list` → a green header, the `[general]` group, then `path = value` rows
   with gold paths and white values, and no trailing colons. Result:
 - **SLASH-6. Set, reset and a bad value.** `/pfe set general.provider blizzard` →
-  `general.provider = blizzard`; `/pfe reset general.provider` → back to `auto`. `/pfe set scale abc`
-  → an invalid-value line, and nothing changes. Result:
+  `general.provider = blizzard`; `/pfe reset general.provider` → `general.provider = auto`.
+  `/pfe set scale abc` → `Invalid value for scale`, then an indented `expected a number`, and nothing
+  changes. Result:
 
 ## Settings panel
 
@@ -196,7 +197,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **PREV-1. Unlock and lock.** `/pfe unlock` → `Elements unlocked — drag them into place`, the General
   page's *Lock frame* unticks if open, and every enabled element shows placeholder content: a cast bar
   drawn full (its whole size shows), a target frame at 65% with a skull, and a pet frame at 80%.
-  `/pfe lock` → locked again, all of it goes, and live data returns. Unticking *Lock frame* on General
+  `/pfe lock` → `Elements locked`, all of it goes, and live data returns. Unticking *Lock frame* on General
   starts the same preview. *Failure:* a placeholder left behind after locking (preview-mode MUST).
   Result:
 - **PREV-2. Preview in a party.** In a party, `/pfe unlock` → placeholders on every element at the real
@@ -518,8 +519,10 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | ID | Origin (old step) | What is owed |
 |---|---|---|
 | SLASH-1 | B 4 | the help block's eighteenth verb, `diagnostics` (DR-PF-03, 2026-09-26); the v0.1.0 pass saw seventeen |
+| SLASH-6 | B 9 | `/pfe set` and `/pfe reset` through the LibKa0s-Schema-1.0 write seam (PF-11, 2026-09-24; owed as PF.10), with the reset echo and the refusal lines quoted for the first time in this rewrite |
 | PANEL-2 | C 12 | corrected in this rewrite: three General tabs, where the old step named two |
 | PANEL-3 | C 13 | corrected in this rewrite: the *Fade with party frames* row (2026-09-18, after the v0.1.0 pass) |
+| PANEL-5 | D 18 | the page Defaults under LibKa0s-Schema-1.0, whose bracket now prints the one `[Set] reset general: 2 rows` line (PF-11, 2026-09-24; owed as PF.10) |
 | PANEL-6 | F 31a | Size & Position draws only the block the anchor mode uses (2026-09-19) |
 | PROFILE-2 | D 20 | the `Created and switched to new profile 'Test'` line, quoted for the first time in this rewrite |
 | PROFILE-3 – 8 | D 20, D 20a, and new | the list, `profile <name>` and its refusals (SP-PF-02, 2026-09-29) |
@@ -530,6 +533,8 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | STATE-7 | B 10g | Edit Mode through a stand-down (PF-05, 2026-09-24; owed as PF.6) |
 | STATE-8 | B 10h | the fade frames and holders through a stand-down in combat (PF-06, 2026-09-24; owed as PF.8) |
 | STATE-9 | J 52 | new in this rewrite: no placeholder or stand-in is left on screen after the disable |
+| PREV-1 | B 10, I 43 | unticking *Lock frame* on General after PF-11 moved `locked` onto the Schema seam's writeThrough (2026-09-24; owed as PF.10, which ticks and unticks every Master controls checkbox), with the `Elements locked` line quoted for the first time in this rewrite |
+| CAST-7 | F 31 | changing *Cast color*, a color picker, through the PF-11 Schema seam (2026-09-24; owed as PF.10) |
 | UNIT-3 | G 34a | a new member's target fills in (1.0.1, 2026-09-18) |
 | UNIT-7 – 9 | G 35c, 35d | the pet raid marker and the marker above the border (2026-09-19) |
 | UNIT-10 | G 35b | the `health ticker started` line followed at once by `stopped` is expected: the unresolved-target repaint (1.0.1, 2026-09-18) |

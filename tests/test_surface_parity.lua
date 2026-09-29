@@ -118,7 +118,7 @@ test("parity: the Slash stub carries every dispatcher member the addon calls", f
   assertTrue(type(NS.Slash.__cli) == "table" and type(NS2.Slash.__cli) == "table")
   T.assertSurfaceParity(NS2.Slash.__cli, "LibKa0s-Slash-1.0", {
     -- Live-only, no call site here. The stub renders plain `cmd  desc` rows, never a copy of the
-    -- library's row formatter, header or list builder (LibKa0s docs/api/Slash/version-16-docs.md,
+    -- library's row formatter, header or list builder (LibKa0s docs/api/Slash/version-17-docs.md,
     -- "The degradation stub"): a degraded help index is allowed to look degraded.
     "HelpHeader", "HelpRows", "BuildListLines", "CliVersion", "Text",
   })
@@ -174,6 +174,33 @@ test("parity: the Slash stub prints plain rows and the one library-absent line",
     assertTrue(out[i]:find("/pfe profile %S+.-  %S") ~= nil, "plain profile row: " .. out[i])
     assertTrue(out[i]:find("\226\128\148", 1, true) == nil, "no em dash: " .. out[i])
   end
+end)
+
+test("parity: the Slash stub's CliProfile and ProfileSwitch print the library-absent line and switch nothing", function()
+  -- red under: a stub without the two Slash minor 17 members (the by-name parity case above goes red
+  -- on the re-vendor alone), or one that calls SetProfile with no library behind it. LibKa0s
+  -- docs/api/Slash/version-17-docs.md, "The degradation stub": both take route (b).
+  local NS2, mocks2 = loadDegraded()
+  local cli = NS2.Slash.__cli
+  local sets = 0
+  NS2.db = {
+    SetProfile = function() sets = sets + 1 end,
+    GetCurrentProfile = function() return "Default" end,
+    GetProfiles = function(_, t) t = t or {}; t[1], t[2] = "Default", "Healer"; return t, 2 end,
+  }
+  NS2.Print("spend") -- the once-per-session missing-library notice rides the first printed line
+  local want = NS2.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe profile")
+  for _, call in ipairs({
+    function() return cli:CliProfile("Healer") end,
+    function() return cli:ProfileSwitch("Healer") end,
+  }) do
+    local before = #mocks2.__chat
+    local answered = call()
+    assertTrue(#mocks2.__chat == before + 1, "exactly one chat line")
+    assertTrue(mocks2.__chat[#mocks2.__chat]:sub(-#want) == want, "the library-absent line")
+    assertTrue(not answered, "answers no switch")
+  end
+  assertTrue(sets == 0, "nothing switched")
 end)
 
 test("parity: a bare /pfe runs `config` in the library-absent build too", function()

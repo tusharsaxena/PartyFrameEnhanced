@@ -371,7 +371,7 @@ local function allRows()
 end
 
 -- Degrade, never error: /pfe is registered unconditionally, so something must answer it. The stub
--- is the shape LibKa0s docs/api/Slash/version-16-docs.md ("The degradation stub") prescribes under
+-- is the shape LibKa0s docs/api/Slash/version-17-docs.md ("The degradation stub") prescribes under
 -- slash-commands-§1: the minimal OnSlash dispatch the rule sanctions, the library's refusal format
 -- copied verbatim (the ONE library string a stub may carry, pinned byte for byte against the live
 -- library by tests/test_surface_parity.lua), plain `cmd  desc` rows, and no library formatter or
@@ -398,6 +398,13 @@ if not SlashLib then
         end
         for _, verb in ipairs({ "List", "Get", "Set", "Reset", "ResetAll" }) do
             stub["Cli" .. verb] = absent(verb:lower())
+        end
+        -- The profile verb (Slash minor 17) on route (b) too: with no library there is no store
+        -- adapter to trust, so both members print the one line and switch nothing.
+        stub.CliProfile = absent("profile")
+        stub.ProfileSwitch = function()
+            print(UNAVAILABLE:format("/pfe profile"))
+            return false
         end
         stub.LandingRows = function()
             local out = {}

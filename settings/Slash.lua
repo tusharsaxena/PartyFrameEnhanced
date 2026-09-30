@@ -143,7 +143,10 @@ function NS.DisabledLine() return cli:DisabledLine() end
 --- slash gate prints. On the button the library grays *Locked* while disabled and a grayed entry
 --- calls nothing, so the menu never reaches here disabled; the gate stays for any other caller.
 function NS.ToggleLock()
-    if NS.GetSetting("enabled") ~= true then return print(NS.DisabledLine()) end
+    if NS.GetSetting("enabled") ~= true then
+        NS.Debug("Preview", "lock toggle refused: addon disabled")
+        return print(NS.DisabledLine())
+    end
     runLock(NS.GetSetting("locked") ~= true)
 end
 

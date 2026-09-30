@@ -298,6 +298,22 @@ badge and any count quoted in the docs must agree with it.
 - preview: Lock frame is the switch, and no Test mode row survives beside it
 - preview: status names what preview is showing, and neither verb survives in NS.COMMANDS
 
+### test_debug_coverage.lua (13)
+
+- coverage: a secure write queued in combat logs once per key held, then one flush line
+- coverage: entering combat, entering the world, and the stand-down and stand-up each log once
+- coverage: a stand-down in combat names the secure writes it leaves held
+- coverage: a profile delete logs its one line, and the callback is registered
+- coverage: a free-placement reset and a drag each log one line
+- coverage: an unlock refused in combat names the guard on the console
+- coverage: the [Init] summary says whether EllesmereUI's raid frames are loaded
+- coverage: EllesmereUI loading after us logs one line
+- coverage: a refused EditMode.Exit registration is logged once per distinct error
+- coverage quiet: repeated UNIT_TARGET with the same target logs once, a new target once more
+- coverage quiet: repeated UNIT_PET with the same pet logs once
+- coverage quiet: previewing out of a party, a roster burst re-logs no unchanged stand-in
+- coverage quiet: the range fade logs its mode on change, not on every LAYOUT
+
 ### test_perf_buckets.lua (3)
 
 - perf: every declared bucket is reached by a real bracket
@@ -527,6 +543,7 @@ badge and any count quoted in the docs must agree with it.
 | test_preview.lua | 8 |
 | test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
+| test_debug_coverage.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
@@ -539,4 +556,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **393** |
+| **Total** | **406** |

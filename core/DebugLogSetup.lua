@@ -106,10 +106,13 @@ NS.DebugLog = lib:New({
         local schemaVer = NS.db and NS.db.global and NS.db.global.schemaVersion
         local profile = NS.db and NS.db.GetCurrentProfile and NS.db:GetCurrentProfile()
         local provider = NS.Providers and NS.Providers.ActiveLabel and NS.Providers.ActiveLabel()
-        return ("%s v%s, schema v%s, profile '%s', frames '%s'"):format(
+        -- The one optional dependency, said here because the flag is off at login (§5): the
+        -- session summary is the "once, at enable" line debug-logging-§8's Diagnosis asks for.
+        local erf = NS.Compat and NS.Compat.IsAddOnLoaded and NS.Compat.IsAddOnLoaded("EllesmereUIRaidFrames")
+        return ("%s v%s, schema v%s, profile '%s', frames '%s', EllesmereUI raid frames %s"):format(
             NS.SafeToString(NS.name), NS.SafeToString(NS.version),
             NS.SafeToString(schemaVer or "?"), NS.SafeToString(profile or "?"),
-            NS.SafeToString(provider or "none"))
+            NS.SafeToString(provider or "none"), erf and "loaded" or "not loaded")
     end,
 
     -- The diagnostics report's sections (debug-logging-§14), asked for each time a report runs:

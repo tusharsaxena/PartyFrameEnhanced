@@ -79,6 +79,17 @@ local function refreshAll()
     for _, unit in ipairs(Units.LIST) do refresh(buttons[unit]) end
 end
 
+-- The owner's pet, CHANGE-GATED per button (debug-logging-§9, quiet steady state): the client can send
+-- UNIT_PET with the same pet still behind the token, and an ungated line repeats with it.
+-- Stringified FIRST, so a secret name is compared as <secret> and never raw.
+local function logPet(btn)
+    if not NS.State.debug then return end
+    local label = NS.SafeToString(UnitName(btn.token) or "none")
+    if label == btn.__loggedPet then return end
+    btn.__loggedPet = label
+    NS.Debug("Pet", "%s pet: %s", btn.unit, label)
+end
+
 local function onEvent(btn, event)
     if not btn.__allowed or NS.State.preview then return end
     local t0 = Perf.on and debugprofilestop()
@@ -88,10 +99,7 @@ local function onEvent(btn, event)
         UnitButtons.RenderName(btn, btn.token, cfg.showName)
     else
         paintAll(btn)   -- UNIT_PET: a different pet (or none) behind the token
-        -- Guarded so the UnitName argument is not built at all with debug off.
-        if NS.State.debug then
-            NS.Debug("Pet", "%s pet: %s", btn.unit, UnitName(btn.token) or "none")
-        end
+        logPet(btn)
     end
     if t0 then Perf.Note("petEvent", debugprofilestop() - t0) end
 end

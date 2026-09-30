@@ -130,7 +130,11 @@ local function withProbe(fields, fn)
   NS.RegisterSchemaRows({ row })
   local savedDebug, savedFlag = NS.Debug, NS.State.debug
   NS.State.debug = true
-  NS.Debug = function(tag, fmt, ...) trace[#trace + 1] = tag .. " " .. fmt:format(...) end
+  -- Only the seam's own [Set] lines: a module reacting to the CONFIG it publishes may log a line of
+  -- its own (modules/RangeFade.lua's change-gated mode line on the first general write it sees).
+  NS.Debug = function(tag, fmt, ...)
+    if tag == "Set" then trace[#trace + 1] = tag .. " " .. fmt:format(...) end
+  end
   local target = NS.NewBusTarget()
   target:RegisterMessage(NS.MSG.CONFIG, function(_, section) trace[#trace + 1] = "CONFIG " .. section end)
   local ok, err = pcall(fn, trace, row)

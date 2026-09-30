@@ -427,8 +427,8 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   close, copy and clear marks, not a `×` glyph); `/pfe debug` again → it closes. The logging flag is
   untouched by both. Result:
 - **DIAG-2. The `[Init]` line.** `/pfe debug on` → an `[Init]` line naming `PartyFrameEnhanced
-  v<the TOC version>`, the schema version, the profile and the detected frame system. `/reload` →
-  logging is off again (session-only). Result:
+  v<the TOC version>`, the schema version, the profile, the detected frame system and whether
+  EllesmereUI's raid frames are loaded. `/reload` → logging is off again (session-only). Result:
 - **DIAG-3. The perf walk.** `/pfe perf` → a status line and the step panel, whose close mark matches
   the console's. Walk `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump`
   without a Lua error. During arm B the addon is inert; after `finish` it is active again without a

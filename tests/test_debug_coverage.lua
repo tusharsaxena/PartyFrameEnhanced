@@ -159,6 +159,8 @@ test("coverage: the [Init] summary says whether EllesmereUI's raid frames are lo
 end)
 
 test("coverage: EllesmereUI loading after us logs one line", function()
+  -- red under: ADDON_LOADED for EllesmereUI re-resolved silently, so a log could not show that
+  -- the dependency loaded late or that the frame map was rebuilt for it.
   local lines = trace(function()
     mocks.__fireEvent("ADDON_LOADED", "EllesmereUIRaidFrames")
     mocks.__fireEvent("ADDON_LOADED", "SomeOtherAddon")

@@ -23,7 +23,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
-| DIAG-1 – 9 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report |
+| DIAG-1 – 12 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -463,6 +463,26 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **DIAG-9. The buffer cap.** With logging on, drive enough traced activity (party changes, unlock and
   lock, repeated `/pfe diagnostics`) to pass 3000 lines → the footer counter reads `N / 3000 lines` and
   pins at 3000, and **Copy** opens without a noticeable hitch. Result:
+- **DIAG-10. The console resizes.** `/pfe debug on`, drive a few trace lines, then `/pfe debug` → the
+  console opens at its default 700 × 344 with a size grip in its bottom-right corner. Drag the grip out
+  and back → the window follows on both axes, the text reflows, the scrollbar and the `N / 3000 lines`
+  counter stay in step, the buffer and scroll position are kept, and no digit of the counter sits under
+  the grip. Drag it as small as it goes → it stops while the title and every title-bar control still fit
+  and a few lines still show. Close the console and reopen it → the new size is kept. `/reload` and
+  reopen → the default size is back. With another Ka0s addon loaded, open its console too → it keeps its
+  own size, whatever this one was sized to. *Failure:* a control clipped or overlapping at the minimum,
+  a counter that lags the resize, or a size that survives the `/reload`. Result:
+- **DIAG-11. The copy window resizes.** Press the console's **Copy** → the copy window opens at its
+  default size with a grip in its bottom-right corner. Drag it larger and smaller → both axes follow, the
+  text box widens and narrows with the window, and the scroll bar's down button stays clickable above
+  the grip. It stops at its minimum. Close it and press **Copy** again → the size is kept; `/reload` →
+  the default is back. *Failure:* text that stays at the old width after a resize, or a size kept past
+  the `/reload`. Result:
+- **DIAG-12. The perf panel resizes in width only.** `/pfe perf` → the step panel opens at its default
+  size with a grip in its bottom-right corner. Drag the grip → the width follows and every step row
+  stretches to it, the height stays put, and it will not go narrower than its default. Close and reopen
+  it (`/pfe perf`) → the width is kept; `/reload` → the default is back. *Failure:* rows that do not
+  stretch, a panel that grows taller, or a width kept past the `/reload`. Result:
 
 ## Non-English client
 
@@ -551,3 +571,6 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
 | COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24; owed as PF.9), now through `/pfe set` |
 | COMBAT-8 | G 37 | nothing moves in combat, rewritten with a named drag for the same reason as COMBAT-5 |
+| DIAG-10 | new | the resizable debug console (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |
+| DIAG-11 | new | the resizable copy window (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |
+| DIAG-12 | new | the perf panel's width-only resize (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |

@@ -12,8 +12,8 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
   each line means.
 
 The console itself is the library's, and its contract lives in LibKa0s's
-[`docs/api/DebugLog/version-14.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-14.1-docs.md)
-(DebugLog 14.1 is the vendored minor, from LibKa0s v1.60.0). This page covers only what Party Frame
+[`docs/api/DebugLog/version-17.2-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-17.2-docs.md)
+(DebugLog 17.2 is the vendored minor, from LibKa0s v1.64.0). This page covers only what Party Frame
 Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
 chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 
@@ -31,7 +31,7 @@ What Party Frame Enhanced supplies, all in `core/DebugLogSetup.lua`:
 - **The flag is ours, and session-only.** It is `NS.State.debug`: off at login, never written to
   SavedVariables, and reset by every `/reload`. The General page's **Debug console** checkbox shows
   and hides the window; it does not set the flag.
-- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 14.1). The footer
+- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 17.2). The footer
   counter reads `N / 3000 lines` and pins there, and Copy pastes out of the same buffer, so a long
   capture keeps only its newest 3000 lines.
 - **The `[Init]` line** opens a session when the flag goes on:

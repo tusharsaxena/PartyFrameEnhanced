@@ -206,14 +206,13 @@ end
 -- re-sends UNIT_TARGET with the target unchanged, and PLAYER_TARGET_CHANGED lands here too, so an
 -- ungated line repeated through a whole pull. The name may be secret: it is stringified FIRST
 -- (<secret>), so the comparison never touches a secret value, and two secret targets in a row read
--- as one; the [Combat] rollup's targetEvents counts every event whatever the log shows. Guarded so
--- nothing is built with debug off: UnitName is a call per UNIT_TARGET otherwise.
+-- as one; the [Combat] rollup's targetEvents counts every event whatever the log shows. The console's
+-- gate holds the repeat, per button. Guarded so nothing is built with debug off: UnitName is a call
+-- per UNIT_TARGET otherwise.
 local function logTarget(btn)
     if not NS.State.debug then return end
     local label = NS.SafeToString(UnitName(btn.token) or "nothing")
-    if label == btn.__loggedTarget then return end
-    btn.__loggedTarget = label
-    NS.Debug("Target", "%s targets %s", btn.unit, label)
+    NS.DebugChanged("Target:" .. btn.unit, "Target", "%s targets %s", btn.unit, label)
 end
 
 local function onEvent(btn)

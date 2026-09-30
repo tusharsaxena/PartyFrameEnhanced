@@ -12,8 +12,8 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
   each line means.
 
 The console itself is the library's, and its contract lives in LibKa0s's
-[`docs/api/DebugLog/version-17.2-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-17.2-docs.md)
-(DebugLog 17.2 is the vendored minor, from LibKa0s v1.64.0). This page covers only what Party Frame
+[`docs/api/DebugLog/version-18.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-18.2.1-docs.md)
+(DebugLog 18.2.1 is the vendored minor, from LibKa0s v1.65.0). This page covers only what Party Frame
 Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
 chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 
@@ -31,7 +31,7 @@ What Party Frame Enhanced supplies, all in `core/DebugLogSetup.lua`:
 - **The flag is ours, and session-only.** It is `NS.State.debug`: off at login, never written to
   SavedVariables, and reset by every `/reload`. The General page's **Debug console** checkbox shows
   and hides the window; it does not set the flag.
-- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 17.2). The footer
+- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 18.2.1). The footer
   counter reads `N / 3000 lines` and pins there, and Copy pastes out of the same buffer, so a long
   capture keeps only its newest 3000 lines.
 - **The `[Init]` line** opens a session when the flag goes on:
@@ -52,7 +52,14 @@ What the console carries while the flag is on, tag by tag (`debug-logging-§8`: 
 Diagnosis checklist). Every row is one gated line per event, with its string built behind the gate.
 A line marked **change-gated** is on a repeating path and is written only when its own text differs
 from the last one it wrote (`debug-logging-§9`, quiet steady state), so a fight full of repeats adds
-nothing to the buffer.
+nothing to the buffer. The gate is the console's (`NS.DebugChanged` / `NS.DebugOnce`, DebugLogGates
+1), not a memo of this addon's: **Clear** and turning logging on re-arm it, so a cleared console
+says the current state again on its next pass rather than staying silent until something changes.
+
+**Which lines are the library's.** The rows below whose *Emitted by* names the library are written
+by LibKa0s through this addon's `NS.Debug` (each descriptor's `debug`): `Init`, `Lifecycle`, `Perf`,
+`Cmd`, `Cfg`, `Launcher` and `Diag`, and the `Set` lines the schema write seam writes. This addon
+writes no copy of any of them, and `tests/test_library_lines.lua` pins each landing once.
 
 | Tag | Emitted by | When |
 |---|---|---|
@@ -60,21 +67,23 @@ nothing to the buffer.
 | `Set` | the schema write seam (`settings/Schema.lua`, through the library), `core/PartyFrameEnhanced.lua` | Every setting write (`path = value`), a bulk reset's count, a profile reset (`N rows` when this addon drove it) and a profile copy |
 | `Profile` | `core/PartyFrameEnhanced.lua` | A profile switch; a profile deleted (the Profiles page or `/pfe profile delete`) |
 | `Migrate` | `core/Database.lua` | Each schema migration step that ran; a step that failed (ungated) |
-| `State` | `core/PartyFrameEnhanced.lua` | The addon stood down, naming the Lifecycle holds (`disabled`, `perf`) and the secure writes it left queued; stood back up; each loading screen (`entered world`), with the party answer it took |
+| `State` | `core/PartyFrameEnhanced.lua` | Each loading screen (`entered world`), with the party answer it took |
+| `Lifecycle` | the library, from `core/LifecycleSetup.lua`'s `debug` | Each stand-down and stand-up edge, one line naming the hold that moved and the resulting set (`stood down: added disabled (holds: disabled)`, `stood up: released perf (holds: none)`). A hold that fires no edge writes nothing. This addon writes no edge line of its own |
 | `Party` | `core/PartyFrameEnhanced.lua` | A roster change that flipped the party-only answer (joined or left a party, or the group became a raid) |
 | `Combat` | `core/PartyFrameEnhanced.lua` | Entering combat (secure writes queue from here); leaving it, with the rollup of what the fight counted (`castsStarted`, `castsInterrupted`, `targetEvents`, `targetTicks`) |
-| `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write held under combat lockdown, **once per key** with the count held (a later write under the key replaces it silently); the flush after combat or at a stand-up, with how many ran; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
+| `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write held under combat lockdown, **once per key** with the count held (a later write under the key replaces it silently); the flush after combat or at a stand-up, with how many ran; how many writes a stand-down or stand-up leaves held, when there are any; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
 | `Bus` | `core/Bus.lua` | A message or event the client refused when the bus came back up |
 | `Provider` | `modules/Providers.lua` | A resolve that changed the frame system or any unit's frame (change-gated by the resolve itself); EllesmereUI or its raid frames loading after this addon; the Edit Mode exit callback refused, once per distinct error |
 | `Anchor` | `modules/Anchor.lua` | A placement pass that moved or faded something (a pass that changed nothing is silent); a free-placement stack dropped after a drag, with its stored position; every stack reset to default |
 | `Fade` | `modules/RangeFade.lua` | The out-of-range fade's mode (`off`, `idle`, `range`, `copy`), whether it listens and how many frames it hooked, **change-gated** |
-| `Cast` | `modules/CastBars.lua` | A cast bar hidden while its unit casts, once per reason; an interrupted or failed cast; how many units it listens for, when that changes |
+| `Cast` | `modules/CastBars.lua` | A cast bar hidden while its unit casts, **change-gated** per unit (once per reason, re-armed when the bar shows); an interrupted or failed cast; how many units it listens for, when that changes |
 | `Target` | `modules/TargetFrames.lua` | Who each member targets, **change-gated** per button; the health ticker starting and stopping |
 | `Pet` | `modules/PetFrames.lua` | A member's pet appearing or going, **change-gated** per button |
 | `Preview` | `modules/Preview.lua`, `settings/Slash.lua` | Preview on and off; the stand-in's look and size, **change-gated** (once per raise); an unlock refused, naming the guard (`in combat`, `addon disabled`, `perf run suspended`); the lock toggle refused while disabled |
 | `Perf` | the library's perf harness, through `core/PerfSetup.lua`'s `log` | A perf capture's progress and results (ungated: a capture is an explicit act) |
-| `Cfg` | the library, from `settings/OptionsSetup.lua` | The settings panel opened, refused in combat, or its registration parked in combat |
-| `Launcher` | the library, from `core/LauncherSetup.lua` | The launcher's clicks and menu |
+| `Cmd` | the library, from `settings/Slash.lua`'s `debug` | Each refusal the dispatcher decides, one line after its chat line, `refused <verb>[ <arg>]: <guard>`: the disabled gate, an unknown verb, `get` / `set` / `reset` usage and not-found, a parse or write refusal, a reset with no default, and the profile verb's unavailable, already-current, in-combat and unknown-profile refusals. A refusal `settings/Slash.lua` decides itself (the lock toggle, the profile sub-verbs) is not a `Cmd` line |
+| `Cfg` | the library, from `settings/OptionsSetup.lua` | The settings panel opened, refused in combat, or its registration parked in combat and flushed when combat ends; each act an open panel's combat lock refuses, `<what> refused (in combat)` (a write, Defaults, a button, a toggle, a tab), once per text per combat |
+| `Launcher` | the library, from `core/LauncherSetup.lua` | The launcher's clicks and menu; `Register`'s state at login (`LibDataBroker-1.1 absent; no launcher`, `LibDBIcon-1.0 absent; broker plugin only`, no minimap table, `registered`), held by the console's at-enable queue (`debugAtEnable`) while the flag is off and written once when logging turns on, after the `[Init]` line |
 | `Diag` | the library | The report's markers, identity header, failed sections and `truncated` line |
 
 A new tag is a one-word string at the call site. Add its row here in the same change.
@@ -93,7 +102,7 @@ The repeating paths, and why each is quiet when nothing changed:
 - **The secure queue** logs a key when it is first held, not each time a later write replaces it,
   so a re-sort in combat that re-queues the same anchor pass many times adds one line.
 - **The stand-in** re-dresses on every roster update while you preview out of a party. It logs its
-  look once per raise.
+  look once per raise: lowering it forgets the gate's key, so the next raise says itself.
 - **The range fade** re-runs on every `LAYOUT`, `VISIBILITY`, `PROFILE` and General write. It logs
   its mode line only when that line changes.
 
@@ -101,8 +110,6 @@ The repeating paths, and why each is quiet when nothing changed:
 
 - **Refused event registrations** at the moment they happen: most registrations run at login, when
   the flag is off. `/pfe status` and the report's `events` section name every refused event.
-- **The slash gate's disabled refusal.** The library's dispatcher owns it and prints it to chat on
-  one line; the host never sees the refused verb.
 - **The secret-value `pcall`s in `core/Compat.lua`.** They are guards that fail by design on a
   secret. The value they would have logged is the secret itself.
 - **Restriction and spec edges.** The addon does not react to `ADDON_RESTRICTION_STATE_CHANGED` or

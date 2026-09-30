@@ -86,14 +86,15 @@ local function refreshShown(el)
     local show = shouldShow(el)
     if show then el:Show() else el:Hide() end
     if show or el.state ~= "casting" then
+        if el.__hiddenWhy then NS.DebugForget("Cast:hidden:" .. el.unit) end
         el.__hiddenWhy = nil
     elseif NS.State.debug then
         -- Once per reason, not once per event: a cast held hidden would otherwise log every update.
+        -- The console's change gate holds the repeat; `__hiddenWhy` is the state the diagnostics
+        -- report prints.
         local why = hiddenReason(el)
-        if why ~= el.__hiddenWhy then
-            el.__hiddenWhy = why
-            NS.Debug("Cast", "%s is casting but hidden: %s", el.unit, why)
-        end
+        el.__hiddenWhy = why
+        NS.DebugChanged("Cast:hidden:" .. el.unit, "Cast", "%s is casting but hidden: %s", el.unit, why)
     end
 end
 

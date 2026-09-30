@@ -94,6 +94,7 @@ Kit.run{
     "test_standin",
     "test_preview_standin",
     "test_debug_coverage",
+    "test_library_lines",
     "test_perf_buckets",
     { name = "test_prose", dir = "tests/_kit/" },
     "test_slash",

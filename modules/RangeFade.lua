@@ -172,17 +172,13 @@ local function syncEvents()
     end
 end
 
--- What the fade is doing, CHANGE-GATED (debug-logging-§9, quiet steady state): update runs on every
--- LAYOUT, VISIBILITY, PROFILE and general CONFIG, and nearly all of them leave the mode alone.
-local loggedMode
-
+-- What the fade is doing, CHANGE-GATED (debug-logging-§9, quiet steady state) through the console's
+-- gate: update runs on every LAYOUT, VISIBILITY, PROFILE and general CONFIG, and nearly all of them
+-- leave the mode alone.
 local function logMode()
     if not NS.State.debug then return end
-    local line = ("%s, listening %s, %d frame(s) hooked"):format(RangeFade.Mode(),
-        listening and "yes" or "no", RangeFade.HookedCount())
-    if line == loggedMode then return end
-    loggedMode = line
-    NS.Debug("Fade", "%s", line)
+    NS.DebugChanged("Fade:mode", "Fade", "%s", ("%s, listening %s, %d frame(s) hooked"):format(
+        RangeFade.Mode(), listening and "yes" or "no", RangeFade.HookedCount()))
 end
 
 local function update()

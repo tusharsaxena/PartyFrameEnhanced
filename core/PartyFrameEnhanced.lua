@@ -159,13 +159,14 @@ function addon:RegisterLifecycleEvents()
     end
 end
 
--- The stand-down edge's one line (debug-logging-§8, Diagnosis): which holds put it down, and what
--- secure work it leaves queued for PLAYER_REGEN_ENABLED. Built only with logging on.
-local function logStandDown()
-    if not NS.State.debug then return end
-    local holds = NS.lifecycle and NS.lifecycle.Holds and NS.lifecycle:Holds() or {}
-    NS.Debug("State", "stood down (holds: %s), %d secure write(s) held",
-        #holds > 0 and table.concat(holds, ", ") or "none", #pendingOrder)
+-- The edge itself is the library's line (Lifecycle minor 3): `Lifecycle stood down: added <key>
+-- (holds: <set>)`, written before this callback runs. What only this addon knows is the secure
+-- work the edge leaves queued for PLAYER_REGEN_ENABLED, so that is the one line it adds, and only
+-- when there is some (debug-logging-§8, Deferred work). Counted AFTER the modules' Suspend hooks:
+-- their driver releases queue in combat too.
+local function logHeldSecure(edge)
+    if #pendingOrder == 0 then return end
+    NS.Debug("Secure", "%d write(s) held at the %s", #pendingOrder, edge)
 end
 
 --- Every registration this addon owns, actually unregistered; every timer canceled; every element
@@ -185,13 +186,13 @@ function NS.StandDown()
     -- under combat lockdown cannot be completed now and must not be abandoned, so the queue holds
     -- it and PLAYER_REGEN_ENABLED finishes it — and that listener is released the moment it fires.
     armPendingRegen()
-    logStandDown()
+    logHeldSecure("stand-down")
 end
 
 --- Back up, and rebuilt from CURRENT state rather than from a snapshot taken on the way down: a
 --- setting changed while the addon was off comes back correctly (performance-§6).
 function NS.StandUp()
-    NS.Debug("State", "stood up, %d secure write(s) held", #pendingOrder)
+    logHeldSecure("stand-up")
     disarmPendingRegen()
     NS.BusStandUp()
     addon:RegisterLifecycleEvents()

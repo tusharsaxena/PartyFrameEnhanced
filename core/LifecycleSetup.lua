@@ -22,6 +22,11 @@ if Lifecycle then
         standDown = function() if NS.StandDown then NS.StandDown() end end,
         standUp   = function() if NS.StandUp then NS.StandUp() end end,
         print     = function(line) NS.Print(line) end,
+        -- The library writes each stand-down and stand-up edge, with the hold that moved and the
+        -- resulting set, as one `Lifecycle` line (Lifecycle minor 3, debug-logging-§8). This addon
+        -- writes no edge line of its own: core/PartyFrameEnhanced.lua adds only the secure writes an
+        -- edge leaves held. Call-time: NS.Debug is the gated sink core/DebugLogSetup.lua binds.
+        debug     = function(tag, message) NS.Debug(tag, "%s", message) end,
     })
 else
     -- Degrade, never error, exactly as core/DebugLogSetup.lua and settings/OptionsSetup.lua do. A

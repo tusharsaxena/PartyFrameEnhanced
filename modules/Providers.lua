@@ -342,8 +342,12 @@ local ELLESMERE_ADDONS = { EllesmereUI = true, EllesmereUIRaidFrames = true }
 -- loses every line after the one that raised.
 local BURST_EVENTS = { "GROUP_ROSTER_UPDATE", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }
 
+-- A dependency that loads AFTER this addon (debug-logging-§8, Diagnosis): the one line says the
+-- resolve is re-run for it. ADDON_LOADED fires once per addon, so this is once per session.
 local function onAddonLoaded(_, name)
-    if ELLESMERE_ADDONS[name] then burst() end
+    if not ELLESMERE_ADDONS[name] then return end
+    NS.Debug("Provider", "%s loaded after us: re-resolving", name)
+    burst()
 end
 
 local function registerEvents()
@@ -356,13 +360,23 @@ end
 -- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private. It is
 -- a registration like any other, so the stand-down drops it and the stand-up takes it back
 -- (slash-commands-§7): one callback per owner, so a second registration replaces the first.
+-- A refusal is caught and logged once per distinct message (debug-logging-§8, Diagnosis): without
+-- the callback an Edit Mode exit re-resolves nothing, and a stand-up retries it every time.
+local editModeErrors = {}
+
 local function editModeCallback(on)
     if not (EventRegistry and type(EventRegistry.RegisterCallback) == "function") then return end
+    local ok, err
     if on then
-        pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
+        ok, err = pcall(EventRegistry.RegisterCallback, EventRegistry, "EditMode.Exit", burst, Providers)
     else
-        pcall(EventRegistry.UnregisterCallback, EventRegistry, "EditMode.Exit", Providers)
+        ok, err = pcall(EventRegistry.UnregisterCallback, EventRegistry, "EditMode.Exit", Providers)
     end
+    if ok or not NS.State.debug then return end
+    local msg = tostring(err)
+    if editModeErrors[msg] then return end
+    editModeErrors[msg] = true
+    NS.Debug("Provider", "EditMode.Exit %s failed: %s", on and "register" or "unregister", msg)
 end
 
 function Providers:OnEnable()

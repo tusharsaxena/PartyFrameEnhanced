@@ -172,10 +172,24 @@ local function syncEvents()
     end
 end
 
+-- What the fade is doing, CHANGE-GATED (debug-logging-§9, quiet steady state): update runs on every
+-- LAYOUT, VISIBILITY, PROFILE and general CONFIG, and nearly all of them leave the mode alone.
+local loggedMode
+
+local function logMode()
+    if not NS.State.debug then return end
+    local line = ("%s, listening %s, %d frame(s) hooked"):format(RangeFade.Mode(),
+        listening and "yes" or "no", RangeFade.HookedCount())
+    if line == loggedMode then return end
+    loggedMode = line
+    NS.Debug("Fade", "%s", line)
+end
+
 local function update()
     if not ready then return end
     syncEvents()
     refresh()
+    logMode()
 end
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
@@ -202,6 +216,7 @@ function RangeFade:Suspend()
     listening = false
     refresh()
     showFades(false)
+    logMode()
 end
 
 function RangeFade:Resume()

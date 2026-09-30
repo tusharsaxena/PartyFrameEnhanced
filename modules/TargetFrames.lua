@@ -202,17 +202,28 @@ local function refreshAll()
     TargetFrames.UpdateTicker()
 end
 
+-- Who the owner targets, CHANGE-GATED per button (debug-logging-§9, quiet steady state): the client
+-- re-sends UNIT_TARGET with the target unchanged, and PLAYER_TARGET_CHANGED lands here too, so an
+-- ungated line repeated through a whole pull. The name may be secret: it is stringified FIRST
+-- (<secret>), so the comparison never touches a secret value, and two secret targets in a row read
+-- as one; the [Combat] rollup's targetEvents counts every event whatever the log shows. Guarded so
+-- nothing is built with debug off: UnitName is a call per UNIT_TARGET otherwise.
+local function logTarget(btn)
+    if not NS.State.debug then return end
+    local label = NS.SafeToString(UnitName(btn.token) or "nothing")
+    if label == btn.__loggedTarget then return end
+    btn.__loggedTarget = label
+    NS.Debug("Target", "%s targets %s", btn.unit, label)
+end
+
 local function onEvent(btn)
     if not btn.__allowed or NS.State.preview then return end
     local t0 = Perf.on and debugprofilestop()
     paintAll(btn)
     TargetFrames.UpdateTicker()
+    NS.CombatStats.targetEvents = (NS.CombatStats.targetEvents or 0) + 1
     if t0 then Perf.Note("targetEvent", debugprofilestop() - t0) end
-    -- The name may be secret; the sink's stringifier renders it as <secret>. Guarded so the
-    -- argument is not built at all with debug off: UnitName is a call per UNIT_TARGET otherwise.
-    if NS.State.debug then
-        NS.Debug("Target", "%s targets %s", btn.unit, UnitName(btn.token) or "nothing")
-    end
+    logTarget(btn)
 end
 
 -- The module's own bus target. Hoisted above syncEvents, which holds the two unfiltered events on

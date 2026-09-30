@@ -61,9 +61,13 @@ local armPendingRegen, disarmPendingRegen
 
 function NS.RunSecure(key, fn)
     if InCombatLockdown() then
-        if not pending[key] then pendingOrder[#pendingOrder + 1] = key end
+        -- One line per key HELD, not per write: a later write under a queued key only replaces it,
+        -- and a re-sort in combat re-queues the same anchor pass many times a fight (debug-logging-§9).
+        if not pending[key] then
+            pendingOrder[#pendingOrder + 1] = key
+            NS.Debug("Secure", "queued %s (combat lockdown, %d held)", key, #pendingOrder)
+        end
         pending[key] = fn
-        NS.Debug("Secure", "queued %s", key)
         if NS.IsStoodDown and NS.IsStoodDown() then armPendingRegen() end
         return false
     end
@@ -155,6 +159,15 @@ function addon:RegisterLifecycleEvents()
     end
 end
 
+-- The stand-down edge's one line (debug-logging-§8, Diagnosis): which holds put it down, and what
+-- secure work it leaves queued for PLAYER_REGEN_ENABLED. Built only with logging on.
+local function logStandDown()
+    if not NS.State.debug then return end
+    local holds = NS.lifecycle and NS.lifecycle.Holds and NS.lifecycle:Holds() or {}
+    NS.Debug("State", "stood down (holds: %s), %d secure write(s) held",
+        #holds > 0 and table.concat(holds, ", ") or "none", #pendingOrder)
+end
+
 --- Every registration this addon owns, actually unregistered; every timer canceled; every element
 --- refused at the source. Not a draw gate: an early-returning handler is still a handler the client
 --- pays to dispatch, and what a player switching the addon off is trying to stop paying for is
@@ -172,11 +185,13 @@ function NS.StandDown()
     -- under combat lockdown cannot be completed now and must not be abandoned, so the queue holds
     -- it and PLAYER_REGEN_ENABLED finishes it — and that listener is released the moment it fires.
     armPendingRegen()
+    logStandDown()
 end
 
 --- Back up, and rebuilt from CURRENT state rather than from a snapshot taken on the way down: a
 --- setting changed while the addon was off comes back correctly (performance-§6).
 function NS.StandUp()
+    NS.Debug("State", "stood up, %d secure write(s) held", #pendingOrder)
     disarmPendingRegen()
     NS.BusStandUp()
     addon:RegisterLifecycleEvents()
@@ -220,6 +235,7 @@ end
 
 function addon:OnEnterWorld()
     NS.State.inParty = NS.Units.InParty()
+    NS.Debug("State", "entered world: %s", NS.State.inParty and "in a party" or "not in a party")
     NS.PublishVisibility()
 end
 
@@ -239,6 +255,7 @@ NS.CombatStats = NS.CombatStats or {}
 
 function addon:OnEnterCombat()
     NS.State.inCombat = true
+    NS.Debug("Combat", "entered: secure writes queue until it ends")
     for k in pairs(NS.CombatStats) do NS.CombatStats[k] = 0 end
     NS.PublishVisibility()
 end
@@ -303,6 +320,12 @@ function NS.OnProfileReset()
     else
         adoptProfile("Set", "reset profile '%s' to defaults", currentProfile())
     end
+end
+
+-- A delete replaces nothing, so it publishes nothing: the one line is the whole reaction. AceDB
+-- hands the callback the deleted profile's name as its third argument.
+function NS.OnProfileDeleted(_, _, name)
+    NS.Debug("Profile", "deleted '%s'", tostring(name or "?"))
 end
 
 -- AceDB hands a copy's callback the SOURCE profile's name as its third argument.

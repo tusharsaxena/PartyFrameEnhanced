@@ -16,6 +16,7 @@ function NS:InitDB()
             NS.db.RegisterCallback(NS, "OnProfileChanged", NS.OnProfileChanged)
             NS.db.RegisterCallback(NS, "OnProfileCopied", NS.OnProfileCopied)
             NS.db.RegisterCallback(NS, "OnProfileReset", NS.OnProfileReset)
+            NS.db.RegisterCallback(NS, "OnProfileDeleted", NS.OnProfileDeleted)
         end
     end
     -- Without AceDB: a db-shaped table over the raw SavedVariables global, given the defaults AceDB

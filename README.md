@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-393%2F393_passing-green)
+![Tests](https://img.shields.io/badge/Tests-407%2F408_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -45,17 +45,17 @@ on. `/pfe lock` brings the real data back. It won't unlock in combat, and a pull
 Setting it up the way you like takes three steps. The **Cast Bars**, **Target Frames** and
 **Pet Frames** pages are laid out the same way, so you do each step once per feature.
 
-1. Pick what you want. The first box on each page's **General** tab turns that feature on or off,
-   so switch off anything you don't need. The **General** page decides whether you get a row for
-   yourself too (**Include my own row**) and which party frames to attach to. Leave **Frame system** on
-   **Automatic** unless you run both Blizzard's frames and EllesmereUI's.
-2. Place each feature on its **Size & Position** tab. Attached, it sits on each party frame, and
-   the anchor points and X and Y offsets nudge it into place. Switch **Anchor mode** to **Free
-   placement** and all five go in one stack you drag wherever you want, with a growth direction and
-   spacing. The tab only shows the settings for the mode you picked.
-3. Make it look right. The **Bar**, **Border** and **Text** tabs hold the textures, colors and
-   fonts. Cast bars get a color for each kind of cast, target frames can color NPCs by how they
-   feel about you, and target and pet frames have a **Marker** tab for the raid marker.
+- Pick what you want. The first box on each page's **General** tab turns that feature on or off,
+  so switch off anything you don't need. The **General** page decides whether you get a row for
+  yourself too (**Include my own row**) and which party frames to attach to. Leave **Frame system** on
+  **Automatic** unless you run both Blizzard's frames and EllesmereUI's.
+- Place each feature on its **Size & Position** tab. Attached, it sits on each party frame, and
+  the anchor points and X and Y offsets nudge it into place. Switch **Anchor mode** to **Free
+  placement** and all five go in one stack you drag wherever you want, with a growth direction and
+  spacing. The tab only shows the settings for the mode you picked.
+- Make it look right. The **Bar**, **Border** and **Text** tabs hold the textures, colors and
+  fonts. Cast bars get a color for each kind of cast, target frames can color NPCs by how they
+  feel about you, and target and pet frames have a **Marker** tab for the raid marker.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim with their party
 frame. The minimap button opens the settings on a left click, and a right click gives you
@@ -70,14 +70,14 @@ In Midnight, a lot of what a party member is doing is secret to addons, a cast's
 included. An addon can hand those values to the game to draw, but it can't read them. Party Frame
 Enhanced is built around that, so a pull can't break it.
 
-1. When your group or your layout changes, the addon checks the party frames on screen and works out
-   which frame shows which party member. It only reads them. It never moves, hides or restyles them.
-2. Each cast bar, target frame and pet frame gets pinned to the frame showing its party member, or put
-   in its feature's stack if that feature is in free placement.
-3. Cast bars start and stop on the game's own cast events. The bar gets the game's cast timer as it
-   is and the game runs the countdown, so the addon never reads the time left. Target frames update
-   the moment a member switches target, and their health refreshes a few times a second while
-   they're visible. Pet frames follow the pet's health events.
+- When your group or your layout changes, the addon checks the party frames on screen and works out
+  which frame shows which party member. It only reads them. It never moves, hides or restyles them.
+- Each cast bar, target frame and pet frame gets pinned to the frame showing its party member, or put
+  in its feature's stack if that feature is in free placement.
+- Cast bars start and stop on the game's own cast events. The bar gets the game's cast timer as it
+  is and the game runs the countdown, so the addon never reads the time left. Target frames update
+  the moment a member switches target, and their health refreshes a few times a second while
+  they're visible. Pet frames follow the pet's health events.
 
 ## FAQ
 
@@ -101,11 +101,11 @@ Enhanced is built around that, so a pull can't break it.
 
 ## Reporting a bug
 
-1. Type `/pfe debug on` and reproduce the bug.
-2. Type `/pfe diagnostics`.
-3. If the debug window isn't open, open it with `/pfe debug`. Press **Copy**, copy the entire output, and include it with your bug report.
+- Type `/pfe debug on` and reproduce the bug.
+- Type `/pfe diagnostics`.
+- If the debug window isn't open, open it with `/pfe debug`. Press **Copy**, copy the entire output, and include it with your bug report.
 
-The diagnostics report goes in below the debug trace, in the same window, so one copy gets you both.
+The report is added after the debug trace in the same window, so one copy carries both.
 
 ## Issues and feature requests
 

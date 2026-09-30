@@ -298,6 +298,22 @@ badge and any count quoted in the docs must agree with it.
 - preview: Lock frame is the switch, and no Test mode row survives beside it
 - preview: status names what preview is showing, and neither verb survives in NS.COMMANDS
 
+### test_debug_coverage.lua (13)
+
+- coverage: a secure write queued in combat logs once per key held, then one flush line
+- coverage: entering combat, entering the world, and the stand-down and stand-up each log once
+- coverage: a stand-down in combat names the secure writes it leaves held
+- coverage: a profile delete logs its one line, and the callback is registered
+- coverage: a free-placement reset and a drag each log one line
+- coverage: an unlock refused in combat names the guard on the console
+- coverage: the [Init] summary says whether EllesmereUI's raid frames are loaded
+- coverage: EllesmereUI loading after us logs one line
+- coverage: a refused EditMode.Exit registration is logged once per distinct error
+- coverage quiet: repeated UNIT_TARGET with the same target logs once, a new target once more
+- coverage quiet: repeated UNIT_PET with the same pet logs once
+- coverage quiet: previewing out of a party, a roster burst re-logs no unchanged stand-in
+- coverage quiet: the range fade logs its mode on change, not on every LAYOUT
+
 ### test_perf_buckets.lua (3)
 
 - perf: every declared bucket is reached by a real bracket
@@ -397,7 +413,7 @@ badge and any count quoted in the docs must agree with it.
 - diagnostics: over the cap, the report ends in the truncated line and then the end marker
 - diagnostics: the report writes no setting, queues no secure write and registers nothing
 - diagnostics: the sections file calls no API the report must never call
-- diagnostics: the one chat line is the locale's, with the line count
+- diagnostics: the one report chat line is the locale's, with the line count
 - diagnostics: without LibKa0s, both forms print the one library-absent line
 
 ### test_launcher.lua (31)
@@ -464,13 +480,15 @@ badge and any count quoted in the docs must agree with it.
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
-### test_diagnostics_contract.lua (7)
+### test_diagnostics_contract.lua (9)
 
 - diagnostics contract: both forms run the report
 - diagnostics contract: the debug word is matched in any case
 - diagnostics contract: both markers carry the brand and the end counts the report
 - diagnostics contract: the report appends after what the console already holds
-- diagnostics contract: the report lands with logging off and leaves it off
+- diagnostics contract: the report lands with logging off and turns it on for the session
+- diagnostics contract: an addon that opts out lands the report and leaves logging off (skipped: this addon keeps the default (Kit.diagnostics.enablesLogging is not false), so its report turns logging on; the case above holds it)
+- diagnostics contract: with logging already on, the report writes no second enable line
 - diagnostics contract: both forms run while the addon is disabled
 - diagnostics contract: no other name runs the report
 
@@ -527,6 +545,7 @@ badge and any count quoted in the docs must agree with it.
 | test_preview.lua | 8 |
 | test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
+| test_debug_coverage.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
@@ -535,8 +554,8 @@ badge and any count quoted in the docs must agree with it.
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 14 |
-| test_diagnostics_contract.lua | 7 |
+| test_diagnostics_contract.lua | 9 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **393** |
+| **Total** | **408** |

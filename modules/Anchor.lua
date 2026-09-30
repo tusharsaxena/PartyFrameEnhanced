@@ -362,12 +362,14 @@ function Anchor.SavePosition(key)
     if type(point) ~= "string" then return end
     local cfg = spec.config()
     cfg.position = { point = point, x = math.floor((x or 0) + 0.5), y = math.floor((y or 0) + 0.5) }
+    NS.Debug("Anchor", "%s dragged to %s %d, %d", key, point, cfg.position.x, cfg.position.y)
     spec.holder.__aPoint = nil   -- StartMoving re-anchored it; the memo no longer describes it
     Anchor.Apply(key)
 end
 
 --- Every feature's free-placement stack back to its default position.
 function Anchor.ResetPositions()
+    NS.Debug("Anchor", "positions reset to default (%d feature(s))", #order)
     for _, key in ipairs(order) do
         local spec = features[key]
         spec.config().position = nil

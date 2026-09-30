@@ -23,7 +23,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
-| DIAG-1 – 14 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on |
+| DIAG-1 – 16 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -495,6 +495,18 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   line. `/reload`, then `/pfe diagnostics` → logging turns on again the same way; `/reload` once more
   → the header reads Off. *Failure:* the flag left off after a run, a second enable line with logging
   already on, or logging still on after the `/reload`. Result:
+- **DIAG-15. A slash refusal shows in the console.** `/pfe debug on`, then `/pfe notaverb` → chat
+  prints `unknown command 'notaverb'` and the help, and the console gains one `[Cmd] refused
+  notaverb: unknown verb` line. `/pfe disable`, then `/pfe resetposition` → chat prints the one
+  disabled line, and the console gains one `[Cmd] refused resetposition: disabled` line. `/pfe
+  enable` afterwards. *Failure:* no `[Cmd]` line, the same refusal logged twice, or a chat line that
+  changed. Result:
+- **DIAG-16. A stand-down edge shows in the console.** `/pfe debug on`, then `/pfe disable` → the
+  console gains one `[Lifecycle] stood down: added disabled (holds: disabled)` line and no `[State]
+  stood down` line. `/pfe enable` → one `[Lifecycle] stood up: released disabled (holds: none)`
+  line. `/pfe disable` a second time while already disabled (the checkbox or the verb) → no new
+  `[Lifecycle]` line. `/pfe enable` afterwards. *Failure:* no `[Lifecycle]` line, two lines for one
+  edge, or a line for a disable that changed nothing. Result:
 
 ## Non-English client
 
@@ -589,3 +601,5 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | DIAG-5 | DIAG-5 | the second run's enable lines above the report, now that diagnostics turns logging on (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
 | DIAG-13 | new | the console's orange Diagnostics link (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
 | DIAG-14 | new | diagnostics turns logging on for the session, and `/reload` turns it off (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
+| DIAG-15 | new | the library's `[Cmd]` slash refusals in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
+| DIAG-16 | new | the library's `[Lifecycle]` stand-down and stand-up edges in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |

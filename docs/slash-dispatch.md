@@ -67,6 +67,13 @@ and a `brandName`, and the dispatcher does the rest; the refusal's wording lives
 the addon failing to understand, not the addon refusing. The same answer goes to a reserved verb the
 addon never registered: nothing was refused, so nothing says it was (`LibKa0s-Slash-1.0` minor 14).
 
+**Its refusals reach the debug console too.** The descriptor's `debug` is this addon's gated sink,
+so every refusal the dispatcher decides (this gate, an unknown verb, a `get` / `set` / `reset` the
+parser or the store refuses, a refused profile switch) writes one `[Cmd] refused <verb>: <guard>`
+line after its chat line (`LibKa0s-Slash-1.0` minor 18). The addon logs none of them itself, and
+matches no chat line to find them; a refusal `settings/Slash.lua` decides (the lock toggle, the
+profile sub-verbs) is its own. The tags: [debug.md](debug.md).
+
 **The live set this addon declares** is the standard's thirteen reserved verbs (`diagnostics` joined
 them at `LibKa0s-Slash-1.0` minor 16) plus two of its own, on the same
 reasoning rather than as exceptions to it: **`status`** is a diagnostic like `debug` (it changes

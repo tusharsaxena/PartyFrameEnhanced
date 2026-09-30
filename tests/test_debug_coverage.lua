@@ -82,13 +82,19 @@ test("coverage: entering combat, entering the world, and the stand-down and stan
     NS.SetByPath("enabled", false)
     drainTimers()
   end)
-  assertEqual(count(lines, "State stood down (holds: disabled), 0 secure write(s) held"), 1,
+  -- The edge line is the library's (Lifecycle minor 3), through this addon's sink, and the host
+  -- writes no second one: with nothing queued it adds no Secure line either.
+  assertEqual(count(lines, "Lifecycle stood down: added disabled (holds: disabled)"), 1,
     table.concat(lines, " | "))
+  assertEqual(count(lines, "State stood"), 0, "no host edge line beside the library's")
+  assertTrue(not table.concat(lines, "\n"):find("held at the stand-down", 1, true), "nothing held, nothing said")
   lines = trace(function()
     NS.SetByPath("enabled", true)
     drainTimers()
   end)
-  assertEqual(count(lines, "State stood up, 0 secure write(s) held"), 1, table.concat(lines, " | "))
+  assertEqual(count(lines, "Lifecycle stood up: released disabled (holds: none)"), 1,
+    table.concat(lines, " | "))
+  assertEqual(count(lines, "State stood"), 0, "no host edge line beside the library's")
 end)
 
 test("coverage: a stand-down in combat names the secure writes it leaves held", function()
@@ -98,10 +104,11 @@ test("coverage: a stand-down in combat names the secure writes it leaves held", 
   mocks.InCombatLockdown = function() return true end
   local lines = trace(function() NS.SetByPath("enabled", false) end)
   local line
-  for _, l in ipairs(lines) do if l:find("^State stood down") then line = l end end
+  for _, l in ipairs(lines) do if l:find("^Secure %d+ write%(s%) held at the stand%-down") then line = l end end
   assertTrue(line ~= nil, table.concat(lines, " | "))
-  local held = tonumber(line:match("(%d+) secure write"))
+  local held = tonumber(line:match("(%d+) write"))
   assertTrue(held and held > 0 and held == NS.PendingSecureCount(), line)
+  assertEqual(count(lines, "Lifecycle stood down: added disabled"), 1, "the edge is the library's line")
   mocks.InCombatLockdown = function() return false end
   mocks.__fireEvent("PLAYER_REGEN_ENABLED")
   NS.SetByPath("enabled", true)

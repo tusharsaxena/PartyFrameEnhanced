@@ -483,6 +483,11 @@ cli = SlashLib:New({
 
     print   = function(line) print(line) end,
     version = NS.Version,
+    -- The dispatcher's own refusals (the disabled gate, an unknown verb, get/set/reset usage and
+    -- not-found, a parse or write refusal, the profile verb's refusals) each write one `Cmd` line
+    -- after the chat line (Slash minor 18). A refusal this file decides itself (NS.ToggleLock, the
+    -- profile sub-verbs) is the host's to log; one the library decides is never logged twice.
+    debug   = function(tag, message) NS.Debug(tag, "%s", message) end,
 
     -- Through the seam, so a CLI change takes the panel's path: [Set] line, onChange, CONFIG.
     get          = function(path) return NS.GetSetting(path) end,

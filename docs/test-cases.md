@@ -314,6 +314,16 @@ badge and any count quoted in the docs must agree with it.
 - coverage quiet: previewing out of a party, a roster burst re-logs no unchanged stand-in
 - coverage quiet: the range fade logs its mode on change, not on every LAYOUT
 
+### test_library_lines.lua (7)
+
+- library lines: an unknown verb writes one [Cmd] refusal to this addon's console
+- library lines: the disabled gate writes one [Cmd] refusal, and the chat line stays one
+- library lines: a `set` the parser refuses writes one [Cmd] line naming the path
+- library lines: a refusal this addon decides stays its own line, with no [Cmd] copy
+- library lines: each Lifecycle edge is one [Lifecycle] line in this addon's console
+- library lines: a hold that changes nothing writes no [Lifecycle] line
+- library lines: a second hold is named in the set, and releasing one fires no edge
+
 ### test_perf_buckets.lua (3)
 
 - perf: every declared bucket is reached by a real bracket
@@ -546,6 +556,7 @@ badge and any count quoted in the docs must agree with it.
 | test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
+| test_library_lines.lua | 7 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
@@ -558,4 +569,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **408** |
+| **Total** | **415** |

@@ -28,6 +28,12 @@ if not lib then
         buffer = {},
         Add             = function() end,
         Debug           = function() end,
+        -- The console's change gates and at-enable queue (DebugLogGates 1, LibKa0s v1.65.0) write
+        -- nothing without the library, like Debug.
+        DebugOnce       = function() end,
+        DebugChanged    = function() end,
+        DebugForget     = function() end,
+        DebugAtEnable   = function() end,
         Clear           = function() end,
         Show            = function() sayOnce() end,
         Hide            = function() end,

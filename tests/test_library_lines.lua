@@ -212,3 +212,19 @@ test("library lines: with logging already on, the launcher's state line is writt
   local lines = logged(function() NS.Launcher:Register() end)
   assertEqual(count(lines, "[Launcher] LibDataBroker-1.1 absent; no launcher"), 1, table.concat(lines, " | "))
 end)
+
+-- ── Options minor 27: the combat lock's refusals (the `debug` this addon already passed) ────────
+
+test("library lines: a page Defaults refused by the combat lock is one [Cfg] line, once per combat", function()
+  -- The Options descriptor has passed `debug` since before v1.65.0; minor 27 is what writes these.
+  local lines = logged(function()
+    mocks.InCombatLockdown = function() return true end
+    mocks.__fireEvent("PLAYER_REGEN_DISABLED")
+    NS.Helpers.RestoreDefaults("general")
+    NS.Helpers.RestoreDefaults("general")
+  end)
+  mocks.InCombatLockdown = function() return false end
+  mocks.__fireEvent("PLAYER_REGEN_ENABLED")
+  settle()
+  assertEqual(count(lines, "[Cfg] defaults general refused (in combat)"), 1, table.concat(lines, " | "))
+end)

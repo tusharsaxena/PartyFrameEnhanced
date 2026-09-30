@@ -52,7 +52,7 @@ v1.58.0's Launcher minor 4 left click and options menu
 ([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)); and, since the
 release, v1.63.0's Slash minor 17 profile verb, which `/pfe profile <name>` and `profile use` route
 through ([revendor/2026-09-29-v1.63.0/](revendor/2026-09-29-v1.63.0/05_SUMMARY.md)), and v1.64.0's resizable
-debug console, copy window and perf panel, the console's Diagnostics link and a report run that turns logging on for the session (DebugLog 17.2), all of which arrive with the vendored files and need no wiring. v1.47.0 to
+debug console, copy window and perf panel, the console's Diagnostics link and a report run that turns logging on for the session (DebugLog 17.2), all of which arrive with the vendored files and need no wiring. v1.65.0 closes five debug gaps, and this addon wires all of them: `settings/Slash.lua` and `core/LifecycleSetup.lua` pass the gated sink as `debug`, so the dispatcher's refusals (`[Cmd]`) and each stand-down / stand-up edge (`[Lifecycle]`) are the library's lines and the host writes no copy; the settings panel's combat-lock refusals reach the `debug` `settings/OptionsSetup.lua` already passed (`[Cfg]`); the console's change gates (`NS.DebugChanged` / `NS.DebugOnce`, re-armed by Clear and by turning logging on) replace six hand-rolled memos; and `core/LauncherSetup.lua` passes `debugAtEnable`, so the launcher's login state lines land when logging is turned on ([debug.md](debug.md)). v1.47.0 to
 v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
 ([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
 

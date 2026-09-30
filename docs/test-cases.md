@@ -314,7 +314,7 @@ badge and any count quoted in the docs must agree with it.
 - coverage quiet: previewing out of a party, a roster burst re-logs no unchanged stand-in
 - coverage quiet: the range fade logs its mode on change, not on every LAYOUT
 
-### test_library_lines.lua (12)
+### test_library_lines.lua (13)
 
 - library lines: an unknown verb writes one [Cmd] refusal to this addon's console
 - library lines: the disabled gate writes one [Cmd] refusal, and the chat line stays one
@@ -328,6 +328,7 @@ badge and any count quoted in the docs must agree with it.
 - library lines: no hand-rolled change gate is left in the addon's own files
 - library lines: the launcher's dependency line, written at OnEnable, lands when logging turns on
 - library lines: with logging already on, the launcher's state line is written at once, once
+- library lines: a page Defaults refused by the combat lock is one [Cfg] line, once per combat
 
 ### test_perf_buckets.lua (3)
 
@@ -561,7 +562,7 @@ badge and any count quoted in the docs must agree with it.
 | test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
-| test_library_lines.lua | 12 |
+| test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
@@ -574,4 +575,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **420** |
+| **Total** | **421** |

@@ -44,7 +44,8 @@ local REFUSED_SUSPENDED = "|cff808080" ..
     L["cannot unlock \226\128\148 a perf run has the addon suspended"] .. "|r"
 
 local placedId   -- the frame system the stand-in was last dressed as
-local dressedAs  -- the last stand-in line logged, so a roster burst re-logs no unchanged look
+-- The console change-gate key for the stand-in's look, so a roster burst re-logs no unchanged look.
+local DRESS_KEY = "Preview:standin"
 
 -- ── the stand-in ────────────────────────────────────────────────────────────────────────────
 
@@ -57,10 +58,8 @@ local function dress()
     -- Change-gated (debug-logging-§9, quiet steady state): applyStandIn re-dresses on EVERY roster
     -- update while previewing out of a party, and a raid's roster fires many times a minute.
     if not NS.State.debug then return end
-    local line = ("stand-in as %s, %.0f x %.0f from %s"):format(id, p.w, p.h, p.from)
-    if line == dressedAs then return end
-    dressedAs = line
-    NS.Debug("Preview", "%s", line)
+    NS.DebugChanged(DRESS_KEY, "Preview", "%s",
+        ("stand-in as %s, %.0f x %.0f from %s"):format(id, p.w, p.h, p.from))
 end
 
 local function raiseStandIn()
@@ -70,7 +69,7 @@ local function raiseStandIn()
 end
 
 local function lowerStandIn()
-    dressedAs = nil   -- the next raise is a new edge, and says so
+    NS.DebugForget(DRESS_KEY)   -- the next raise is a new edge, and says so
     NS.Providers.SetStandIn(nil)
     NS.StandIn.Hide()
 end

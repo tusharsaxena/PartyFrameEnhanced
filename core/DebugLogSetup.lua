@@ -84,6 +84,8 @@ if not lib then
         end,
     }
     NS.Debug = NS.DebugLog.Debug
+    NS.DebugOnce, NS.DebugChanged = NS.DebugLog.DebugOnce, NS.DebugLog.DebugChanged
+    NS.DebugForget, NS.DebugAtEnable = NS.DebugLog.DebugForget, NS.DebugLog.DebugAtEnable
     return
 end
 
@@ -139,3 +141,15 @@ NS.DebugLog = lib:New({
 
 -- The gated sink, bound bare so call sites read NS.Debug("Cast", "%s start", unit).
 NS.Debug = NS.DebugLog.Debug
+
+-- The console's change gates (DebugLogGates 1, LibKa0s v1.65.0), bound bare the same way. A line on a
+-- repeating path goes through one of these rather than a memo of its own (debug-logging-§9): the
+-- console re-arms them on Clear and on turning logging on, which no hand-rolled memo was. Gated like
+-- NS.Debug, and nothing is remembered while logging is off.
+--   NS.DebugOnce(key, tag, fmt, ...)     once per key per arming
+--   NS.DebugChanged(key, tag, fmt, ...)  only when the line differs from the last one for the key
+--   NS.DebugForget(key)                  re-arm one key (an edge that should say itself again)
+--   NS.DebugAtEnable(tag, fmt, ...)      a STATE line written while logging is off, held and
+--                                        written when logging turns on
+NS.DebugOnce, NS.DebugChanged = NS.DebugLog.DebugOnce, NS.DebugLog.DebugChanged
+NS.DebugForget, NS.DebugAtEnable = NS.DebugLog.DebugForget, NS.DebugLog.DebugAtEnable

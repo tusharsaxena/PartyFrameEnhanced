@@ -7,15 +7,18 @@ local T = _G.PFE_TEST
 local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 local NS, mocks = T.NS, T.mocks
 
---- The `Tag message` lines NS.Debug received while `fn` ran, with the flag on. Put back after,
---- raising or not.
+--- The `Tag message` lines written while `fn` ran, with the flag on: what NS.Debug received, and
+--- what the console's change gates (NS.DebugOnce / NS.DebugChanged) wrote, which reach the
+--- console's Add rather than NS.Debug. Put back after, raising or not.
 local function trace(fn)
   local lines = {}
-  local savedDebug, savedFlag = NS.Debug, NS.State.debug
+  local console = NS.DebugLog
+  local savedDebug, savedAdd, savedFlag = NS.Debug, console.Add, NS.State.debug
   NS.State.debug = true
   NS.Debug = function(tag, fmt, ...) lines[#lines + 1] = tag .. " " .. fmt:format(...) end
+  console.Add = function(_, tag, msg) lines[#lines + 1] = tag .. " " .. tostring(msg) end
   local ok, err = pcall(fn, lines)
-  NS.Debug, NS.State.debug = savedDebug, savedFlag
+  NS.Debug, console.Add, NS.State.debug = savedDebug, savedAdd, savedFlag
   if not ok then error(err, 0) end
   return lines
 end

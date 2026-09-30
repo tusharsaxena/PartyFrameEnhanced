@@ -52,7 +52,14 @@ What the console carries while the flag is on, tag by tag (`debug-logging-§8`: 
 Diagnosis checklist). Every row is one gated line per event, with its string built behind the gate.
 A line marked **change-gated** is on a repeating path and is written only when its own text differs
 from the last one it wrote (`debug-logging-§9`, quiet steady state), so a fight full of repeats adds
-nothing to the buffer.
+nothing to the buffer. The gate is the console's (`NS.DebugChanged` / `NS.DebugOnce`, DebugLogGates
+1), not a memo of this addon's: **Clear** and turning logging on re-arm it, so a cleared console
+says the current state again on its next pass rather than staying silent until something changes.
+
+**Which lines are the library's.** The rows below whose *Emitted by* names the library are written
+by LibKa0s through this addon's `NS.Debug` (each descriptor's `debug`): `Init`, `Lifecycle`, `Perf`,
+`Cmd`, `Cfg`, `Launcher` and `Diag`, and the `Set` lines the schema write seam writes. This addon
+writes no copy of any of them, and `tests/test_library_lines.lua` pins each landing once.
 
 | Tag | Emitted by | When |
 |---|---|---|
@@ -69,7 +76,7 @@ nothing to the buffer.
 | `Provider` | `modules/Providers.lua` | A resolve that changed the frame system or any unit's frame (change-gated by the resolve itself); EllesmereUI or its raid frames loading after this addon; the Edit Mode exit callback refused, once per distinct error |
 | `Anchor` | `modules/Anchor.lua` | A placement pass that moved or faded something (a pass that changed nothing is silent); a free-placement stack dropped after a drag, with its stored position; every stack reset to default |
 | `Fade` | `modules/RangeFade.lua` | The out-of-range fade's mode (`off`, `idle`, `range`, `copy`), whether it listens and how many frames it hooked, **change-gated** |
-| `Cast` | `modules/CastBars.lua` | A cast bar hidden while its unit casts, once per reason; an interrupted or failed cast; how many units it listens for, when that changes |
+| `Cast` | `modules/CastBars.lua` | A cast bar hidden while its unit casts, **change-gated** per unit (once per reason, re-armed when the bar shows); an interrupted or failed cast; how many units it listens for, when that changes |
 | `Target` | `modules/TargetFrames.lua` | Who each member targets, **change-gated** per button; the health ticker starting and stopping |
 | `Pet` | `modules/PetFrames.lua` | A member's pet appearing or going, **change-gated** per button |
 | `Preview` | `modules/Preview.lua`, `settings/Slash.lua` | Preview on and off; the stand-in's look and size, **change-gated** (once per raise); an unlock refused, naming the guard (`in combat`, `addon disabled`, `perf run suspended`); the lock toggle refused while disabled |
@@ -95,7 +102,7 @@ The repeating paths, and why each is quiet when nothing changed:
 - **The secure queue** logs a key when it is first held, not each time a later write replaces it,
   so a re-sort in combat that re-queues the same anchor pass many times adds one line.
 - **The stand-in** re-dresses on every roster update while you preview out of a party. It logs its
-  look once per raise.
+  look once per raise: lowering it forgets the gate's key, so the next raise says itself.
 - **The range fade** re-runs on every `LAYOUT`, `VISIBILITY`, `PROFILE` and General write. It logs
   its mode line only when that line changes.
 

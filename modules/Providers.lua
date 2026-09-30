@@ -360,9 +360,9 @@ end
 -- Edit Mode's exit is a callback rather than an event; guarded, since it is Blizzard-private. It is
 -- a registration like any other, so the stand-down drops it and the stand-up takes it back
 -- (slash-commands-§7): one callback per owner, so a second registration replaces the first.
--- A refusal is caught and logged once per distinct message (debug-logging-§8, Diagnosis): without
--- the callback an Edit Mode exit re-resolves nothing, and a stand-up retries it every time.
-local editModeErrors = {}
+-- A refusal is caught and logged once per distinct message (debug-logging-§8, Diagnosis), through the
+-- console's gate: without the callback an Edit Mode exit re-resolves nothing, and a stand-up retries
+-- it every time.
 
 local function editModeCallback(on)
     if not (EventRegistry and type(EventRegistry.RegisterCallback) == "function") then return end
@@ -374,9 +374,8 @@ local function editModeCallback(on)
     end
     if ok or not NS.State.debug then return end
     local msg = tostring(err)
-    if editModeErrors[msg] then return end
-    editModeErrors[msg] = true
-    NS.Debug("Provider", "EditMode.Exit %s failed: %s", on and "register" or "unregister", msg)
+    NS.DebugOnce("Provider:editmode:" .. msg, "Provider", "EditMode.Exit %s failed: %s",
+        on and "register" or "unregister", msg)
 end
 
 function Providers:OnEnable()

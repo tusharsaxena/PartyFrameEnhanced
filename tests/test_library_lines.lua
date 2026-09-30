@@ -4,7 +4,7 @@
 -- and that the line lands exactly once: the library writes it, and this addon writes no copy.
 
 local T = _G.PFE_TEST
-local test, assertEqual = T.test, T.assertEqual
+local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 local NS, mocks = T.NS, T.mocks
 
 local function settle() while mocks.__fireTimers() > 0 do end end
@@ -116,4 +116,67 @@ test("library lines: a second hold is named in the set, and releasing one fires 
   settle()
   assertEqual(count(lines, "[Lifecycle] stood down: added perf (holds: perf)"), 1, table.concat(lines, " | "))
   assertEqual(count(lines, "[Lifecycle]"), 1, "the second hold and the partial release are no edge")
+end)
+
+-- ── DebugLogGates 1: the console's change gates replace this addon's memos ──────────────────────
+
+local function prepTargets()
+  local p = NS.db.profile
+  p.enabled, p.visibility, p.locked = true, "always", true
+  p.target.enabled, p.target.anchorMode = true, "free"
+  NS.bus:SendMessage(NS.MSG.PROFILE)
+  settle()
+end
+
+test("library lines: a Clear re-arms the target change gate, so an unchanged target says itself again", function()
+  -- red under: the pre-v1.65.0 per-button memo (`__loggedTarget`), which a Clear never reset, so a
+  -- cleared console stayed silent about a target that was still there.
+  prepTargets()
+  local btn = NS.TargetFrames.__buttons.party1
+  mocks.__units.party1target = { name = "Dummy" }
+  local after
+  local lines = logged(function()
+    for _ = 1, 3 do btn:__fire("OnEvent", "UNIT_TARGET", "party1") end
+    NS.DebugLog:Clear()
+    for _ = 1, 3 do btn:__fire("OnEvent", "UNIT_TARGET", "party1") end
+    after = {}
+    for _, line in ipairs(NS.DebugLog.buffer) do after[#after + 1] = line end
+  end)
+  mocks.__units.party1target = nil
+  btn:__fire("OnEvent", "UNIT_TARGET", "party1")
+  assertEqual(count(after, "[Target] party1 targets Dummy"), 1, table.concat(after, " | "))
+  assertEqual(count(lines, "[Target] party1 targets Dummy"), 1, "the repeats after the Clear hold")
+end)
+
+test("library lines: turning logging on re-arms the gates, and nothing is remembered while it is off", function()
+  prepTargets()
+  local btn = NS.TargetFrames.__buttons.party1
+  mocks.__units.party1target = { name = "Dummy" }
+  local saved = NS.State.debug
+  NS.DebugLog:SetEnabled(true)
+  btn:__fire("OnEvent", "UNIT_TARGET", "party1")
+  NS.DebugLog:SetEnabled(false)
+  btn:__fire("OnEvent", "UNIT_TARGET", "party1")   -- off: nothing written, nothing remembered
+  NS.DebugLog:Clear()
+  NS.DebugLog:SetEnabled(true)
+  btn:__fire("OnEvent", "UNIT_TARGET", "party1")
+  local found = NS.DebugLog:FindLine("[Target] party1 targets Dummy")
+  NS.DebugLog:SetEnabled(saved)
+  mocks.__units.party1target = nil
+  btn:__fire("OnEvent", "UNIT_TARGET", "party1")
+  assertTrue(found ~= nil, "a new logging session hears the unchanged target again")
+end)
+
+test("library lines: no hand-rolled change gate is left in the addon's own files", function()
+  -- The five memos DebugLogGates replaced. A copy that comes back is a gate a Clear never re-arms.
+  local files = { "modules/CastBars.lua", "modules/Preview.lua", "modules/RangeFade.lua",
+                  "modules/Providers.lua", "modules/TargetFrames.lua", "modules/PetFrames.lua" }
+  for _, path in ipairs(files) do
+    local f = assert(io.open(path, "rb"))
+    local src = f:read("*a")
+    f:close()
+    for _, name in ipairs({ "__loggedTarget", "__loggedPet", "dressedAs", "loggedMode", "editModeErrors" }) do
+      assertTrue(src:find(name, 1, true) == nil, path .. " still carries " .. name)
+    end
+  end
 end)

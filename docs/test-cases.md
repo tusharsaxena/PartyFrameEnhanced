@@ -314,7 +314,7 @@ badge and any count quoted in the docs must agree with it.
 - coverage quiet: previewing out of a party, a roster burst re-logs no unchanged stand-in
 - coverage quiet: the range fade logs its mode on change, not on every LAYOUT
 
-### test_library_lines.lua (7)
+### test_library_lines.lua (10)
 
 - library lines: an unknown verb writes one [Cmd] refusal to this addon's console
 - library lines: the disabled gate writes one [Cmd] refusal, and the chat line stays one
@@ -323,6 +323,9 @@ badge and any count quoted in the docs must agree with it.
 - library lines: each Lifecycle edge is one [Lifecycle] line in this addon's console
 - library lines: a hold that changes nothing writes no [Lifecycle] line
 - library lines: a second hold is named in the set, and releasing one fires no edge
+- library lines: a Clear re-arms the target change gate, so an unchanged target says itself again
+- library lines: turning logging on re-arms the gates, and nothing is remembered while it is off
+- library lines: no hand-rolled change gate is left in the addon's own files
 
 ### test_perf_buckets.lua (3)
 
@@ -556,7 +559,7 @@ badge and any count quoted in the docs must agree with it.
 | test_standin.lua | 14 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
-| test_library_lines.lua | 7 |
+| test_library_lines.lua | 10 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
@@ -569,4 +572,4 @@ badge and any count quoted in the docs must agree with it.
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **415** |
+| **Total** | **418** |

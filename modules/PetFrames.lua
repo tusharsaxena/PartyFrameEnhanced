@@ -81,13 +81,12 @@ end
 
 -- The owner's pet, CHANGE-GATED per button (debug-logging-§9, quiet steady state): the client can send
 -- UNIT_PET with the same pet still behind the token, and an ungated line repeats with it.
--- Stringified FIRST, so a secret name is compared as <secret> and never raw.
+-- Stringified FIRST, so a secret name is compared as <secret> and never raw. The console's gate holds
+-- the repeat, per button.
 local function logPet(btn)
     if not NS.State.debug then return end
     local label = NS.SafeToString(UnitName(btn.token) or "none")
-    if label == btn.__loggedPet then return end
-    btn.__loggedPet = label
-    NS.Debug("Pet", "%s pet: %s", btn.unit, label)
+    NS.DebugChanged("Pet:" .. btn.unit, "Pet", "%s pet: %s", btn.unit, label)
 end
 
 local function onEvent(btn, event)

@@ -23,7 +23,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
-| DIAG-1 – 12 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows |
+| DIAG-1 – 14 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -446,9 +446,8 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   report written to the debug console: N lines. Use Copy to share it.` The sections run in the order
   [debug.md](debug.md) lists (`[State]`, `[Set]`, `[Party]`, `[Frames]`, `[Place]`, `[Elem]`, `[Fade]`,
   `[Secure]`, `[Events]`). Then `/pfe debug off`, close the console and run `/pfe debug diagnostics`:
-  the console opens, the whole report lands again below the first, the header still reads logging off,
-  and the next party change writes no trace line. *Failure:* the console cleared, a report cut short
-  with logging off, or the flag turned on. Result:
+  the console opens and the whole report lands again below the first, after the enable lines the run
+  writes (DIAG-14). *Failure:* the console cleared, or a report cut short. Result:
 - **DIAG-6. Copy, and the long alias.** Press **Copy** and paste into a text editor → the trace, both
   markers and the brand are there, with no `|c` color codes or `|T` textures in the text.
   `/partyframeenhanced diagnostics` and `/partyframeenhanced debug diagnostics` → the same report as the
@@ -483,6 +482,19 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   stretches to it, the height stays put, and it will not go narrower than its default. Close and reopen
   it (`/pfe perf`) → the width is kept; `/reload` → the default is back. *Failure:* rows that do not
   stretch, a panel that grows taller, or a width kept past the `/reload`. Result:
+- **DIAG-13. The Diagnostics link.** `/pfe debug` → in the console's title bar, beside the Debug
+  On/Off label and a small gap after it, an orange **Diagnostics** that reads as plain text, not a
+  button, and brightens under the pointer. Toggle the label between On and Off → the gap holds for
+  both words. Click **Diagnostics** → the report lands below what the console holds, with the same
+  markers and one chat line as `/pfe diagnostics`. *Failure:* a framed button, a link that overlaps
+  or drifts from the label, or a click that writes nothing. Result:
+- **DIAG-14. Diagnostics turns logging on for the session.** `/reload`, then `/pfe debug` → the
+  header reads Off. Click **Diagnostics** → a chat line says logging is on, the header reads On, and
+  `[Debug] logging enabled` and the `[Init]` line land just above the report's begin marker. Join or
+  leave a party → a trace line lands. Run `/pfe diagnostics` again → no second `logging enabled`
+  line. `/reload`, then `/pfe diagnostics` → logging turns on again the same way; `/reload` once more
+  → the header reads Off. *Failure:* the flag left off after a run, a second enable line with logging
+  already on, or logging still on after the `/reload`. Result:
 
 ## Non-English client
 
@@ -574,3 +586,6 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | DIAG-10 | new | the resizable debug console (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |
 | DIAG-11 | new | the resizable copy window (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |
 | DIAG-12 | new | the perf panel's width-only resize (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |
+| DIAG-5 | DIAG-5 | the second run's enable lines above the report, now that diagnostics turns logging on (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
+| DIAG-13 | new | the console's orange Diagnostics link (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
+| DIAG-14 | new | diagnostics turns logging on for the session, and `/reload` turns it off (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |

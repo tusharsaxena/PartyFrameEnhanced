@@ -23,7 +23,7 @@ chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 |---|---|
 | `/pfe debug` | Shows or hides the console window. The logging flag is unchanged. |
 | `/pfe debug on` / `off` | Sets or clears the logging flag through `NS.DebugLog:SetEnabled`, which confirms on one chat line. |
-| `/pfe debug diagnostics` | Writes the diagnostics report (below). |
+| `/pfe debug diagnostics` | Writes the diagnostics report (below), turning logging on first if it was off. |
 | `/pfe debug <anything else>` | Shows or hides the window, like the bare `/pfe debug`. |
 
 What Party Frame Enhanced supplies, all in `core/DebugLogSetup.lua`:
@@ -39,6 +39,9 @@ What Party Frame Enhanced supplies, all in `core/DebugLogSetup.lua`:
   EllesmereUI raid frames loaded|not loaded`. The report's identity header prints the same line.
 - **The sink is `NS.Debug(tag, fmt, ...)`**, bound bare to the library's gated `Debug`. A call with
   the flag off does nothing and allocates nothing.
+
+The console's title bar carries an orange **Diagnostics** text link beside the Debug On/Off label.
+It is the library's: a click runs the report exactly as `/pfe diagnostics` does.
 
 On an install without LibKa0s the flag still works and `on` / `off` still confirm. The window is gone,
 and the stub says so once.
@@ -109,10 +112,12 @@ The repeating paths, and why each is quiet when nothing changed:
 
 ### Running it
 
-There are exactly two forms, and no third:
+There are exactly two slash forms, and no third:
 
 - `/pfe diagnostics`, a row of the `COMMANDS` table in `settings/Slash.lua`;
 - `/pfe debug diagnostics`, the first word `runDebug` tests, in any case.
+
+The console's orange **Diagnostics** link runs the same report.
 
 `/partyframeenhanced` reaches both, as it reaches every verb. `diag`, `dump`, `dx` and every other
 short name are ordinary words: `/pfe diag` prints `unknown command 'diag'` and the help, and
@@ -127,8 +132,14 @@ on its state lines rather than printing empty data.
 - **It appends.** The report lands after whatever the console already holds, so the trace a player
   has just reproduced stays above it and one Copy carries both. Nothing the report reaches calls
   `Clear()`.
+- **It turns logging on for the session.** With logging off, a run first turns it on through the
+  flag's one seam, `NS.DebugLog:SetEnabled(true)`, so the chat ack, the `[Debug] logging enabled`
+  line and the `[Init]` summary come before the report, and the player's next reproduction is
+  traced (`debug-logging-§14`). With logging already on it writes no second enable line. It never
+  turns logging off. The flag is session-only, so a `/reload` turns it off again. This addon keeps
+  the library's default: it does not set `diagnosticsEnablesLogging = false`.
 - **It is ungated.** It writes through the library's raw append, not `NS.Debug`, so it lands in full
-  with logging off, and it does not read or change the flag: the header reads the same afterwards.
+  whatever the flag says. The sections only print the flag; the run is what turns it on.
 - **It reveals the console** if it is hidden, then prints one chat line through `NS.L`:
   `Diagnostic report written to the debug console: N lines. Use Copy to share it.`
 - **It is plain text.** The library strips color, texture, atlas and hyperlink escapes from every
@@ -174,7 +185,7 @@ load, the report is the markers and the identity header around no sections.
 
 ### What it does not do
 
-- **It writes nothing.** No setting, no secure write queued or flushed, no event, message or timer
+- **It writes nothing** beyond the logging flag above. No setting, no secure write queued or flushed, no event, message or timer
   registered, nothing shown, hidden, resolved or built, and no stand-in created
   (`NS.StandIn.IsStandIn` never builds one). A report that repaired the state would describe a state
   the player is not in.
@@ -198,7 +209,7 @@ and returns 0.
 ## Where else this is pinned
 
 The command rows are in [slash-dispatch.md](slash-dispatch.md), and the player-facing steps are the
-README's `## Reporting a bug`. The in-game checks are DIAG-1 to DIAG-9 in
+README's `## Reporting a bug`. The in-game checks are DIAG-1 to DIAG-14 in
 [smoke-tests.md](smoke-tests.md). The suites are `tests/test_diagnostics.lua` (this addon's
 sections), the kit's shared `tests/_kit/test_diagnostics_contract.lua` (wired in `tests/run.lua`),
 `tests/test_disabled.lua` and `tests/test_slash.lua`.

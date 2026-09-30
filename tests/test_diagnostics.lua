@@ -5,7 +5,8 @@
 -- not running it) is the kit's shared case, tests/_kit/test_diagnostics_contract.lua, wired in
 -- tests/run.lua. What stays here is what only this addon can know: which sections the report
 -- carries, that each reads what it says it reads, that a stand-down is reported rather than shown as
--- empty data, that a raise or a secret costs one line at most, and that the report acts on nothing.
+-- empty data, that a raise or a secret costs one line at most, and that the report acts on nothing
+-- but the logging flag the run turns on for the session.
 
 local T = _G.PFE_TEST
 local test, assertEqual, assertTrue, assertFalse = T.test, T.assertEqual, T.assertTrue, T.assertFalse
@@ -255,7 +256,8 @@ end)
 
 case("diagnostics: the report writes no setting, queues no secure write and registers nothing", function()
   -- red under: a section that calls a setter, a RunSecure, a registration or a timer to "refresh"
-  -- what it is about to read. The report reads state; it never changes it (STD-05).
+  -- what it is about to read. The sections read state; they never change it (STD-05). The one
+  -- thing a run changes is the logging flag, turned on through the library's seam.
   local writes, secure = 0, 0
   local savedSet, savedSecure = NS.SetByPath, NS.RunSecure
   NS.SetByPath = function(...) writes = writes + 1 return savedSet(...) end
@@ -285,15 +287,23 @@ end)
 
 -- ── the chat line, and the library-absent build ─────────────────────────────────────────────
 
-test("diagnostics: the one chat line is the locale's, with the line count", function()
+case("diagnostics: the one report chat line is the locale's, with the line count", function()
+  -- With logging off the run turns it on first (debug-logging-§14 at v2.71.0), so the logging
+  -- ack comes before the report's own line; with logging already on the report's line stands
+  -- alone. red under: a run that stops turning logging on, or a second report line in chat.
   local key = "Diagnostic report written to the debug console: %d lines. Use Copy to share it."
   assertTrue(rawget(NS.L, key) ~= nil, "the chat line is an enUS key")
-  local before = #mocks.__chat
-  local n = NS.DebugLog:RunDiagnostics()
-  local said = {}
-  for i = before + 1, #mocks.__chat do said[#said + 1] = mocks.__chat[i] end
-  assertEqual(#said, 1, "one chat line")
-  assertTrue(said[1]:find(NS.L[key]:format(n), 1, true) ~= nil, "formatted from L: " .. said[1])
+  NS.State.debug = false
+  for _, expected in ipairs({ 2, 1 }) do
+    local before = #mocks.__chat
+    local n = NS.DebugLog:RunDiagnostics()
+    local said = {}
+    for i = before + 1, #mocks.__chat do said[#said + 1] = mocks.__chat[i] end
+    assertEqual(#said, expected, "chat lines with logging " .. (expected == 2 and "off" or "on"))
+    assertTrue(NS.State.debug == true, "the run leaves logging on for the session")
+    assertTrue(said[#said]:find(NS.L[key]:format(n), 1, true) ~= nil,
+      "the last line is formatted from L: " .. said[#said])
+  end
 end)
 
 test("diagnostics: without LibKa0s, both forms print the one library-absent line", function()

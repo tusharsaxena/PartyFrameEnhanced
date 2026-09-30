@@ -413,7 +413,7 @@ badge and any count quoted in the docs must agree with it.
 - diagnostics: over the cap, the report ends in the truncated line and then the end marker
 - diagnostics: the report writes no setting, queues no secure write and registers nothing
 - diagnostics: the sections file calls no API the report must never call
-- diagnostics: the one chat line is the locale's, with the line count
+- diagnostics: the one report chat line is the locale's, with the line count
 - diagnostics: without LibKa0s, both forms print the one library-absent line
 
 ### test_launcher.lua (31)
@@ -480,13 +480,15 @@ badge and any count quoted in the docs must agree with it.
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
 
-### test_diagnostics_contract.lua (7)
+### test_diagnostics_contract.lua (9)
 
 - diagnostics contract: both forms run the report
 - diagnostics contract: the debug word is matched in any case
 - diagnostics contract: both markers carry the brand and the end counts the report
 - diagnostics contract: the report appends after what the console already holds
-- diagnostics contract: the report lands with logging off and leaves it off
+- diagnostics contract: the report lands with logging off and turns it on for the session
+- diagnostics contract: an addon that opts out lands the report and leaves logging off (skipped: this addon keeps the default (Kit.diagnostics.enablesLogging is not false), so its report turns logging on; the case above holds it)
+- diagnostics contract: with logging already on, the report writes no second enable line
 - diagnostics contract: both forms run while the addon is disabled
 - diagnostics contract: no other name runs the report
 
@@ -552,8 +554,8 @@ badge and any count quoted in the docs must agree with it.
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 14 |
-| test_diagnostics_contract.lua | 7 |
+| test_diagnostics_contract.lua | 9 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
-| **Total** | **406** |
+| **Total** | **408** |

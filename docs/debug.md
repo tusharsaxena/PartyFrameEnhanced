@@ -83,7 +83,7 @@ writes no copy of any of them, and `tests/test_library_lines.lua` pins each land
 | `Perf` | the library's perf harness, through `core/PerfSetup.lua`'s `log` | A perf capture's progress and results (ungated: a capture is an explicit act) |
 | `Cmd` | the library, from `settings/Slash.lua`'s `debug` | Each refusal the dispatcher decides, one line after its chat line, `refused <verb>[ <arg>]: <guard>`: the disabled gate, an unknown verb, `get` / `set` / `reset` usage and not-found, a parse or write refusal, a reset with no default, and the profile verb's unavailable, already-current, in-combat and unknown-profile refusals. A refusal `settings/Slash.lua` decides itself (the lock toggle, the profile sub-verbs) is not a `Cmd` line |
 | `Cfg` | the library, from `settings/OptionsSetup.lua` | The settings panel opened, refused in combat, or its registration parked in combat and flushed when combat ends; each act an open panel's combat lock refuses, `<what> refused (in combat)` (a write, Defaults, a button, a toggle, a tab), once per text per combat |
-| `Launcher` | the library, from `core/LauncherSetup.lua` | The launcher's clicks and menu |
+| `Launcher` | the library, from `core/LauncherSetup.lua` | The launcher's clicks and menu; `Register`'s state at login (`LibDataBroker-1.1 absent; no launcher`, `LibDBIcon-1.0 absent; broker plugin only`, no minimap table, `registered`), held by the console's at-enable queue (`debugAtEnable`) while the flag is off and written once when logging turns on, after the `[Init]` line |
 | `Diag` | the library | The report's markers, identity header, failed sections and `truncated` line |
 
 A new tag is a one-word string at the call site. Add its row here in the same change.

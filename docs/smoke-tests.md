@@ -23,7 +23,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
-| DIAG-1 – 16 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console |
+| DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -507,6 +507,10 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   line. `/pfe disable` a second time while already disabled (the checkbox or the verb) → no new
   `[Lifecycle]` line. `/pfe enable` afterwards. *Failure:* no `[Lifecycle]` line, two lines for one
   edge, or a line for a disable that changed nothing. Result:
+- **DIAG-17. The launcher's login line lands.** `/reload`, then `/pfe debug on` → after `[Debug]
+  logging enabled` and the `[Init]` line, one `[Launcher] registered` line (or, with no broker
+  library installed, the `absent` line naming it). `/pfe debug off` and `/pfe debug on` again → no
+  second `[Launcher]` line. *Failure:* no `[Launcher]` line at all, or one per enable. Result:
 
 ## Non-English client
 
@@ -603,3 +607,4 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | DIAG-14 | new | diagnostics turns logging on for the session, and `/reload` turns it off (LibKa0s v1.64.0, DL-PF-03, 2026-09-30) |
 | DIAG-15 | new | the library's `[Cmd]` slash refusals in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
 | DIAG-16 | new | the library's `[Lifecycle]` stand-down and stand-up edges in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
+| DIAG-17 | new | the launcher's `registered` line, held at login and written when logging turns on (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |

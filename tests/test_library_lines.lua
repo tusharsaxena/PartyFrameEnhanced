@@ -180,3 +180,35 @@ test("library lines: no hand-rolled change gate is left in the addon's own files
     end
   end
 end)
+
+-- ── DebugLogGates 1 and Launcher minor 5: the at-enable queue ────────────────────────────────
+
+test("library lines: the launcher's dependency line, written at OnEnable, lands when logging turns on", function()
+  -- red under: no `debugAtEnable` on the Launcher descriptor, so Register's state line went to the
+  -- gated `debug` at OnEnable, with the flag off, and never landed. This harness has no
+  -- LibDataBroker, so the line is the absent one.
+  local saved = NS.State.debug
+  if saved then NS.DebugLog:SetEnabled(false) end
+  NS.DebugLog:Clear()
+  NS.Launcher:Register()
+  NS.Launcher:Register()   -- a retried Register is one held line
+  local offLines = NS.DebugLog:BufferSize()
+  NS.DebugLog:SetEnabled(true)
+  local lines = {}
+  for _, line in ipairs(NS.DebugLog.buffer) do lines[#lines + 1] = line end
+  NS.DebugLog:SetEnabled(saved)
+  local want = "[Launcher] LibDataBroker-1.1 absent; no launcher"
+  assertEqual(count(lines, want), 1, table.concat(lines, " | "))
+  local initAt, lineAt
+  for i, line in ipairs(lines) do
+    if line:find("[Init]", 1, true) then initAt = i end
+    if line:find(want, 1, true) then lineAt = i end
+  end
+  assertTrue(initAt and lineAt and lineAt > initAt, "after the session bracket and the [Init] summary")
+  assertEqual(offLines, 0, "nothing was written while logging was off: the line was held")
+end)
+
+test("library lines: with logging already on, the launcher's state line is written at once, once", function()
+  local lines = logged(function() NS.Launcher:Register() end)
+  assertEqual(count(lines, "[Launcher] LibDataBroker-1.1 absent; no launcher"), 1, table.concat(lines, " | "))
+end)

@@ -94,4 +94,9 @@ NS.Launcher = Launcher:New({
     -- and NS.Debug is the gated sink core/DebugLogSetup.lua binds.
     print = function(line) NS.Print(line) end,
     debug = function(tag, message) NS.Debug(tag, "%s", message) end,
+    -- Register's STATE lines (LibDataBroker-1.1 or LibDBIcon-1.0 absent, no minimap table,
+    -- `registered`; Launcher minor 5) run at OnEnable, while the session-only flag is off, so
+    -- through `debug` they never landed. The console's at-enable queue holds them and writes them
+    -- the first time logging is turned on (debug-logging-§8, dependencies once at enable).
+    debugAtEnable = function(tag, message) NS.DebugAtEnable(tag, "%s", message) end,
 })

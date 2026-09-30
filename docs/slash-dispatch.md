@@ -26,7 +26,7 @@ The landing page renders the same table.
 | `diagnostics` | writes the diagnostics report into the debug console, after whatever it already holds, whether logging is on or off, and reveals the console. These two forms are the only ones: `/pfe diag`, `/pfe dump` and `/pfe dx` are unknown commands, and `/pfe debug diag` toggles the console. What it prints: [debug.md](debug.md) | yes |
 | `perf [...]` | the LibKa0s-Perf guided capture; bare opens the step panel | yes |
 | `version` | the addon version from the TOC | yes |
-| `profile [list\|current\|use\|new\|copy\|delete\|reset]` | profile management. Every name is checked against the profile list first, and a bad one is refused on one line: `use` no longer creates a profile (a missing name is refused), `new` refuses a name that already exists instead of wiping it, `copy` refuses a missing name and the current profile, and `delete` refuses a missing name as well as the current profile | no |
+| `profile [<name>\|list\|current\|use\|new\|copy\|delete\|reset]` | profile management. Bare lists the profiles, the current one marked, and then the sub-verbs. A first word that is a sub-verb, in any case, runs it; anything else is a profile **name** and switches to it: the whole rest of the line, one pair of surrounding quotes stripped, case and inner spaces kept (`/pfe profile "Tank Two"`). The list and the switch are `LibKa0s-Slash-1.0` minor 17's `cli:CliProfile` and `cli:ProfileSwitch`, so they read as every Ka0s addon's do, and `use <name>` routes through the same `ProfileSwitch`. A switch goes only to a profile that exists and never creates one: an unknown name is refused with a *Did you mean* for a case-only mismatch and the list, the current profile answers *Already on profile*, and a switch in combat is refused. A profile named like a sub-verb is reached with `use`. The other sub-verbs check the name first too: `new` refuses a name that already exists instead of wiping it, `copy` refuses a missing name and the current profile, and `delete` refuses a missing name as well as the current profile. **Live while the addon is disabled** | no |
 
 ## The disabled state
 
@@ -71,7 +71,8 @@ addon never registered: nothing was refused, so nothing says it was (`LibKa0s-Sl
 them at `LibKa0s-Slash-1.0` minor 16) plus two of its own, on the same
 reasoning rather than as exceptions to it: **`status`** is a diagnostic like `debug` (it changes
 nothing, and its first flag is `addon disabled`, so refusing it would delete the answer), and
-**`profile`** is settings management in the class of the schema CLI. Declaring `liveVerbs` **replaces**
+**`profile`** is settings management in the class of the schema CLI (a switch to a profile that has the addon on stands it back up through the
+profile handler; `profile` is not on the library's `lib.LIVE_VERBS`, so the host lists it). Declaring `liveVerbs` **replaces**
 the library's default, so the thirteen are spelled out beside them. Widening is conformant; narrowing
 would not be.
 
@@ -91,9 +92,13 @@ With LibKa0s absent the stub in `settings/Slash.lua` still dispatches the host v
 (`/pfe <verb> is unavailable: the LibKa0s library did not load.`), and both forms of the report print
 the same line for `/pfe diagnostics` from the DebugLog stub in `core/DebugLogSetup.lua`. `enable` and `disable` still
 WRITE — through the schema's `writeThrough` list, and only their echo degrades to that line — because
-the pair must never be one-way, whatever else is missing. The stub is the shape the library's Slash
-document (minor 15, *The degradation stub*) prescribes: the help, landing and profile rows render as
-plain `cmd  desc`, with no copy of the library's formatter or parser.
+the pair must never be one-way, whatever else is missing. The stub carries the library's two profile
+members, `CliProfile` and `ProfileSwitch`, and both print the same library-absent line for `/pfe profile`
+and switch nothing, so `profile <name>`, `profile list` and `profile use` degrade to that line and the
+bare `profile` prints it above the sub-verbs; `current`, `new`, `copy`, `delete` and `reset` still act
+on AceDB. The stub is the shape the
+library's Slash document (version 17, *The degradation stub*) prescribes: the help, landing and
+profile rows render as plain `cmd  desc`, with no copy of the library's formatter or parser.
 
 The stub carries the disabled gate too, in the library's shape: the same live set, the same
 after-the-lookup ordering (a reserved verb with no registered command is unknown here too), the same

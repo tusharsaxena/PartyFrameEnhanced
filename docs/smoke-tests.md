@@ -1,420 +1,480 @@
-# Ka0s Party Frame Enhanced — manual in-game smoke tests
+# Smoke tests — Ka0s Party Frame Enhanced
 
-Run on a live **Retail (Midnight 12.1.0 / Interface 120100)** client, in order: later steps assume the
-addon loaded cleanly. Turn on Lua errors first (`/console scriptErrors 1`, or BugSack). Watch chat for
-the cyan `[PFE]` prefix and for any error frame. The headless gate (`lua tests/run.lua`, `luacheck .`)
-covers the pure logic; this suite covers what only runs against the live client.
-
-**Section T is the exception**: it is the non-English-client pass and needs a deDE or frFR client.
-
-## Completion record
-
-One row per full pass. The newest row is the current iteration.
-
-| Iteration | Date | Sections | Result |
-|---|---|---|---|
-| v0.1.0 | 2026-09-18 | A–K and T, every step | Complete. Marked done by the addon owner |
+These are the in-client checks the headless suite cannot make: what the live client draws, the secure
+and secret-value paths, and the three frame systems the addon attaches to. The headless gate
+(`lua tests/run.lua`, `luacheck .`) covers the pure logic. Run a pass on a live **Retail (Midnight
+12.1.0 / Interface 120100)** client, starting from a clean `/reload`, theme by theme; turn logging on
+(`/pfe debug on`) only where a check says so. Record each check on its `Result:` line: the date and
+PASS, or FAIL and what you saw. A new pass overwrites the old results, and git keeps them. IDs are
+`<THEME>-<n>`: a new check takes the next free number in its theme, and a retired number is not reused.
 
 ## Index
 
-| Section | What it covers | Client needed |
+| ID range | Theme | What it covers |
 |---|---|---|
-| A | Load and bootstrap | any Retail |
-| B | Slash surface | any Retail |
-| C | Settings panel and the combat gate | any Retail, a target dummy |
-| D | Resets and profiles | any Retail |
-| E | Debug console, diagnostics report and perf harness | any Retail; a party and a dungeon for step 23d |
-| F | Cast bars | a party (a follower dungeon works), a target dummy |
-| G | Target frames | a party, mobs to target |
-| H | Pet frames | a party with a pet class (or a hunter/warlock of your own) |
-| I | Preview, placement and status | any Retail; a party for the attached steps |
-| J | Preview, the stand-in and the party-only rule | solo; a party; each of the three frame systems |
-| K | The launcher: minimap button and broker plugin | any Retail; a broker display for step 56 |
-| **T** | **Non-English client (locale)** | **deDE or frFR** — sub-steps T1 and T4 may be signed off on English |
+| INSTALL-1 – 3 | Install and load | fresh install, `/reload`, the AddOn-list logo |
+| SLASH-1 – 6 | Slash commands | help, the long alias, unknown verbs, version, list, set and reset |
+| PANEL-1 – 6 | Settings panel | the landing page, the General tabs, the Defaults button, Size & Position |
+| PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
+| STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
+| PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
+| CAST-1 – 7 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings |
+| UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
+| FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
+| LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
+| COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
+| DIAG-1 – 9 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report |
+| LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
-## A. Load and bootstrap
+## Before you start
 
-1. **Fresh install.** Delete `WTF/Account/<ACCOUNT>/SavedVariables/PartyFrameEnhanced.lua`, log in →
-   world reached, **zero Lua errors**. *Failure:* an error naming `PartyFrameEnhanced\core\…` or a
-   missing `[PFE]` on every line.
-2. **`/reload`** → no errors.
-3. **AddOn list.** The character-select AddOn list shows **Ka0s Party Frame Enhanced** with its notes
-   line and **the addon's own logo** as its icon — not a Blizzard achievement icon, and not a blank
-   square. *Failure:* a blank square means `media/logos/partyframeenhanced.logo.128.tga` did not load;
-   it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
+- Turn on Lua errors: `/console scriptErrors 1`, or BugSack. "Zero Lua errors" means nothing reaches
+  the error frame or BugSack during the check. Watch chat for the cyan `[PFE]` prefix.
+- "In combat" means hitting a target dummy.
+- Most checks need a party; a follower dungeon is enough. Pet checks need a hunter or warlock in the
+  party (or your own). The fade and stand-in checks name the frame system they need: Blizzard
+  raid-style (Edit Mode raid-style party frames on), Blizzard classic (raid-style off), or EllesmereUI.
+  Run the CAST checks once on each of the three.
+- Run the PROFILE checks in order: later ones use the profiles earlier ones make. LAUNCH-7 uses the
+  `Test` profile from PROFILE-2.
+- LAUNCH-5 needs a broker display (Titan Panel, ElvUI data texts or Bazooka).
+- The LOC checks need a deDE or frFR client; LOC-1 and LOC-4 may be signed off on English.
+- Some checks read `WTF/Account/<ACCOUNT>/SavedVariables/PartyFrameEnhanced.lua` after a logout.
 
-## B. Slash surface
+## Install and load
 
-4. `/pfe` alone → the settings panel opens on the landing page (in combat: the gray refusal
-   instead). `/pfe help` → the help block: a version line and eighteen verbs (help, config, enable,
-   disable, list, get, set, reset, resetall, resetposition, lock, unlock, status, debug, diagnostics,
-   perf, version, profile), each a gold `/pfe <verb>`, an em dash and a white description.
-5. `/partyframeenhanced` and `/partyframeenhanced help` → the same as `/pfe` and `/pfe help`.
-6. `/pfe wibble` → `unknown command 'wibble'` then help.
-7. `/pfe version` → `[PFE] v1.1.0`.
-8. `/pfe list` → a green header, `[general]` group, then `path = value` rows with gold paths and white
-   values, no trailing colons.
-9. `/pfe set general.provider blizzard` → `general.provider = blizzard`; `/pfe reset general.provider`
-   → back to `auto`. `/pfe set scale abc` → an invalid-value line, nothing changed.
-10. `/pfe unlock` → `Elements unlocked — drag them into place`; the General page's *Lock frame*
-    unticks if open. `/pfe lock` → locked again.
-10a. `/pfe disable` → `enabled = false` in the same gold/white shape `/pfe set` prints, everything
-    the addon draws goes, and the General page's *Enable Party Frame Enhanced* unticks if open. Then,
-    **while disabled**: `/pfe` still opens the panel, `/pfe help` still lists `enable`, `/pfe version`
-    still answers, and `/pfe list` / `/pfe get` / `/pfe set` still read and repair settings.
-    `/pfe enable` → `enabled = true` and it all comes back. *Failure:* any of those going quiet —
-    the switch would only go one way (slash-commands-§2).
-10b. Still **while disabled**, the three verbs that drive what the addon draws refuse instead of
-    acting: `/pfe unlock`, `/pfe lock` and `/pfe resetposition` each answer on **one** tagged line
-    naming `/pfe enable`, and nothing moves — no stand-in appears, no stack jumps back to its
-    default position. *Failure:* a second line, a lecture about the state, or a verb that prints the
-    refusal and then acts anyway.
+- **INSTALL-1. Fresh install.** Delete `WTF/Account/<ACCOUNT>/SavedVariables/PartyFrameEnhanced.lua`
+  and log in → the world is reached with zero Lua errors. *Failure:* an error naming
+  `PartyFrameEnhanced\core\…`, or an addon line in chat without the `[PFE]` prefix. Result:
+- **INSTALL-2. Reload.** `/reload` → no Lua errors. Result:
+- **INSTALL-3. AddOn-list logo.** At character select, open the AddOn list → **Ka0s Party Frame
+  Enhanced** with its notes line and the addon's own logo as its icon, not a Blizzard achievement icon
+  and not a blank square. *Failure:* a blank square means `media/logos/partyframeenhanced.logo.128.tga`
+  did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
+  Result:
 
-10c. Still **while disabled**, the **stand-down is total**, which is the half a chat window cannot
-    show you. `/pfe debug on` and watch: entering and leaving combat, joining and leaving a party,
-    and switching target produce **no** `[Cast]`, `[Target]`, `[Pet]`, `[Party]` or `[Secure]` line,
-    because nothing is registered to produce one. *Failure:* any line at all — the addon stopped
-    reacting rather than stopping watching, and it is still paying the dispatch on every event the
-    player switched it off to stop paying for.
+## Slash commands
 
-10d. Still **while disabled**, **left-click the minimap button**: the settings panel opens, exactly
-    as it does when the addon is running, and nothing unlocks. **Right-click** it: the options menu
-    opens with *Enabled* unticked and live, and *Locked (enable the addon first)* grayed; clicking
-    the grayed entry does nothing. On the General page, **untick *Lock frame***: one tagged line
-    (*Ka0s Party Frame Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to
-    ticked. *Failure:* a menu entry that unlocks (it would be writing the stored tree of an addon the
-    player switched off), a left click that refuses, or a gray *cannot unlock* line from the checkbox
-    — a second wording of the one refusal (slash-commands-§7).
+- **SLASH-1. Bare slash and help.** Out of combat, `/pfe` alone → the settings panel opens on the
+  landing page (in combat it refuses; see COMBAT-1). `/pfe help` → the help block: a version line and
+  eighteen verbs (help, config, enable, disable, list, get, set, reset, resetall, resetposition, lock,
+  unlock, status, debug, diagnostics, perf, version, profile), each a gold `/pfe <verb>`, an em dash
+  and a white description. Result:
+- **SLASH-2. The long alias.** `/partyframeenhanced` and `/partyframeenhanced help` → the same as
+  `/pfe` and `/pfe help`. Result:
+- **SLASH-3. Unknown verb.** `/pfe wibble` → `unknown command 'wibble'`, then the help block. Result:
+- **SLASH-4. Version.** `/pfe version` → `[PFE] v<the TOC version>` (`[PFE] v1.1.0` on 1.1.0).
+  Result:
+- **SLASH-5. List.** `/pfe list` → a green header, the `[general]` group, then `path = value` rows
+  with gold paths and white values, and no trailing colons. Result:
+- **SLASH-6. Set, reset and a bad value.** `/pfe set general.provider blizzard` →
+  `general.provider = blizzard`; `/pfe reset general.provider` → `general.provider = auto`.
+  `/pfe set scale abc` → `Invalid value for scale`, then an indented `expected a number`, and nothing
+  changes. Result:
 
-10e. `/pfe enable` again, then `/reload`. Everything comes back, and it comes back from the settings
-    **as they are now**: change a setting while the addon is disabled — `/pfe set castbar.enabled
-    false` — then `/pfe enable`, and the cast bars stay off. *Failure:* the addon standing up into
-    the state it had when it went down.
+## Settings panel
 
-10f. **The target and pet frames through a stand-down, both ways.** In a party with a pet out and a
-    member targeting something, `/pfe disable` out of combat, then `/pfe enable` → the target and pet
-    frames return. Then enter combat, `/pfe disable` (the settings panel refuses every write in
-    combat, so the command is the route), and leave combat → no `ADDON_ACTION_BLOCKED` on the debug
-    console, and the frames are gone. `/pfe enable` out of combat → they return. *Failure:* a blocked-action line (the state driver was touched under
-    lockdown), or frames that stay gone after the re-enable (the release was not undone).
+- **PANEL-1. Landing page.** Out of combat, `/pfe config` → Settings opens on **Ka0s Party Frame
+  Enhanced**: the logo renders, and the Notes line and the slash-command list show (the same rows as
+  `/pfe help`). Result:
+- **PANEL-2. General → Master controls.** Open **General** → a three-tab strip, **Master controls**,
+  **Party frames**, **Health updates** (UNIT-10 checks that tab's controls). Master controls holds,
+  in order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
+  *Lock frame* · *Debug console* / *Minimap button*, then the button pair *Reset position* · *Reset
+  all settings*. *General visibility* is a dropdown of four: Always, Only in combat, Only out of
+  combat, Never. *Failure:* a box labeled *Test mode* is the duplicate-switch finding (options-ui-§15
+  exempts this addon; anti-pattern #80). Result:
+- **PANEL-3. General → Party frames.** The **Party frames** tab → *Frame system* (Automatic / Blizzard
+  / EllesmereUI), *Include my own row* and *Fade with party frames*. Result:
+- **PANEL-4. The Defaults button.** It renders in the dark/gold options style, not as a red stone
+  button (it is built on first show, after any UI skin loaded). Result:
+- **PANEL-5. Page Defaults.** `/pfe debug on`. Change *Master scale* and *Frame system*, then press
+  General's **Defaults** → both revert, and the console shows one `[Set] reset general: 2 rows` line,
+  not two `[Set]` lines. Result:
+- **PANEL-6. Size & Position shows only what applies.** Cast Bars → Size & Position opens with the
+  *Size* block (Width, Height), then *Placement*. With *Attach to party frames*, the *Attached to party
+  frames* block is drawn and there is no *Free placement* heading at all; with *Match party frame
+  width* ticked, *Width* is grayed. Switch to *Free placement* → the tab redraws at once with the *Free
+  placement* block (Growth direction, Spacing) in place of the attached one, and *Match party frame
+  width* grayed. With the page open, `/pfe set castbar.anchorMode attached` → it redraws back. Repeat
+  on the Target Frames and Pet Frames pages. *Failure:* the redraw lags one click behind, an empty
+  heading is left behind, or the dropdown closes itself mid-choice with a Lua error. Result:
 
-10g. **Edit Mode through a stand-down.** In a party, `/pfe disable`, `/pfe debug on`, then open and
-    close Edit Mode (switch the party frames between raid-style and classic, so a resolve has
-    something to report) → no `[Provider]` line on the debug console. `/pfe enable`, then do the
-    same again → the resolve burst runs and a `[Provider]` line names the frames. *Failure:* a resolve line while disabled (the `EditMode.Exit`
-    callback survived the stand-down), or none after the re-enable (the stand-up did not take it back).
+## Profiles
 
-10h. **The fade frames and holders through a stand-down in combat.** In a party, enter combat, then
-    `/pfe disable`. Still in combat,
-    `/run print(PartyFrameEnhanced_Fade_party1:IsShown(), PartyFrameEnhanced_castbar_Holder:IsShown())`
-    → `true true` (the hide waits for the lockdown to lift). Leave combat and run it again →
-    `false false`. `/pfe enable` → `true true`, and the elements come back where they were.
-    *Failure:* `ADDON_ACTION_BLOCKED` on the debug console (the hide was attempted under lockdown),
-    frames still shown after combat (the stand-down left them up), or frames still hidden after the
-    re-enable.
+- **PROFILE-1. Profiles page.** Open **Profiles** → AceDBOptions' controls render inside the canvas,
+  with no error. Result:
+- **PROFILE-2. Create a profile.** `/pfe profile new Test` → `Created and switched to new profile
+  'Test'`, and its settings are at their defaults. Result:
+- **PROFILE-3. The list.** `/pfe profile` → a green `Profiles` header with no trailing colon, one row
+  per profile sorted by name ignoring case, the current one followed by `(current)`, the hint row
+  `/pfe profile <name> switches profile`, then `Profile commands` and its seven sub-verb rows.
+  `/pfe profile list` and `/pfe profile LIST` → the same list without the sub-verb rows.
+  `/pfe profile current` → `Current profile: Test`. Result:
+- **PROFILE-4. Switch by name.** In a party, on Test, set Cast Bars → Size & Position → *Anchor mode*
+  to *Free placement*. `/pfe debug on`, then `/pfe profile Default` → `Switched to profile 'Default'.`,
+  one `[Profile] changed → Default` line on the console, and the cast bars go back over the party
+  frames with no `/reload`. `/pfe profile use Test` → the same switch the other way, and the bars go
+  back to the free stack. `/pfe profile Test` again → `Already on profile 'Test'.` and nothing
+  changes. Result:
+- **PROFILE-5. Unknown name refused.** `/pfe profile Typo` → `No profile named 'Typo'.`, then the list.
+  `/pfe profile test` → the same refusal, `Did you mean 'Test'?`, and the list. `/pfe profile use Typo`
+  → the same refusal. `/pfe profile list` then shows no `Typo` and no `test`. Result:
+- **PROFILE-6. Quotes and spaces.** `/pfe profile new Tank Two`, then `/pfe profile Default`.
+  `/pfe profile "Tank Two"` → `Switched to profile 'Tank Two'.` `/pfe profile Default`, then
+  `/pfe profile 'Tank Two'` → the same. `/pfe profile Default`, then `/pfe profile delete Tank Two` →
+  `Deleted profile 'Tank Two'`. Result:
+- **PROFILE-7. While disabled.** On Default, `/pfe disable`. `/pfe profile` → the list and the
+  sub-verb help, with no refusal line. `/pfe profile Test` → `Switched to profile 'Test'.`, and
+  because Test has the addon on, the addon stands back up and its elements return. `/pfe profile
+  Default` → down again. `/pfe enable` afterwards. Result:
+- **PROFILE-8. In combat.** On Default, on a target dummy, in combat: `/pfe profile Test` → `Can't
+  switch profiles in combat.`, and `/pfe profile current` still reads `Default`. `/pfe profile use
+  Test` → the same refusal. Leave combat, `/pfe profile Test` → it switches. Result:
+- **PROFILE-9. Sub-verbs refuse bad names.** `/pfe profile new Healer`; `/pfe set castbar.width 222`;
+  `/pfe profile Default`; `/pfe profile new Healer` → one *already exists* line, and Healer still has
+  width 222 (`/pfe profile Healer`, then `/pfe get castbar.width`). `/pfe profile copy Nope` and
+  `/pfe profile copy <current>` → one refusal line each, with no Lua error frame.
+  `/pfe profile delete Nope` → refused, with no *Deleted* line. Result:
+- **PROFILE-10. Reset all settings.** With a second profile on the list, change some settings and
+  press General's *Reset all settings* → a popup reading, verbatim, *"Reset this profile to the addon's
+  defaults? Everything you have configured or added in it is discarded — your other profiles are not
+  affected."* → **Yes** → the settings are back at their defaults, you are still on the same profile,
+  and the profile list is unchanged. The button's tooltip names *"the same thing Profiles -> Reset
+  Profile does"*, with a plain `->` for the arrow. `/pfe resetall` does the same act. Result:
 
-## C. Settings panel and the combat gate
+## Enable, disable and stand-down
 
-11. `/pfe config` out of combat → Settings opens on **Ka0s Party Frame Enhanced**: the logo renders,
-    the Notes line and the slash-command list show (the same rows as `/pfe help`).
-12. **General** → a two-tab strip, **Master controls** then **Party frames**. Master controls holds, in
-    order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
-    *Lock frame* · *Debug console* / *Minimap button*, and then the button pair — **there is no Test mode
-    checkbox** (options-ui-§15 exempts this addon; a box labeled *Test mode* here is the
-    duplicate-switch finding, anti-pattern #80). Unticking *Lock frame* is what starts preview, and
-    combat re-ticks it
-    *Reset position* · *Reset all settings*.
-    *General visibility* is a dropdown of four: Always, Only in combat, Only out of combat, Never.
-13. **Party frames** tab → *Frame system* (Automatic / Blizzard / EllesmereUI) and *Include my own row*.
-14. **The Defaults button** renders in the dark/gold options style, not as a red stone button (it is
-    built on first show, after any UI skin loaded).
-15. **Combat refusal.** On a target dummy, in combat: `/pfe config` → the panel does **not** open and
-    chat shows the gray `cannot open settings during combat — Blizzard's category-switch is protected`.
-    Repeat → the same refusal each time, no queue. Leave combat → nothing opens by itself.
-16. **The combat lock.** Open **General**, pull a dummy → the whole page, tab strip included, goes under
-    a gray *Settings are locked during combat.* cover; a click on a checkbox, a slider drag, a tab and
-    Defaults change nothing, and one gray `settings are locked during combat — changes are refused
-    until it ends` line prints for the whole combat. In combat, switch to **Cast Bars** and **Profiles**
-    in the AddOns sidebar → each shows covered, the window stays open, no Lua error and no
-    `ADDON_ACTION_BLOCKED`. `/pfe set alpha 0.8` in combat, then leave combat → the cover
-    lifts and the page shows the new value. *Failure:* a window that closes itself, a value that
-    changes under the cover, or a page that stays covered after combat.
+- **STATE-1. Disable and enable.** `/pfe disable` → `enabled = false` in the same gold/white shape
+  `/pfe set` prints, everything the addon draws goes, and the General page's *Enable Party Frame
+  Enhanced* unticks if open. While disabled: `/pfe` still opens the panel, `/pfe help` still lists
+  `enable`, `/pfe version` still answers, and `/pfe list`, `/pfe get` and `/pfe set` still read and
+  repair settings. `/pfe enable` → `enabled = true` and it all comes back. *Failure:* any of those going
+  quiet; the switch would only go one way (slash-commands-§2). Result:
+- **STATE-2. Feature verbs refuse while disabled.** While disabled, `/pfe unlock`, `/pfe lock` and
+  `/pfe resetposition` each answer on one tagged line naming `/pfe enable`, and nothing moves: no
+  stand-in appears, no stack jumps back to its default position. *Failure:* a second line, a lecture
+  about the state, or a verb that prints the refusal and then acts anyway. Result:
+- **STATE-3. The stand-down is total.** While disabled, `/pfe debug on`, then enter and leave combat,
+  join and leave a party, and switch target → no `[Cast]`, `[Target]`, `[Pet]`, `[Party]` or `[Secure]`
+  line, because nothing is registered to produce one. *Failure:* any line at all: the addon stopped
+  reacting rather than stopping watching, and it still pays the dispatch on every event. Result:
+- **STATE-4. The launcher and Lock frame while disabled.** While disabled, left-click the minimap
+  button → the settings panel opens, as it does while running, and nothing unlocks. Right-click it →
+  the options menu with *Enabled* unticked and live, and *Locked (enable the addon first)* grayed;
+  clicking the grayed entry does nothing. On the General page, untick *Lock frame* → one tagged line
+  (*Ka0s Party Frame Enhanced is disabled — enable it with /pfe enable*), and the box snaps back to
+  ticked. *Failure:* a menu entry that unlocks (it would write the stored tree of an addon the player
+  switched off), a left click that refuses, or a gray *cannot unlock* line from the checkbox, which is
+  a second wording of the one refusal (slash-commands-§7). Result:
+- **STATE-5. Enable comes back from current settings.** While disabled, `/pfe set castbar.enabled
+  false`, then `/pfe enable` → everything else comes back and the cast bars stay off. `/reload` → the
+  same. `/pfe set castbar.enabled true` afterwards. *Failure:* the addon standing up into the state it
+  had when it went down. Result:
+- **STATE-6. Target and pet frames through a stand-down.** In a party with a pet out and a member
+  targeting something, `/pfe disable` out of combat, then `/pfe enable` → the target and pet frames
+  return. Then enter combat, `/pfe disable` (the panel refuses every write in combat, so the command is
+  the route), and leave combat → no `ADDON_ACTION_BLOCKED` on the debug console, and the frames are
+  gone. `/pfe enable` out of combat → they return. *Failure:* a blocked-action line (the state driver
+  was touched under lockdown), or frames that stay gone after the re-enable. Result:
+- **STATE-7. Edit Mode through a stand-down.** In a party, `/pfe disable` and `/pfe debug on`, then
+  open and close Edit Mode, switching the party frames between raid-style and classic so a resolve has
+  something to report → no `[Provider]` line. `/pfe enable` and do the same again → the resolve burst
+  runs and a `[Provider]` line names the frames. *Failure:* a resolve line while disabled (the
+  `EditMode.Exit` callback survived the stand-down), or none after the re-enable. Result:
+- **STATE-8. Fade frames and holders through a stand-down in combat.** In a party, enter combat, then
+  `/pfe disable`. Still in combat,
+  `/run print(PartyFrameEnhanced_Fade_party1:IsShown(), PartyFrameEnhanced_castbar_Holder:IsShown())`
+  → `true true` (the hide waits for the lockdown to lift). Leave combat and run it again →
+  `false false`. `/pfe enable` → `true true`, and the elements come back where they were. *Failure:*
+  `ADDON_ACTION_BLOCKED` on the debug console, frames still shown after combat, or frames still hidden
+  after the re-enable. Result:
+- **STATE-9. Disable while unlocked.** `/pfe unlock`, then `/pfe disable` → *Locked — the addon was
+  disabled*, and no placeholder or stand-in is left on screen. `/pfe enable` afterwards. Result:
 
-## D. Resets and profiles
+## Preview, placement and status
 
-17. **Profiles** page → AceDBOptions' controls render **inside** the canvas; no error.
-18. **Page Defaults.** Change *Master scale* and *Frame system*, press General's **Defaults** → both
-    revert. With `/pfe debug on`, the console shows one `[Set] reset general: 2 rows` line, not two
-    `[Set]` lines.
-19. **Reset all settings.** Make a second profile on the Profiles page first. Change settings, press
-    *Reset all settings* → a popup with, verbatim, *"Reset this profile to the addon's defaults?
-    Everything you have configured or added in it is discarded — your other profiles are not
-    affected."* → **Yes** → settings are back at defaults, you are still on the same profile, and the
-    profile list is unchanged. The button's tooltip names *"the same thing Profiles → Reset Profile
-    does"*. `/pfe resetall` does the same act.
-20. `/pfe profile` → the sub-verb list; `/pfe profile new Test` → switched to a fresh `Test`;
-    `/pfe profile use Default` → back.
-20a. **Bad profile names are refused.** `/pfe profile new Healer`; `/pfe set castbar.width 222`;
-    `/pfe profile use Default`; `/pfe profile new Healer` → one *already exists* line, and Healer
-    still has width 222. `/pfe profile copy Nope` and `/pfe profile copy <current>` → one refusal line
-    each, no Lua error frame. `/pfe profile use Typo` → refused, and `/pfe profile list` shows no
-    `Typo`. `/pfe profile delete Nope` → refused, no *Deleted* line.
+- **PREV-1. Unlock and lock.** `/pfe unlock` → `Elements unlocked — drag them into place`, the General
+  page's *Lock frame* unticks if open, and every enabled element shows placeholder content: a cast bar
+  drawn full (its whole size shows), a target frame at 65% with a skull, and a pet frame at 80%.
+  `/pfe lock` → `Elements locked`, all of it goes, and live data returns. Unticking *Lock frame* on General
+  starts the same preview. *Failure:* a placeholder left behind after locking (preview-mode MUST).
+  Result:
+- **PREV-2. Preview in a party.** In a party, `/pfe unlock` → placeholders on every element at the real
+  party frames, with no stand-in and no plate; `/pfe lock` → gone. Result:
+- **PREV-3. Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free
+  placement* and unlock → a translucent plate labeled *Cast bars* appears over the stack. Drag it,
+  lock, `/reload` → the stack is where you left it. General → *Reset position* (or
+  `/pfe resetposition`) → back to its default. Result:
+- **PREV-4. Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
+  feature's state, and a *Note:* line when something is switched off (set *General visibility* to
+  *Never* and run it again). Result:
+- **PREV-5. Party-only.** Solo: nothing shows, attached or free placement, and `/pfe status` ends with
+  *not in a party — nothing shows until you join one (try /pfe unlock)*. Join a party → everything
+  shows. Convert to a raid → it all goes again. Result:
+- **PREV-6. Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, *Frame system* Automatic, `/pfe debug
+  on`: `/pfe unlock` → one stand-in party frame where EllesmereUI's first party frame sits, at its
+  size, with a flat class-colored bar and a gray *(test)* after your name. It draws beneath what
+  attaches to it, so the cast bar's spell icon shows whole. Party1's cast bar, target frame (skull) and
+  pet frame attach to it, and the Size & Position offsets move them. Drag it → they follow. The console
+  logs a `[Preview]` line naming where the size came from: `settings` (your EllesmereUI party frame
+  width and height). *Failure:* a stand-in of a different size from your EllesmereUI party frames, or
+  `frame` or `fallback` in the `[Preview]` line (EllesmereUI's settings could not be read). Result:
+- **PREV-7. Stand-in, Blizzard raid-style.** Blizzard frames with Edit Mode raid-style party frames
+  on → the same as PREV-6 in the raid-bar look. If the stand-in came up at screen center, note whether
+  the 72 × 36 fallback matched. Result:
+- **PREV-8. Stand-in, Blizzard classic.** Raid-style off → the same as PREV-6 with a portrait, a green
+  health bar and a mana bar. If the stand-in came up at screen center, note whether the 120 × 53
+  fallback matched. Result:
+- **PREV-9. Live switch.** With the stand-in up, `/pfe status` reads *unlocked (stand-in)*. Join a
+  party → the stand-in goes, the placeholders move to the real frames, and `/pfe status` reads
+  *unlocked (your party frames)*. Leave → the stand-in comes back. Result:
 
-## E. Debug console, diagnostics report and perf harness
+## Cast bars
 
-21. `/pfe debug` → the console window opens (monospace font, the collection's close/copy/clear marks,
-    not a `×` glyph); `/pfe debug` again → it closes. The logging flag is untouched by both.
-22. `/pfe debug on` → an `[Init]` line naming `PartyFrameEnhanced v1.1.0`, the schema version, the
-    profile and the detected frame system. `/reload` → logging is **off** again (session-only).
-23. `/pfe perf` → a status line and the step panel, whose close mark matches the console's. Walk
-    `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump` without a Lua error.
-    During arm B the addon is inert; after `finish` it is active again without a `/reload`.
-23a. **The capture worth recording.** In a party with at least one pet class, somewhere quiet (an
-    instance, not a city), start with the setup in the label — `/pfe perf start party <frame system>
-    <anchor mode>` — and pull the same pack for both arms. In the report, `petEvent` has calls and
-    `targetRender` per `targetTick` pass is **at most the number of members with a target**. Paste the
-    buffer into `/wow-addon:perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer
-    members have targets (hidden buttons being repainted), or no `petEvent` row with a pet out.
-23b. **The diagnostics report appends, ungated.** `/pfe debug on`, join or leave a party (or `/pfe
-    unlock` and `/pfe lock`) so a few trace lines land, then `/pfe diagnostics`. The trace is still
-    there, above `==== Ka0s Party Frame Enhanced diagnostics begin ====`; the report ends with
-    `==== Ka0s Party Frame Enhanced diagnostics end: N line(s) ====`; one chat line reads
-    `Diagnostic report written to the debug console: N lines. Use Copy to share it.` The sections run
-    in the order [debug.md](debug.md) lists (`[State]`, `[Set]`, `[Party]`, `[Frames]`, `[Place]`,
-    `[Elem]`, `[Fade]`, `[Secure]`, `[Events]`). Then `/pfe debug off`, close the console and run
-    `/pfe debug diagnostics`: the console opens, the whole report lands again below the first, the
-    header still reads logging off, and the next party change writes no trace line. *Failure:* the
-    console cleared, a report cut short with logging off, or the flag turned on.
-23c. **Copy.** Press **Copy** and paste into a text editor: the trace, both markers and the brand are
-    there, with no `|c` color codes or `|T` textures in the text. `/partyframeenhanced diagnostics`
-    and `/partyframeenhanced debug diagnostics` give the same report as the short slash.
-23d. **In combat, and while disabled.** In a party, run `/pfe diagnostics` in combat, and once more
-    inside a dungeon while a party member casts. No Lua error; a value the client keeps secret prints
-    as `<secret>`, never as an error line. Then `/pfe disable`, and run `/pfe diagnostics` and
-    `/pfe debug diagnostics`: both write a full report whose state lines read `enabled=false
-    stoodDown=true`, and `[Frames]` and `[Fade]` say stood down. `/pfe enable` afterwards.
-23e. **No short name.** `/pfe diag` → `unknown command 'diag'` and the help; `/pfe debug diag` →
-    shows or hides the console like any other word after `debug`. Neither writes a report.
-23f. **The buffer cap.** With logging on, drive enough traced activity (party changes, unlock and
-    lock, repeated `/pfe diagnostics`) to pass 3000 lines. The footer counter reads `N / 3000 lines`
-    and pins at 3000, and **Copy** opens without a noticeable hitch.
+- **CAST-1. Attached over each frame.** On a fresh profile, in a party, watch a healer cast → a bar
+  appears across the top of that member's own party frame, as wide as the frame, with the spell's icon
+  at the left, its name, and seconds counting down at the right. It fills left to right and hides when
+  the cast lands. *Failure:* a bar on the wrong member (the unit → frame map is wrong), or a bar that
+  never hides. Result:
+- **CAST-2. Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears
+  over your own frame. Classic layout: no player bar (the layout never shows you); switch Cast Bars →
+  Size & Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
+  Result:
+- **CAST-3. Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and
+  drains. Result:
+- **CAST-4. Interrupt.** Interrupt a party member's cast, or have a mob interrupt one → the bar turns
+  the interrupted color, shows the client's own word for *Interrupted*, holds about half a second, then
+  fades. Result:
+- **CAST-5. Can't be interrupted.** A cast flagged uninterruptible shows the gray fill and the shield
+  icon. In a dungeon, in combat, zero Lua errors throughout (the flag is secret there). *Failure:* an
+  error mentioning `secret` or `compare` from `CastBars.lua`. Result:
+- **CAST-6. Frame-system switch.** With EllesmereUI loaded, set General → *Frame system* to *Blizzard*
+  while EllesmereUI hides Blizzard's frames → the bars disappear (no Blizzard frames on screen). Back
+  to *Automatic* → they return under EllesmereUI's frames. Result:
+- **CAST-7. Settings.** Cast Bars page → six tabs (General, Size & Position, Bar, Border, Text, Icon).
+  Change *Cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars*
+  off → no bar appears on the next cast. Result:
 
-## F. Cast bars
+## Target and pet frames
 
-Run each step once on Blizzard's raid-style party frames, once on the classic layout and once on
-EllesmereUI's, where noted.
+- **UNIT-1. Target frame beside each member.** A party member targets a mob → a small frame appears to
+  the right of their party frame with the mob's name, a red health bar (hostile) and its health
+  percent. They clear target → it disappears. *Failure:* the frame beside the wrong member, or one
+  that stays after they clear target. Result:
+- **UNIT-2. Health moves.** The member's target takes damage → the bar and percent drop within a
+  fraction of a second (the 0.2 s refresh), in combat, with zero Lua errors in a dungeon. *Failure:* an
+  error naming `secret`, `compare` or `index` from `TargetFrames.lua` or `UnitButtons.lua`. Result:
+- **UNIT-3. A new member's target.** Invite someone who is already targeting a friendly NPC → their
+  target frame shows the NPC's name in green within a fraction of a second, with no need for them to
+  retarget. *Failure:* a red frame with no name that stays until they change target. Result:
+- **UNIT-4. A pet appears.** A hunter or warlock in the party → a small frame to the right of their
+  party frame, under their target frame, with the pet's name and health. They dismiss it → the frame
+  disappears. Summon another → it shows the new pet. Result:
+- **UNIT-5. Your own pet.** On a pet class with your own row included, raid-style or EllesmereUI →
+  your pet's frame sits to the right of your party frame, under your target frame. Result:
+- **UNIT-6. Colors.** A friendly NPC target → green; a neutral one → yellow. Tick *Use class color* on
+  Target Frames → Bar and have a member target a player → the player's class color. Tick *Use class
+  color* on Pet Frames → Bar → a hunter's pet takes hunter green, a warlock's warlock purple. Result:
+- **UNIT-7. Raid markers.** Mark a member's target with a skull → the skull appears on that target
+  frame. Mark a member's pet → the skull appears on that pet frame; clear it → it goes. Result:
+- **UNIT-8. Marker placement.** `/pfe unlock` (the preview shows a skull on every target frame).
+  Target Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right
+  end; drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes
+  and the three placement controls gray out. Repeat on Pet Frames → Marker. *Failure:* the skull stays
+  put until `/reload`. Result:
+- **UNIT-9. Marker over the border.** Target Frames → Border: tick *Show border*, and mark a member's
+  target → the skull draws on top of the border's edge. Repeat on Pet Frames. *Failure:* the border's
+  line cuts across the skull. Result:
+- **UNIT-10. Health updates off.** General → Health updates: untick *Update health* → *Health
+  refresh* grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames.
+  With a member targeting a mob, its bar sits full with no percent while the mob takes damage, and a
+  pet's bar does the same while the pet takes damage. `/pfe debug on` shows no `[Target] health ticker
+  started` line (one followed at once by `health ticker stopped` is the unresolved-target repaint, and
+  is expected). Tick it back → the real health and percent return at once on both. With a target up,
+  drag *Health refresh* to 1 → the bar updates about once a second straight away, with no need to
+  retarget. Result:
+- **UNIT-11. Click to target.** Click a target frame → you target that unit, in combat too. Click a pet
+  frame → you target the pet. Out of combat, untick *Click to target* on Target Frames → clicks pass
+  through; tick it back → clicks target again (toggling it in combat, through `/pfe set`, is
+  COMBAT-7). Result:
 
-24. **Attached over each frame.** On a fresh profile, in a party (a follower dungeon is enough), watch a
-    healer cast → a bar appears **across the top of that member's own party frame**, as wide as the frame, with the spell's icon
-    at the left, its name, and seconds counting down at the right. It fills left to right and hides
-    when the cast lands. *Failure:* a bar on the wrong member (the unit → frame map is wrong), or a
-    bar that never hides.
-25. **Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears over
-    your own frame. Classic layout: **no** player bar (the layout never shows you) — switch Cast Bars →
-    Size & Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
-26. **Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and drains.
-27. **Interrupt.** Interrupt a dummy-adjacent party member's cast or have a mob interrupt one → the bar
-    turns the interrupted color, shows the client's own word for *Interrupted*, holds about half a
-    second, then fades.
-28. **Can't be interrupted.** A cast flagged uninterruptible shows the gray fill and the shield icon.
-    In a dungeon, in combat, **zero Lua errors** throughout (the flag is secret there). *Failure:* an
-    error mentioning `secret` or `compare` from `CastBars.lua`.
-29. **Frame system switches.** With EllesmereUI loaded, set General → *Frame system* to *Blizzard*
-    while EllesmereUI hides Blizzard's frames → the bars disappear (no Blizzard frames on screen); back
-    to *Automatic* → they return under EllesmereUI's frames.
-30. **Re-sort in combat.** Raid-style or EllesmereUI sorted by role: have someone leave or join during
-    combat → the cast bars follow the members to their new frames straight away.
-31. **Settings.** Cast Bars page → six tabs (General, Size & Position, Bar, Border, Text, Icon). Change
-    *Cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars* off → no
-    bar appears on the next cast.
-31a. **Size & Position shows only what applies.** Cast Bars → Size & Position opens with the *Size*
-    block (Width, Height), then *Placement*. With *Attach to party frames*: the *Attached to party
-    frames* block is drawn and there is no *Free placement* heading at all; with *Match party frame
-    width* ticked, *Width* is grayed. Switch to *Free placement* → the tab redraws at once with the
-    *Free placement* block (Growth direction, Spacing) in place of the attached one, and *Match party
-    frame width* grayed. `/pfe set castbar.anchorMode attached` with the page open → it redraws back.
-    Repeat on the Target Frames and Pet Frames pages. *Failure:* the redraw lags one click behind, an
-    empty heading is left behind, or the dropdown closes itself mid-choice with a Lua error.
+## Out-of-range fade
 
-## G. Target frames
+- **FADE-1. EllesmereUI.** In a party with EllesmereUI's party frames, walk away from a member until
+  EllesmereUI dims their frame → that member's cast bar, target frame and pet frame dim to the same
+  opacity at the same moment; walk back → all return together. Change EllesmereUI's own out-of-range
+  alpha → ours follows it. `/pfe status` → *Range fade: copied from EllesmereUI*. *Failure:* our
+  elements stay bright, or dim to a different opacity from the frame. Result:
+- **FADE-2. Blizzard raid-style, in an instance.** Raid-style party frames with Blizzard's *fade out of
+  range* on → the same as FADE-1, at 0.5. Repeat inside a dungeon, in combat, where range can be
+  secret → still no Lua error, and the elements still dim. *Failure:* an error naming `secret` from
+  `RangeFade.lua`, or elements that stop dimming in the instance only (the secret fallback did not
+  take). Result:
+- **FADE-3. Blizzard classic.** Raid-style off: the classic frames themselves never dim, but a member
+  past about 40 yards has their elements at half opacity. `/pfe status` → *Range fade: own range check
+  (classic frames)*. Result:
+- **FADE-4. The switch, and preview.** General → Party frames: untick *Fade with party frames* → every
+  element at full opacity at once, out of range or not. Tick it back → the far member dims again.
+  `/pfe unlock` in a party with someone out of range → every placeholder at full opacity; lock → the
+  fade returns. Result:
 
-32. **Beside each frame.** A party member targets a mob → a small frame appears to the right of their
-    party frame with the mob's name, a red health bar (hostile) and its health percent. They clear
-    target → it disappears. *Failure:* the frame beside the wrong member, or one that stays after they
-    clear target.
-33. **Health moves.** The member's target takes damage → the bar and percent drop within a fraction of
-    a second (the 0.2 s refresh), in combat, with **zero Lua errors** in a dungeon. *Failure:* an error
-    naming `secret`, `compare` or `index` from `TargetFrames.lua` or `UnitButtons.lua`.
-34. **Colors.** A friendly NPC target → green; a neutral one → yellow. Tick *Use class color* on the
-    Bar tab, have a member target a player → the player's class color.
-34a. **A new member's target.** Invite someone who is already targeting a friendly NPC → their target
-    frame shows the NPC's name in green within a fraction of a second, with no need for them to
-    retarget. *Failure:* a red frame with no name that stays until they change target.
-35. **Raid marker.** Mark a member's target with a skull → the skull appears on that target frame.
-35a. **Marker placement.** `/pfe unlock` (the preview shows a skull on every target frame). Target
-    Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right end;
-    drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes and
-    the three placement controls gray out. *Failure:* the skull stays put until `/reload`.
-35c. **Marker over the border.** Target Frames → Border: tick *Show border*; mark a member's target
-    → the skull draws on top of the border's edge. Repeat on Pet Frames. *Failure:* the border's line
-    cuts across the skull.
-35d. **Pet raid marker.** Mark a member's pet with a skull → the skull appears on that pet frame;
-    clear it → it goes. Pet Frames → Marker placement and *Show raid marker* behave as in 35a.
-35b. **Health updates off.** General page → Health updates: untick *Update health* → *Health refresh*
-    grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames. With a
-    member targeting a mob, its bar sits full with no percent while the mob takes damage, and
-    `/pfe debug on` shows no `[Target] health ticker started` line (one that is followed at once by
-    `health ticker stopped` is the unresolved-target repaint, and is expected). Tick it back → the real health and
-    percent return at once. With a target up, drag *Health refresh* to 1 → the bar updates about once
-    a second straight away, with no need to retarget.
-36. **Click to target.** Click a target frame → you target that unit, in combat too. Untick *Click to
-    target* → clicks pass through; ticking it back in combat applies when combat ends.
-36a. **Click to target toggled back in combat.** In combat, on Target Frames untick *Click to target*
-    and then tick it again before combat ends. After combat, left-click a target frame → you target
-    that unit. *Failure:* the frame ignores the click (the untick landed at regen and the re-tick was
-    lost), which needs a third toggle to recover.
-37. **Combat rules.** In combat, change General visibility to *Only out of combat* → the frames hide
-    at once (the driver's `[combat]` clause) — no Lua error, no blocked-action message. Move a frame in
-    free placement: refused in combat, allowed out of it.
-38. **Re-sort in combat.** Raid-style or EllesmereUI sorted by role: someone joins mid-pull → target
-    frames whose party frame moved fade out, then reappear beside the right member when combat ends.
-    `/pfe debug on` shows `[Secure] queued …` then `[Secure] flushed …`. *Failure:* a frame beside the
-    wrong member during combat, or an `ADDON_ACTION_BLOCKED` line in the console.
+## Minimap button and broker
 
-## H. Pet frames
+- **LAUNCH-1. The button and its logo.** Log in → a round button on the minimap ring showing the Party
+  Frame Enhanced logo, not a blank circle and not a Blizzard icon. Drag it around the ring, `/reload` →
+  it stays where you left it. *Failure:* a blank button is the 128 `.tga` not loading; a button that
+  jumps back to its old angle on reload is `minimapPos` not being written to the table LibDBIcon was
+  handed. Result:
+- **LAUNCH-2. The status tooltip.** Hover → `Ka0s Party Frame Enhanced  v<the TOC version>`,
+  `Enabled: Yes` (green), `Locked: Yes` (green), `Left-click: Open settings`, `Right-click: Options
+  menu`, and no `Test mode` line (launcher-§1). `/pfe unlock` and hover → `Locked: No` (red), the same
+  hints. `/pfe disable` and hover → still shown, `Enabled: No` (red), the same hints; `/pfe enable`
+  and `/pfe lock` after. *Failure:* no tooltip while disabled, a title or hint drawn twice, or a
+  `Test mode` line (anti-pattern #89). Result:
+- **LAUNCH-3. Left-click opens the settings.** Left-click, locked and then unlocked → the settings
+  panel opens on the landing page each time, and the lock does not move. *Failure:* a left click that
+  unlocks, the retired rung (b) (launcher-§2, standard v2.67.0). Result:
+- **LAUNCH-4. Right-click opens the options menu.** Right-click → the client's context menu titled
+  *Ka0s Party Frame Enhanced*, with exactly two checkboxes, *Enabled* (ticked) and *Locked* (ticked),
+  and no *Test mode* or *Show window* entry. Click *Locked* → the elements unlock exactly as
+  `/pfe unlock` unlocks them (stand-in out of a party, placeholders in one), the General page's *Lock
+  frame* unticks if open, and the menu closes; right-click again → *Locked* unticked; click it →
+  locked. Click *Enabled* → the same `enabled = false` echo `/pfe disable` prints and the addon goes
+  down; right-click and click *Enabled* → back up with `/pfe enable`'s echo. *Failure:* an entry whose
+  effect or message differs from its slash verb's (a second copy of the handler, anti-pattern #81).
+  Result:
+- **LAUNCH-5. The broker plugin is the same object.** With Titan Panel, ElvUI data texts or Bazooka,
+  add **PartyFrameEnhanced** to the bar → the same logo and label; left-click opens the settings, and
+  right-click opens the same options menu. *Failure:* an empty value cell beside the icon means the
+  object was registered as a `data source` rather than a `launcher`. Result:
+- **LAUNCH-6. The Minimap button row, both ways.** General → Master controls → untick **Minimap
+  button** → the button disappears at once, not at the next reload. `/reload` → still gone. Tick it →
+  back. (Right-click is the options menu, which carries no hide entry.) From the CLI, with the button
+  visible: `/pfe get global.minimap.shown` → `global.minimap.shown = true`; `/pfe set
+  global.minimap.shown false` → `global.minimap.shown = false`, and the button hides; `/reload` →
+  still hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not
+  found: global.minimap.hide`. After a logout the SavedVariables file's `minimap` table holds
+  `["hide"] = true` and no `shown` key. *Failure:* the checkbox and the button disagreeing (a second
+  copy of one state, launcher-§3, anti-pattern #81), a `shown` key in the file, or a button hidden
+  before the upgrade coming back. Result:
+- **LAUNCH-7. The button is account-wide.** Hide the button, then switch to another profile with
+  `/pfe profile Test` (or `/pfe profile Default` if you are on Test) → `Switched to profile '<name>'.`,
+  and the button is still hidden. Log in on a different character → still hidden. *Failure:* the
+  button coming back on either means the table is profile-scoped, which launcher-§3 forbids. Result:
+- **LAUNCH-8. It survives both resets.** With the button hidden, press *Reset all settings* → still
+  hidden. Press General's **Defaults** → still hidden, while the other General rows go back to their
+  defaults in the same press. Show it and repeat both → it stays shown. `/pfe reset
+  global.minimap.shown` is the deliberate exception and does reset it. *Failure:* either reset moving
+  the row in either direction; whether the button is on the minimap is a per-installation display
+  preference, like its position, and no reset may touch it (launcher-§3). Result:
 
-39. **A pet appears.** A hunter or warlock in the party → a small frame to the right of their party
-    frame, under their target frame, with the pet's name and health. They dismiss it → the frame disappears. Summon another → it shows the new
-    pet.
-40. **Your own pet.** On a pet class with your own row included, raid-style or EllesmereUI: your pet's
-    frame sits to the right of your party frame, under your target frame.
-41. **Owner's class color.** Tick *Use class color* on Pet Frames → Bar → a hunter's pet takes hunter
-    green, a warlock's warlock purple.
-42. **Click to target.** Click a pet frame → you target the pet.
-42a. **Health updates off, pets.** With the same General → Health updates switch off, a pet's bar sits
-    full with no percent while the pet takes damage. Tick it back → the real health returns.
+## Combat
 
-## I. Preview, placement and status
+- **COMBAT-1. The panel refuses in combat.** On a target dummy, in combat: `/pfe config` → the panel
+  does not open, and chat shows the gray `cannot open settings during combat — Blizzard's
+  category-switch is protected`. `/pfe` alone and a left-click on the minimap button → the same gray
+  refusal. Repeat → the same refusal each time, with no queue. Leave combat → nothing opens by itself.
+  Result:
+- **COMBAT-2. The combat lock.** Open **General** and pull a dummy → the whole page, tab strip
+  included, goes under a gray *Settings are locked during combat.* cover; a click on a checkbox, a
+  slider drag, a tab and Defaults change nothing, and one gray `settings are locked during combat —
+  changes are refused until it ends` line prints for the whole combat. In combat, switch to **Cast
+  Bars** and **Profiles** in the AddOns sidebar → each shows covered, the window stays open, with no
+  Lua error and no `ADDON_ACTION_BLOCKED`. `/pfe set alpha 0.8` in combat, then leave combat → the
+  cover lifts and the page shows the new value. *Failure:* a window that closes itself, a value that
+  changes under the cover, or a page that stays covered after combat. Result:
+- **COMBAT-3. Combat locks an unlocked preview.** Solo, with the General page open, `/pfe unlock` so
+  the stand-in is up, then pull a dummy → *Locked — combat started*, the *Lock frame* box ticks
+  itself, nothing is stuck on screen, and no `ADDON_ACTION_BLOCKED` on the debug console. Result:
+- **COMBAT-4. Unlock refused in combat.** In combat: `/pfe unlock` → a gray *cannot unlock during
+  combat* line, nothing previews or moves, and *Lock frame* stays ticked on an open General page.
+  Right-click the minimap button and click *Locked* → the same line, and nothing moves. `/pfe lock`
+  still works. Result:
+- **COMBAT-5. General visibility in combat.** The panel is locked in combat (COMBAT-2), so this check
+  uses the command. In a party with a member targeting something, `/pfe debug on`, and out of combat
+  `/pfe set visibility outOfCombat` → nothing changes yet. Pull a dummy → the target and pet frames
+  hide at once (the state driver's `[combat]` clause), and no cast bar shows while members cast. Still
+  in combat, `/pfe set visibility always` → cast bars show again on the next cast, the target and pet
+  frames stay hidden, and the console shows `[Secure] queued driver:Target:…`. Leave combat → `[Secure]
+  flushed …` and the target and pet frames come back. *Failure:* a Lua error, an
+  `ADDON_ACTION_BLOCKED` line, or a target frame shown in combat while the setting is *Only out of
+  combat*. Result:
+- **COMBAT-6. Re-sort in combat.** Raid-style or EllesmereUI frames sorted by role, `/pfe debug on`:
+  have someone join or leave mid-pull → the cast bars follow the members to their new frames straight
+  away; the target frames whose party frame moved fade out, then reappear beside the right member when
+  combat ends, and the console shows `[Secure] queued …` then `[Secure] flushed …`. With a member out
+  of range, the clickable frames still fade with their party frame through the reshuffle. *Failure:* a
+  target frame beside the wrong member during combat, or an `ADDON_ACTION_BLOCKED` line. Result:
+- **COMBAT-7. Click to target toggled in combat.** The panel is locked in combat (COMBAT-2), so this
+  check uses the command. Out of combat, `/pfe set target.clickToTarget false` → a click on a target
+  frame passes through. Pull a dummy, and in combat `/pfe set target.clickToTarget true` → clicks
+  still pass through until combat ends, then target again. In the next combat, `/pfe set
+  target.clickToTarget false` and then `/pfe set target.clickToTarget true` before combat ends; after
+  combat, left-click a target frame → you target that unit. *Failure:* the frame ignores the click
+  (the untick landed at regen and the re-tick was lost), which needs a third toggle to recover.
+  Result:
+- **COMBAT-8. Nothing moves in combat.** In a party, `/pfe set target.anchorMode free` and `/pfe
+  unlock`, then pull a dummy → combat locks the preview (COMBAT-3). In combat, with a member
+  targeting the dummy, left-drag their target frame → nothing moves, with no Lua error and no
+  `ADDON_ACTION_BLOCKED`. Leave combat, `/pfe unlock`, and drag the *Target frames* plate → it moves
+  (PREV-3). Then `/pfe lock`, `/pfe resetposition` and `/pfe set target.anchorMode attached`.
+  *Failure:* the stack moving in combat. Result:
 
-43. **Unlock previews.** `/pfe unlock` → every enabled element shows placeholder content: a cast bar
-    drawn full (its whole size shows), a target frame at 65% with a skull, a pet frame at 80%. `/pfe lock` → all of it goes;
-    live data returns. *Failure:* a placeholder left behind after locking (preview-mode MUST).
-44. **Unlock refused in combat.** On a dummy, in combat: `/pfe unlock` → a gray *cannot unlock during
-    combat* line, nothing previews, and *Lock frame* stays ticked on an open General page.
-45. **Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free placement*, unlock → a
-    translucent plate labeled *Cast bars* appears over the stack. Drag it; lock; `/reload` → the stack
-    is where you left it. General → *Reset position* (or `/pfe resetposition`) → back to its default.
-46. **Preview in a party.** In a party, `/pfe unlock` → placeholders on every element at the real
-    party frames, no stand-in and no plate; `/pfe lock` → gone.
-47. **Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
-    feature's state, and a *Note:* line when something is switched off (set General visibility to
-    *Never* and run it again).
-47a. **Range fade, EllesmereUI.** In a party with EllesmereUI's party frames, walk away from a member
-    until EllesmereUI dims their frame → that member's cast bar, target frame and pet frame dim to
-    the same opacity at the same moment; walk back → all return together. Change EllesmereUI's own
-    out-of-range alpha → ours follows it. `/pfe status` → *Range fade: copied from EllesmereUI*.
-    *Failure:* our elements stay bright, or dim to a different opacity from the frame.
-47b. **Range fade, Blizzard raid-style, in an instance.** Raid-style party frames with Blizzard's
-    *fade out of range* on: the same as 47a, at 0.5. Repeat **inside a dungeon, in combat**, where
-    range can be secret → still no Lua error, and the elements still dim. *Failure:* an error naming
-    `secret` from `RangeFade.lua`, or elements that stop dimming in the instance only (the secret
-    fallback did not take).
-47c. **Range fade, Blizzard classic.** Raid-style off: the classic frames themselves never dim, but a
-    member past ~40 yards has their elements at half opacity. `/pfe status` → *Range fade: own range
-    check (classic frames)*.
-47d. **Range fade, off and preview.** General → Party frames: untick *Fade with party frames* → every
-    element at full opacity at once, out of range or not. Tick it back → the far member dims again.
-    `/pfe unlock` in a party with someone out of range → every placeholder at full opacity; lock →
-    the fade returns. Mid-combat reshuffle (step 38) still fades the clickable frames as before.
+## Debug console, diagnostics and perf
 
-## J. Preview, the stand-in and the party-only rule
+- **DIAG-1. The console.** `/pfe debug` → the console window opens (monospace font, the collection's
+  close, copy and clear marks, not a `×` glyph); `/pfe debug` again → it closes. The logging flag is
+  untouched by both. Result:
+- **DIAG-2. The `[Init]` line.** `/pfe debug on` → an `[Init]` line naming `PartyFrameEnhanced
+  v<the TOC version>`, the schema version, the profile and the detected frame system. `/reload` →
+  logging is off again (session-only). Result:
+- **DIAG-3. The perf walk.** `/pfe perf` → a status line and the step panel, whose close mark matches
+  the console's. Walk `start` → `measure a` (a pull) → `measure b` → `finish` → `report` → `dump`
+  without a Lua error. During arm B the addon is inert; after `finish` it is active again without a
+  `/reload`. Result:
+- **DIAG-4. The capture worth recording.** In a party with at least one pet class, somewhere quiet (an
+  instance, not a city), start with the setup in the label (`/pfe perf start party <frame system>
+  <anchor mode>`) and pull the same pack for both arms. In the report, `petEvent` has calls and
+  `targetRender` per `targetTick` pass is at most the number of members with a target. Paste the buffer
+  into `/wow-addon:perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer members have
+  targets (hidden buttons being repainted), or no `petEvent` row with a pet out. Result:
+- **DIAG-5. The diagnostics report appends, ungated.** `/pfe debug on`, join or leave a party (or
+  `/pfe unlock` and `/pfe lock`) so a few trace lines land, then `/pfe diagnostics`. The trace is still
+  there, above `==== Ka0s Party Frame Enhanced diagnostics begin ====`; the report ends with
+  `==== Ka0s Party Frame Enhanced diagnostics end: N line(s) ====`; one chat line reads `Diagnostic
+  report written to the debug console: N lines. Use Copy to share it.` The sections run in the order
+  [debug.md](debug.md) lists (`[State]`, `[Set]`, `[Party]`, `[Frames]`, `[Place]`, `[Elem]`, `[Fade]`,
+  `[Secure]`, `[Events]`). Then `/pfe debug off`, close the console and run `/pfe debug diagnostics`:
+  the console opens, the whole report lands again below the first, the header still reads logging off,
+  and the next party change writes no trace line. *Failure:* the console cleared, a report cut short
+  with logging off, or the flag turned on. Result:
+- **DIAG-6. Copy, and the long alias.** Press **Copy** and paste into a text editor → the trace, both
+  markers and the brand are there, with no `|c` color codes or `|T` textures in the text.
+  `/partyframeenhanced diagnostics` and `/partyframeenhanced debug diagnostics` → the same report as the
+  short slash. Result:
+- **DIAG-7. In combat, and while disabled.** In a party, run `/pfe diagnostics` in combat, and once
+  more inside a dungeon while a party member casts → no Lua error; a value the client keeps secret
+  prints as `<secret>`, never as an error line. Then `/pfe disable` and run `/pfe diagnostics` and
+  `/pfe debug diagnostics` → both write a full report whose state lines read `enabled=false
+  stoodDown=true`, and `[Frames]` and `[Fade]` say stood down. `/pfe enable` afterwards. Result:
+- **DIAG-8. No short name.** `/pfe diag` → `unknown command 'diag'` and the help; `/pfe debug diag` →
+  shows or hides the console like any other word after `debug`. Neither writes a report. Result:
+- **DIAG-9. The buffer cap.** With logging on, drive enough traced activity (party changes, unlock and
+  lock, repeated `/pfe diagnostics`) to pass 3000 lines → the footer counter reads `N / 3000 lines` and
+  pins at 3000, and **Copy** opens without a noticeable hitch. Result:
 
-48. **Party-only.** Solo: nothing shows, attached or free placement, and `/pfe status` ends with *not
-    in a party — nothing shows until you join one (try /pfe unlock)*. Join a party → everything shows.
-    Convert to a raid → it all goes again.
-49. **Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, Frame system Automatic: `/pfe unlock` → one
-    stand-in party frame where EllesmereUI's first party frame sits, at its size, with a flat
-    class-colored bar and a gray *(test)* after your name. The stand-in draws beneath what attaches
-    to it: the cast bar's spell icon shows whole. Party1's cast bar, target frame (skull) and pet frame
-    attach to it, and the Size & Position offsets move them. Drag it → they follow. *Failure:* a
-    stand-in of a different size from your EllesmereUI party frames. `/pfe debug on`, then
-    `/pfe unlock`, logs a `[Preview]` line naming where the size came from. For EllesmereUI it should
-    read `settings` (your EllesmereUI party frame width and height); `frame` or `fallback` means
-    EllesmereUI's settings could not be read.
-50. **Stand-in, Blizzard raid-style.** Blizzard frames, Edit Mode raid-style party frames on: the same
-    as 49 in the raid-bar look. Note whether the 72 × 36 fallback matched if the stand-in came up at
-    screen center.
-51. **Stand-in, Blizzard classic.** Raid-style off: the same as 49 with a portrait, a green health bar
-    and a mana bar. Note whether the 120 × 53 fallback matched if the stand-in came up at screen
-    center.
-52. **Live switch and exits.** With the stand-in up, join a party → it goes and the placeholders move
-    to the real frames; leave → it comes back. Pull a dummy → *Locked — combat started*, the *Lock
-    frame* box ticks itself, nothing stuck on screen, no `ADDON_ACTION_BLOCKED` in `/pfe debug`.
-    While unlocked `/pfe status` reads *unlocked (stand-in)* or *unlocked (your party frames)*.
-    In combat, `/pfe unlock` → a gray *cannot unlock during combat* and nothing moves; `/pfe lock`
-    still works. Disable the addon while unlocked → *Locked — the addon was disabled*.
-
-## K. The launcher — minimap button and broker plugin
-
-53. **The button is there, wearing the addon's own logo.** Log in → a round button on the minimap ring
-    showing the Party Frame Enhanced logo, not a blank circle and not a Blizzard icon. Hover → the
-    status tooltip (launcher-§1): `Ka0s Party Frame Enhanced  v<the TOC version>`, `Enabled: Yes`
-    (green), `Locked: Yes` (green), `Left-click: Open settings`, `Right-click: Options menu`, and no
-    `Test mode` line. Unlock (`/pfe unlock`) and hover again → `Locked: No` (red), the same hints.
-    `/pfe disable` and hover → still shown, `Enabled: No` (red), the same hints; `/pfe enable` after.
-    *Failure:* no tooltip while disabled, a title or hint drawn twice, or a `Test mode` line (anti-
-    pattern #89). Drag it around the ring → it stays
-    where you left it after `/reload`. *Failure:* a blank button is the 128 `.tga` not loading; a
-    button that jumps back to its old angle on reload is `minimapPos` not being written to the table
-    LibDBIcon was handed.
-54. **Left-click always opens the settings.** Left-click, locked or unlocked, enabled or disabled →
-    the settings panel opens on the landing page and the lock does not move. In combat → the same
-    gray refusal `/pfe config` gives. *Failure:* a left click that unlocks — the retired rung (b)
-    (launcher-§2, standard v2.67.0).
-55. **Right-click opens the options menu.** Right-click → the client's context menu titled *Ka0s
-    Party Frame Enhanced*, with exactly two checkboxes, *Enabled* (ticked) and *Locked* (ticked),
-    and no *Test mode* or *Show window* entry. Click *Locked* → the elements unlock exactly as `/pfe
-    unlock` unlocks them (stand-in out of a party, placeholders in one), the General page's *Lock
-    frame* unticks if open, and the menu closes; right-click again → *Locked* unticked; click it →
-    locked. In combat, *Locked* → the same gray *cannot unlock during combat* and nothing moves.
-    Click *Enabled* → the same `enabled = false` echo `/pfe disable` prints and the addon goes down;
-    right-click → *Locked (enable the addon first)* grayed; click *Enabled* → back up with `/pfe
-    enable`'s echo. *Failure:* an entry whose effect or message differs from its slash verb's (a
-    second copy of the handler, anti-pattern #81), or a grayed entry that still acts.
-56. **The broker plugin is the same object.** With Titan Panel, ElvUI data texts or Bazooka installed,
-    add **PartyFrameEnhanced** to the bar → the same logo and label, left-click opens the settings,
-    right-click opens the same options menu. *Failure:* an empty value cell beside the icon means the object was registered
-    as a `data source` rather than a `launcher`.
-57. **The Minimap button row, both ways.** General → Master controls → untick **Minimap button** → the
-    button disappears **immediately**, not at the next reload. `/reload` → still gone. Tick it → back.
-    (Right-click is the options menu, which carries no hide entry.) *Failure:* the checkbox and the
-    button disagreeing is a second copy of one state
-    (launcher-§3, anti-pattern #81). From the CLI: with the button visible, `/pfe get
-    global.minimap.shown` → `true`; `/pfe set global.minimap.shown false` hides it; `/reload` → still
-    hidden, and the Master controls checkbox agrees. `/pfe get global.minimap.hide` → `Setting not
-    found`. After logout the SavedVariables file shows `minimap = { hide = true, ... }` and no `shown`
-    key. *Failure:* a `shown` key in the file, or a button hidden before the upgrade coming back.
-58. **The button is account-wide furniture.** Hide the button, then: switch profiles (`/pfe profile
-    new smoke`) → still hidden. Log in on a different character → still hidden. *Failure:* the button
-    coming back on either means the table is profile-scoped, which launcher-§3 forbids.
-59. **It survives BOTH resets.** Still hidden, run **Reset all settings** → still hidden. Then press
-    General's **Defaults** button → **still hidden**, while the other rows on General do go back to
-    their defaults in the same press. Tick it back on and repeat both → it stays shown. *Failure:*
-    either reset moving the row in either direction. Whether the button is on the minimap is a
-    per-installation display preference, like the position it was dragged to, and no reset may touch
-    it (launcher-§3). `/pfe reset global.minimap.shown` is the deliberate exception and does reset it.
-
-## T. Non-English client (locale)
+## Non-English client
 
 What this addon touches that a client translates, enumerated from the code rather than assumed:
 
-- **Localized `_G` reads:** two, both display-only — the client's `INTERRUPTED` and `FAILED` words
-  on a stopped cast bar (`modules/CastBars.lua`), with `NS.L` English fallbacks. Nothing parses them.
-  The only other `_G[...]` reads are frame names (`ERFPartyHeaderUnitButtonN`,
-  `CompactPartyFrameMemberN`), which the client does not translate.
+- **Localized `_G` reads:** two, both display-only: the client's `INTERRUPTED` and `FAILED` words on
+  a stopped cast bar (`modules/CastBars.lua`), with `NS.L` English fallbacks. Nothing parses them. The
+  only other `_G[...]` reads are frame names (`ERFPartyHeaderUnitButtonN`, `CompactPartyFrameMemberN`),
+  which the client does not translate.
 - **Tooltip lines:** none parsed.
 - **Display strings where an id exists:** class colors are keyed on `UnitClass`'s second return (the
-  class **token**, `MAGE`), never on the localized name; reaction is `UnitReaction`'s number; the frame
+  class token, `MAGE`), never on the localized name; reaction is `UnitReaction`'s number; the frame
   systems are found by global frame names and the Edit Mode API, never by a label.
 - **Strings this addon renders:** spell names and unit names come from the client and are only ever
   displayed; the addon's own words (*Interrupted*, *Failed*, labels) are `NS.L` keys with English
@@ -422,27 +482,72 @@ What this addon touches that a client translates, enumerated from the code rathe
 - **Headers or tokens another tool parses:** the `/pfe perf dump` record, whose keys are fixed English
   identifiers written by LibKa0s-Perf.
 
-Steps, each naming its failure:
+Checks:
 
-- **T1. Load on a German client.** Log in on deDE → zero Lua errors, `[PFE]` lines in chat, the settings
-  panel in English (untranslated, as expected). *Failure:* an error frame, or a label reading as a raw
-  key like `L["Frame system"]` (the fallback metatable missing). *May be signed off on English:* the
-  fallback is exercised by every headless case that renders a label.
-- **T2. Class colors from the token.** With *Use class color* on, have a party member target a
-  German-named class-bearing player (a *Magier*) → the target frame takes mage blue. *Failure:* the
-  stored swatch color instead of the class color on deDE only — the class was keyed on the localized
-  name. *Headless stand-in:* `Compat.ClassToken` reads `UnitClass`'s second return only, and
-  `tests/test_targetframes.lua` colors a `MAGE` target from the token.
-- **T3. Spell names and the stop word render whole.** Watch a party member cast a spell whose German
-  name has an umlaut or ß (*Blitzschlag*, *Gedankenschlag*) → the name renders without a `?` or
-  replacement box at its end, and the time text has no stray `%s`/`%.1f`. Interrupt a cast → the bar
-  shows *Unterbrochen*, not *Interrupted*. *Failure:* a truncated multi-byte character at the end of
-  the name (the bar clips by width, never by byte count, so this should not happen), or the English
-  word on a German client (the client global was not read). **The client is the only witness here**:
-  the English client has no multi-byte spell names and its global is the English word.
-- **T4. Frame-system detection.** With party frames shown, `/pfe debug on` → the `[Init]` line names
-  the detected system, the same as on English. *Failure:* `frames 'none'` on deDE with party frames
-  visibly on screen. *May be signed off on English:* detection reads no localized string.
+- **LOC-1. Load on a German client.** Log in on deDE → zero Lua errors, `[PFE]` lines in chat, and the
+  settings panel in English (untranslated, as expected). *Failure:* an error frame, or a label that
+  reads as a raw key like `L["Frame system"]` (the fallback metatable missing). May be signed off on
+  English: every headless case that renders a label exercises the fallback. Result:
+- **LOC-2. Class colors from the token.** With *Use class color* on, have a party member target a
+  player whose class has a German name (a *Magier*) → the target frame takes mage blue. *Failure:* the
+  stored swatch color instead of the class color, on deDE only (the class was keyed on the localized
+  name). Headless stand-in: `Compat.ClassToken` reads `UnitClass`'s second return only, and
+  `tests/test_targetframes.lua` colors a `MAGE` target from the token; its mock returns the token for
+  both values, so the client is the witness for a translated name. Result:
+- **LOC-3. Spell names and the stop word render whole.** Watch a party member cast a spell whose German
+  name has an umlaut or ß (*Blitzschlag*, *Gedankenschlag*) → the name renders without a `?` or a
+  replacement box at its end, and the time text has no stray `%s` or `%.1f`. Interrupt a cast → the
+  bar shows *Unterbrochen*, not *Interrupted*. *Failure:* a truncated multi-byte character at the end
+  of the name (the bar clips by width, never by byte count, so this should not happen), or the English
+  word on a German client (the client global was not read). The client is the only witness here: the
+  English client has no multi-byte spell names, and its global is the English word. Result:
+- **LOC-4. Frame-system detection.** With party frames shown, `/pfe debug on` → the `[Init]` line
+  names the detected system, the same as on English. *Failure:* `frames 'none'` on deDE with party
+  frames visibly on screen. May be signed off on English: detection reads no localized string. Result:
 
-T1 and T4 may be signed off on an English client for the reasons given. T2 is covered headlessly once
-its case exists. T3 needs a deDE or frFR client.
+## Pending sign-off
+
+The checks below have no recorded pass for what they now expect. That covers two kinds. The first is
+an older check whose behavior arrived or changed after its last pass, or that a smoke list in a
+Ka0sAddonsCommonTasks plan owes and nobody ran. The second is a check that is new in this rewrite, or
+whose expected result was corrected against the code in it. The passes on record are the v0.1.0 full
+pass (2026-09-18), the minimap button re-run after M6 (2026-09-25: left-click, right-click menu and
+tooltip, out of combat) and the diagnostics checks (2026-09-26). Session PF of
+`2026-09-23-REVIEW_AND_STANDARDS_AUDIT_REMEDIATION/06_SMOKE_TESTS.md` (PF.1 to PF.12) and its Q.10
+were never run. Fill in each check's `Result:` line, then remove its row.
+
+| ID | Origin (old step) | What is owed |
+|---|---|---|
+| SLASH-1 | B 4 | the help block's eighteenth verb, `diagnostics` (DR-PF-03, 2026-09-26); the v0.1.0 pass saw seventeen |
+| SLASH-6 | B 9 | `/pfe set` and `/pfe reset` through the LibKa0s-Schema-1.0 write seam (PF-11, 2026-09-24; owed as PF.10), with the reset echo and the refusal lines quoted for the first time in this rewrite |
+| PANEL-2 | C 12 | corrected in this rewrite: three General tabs, where the old step named two |
+| PANEL-3 | C 13 | corrected in this rewrite: the *Fade with party frames* row (2026-09-18, after the v0.1.0 pass) |
+| PANEL-5 | D 18 | the page Defaults under LibKa0s-Schema-1.0, whose bracket now prints the one `[Set] reset general: 2 rows` line (PF-11, 2026-09-24; owed as PF.10) |
+| PANEL-6 | F 31a | Size & Position draws only the block the anchor mode uses (2026-09-19) |
+| PROFILE-2 | D 20 | the `Created and switched to new profile 'Test'` line, quoted for the first time in this rewrite |
+| PROFILE-3 – 8 | D 20, D 20a, and new | the list, `profile <name>` and its refusals (SP-PF-02, 2026-09-29) |
+| PROFILE-9 | D 20a | the sub-verbs refuse bad names (PF-01, 2026-09-24; owed as PF.3) |
+| PROFILE-10 | D 19 | corrected in this rewrite: the tooltip's arrow is a plain `->` |
+| STATE-4 | B 10d | the *Lock frame* refusal while disabled (PF-07, 2026-09-24; owed as PF.5) |
+| STATE-6 | B 10f | the target and pet state drivers through a stand-down (PF-04, 2026-09-24; owed as PF.7) |
+| STATE-7 | B 10g | Edit Mode through a stand-down (PF-05, 2026-09-24; owed as PF.6) |
+| STATE-8 | B 10h | the fade frames and holders through a stand-down in combat (PF-06, 2026-09-24; owed as PF.8) |
+| STATE-9 | J 52 | new in this rewrite: no placeholder or stand-in is left on screen after the disable |
+| PREV-1 | B 10, I 43 | unticking *Lock frame* on General after PF-11 moved `locked` onto the Schema seam's writeThrough (2026-09-24; owed as PF.10, which ticks and unticks every Master controls checkbox), with the `Elements locked` line quoted for the first time in this rewrite |
+| CAST-7 | F 31 | changing *Cast color*, a color picker, through the PF-11 Schema seam (2026-09-24; owed as PF.10) |
+| UNIT-3 | G 34a | a new member's target fills in (1.0.1, 2026-09-18) |
+| UNIT-7 – 9 | G 35c, 35d | the pet raid marker and the marker above the border (2026-09-19) |
+| UNIT-10 | G 35b | the `health ticker started` line followed at once by `stopped` is expected: the unresolved-target repaint (1.0.1, 2026-09-18) |
+| FADE-1 – 4 | I 47a – 47d | the out-of-range fade (2026-09-18) |
+| LAUNCH-5 | K 56 | the broker's right-click opens the options menu (M6, 2026-09-25; the re-run names only the minimap button) |
+| LAUNCH-6 | K 57 | the CLI half, `global.minimap.shown` (PF-13, 2026-09-24; owed as PF.1, PF.2 and PF.12), with the echo and `Setting not found` lines corrected in this rewrite |
+| LAUNCH-7 | K 58 | the profile switch now goes through the new `profile <name>` verb (SP-PF-02) |
+| LAUNCH-8 | K 59 | both resets leave the row alone (owed as PF.10 after the PF-11 schema adoption, 2026-09-24), and `/pfe reset global.minimap.shown` resets it (PF-13) |
+| COMBAT-1 | K 54 | the launcher's left-click in combat gives the settings refusal (M6, 2026-09-25; the re-run clicked out of combat only) |
+| COMBAT-2 | C 16 | the combat lock cover (2026-09-20) |
+| COMBAT-3 | J 52, C 12 | `Locked — combat started` after PF-09 moved preview's combat listener (2026-09-24; owed as Q.10) |
+| COMBAT-4 | K 55 | the options menu's *Locked* in combat gives the unlock refusal (M6, 2026-09-25; the menu is new in M6) |
+| COMBAT-5 | G 37 | visibility changed in combat, now through `/pfe set` since the combat lock (2026-09-20) refuses the panel |
+| COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
+| COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24; owed as PF.9), now through `/pfe set` |
+| COMBAT-8 | G 37 | nothing moves in combat, rewritten with a named drag for the same reason as COMBAT-5 |

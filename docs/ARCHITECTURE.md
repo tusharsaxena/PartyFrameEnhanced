@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.62.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.63.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
@@ -40,16 +40,18 @@ with its party member's frame when they are out of range; the raid marker draws 
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
 click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
-diagnostics report for bug reports; and LibKa0s is re-vendored, now at v1.62.0. What the addon
+diagnostics report for bug reports; and LibKa0s is re-vendored, v1.62.0 in the release and now at v1.63.0. What the addon
 took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
 ([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
 minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed
 shape ([revendor/2026-09-23-v1.56.0/](revendor/2026-09-23-v1.56.0/05_SUMMARY.md)), v1.57.0's
-Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md))
+Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md)),
 v1.58.0's Launcher minor 4 left click and options menu
 ([revendor/2026-09-25-v1.58.0/](revendor/2026-09-25-v1.58.0/05_SUMMARY.md)), and v1.60.0's DebugLog
 14.1 diagnostics report (`/pfe diagnostics`, sections in `modules/Diagnostics.lua`, [debug.md](debug.md)) and Slash minor 16's live `diagnostics` verb
-([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)). v1.47.0 to
+([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)); and, since the
+release, v1.63.0's Slash minor 17 profile verb, which `/pfe profile <name>` and `profile use` route
+through ([revendor/2026-09-29-v1.63.0/](revendor/2026-09-29-v1.63.0/05_SUMMARY.md)). v1.47.0 to
 v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
 ([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
 
@@ -148,7 +150,10 @@ reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/S
 `isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the standard's thirteen reserved verbs plus this
 addon's `status` and `profile`, so the report runs while the addon is disabled), and the library refuses everything else on one line it owns the
 wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
-are what is left. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
+`profile use <name>`) through the library's `cli:CliProfile` / `cli:ProfileSwitch` (Slash minor 17),
+given the store through the descriptor's `profiles` field, so an unknown name is refused and never
+created. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Launcher
 
@@ -335,7 +340,7 @@ on entering combat while disabled, and replacing the latch with a boolean.
 - The out-of-range fade copies the party frame. On Blizzard's classic layout, which does not fade,
   it is the fixed ~40-yard `UnitInRange` check at 0.5. Spell-based ranges and a per-feature opacity
   are #13. Whether the client takes a **secret number** on `SetAlpha` is unverified, so the
-  raid-style copy has a fallback through the frame's `outOfRange` flag (smoke step 47b).
+  raid-style copy has a fallback through the frame's `outOfRange` flag (smoke check FADE-2).
 - The logo is a generated placeholder (#10).
 - On a load without LibKa0s the bus has no stand-down record: `core/Bus.lua` falls back to the
   untracked-target stub `LibKa0s-Bus-1.0`'s document prescribes, so each receiver still gets its own
@@ -380,7 +385,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | Doc | Covers |
 |---|---|
 | `testing.md` | The harness, lint, the green commit gate, the release gate, the vendored-payload check |
-| `smoke-tests.md` | The in-game smoke-test suite, including the non-English-client step |
+| `smoke-tests.md` | The in-game smoke-test suite, including the `## Non-English client` checks (LOC) |
 | `test-cases.md` | The generated case inventory (authoritative pass count) |
 | `performance.md` | Buckets, the bracket idiom, the latch the perf hold is taken on, the offline scenarios |
 | `automated-tests/README.md` | What the automated-test record is and how to produce it |
@@ -393,7 +398,7 @@ Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); t
 | `superpowers/` | The v0.1.0 design spec and the checkpointed build plan (directory) |
 
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
-`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and — when it exists — `reviews/`.
+`perf-analysis/<run>/`, `revendor/<date>/`, `audits/` and `reviews/`.
 
 ## Documented deviations
 

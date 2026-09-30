@@ -4,6 +4,24 @@ AceDB profiles are user-visible: `settings/Profiles.lua` ships the AceDBOptions 
 copy, reset, delete, and the per-character/class/realm scopes), and `/pfe profile …` offers the same
 acts from chat.
 
+## The `profile` verb
+
+| Input | What it does |
+|---|---|
+| `/pfe profile` | lists the profiles, the current one marked, then the sub-verbs |
+| `/pfe profile <name>` | switches to an existing profile; `"Tank Two"` or `'Tank Two'` strips the quotes, and case and spaces are kept |
+| `/pfe profile list` / `current` | the list; the current profile's name |
+| `/pfe profile use <name>` | the same switch as `profile <name>`, and the way to reach a profile named like a sub-verb |
+| `/pfe profile new` / `copy` / `delete <name>`, `reset` | create and switch, copy into the current profile, delete, reset the current profile |
+
+A first word is a sub-verb in any case (`/pfe profile LIST`); anything else is a profile name. The
+list and the switch are `LibKa0s-Slash-1.0`'s (`cli:CliProfile`, `cli:ProfileSwitch`, minor 17), so
+they read the same in every Ka0s addon. A switch goes only to a profile that exists: an unknown name
+prints *No profile named*, a *Did you mean* when one profile matches but for case, and the list, and
+creates nothing. Switching to the current profile says so, and a switch in combat is refused. The verb
+answers while the addon is disabled; a switch to a profile that has the addon on stands it back up.
+The switch's one debug line is the handler's below, not the verb's.
+
 ## What lives in a profile
 
 Everything in `defaults/Profile.lua`: Master controls, the frame-system choice, and every feature's

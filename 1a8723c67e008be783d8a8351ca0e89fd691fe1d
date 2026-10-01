@@ -1,0 +1,1 @@
+OK CA-PF-RV tests 453 passed/0 failed/1 skipped (454); luacheck 0/0 in 79 files; complexity pass maxCcn 14; diff -r libs/LibKa0s and tests/_kit vs LibKa0s v1.67.0 (HEAD=tag, clean) empty; CRLF kept; test-cases.md == --list; badge 453/454

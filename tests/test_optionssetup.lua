@@ -249,3 +249,21 @@ test("optionssetup: without the library, opening the panel prints one honest lin
   assertTrue(mocks2.__chat[#mocks2.__chat]:find("settings panel is unavailable", 1, true) ~= nil)
   assertFalse(pcall(error, "sentinel"), "sanity")
 end)
+
+test("optionssetup: the Options descriptor names the addon folder, and the help-mark art is on disk", function()
+  -- LibKa0s#42: OptionsIdList draws an IdList help mark from Media.Icon(d.addonName, "info"). The
+  -- descriptor must carry the folder name (vararg 1), not a title or a frame name, and the vendored
+  -- art must sit at the default vendorPath. red under: `local _, NS = ...`, a missing
+  -- `addonName = addonName,` row, or a re-vendor that dropped media/icons/info.tga.
+  local f = assert(io.open("settings/OptionsSetup.lua", "rb"), "tests run from the repo root")
+  local src = f:read("*a")
+  f:close()
+  assertTrue(src:find("^local addonName, NS = %.%.%.") ~= nil, "vararg 1 is kept as addonName")
+  local body = src:match("local descriptor = (%b{})")
+  assertTrue(body ~= nil, "the Options descriptor literal is found")
+  assertTrue(body:find("\n%s*addonName%s*=%s*addonName%s*,") ~= nil,
+             "the descriptor passes addonName = addonName")
+  local art = io.open("libs/LibKa0s/media/icons/info.tga", "rb")
+  assertTrue(art ~= nil, "libs/LibKa0s/media/icons/info.tga is vendored")
+  art:close()
+end)

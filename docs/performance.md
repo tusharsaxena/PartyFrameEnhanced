@@ -85,24 +85,54 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | resolve coalescing | 40 layout requests in one frame | — | — | exactly **1** resolve |
 | `resolveUnchanged` | a resolve that finds the frames it had | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `anchorUnchanged` | all three features' placement, nothing changed | 0 (**0 `SetPoint`**) | 0 | 0 `SetPoint`; ≤ 24 bytes |
-| `castStartStop` | start + stop on all five cast bars | 55 | 3.6 | ≤ 41 bytes |
+| `castStartStop` | start + stop on all five cast bars, after one untimed warm-up cycle | 55 | 0 | ≤ 24 bytes |
 | `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
 | `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
 | `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 925.9 | reported only |
 | `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off: 0 bracket calls (`debugprofilestop` + `Perf.Note`), the stand-in for instrumentation absent; same API count; off ≤ 24 bytes |
 
-Figures from 2026-09-24 (Lua 5.1.5, WSL2), three runs of `tests/perf.lua` that agreed to the last
-digit. Every ceiling was set at the figure measured on 2026-09-15 plus 24 bytes — less than the 64
-bytes one extra table costs, so the smallest allocation added to a hot path fails the run. None was
-moved when these figures were refreshed.
+Figures from 2026-10-01 (Lua 5.1.5, WSL2), runs of `tests/perf.lua` that agreed to the last digit.
+Every ceiling is the figure measured plus 24 bytes — less than the 64 bytes one extra table costs, so
+the smallest allocation added to a hot path fails the run. Each was set on 2026-09-15; `castStartStop`'s
+was re-derived on 2026-10-01 from 41 (16.6 + 24) to 24 (0 + 24), for the reason below.
 
-**`castStartStop` is no longer 16.6.** Issue #12 asks where the 16.6 bytes per cast cycle came
-from. That figure dropped to 3.6 at `a8e3a44` (the stand-down latch) and has not come back. Since
-then the scenario reads 3.6 at some commits and 5.4 at others, including commits that touch no cast
-path (the PF-12 slash stub, the PF-15 locale strings); repeated runs of one tree always give the
-same figure. The residue follows the interpreter's memory layout, not the cast code, and both
-figures sit well under the 41-byte ceiling.
+**Where `castStartStop`'s bytes came from (issue #12).** It read 16.6 bytes per iteration on
+2026-09-15, 3.6 from `a8e3a44` (the stand-down latch), and 3.6 or 5.4 at commits that touched no cast
+path (the PF-12 slash stub, the PF-15 locale strings). It was never a per-cycle allocation. It was a
+**first-cast warm-up**: one-time table growth on each bar, spread over the 1000 measured iterations.
+Measured on 2026-10-01 in a scratch copy of `tests/perf.lua` with the collector stopped around the
+cycles:
+
+| Cycles run (n) | Bytes allocated | Retained after a full collect |
+|---|---|---|
+| 1 | 3560 | 3560 |
+| 10 | 0 | 0 |
+| 100 | 0 | 0 |
+| 1000 | 0 | 0 |
+| 5000 | 0 | 0 |
+
+Each row runs after the ones above it, so n = 1 is the very first cycle. 3560 / 1000 = 3.56, the
+reported 3.6. Stepping one unit at a time, the first `UNIT_SPELLCAST_START` on each bar allocates and
+keeps about 696 bytes (776 on the first bar, which pays 80 bytes once); every stop, and every later
+start, allocates nothing. Diffing table keys across that first cycle shows where it goes: fields
+appearing for the first time, each able to force a one-time rehash of a table's hash part.
+
+- **The addon's own lazily set fields**, on the element (`modules/CastBars.lua`'s `setTicking`, `start`
+  and `stop`): `tick`, `__ticking`, `__manualFill`, `fade`.
+- **The mock's recorder fields**: `__scripts.OnUpdate`, the bar's `__color` / `__min` / `__max`,
+  `text.__text`, `text2.__text`, `icon.__texture`, `shield.__alpha`.
+
+Whether one of those keys crosses a power-of-two boundary in its table's hash part depends on how many
+keys the element and the mock tables already hold, which unrelated commits change. That is the 3.6 /
+5.4 flicker, and the earlier 16.6. Steady state is exactly 0.
+
+`tests/perf.lua` now runs one untimed cycle before measuring, through the same `castCycle()` the
+measured body runs, so the two cannot drift. `castStartStop` reads 0, and its ceiling is 0 + 24 like
+every other hot path's. The 1000 measured iterations still run and are still asserted, so a real
+per-cycle allocation is not hidden by the warm-up. The fields are deliberately **not** pre-seeded in
+`CastBars:OnEnable`: in the client the cost is a few hundred bytes once per bar, which nothing can
+observe.
 
 ### Where `settingsDrag` grew (596 → 925.9)
 

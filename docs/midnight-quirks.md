@@ -125,9 +125,9 @@ pre-body on each protected member frame's `OnAttributeChanged` (out of combat, o
 the member's `unit` change moves its target and pet buttons in restricted code (#3). Anything not
 wrapped (a frame the header creates in combat, an unprotected or refused frame) and Blizzard classic,
 which never re-sorts, keep the fade and re-anchor at `PLAYER_REGEN_ENABLED` (`modules/Anchor.lua`,
-spec §6.4). Unverified in the client: that these frames change the `unit` ATTRIBUTE in combat (a
-frame that sets only the Lua `frame.unit` fires no wrap, and the fade stays), and that a third-party
-header may wrap them (smoke checks COMBAT-6, COMBAT-9, COMBAT-10).
+spec §6.4). Verified in the client on 2026-10-02 (smoke checks COMBAT-6, COMBAT-9, COMBAT-10):
+that these frames change the `unit` ATTRIBUTE in combat (a frame that sets only the Lua `frame.unit`
+fires no wrap, and the fade stays), and that a third-party header may wrap them.
 
 ## An unknown event name raises
 

@@ -315,8 +315,8 @@ on entering combat while disabled, and replacing the latch with a boolean.
   combat began, and the regen pass corrects it. A refused wrap is caught, counted in
   `NS.State.followRefused` and that frame keeps the fade. `modules/Providers.lua` stays read-only:
   it only hands the frames out. Whether the client accepts the wrap from a third-party header, and
-  whether it taints EllesmereUI's `SecureGroupHeader_Update` or Blizzard's sort, is unproven offline
-  and is the owner's smoke (COMBAT-6, COMBAT-9, COMBAT-10).
+  whether it taints EllesmereUI's `SecureGroupHeader_Update` or Blizzard's sort, is unprovable offline;
+  the owner's smoke checks COMBAT-6, COMBAT-9 and COMBAT-10 passed in the client on 2026-10-02.
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`). Their parent is
   their unit's fade frame (`modules/RangeFade.lua`), set at creation and never changed. The fade
@@ -357,8 +357,8 @@ on entering combat while disabled, and replacing the latch with a boolean.
   beside the right member at once (`modules/SecureFollow.lua`); a member frame created in combat
   (unwrapped until regen), an unprotected or refused frame, and Blizzard classic keep the
   fade-until-combat-ends fallback. A placement changed in combat (`/pfe set`) is followed with the
-  old placement until regen. None of it is proven in the client yet: #3 stays open until smoke checks
-  COMBAT-6, COMBAT-9 and COMBAT-10 pass.
+  old placement until regen. Smoke checks COMBAT-6 and COMBAT-9 to COMBAT-12 passed in the client on
+  2026-10-02 (#3).
 - English only (#9).
 - The out-of-range fade copies the party frame. On Blizzard's classic layout, which does not fade,
   it is the fixed ~40-yard `UnitInRange` check at 0.5. Spell-based ranges and a per-feature opacity

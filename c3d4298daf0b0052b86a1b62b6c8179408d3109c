@@ -1,0 +1,1 @@
+OK GI-PF-01 — shared castCycle() warm-up + measured body, ceiling 41->24, attribution with n-sweep in docs/performance.md; reviewer perf run castStartStop 0.0 B/iter, others unchanged, exit 0

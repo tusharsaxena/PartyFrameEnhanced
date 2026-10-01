@@ -12,8 +12,8 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
   each line means.
 
 The console itself is the library's, and its contract lives in LibKa0s's
-[`docs/api/DebugLog/version-18.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-18.2.1-docs.md)
-(DebugLog 18.2.1 is the vendored minor, from LibKa0s v1.65.0). This page covers only what Party Frame
+[`docs/api/DebugLog/version-19.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-19.2.1-docs.md)
+(DebugLog 19.2.1 is the vendored minor, from LibKa0s v1.66.0). This page covers only what Party Frame
 Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
 chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 
@@ -31,7 +31,7 @@ What Party Frame Enhanced supplies, all in `core/DebugLogSetup.lua`:
 - **The flag is ours, and session-only.** It is `NS.State.debug`: off at login, never written to
   SavedVariables, and reset by every `/reload`. The General page's **Debug console** checkbox shows
   and hides the window; it does not set the flag.
-- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 18.2.1). The footer
+- **The buffer is the library's** (`lib.MAX_BUFFER`, 3000 lines in DebugLog 19.2.1). The footer
   counter reads `N / 3000 lines` and pins there, and Copy pastes out of the same buffer, so a long
   capture keeps only its newest 3000 lines.
 - **The `[Init]` line** opens a session when the flag goes on:
@@ -74,7 +74,8 @@ writes no copy of any of them, and `tests/test_library_lines.lua` pins each land
 | `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write held under combat lockdown, **once per key** with the count held (a later write under the key replaces it silently); the flush after combat or at a stand-up, with how many ran; how many writes a stand-down or stand-up leaves held, when there are any; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
 | `Bus` | `core/Bus.lua` | A message or event the client refused when the bus came back up |
 | `Provider` | `modules/Providers.lua` | A resolve that changed the frame system or any unit's frame (change-gated by the resolve itself); EllesmereUI or its raid frames loading after this addon; the Edit Mode exit callback refused, once per distinct error |
-| `Anchor` | `modules/Anchor.lua` | A placement pass that moved or faded something (a pass that changed nothing is silent); a free-placement stack dropped after a drag, with its stored position; every stack reset to default |
+| `Anchor` | `modules/Anchor.lua` | A placement pass that moved, faded or followed something (`moved N, no frame N, faded N, followed N`; a pass that changed nothing is silent). `followed` counts the secure elements an in-combat pass left to `modules/SecureFollow.lua`'s snippet instead of fading; a free-placement stack dropped after a drag, with its stored position; every stack reset to default |
+| `Follow` | `modules/SecureFollow.lua` | The in-combat follow (#3): how many member frames a pass wrapped and for which provider (`wrapped N ellesmere frame(s) …`, silent when it wrapped none); a wrap the client refused, **once per distinct error**; how many wraps a stand-down left attached and gated off because another addon's wrap is outermost; at enable, that the client has no `SecureHandlerWrapScript` and the fade stays |
 | `Fade` | `modules/RangeFade.lua` | The out-of-range fade's mode (`off`, `idle`, `range`, `copy`), whether it listens and how many frames it hooked, **change-gated** |
 | `Cast` | `modules/CastBars.lua` | A cast bar hidden while its unit casts, **change-gated** per unit (once per reason, re-armed when the bar shows); an interrupted or failed cast; how many units it listens for, when that changes |
 | `Target` | `modules/TargetFrames.lua` | Who each member targets, **change-gated** per button; the health ticker starting and stopping |
@@ -171,7 +172,7 @@ this order (`Diagnostics.Sections()`). The tag in brackets is what each line car
 | placement | `Place` | For `castbar`, `target` and `pet`: the anchor mode, the stored free-placement position, the one Anchor last applied, and whether the holder is shown |
 | elements | `Elem` | Per feature per unit, one line: `shown`, then for a cast bar `state`, `registered`, `ticking`, `hiddenWhy`, `previewing`, and for a target or pet button `registered`, `allowed`, the state driver wanted and set, the click attributes wanted and set, and `pending`. These print stood down too, so a driver released in combat shows here |
 | rangefade | `Fade` | The fade mode (`off`, `idle`, `range` or `copy`), whether it listens, how many party frames it hooked, and each unit's hooked frame by name. Stood down, one line says so |
-| secure | `Secure` | How many secure writes are queued and their keys, in the order they were queued; whether the flush listener is armed; the blocked or forbidden actions blamed on this addon this session |
+| secure | `Secure` | How many secure writes are queued and their keys, in the order they were queued; whether the flush listener is armed; the blocked or forbidden actions blamed on this addon this session; the in-combat follow, `follow: header=yes\|no wrapped=N refused=N` (#3) |
 | events | `Events` | The event names this client refused; whether the bus record is the library's or an untracked stub; any LibKa0s major this addon consumes that did not load (a degraded arm) |
 | (end) | `Diag` | `==== Ka0s Party Frame Enhanced diagnostics end: N line(s) ====`, with `N` counting both markers |
 

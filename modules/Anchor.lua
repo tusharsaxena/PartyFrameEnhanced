@@ -13,7 +13,9 @@ local _, NS = ...
 --
 -- SECURE ELEMENTS (the clickable target and pet frames) cannot be moved in combat. A pass in combat
 -- fades any secure element whose anchor changed — alpha is not protected — and queues the real pass
--- through NS.RunSecure, which runs on PLAYER_REGEN_ENABLED and restores the alpha.
+-- through NS.RunSecure, which runs on PLAYER_REGEN_ENABLED and restores the alpha. An element whose
+-- new frame modules/SecureFollow.lua has wrapped is not faded: restricted code already moved it, so
+-- the pass only forgets its memo and the regen pass re-pins it (#3).
 --
 -- OWNER of the free-placement positions (`<feature>.position`, named non-setting state,
 -- architecture-§5): written only by SavePosition (a drag) and ResetPositions.
@@ -40,6 +42,8 @@ local RIGHT_OF = {
     LEFT = "RIGHT", CENTER = "RIGHT", RIGHT = "RIGHT",
     BOTTOMLEFT = "BOTTOMRIGHT", BOTTOM = "BOTTOMRIGHT", BOTTOMRIGHT = "BOTTOMRIGHT",
 }
+-- Read by modules/SecureFollow.lua, which publishes the same edges to its restricted snippet.
+Anchor.__LEFT_OF, Anchor.__RIGHT_OF = LEFT_OF, RIGHT_OF
 
 -- Where each element's corner sits in the holder, and which way the next slot lies, by growth
 -- direction.
@@ -136,6 +140,14 @@ local function placementOf(spec, cfg)
         cfg.offsetX or 0, cfg.offsetY or 0, cfg.matchWidth and true or false
 end
 
+--- A feature's attached placement from its live section: point, relative point, offsets, match
+--- width. modules/SecureFollow.lua publishes it to the header its restricted snippet reads.
+function Anchor.PlacementOf(key)
+    local spec = features[key]
+    if not spec then return nil end
+    return placementOf(spec, spec.config())
+end
+
 local function applyAttached(spec, cfg)
     local moved, missing = 0, 0
     local point, rel, x, y, match = placementOf(spec, cfg)
@@ -182,22 +194,39 @@ local function applyFree(spec, cfg)
     return moved, 0
 end
 
--- In combat a secure feature cannot move. Anything whose pin would change is faded instead, and
--- the real pass is queued for PLAYER_REGEN_ENABLED.
+-- One element's share of an in-combat pass. FOLLOWED: modules/SecureFollow.lua's snippet moves it
+-- onto `want` itself, so it is not faded; its memo is forgotten, because restricted code moved it
+-- behind the memo's back (and may have used attributes older than a /pfe set made in combat), so
+-- the regen pass re-pins it even when `want` is the frame the memo already names. Answers
+-- "followed" when it was followed onto a different frame, "faded" when it was faded, or nil.
+local function deferOne(spec, el, want)
+    local follow = NS.SecureFollow
+    if follow and follow.Covers(spec.key, want) then
+        local moved = el.__aTarget ~= want
+        el.__aSet = nil
+        return moved and "followed" or nil
+    end
+    if el.__aTarget ~= want and not el.__combatFaded then
+        el.__combatFaded = true
+        el:SetAlpha(0)
+        return "faded"
+    end
+    return nil
+end
+
+-- In combat a secure feature cannot move. Anything whose pin would change is faded instead (or left
+-- to the restricted follow when its frame is wrapped), and the real pass is queued for
+-- PLAYER_REGEN_ENABLED.
 local function deferSecure(spec, cfg)
     local attached = cfg.anchorMode ~= "free"
-    local faded = 0
+    local faded, followed = 0, 0
     for _, unit in ipairs(Units.LIST) do
-        local el = spec.elements[unit]
         local want = attached and NS.Providers.FrameFor(unit) or spec.holder
-        if el.__aTarget ~= want and not el.__combatFaded then
-            el.__combatFaded = true
-            el:SetAlpha(0)
-            faded = faded + 1
-        end
+        local what = deferOne(spec, spec.elements[unit], want)
+        if what == "faded" then faded = faded + 1 elseif what == "followed" then followed = followed + 1 end
     end
     NS.RunSecure("anchor:" .. spec.key, function() Anchor.Apply(spec.key) end)
-    return faded
+    return faded, followed
 end
 
 --- Place every element of one feature for the current settings and frame map.
@@ -206,18 +235,18 @@ function Anchor.Apply(key)
     if not spec then return end
     local t0 = Perf.on and debugprofilestop()
     local cfg = spec.config()
-    local moved, missing, faded = 0, 0, 0
+    local moved, missing, faded, followed = 0, 0, 0, 0
     if spec.secure and InCombatLockdown() then
-        faded = deferSecure(spec, cfg)
+        faded, followed = deferSecure(spec, cfg)
     elseif cfg.anchorMode == "free" then
         moved, missing = applyFree(spec, cfg)
     else
         moved, missing = applyAttached(spec, cfg)
     end
     if t0 then Perf.Note("anchor", debugprofilestop() - t0) end
-    if (moved > 0 or faded > 0) and NS.State.debug then
-        NS.Debug("Anchor", "%s %s: moved %d, no frame %d, faded %d", key,
-            tostring(cfg.anchorMode), moved, missing, faded)
+    if (moved > 0 or faded > 0 or followed > 0) and NS.State.debug then
+        NS.Debug("Anchor", "%s %s: moved %d, no frame %d, faded %d, followed %d", key,
+            tostring(cfg.anchorMode), moved, missing, faded, followed)
     end
 end
 

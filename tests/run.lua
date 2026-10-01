@@ -88,6 +88,7 @@ Kit.run{
     "test_castbars",
     "test_targetframes",
     "test_petframes",
+    "test_securefollow",
     "test_rangefade",
     "test_party",
     "test_preview",
@@ -107,5 +108,6 @@ Kit.run{
     "test_vendor_sync",
     { name = "test_eol", dir = "tests/_kit/" },
     { name = "test_layout_cap", dir = "tests/_kit/" },
+    { name = "test_lizard_sighted", dir = "tests/_kit/" },
   },
 }

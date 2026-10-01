@@ -163,6 +163,15 @@ local anchorSame = measure("anchorUnchanged", N, function() NS.Anchor.ApplyAll()
 assert_(anchorSame.setPointsPerIter == 0,
   ("an unchanged anchor pass made %.1f SetPoint calls, expected 0"):format(anchorSame.setPointsPerIter))
 
+-- 3b. The secure-follow sync (modules/SecureFollow.lua, #3) with nothing changed: every LAYOUT,
+--     CONFIG, PROFILE and VISIBILITY runs it, so it must write no attribute and build nothing.
+local followHeader = NS.SecureFollow.__header()
+assert_(followHeader ~= nil, "the secure-follow header was not built")
+local followWrites = followHeader.__attrWrites
+measure("followSyncUnchanged", N, NS.SecureFollow.Sync)
+assert_(followHeader.__attrWrites == followWrites,
+  ("an unchanged follow sync wrote %d attribute(s), expected 0"):format(followHeader.__attrWrites - followWrites))
+
 -- 4. A cast lifecycle per unit: start then stop, all five units — the busiest event path. The cast
 --    records are built once, outside the measured loop: they are the client's data, not the addon's.
 local bars = NS.CastBars.__bars
@@ -170,14 +179,27 @@ local CASTS = {}
 for _, unit in ipairs(NS.Units.LIST) do
   CASTS[unit] = { kind = "cast", name = "Heal", remaining = 1, total = 2 }
 end
-local castBurst = measure("castStartStop", N, function()
+-- One cycle, shared by the warm-up and the measured body so the two cannot drift. A plain function
+-- closing over CASTS and bars: it allocates nothing per call.
+local function castCycle()
   for _, unit in ipairs(NS.Units.LIST) do
     mocks.__casts[unit] = CASTS[unit]
     bars[unit]:__fire("OnEvent", "UNIT_SPELLCAST_START", unit)
     mocks.__casts[unit] = nil
     bars[unit]:__fire("OnEvent", "UNIT_SPELLCAST_STOP", unit)
   end
-end)
+end
+-- The warm-up, untimed. The first cast on each bar adds fields the element and the mock never held
+-- before: on the element, tick, __ticking, __manualFill and fade (modules/CastBars.lua's setTicking,
+-- start and stop); in the mock's recorders, __scripts.OnUpdate, bar.__color / __min / __max,
+-- text.__text, text2.__text, icon.__texture and shield.__alpha. Each new key can force a one-time
+-- rehash of its table's hash part, about 696 bytes per bar (776 for the first), 3560 bytes for the
+-- five. Spread over 1000 iterations that was the whole 3.6 bytes/iter, and the earlier 16.6: a
+-- GC-stopped sweep allocates 3560 bytes for the first cycle and 0 for every later one
+-- (docs/performance.md). The 1000 measured iterations below still run and are still asserted at
+-- 24, so a real per-cycle allocation is not hidden by this.
+castCycle()
+local castBurst = measure("castStartStop", N, castCycle)
 
 -- 5. The cast tick: five bars mid-cast, one frame each at the 0.1 s text refresh.
 for _, unit in ipairs(NS.Units.LIST) do
@@ -261,12 +283,14 @@ assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many A
 
 -- ── ceilings ────────────────────────────────────────────────────────────────────────────────
 --
--- Set on 2026-09-15, after the perf pass (docs/performance.md records the before/after): every
--- hot path at 0 bytes/iter except castStartStop at 16.6 then, five full start/stop cycles per
--- iteration. Re-measured on 2026-09-24: castStartStop is 3.6 (it dropped at a8e3a44, the
--- stand-down latch, and reads 3.6 or 5.4 from one commit to the next with no cast-path change;
--- one tree always gives the same figure), and every other hot path is still 0. The ceilings were
--- left where they were set. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
+-- Set on 2026-09-15, after the perf pass (docs/performance.md records the before/after), and
+-- re-derived on 2026-10-01 (PartyFrameEnhanced#12): every hot path measures 0 bytes/iter.
+-- castStartStop read 16.6 on 2026-09-15 and 3.6 (or 5.4) from 2026-09-24, and the whole of it was
+-- the first-cast warm-up above, one-time table growth on each bar, spread over 1000 iterations;
+-- whether a new key crossed a power-of-two boundary in a hash part depended on how many keys the
+-- element and the mock already held, which is why it moved at commits that touched no cast path.
+-- With the untimed warm-up cycle it reads 0, and its ceiling is 0 + 24 like every other hot
+-- path's. Each ceiling is its figure plus 24: SMALLER than the cheapest regression
 -- it exists to catch — one extra table per iteration costs 64 bytes under this interpreter — so the
 -- smallest allocation anyone can add to one of these paths trips it. Raise one only by re-measuring
 -- and saying why; a rise IS the finding.
@@ -278,7 +302,8 @@ assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many A
 local CEILINGS = {
   resolveUnchanged     = 24,
   anchorUnchanged      = 24,
-  castStartStop        = 41,   -- set from 16.6 (2026-09-15) + 24; measures 3.6 on 2026-09-24
+  followSyncUnchanged  = 24,
+  castStartStop        = 24,   -- 0 + 24 after the warm-up cycle (2026-10-01); was 41, from 16.6 + 24
   castTick             = 24,
   targetTickUnchanged  = 24,
   targetTickMoving     = 24,

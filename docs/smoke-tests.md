@@ -22,7 +22,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
-| COMBAT-1 – 8 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, re-sort, toggles and moves |
+| COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
@@ -400,12 +400,17 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   flushed …` and the target and pet frames come back. *Failure:* a Lua error, an
   `ADDON_ACTION_BLOCKED` line, or a target frame shown in combat while the setting is *Only out of
   combat*. Result:
-- **COMBAT-6. Re-sort in combat.** Raid-style or EllesmereUI frames sorted by role, `/pfe debug on`:
-  have someone join or leave mid-pull → the cast bars follow the members to their new frames straight
-  away; the target frames whose party frame moved fade out, then reappear beside the right member when
-  combat ends, and the console shows `[Secure] queued …` then `[Secure] flushed …`. With a member out
-  of range, the clickable frames still fade with their party frame through the reshuffle. *Failure:* a
-  target frame beside the wrong member during combat, or an `ADDON_ACTION_BLOCKED` line. Result:
+- **COMBAT-6. Someone joins in combat (Blizzard raid-style).** Blizzard raid-style party frames sorted
+  by role, `/pfe debug on`, out of combat first so `[Follow] wrapped N blizzard-raid frame(s)` shows
+  (#3). Mid-pull, have someone join → their target and pet frames appear beside the right member **in
+  combat**, and every other member's target and pet frames jump to their member's new frame at once,
+  with no fade; the console's `[Anchor] … followed N` line counts them. The cast bars follow as
+  before. With a member out of range, the clickable frames still fade with their party frame. Blizzard's
+  own frames still sort and click normally. *Failure:* a target or pet frame beside the wrong member
+  during combat, a fade where a jump was expected, an `ADDON_ACTION_BLOCKED` line, or a taint error on
+  the debug console or in BugSack. If the frames fade and come back at regen instead, the client did
+  not change the member frames' `unit` attribute in combat or refused the wrap: note which, with
+  `/pfe diagnostics`. Result: pass (owner, 2026-10-02)
 - **COMBAT-7. Click to target toggled in combat.** The panel is locked in combat (COMBAT-2), so this
   check uses the command. Out of combat, `/pfe set target.clickToTarget false` → a click on a target
   frame passes through. Pull a dummy, and in combat `/pfe set target.clickToTarget true` → clicks
@@ -420,6 +425,26 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   `ADDON_ACTION_BLOCKED`. Leave combat, `/pfe unlock`, and drag the *Target frames* plate → it moves
   (PREV-3). Then `/pfe lock`, `/pfe resetposition` and `/pfe set target.anchorMode attached`.
   *Failure:* the stack moving in combat. Result:
+- **COMBAT-9. Someone leaves in combat (Blizzard raid-style re-sort).** As COMBAT-6, but have someone
+  leave mid-pull → the remaining members' target and pet frames follow their members to their new
+  frames in combat, with no fade and no `ADDON_ACTION_BLOCKED`. Leave combat → nothing jumps a second
+  time (the regen pass re-pins to where they already are). Result: pass (owner, 2026-10-02)
+- **COMBAT-10. EllesmereUI in combat, and taint.** EllesmereUI party frames, `/console taintLog 1`,
+  `/reload`, then `/pfe debug on` → `[Follow] wrapped N ellesmere frame(s)`. Mid-pull, have someone
+  join, then someone leave → the target and pet frames follow as in COMBAT-6 and COMBAT-9. EllesmereUI's
+  own frames still sort, show and click normally. After the session, `Logs/taint.log` names no
+  PartyFrameEnhanced taint on EllesmereUI's `SecureGroupHeader_Update` or Blizzard's sort, and there is
+  no `ADDON_ACTION_BLOCKED`. Result: pass (owner, 2026-10-02)
+- **COMBAT-11. Disabled, then a re-sort in combat.** EllesmereUI or Blizzard raid-style party frames.
+  Out of combat, `/pfe disable` → no error. Mid-pull, have someone join or leave → our frames stay
+  hidden, nothing of ours moves, and the party frames behave normally. Leave combat, `/pfe enable` → no
+  error, the frames come back beside the right members, and `[Follow] wrapped …` shows again for any
+  frame the disable unwrapped. Switch to Blizzard classic in Edit Mode and repeat a reshuffle in combat
+  → the fade fallback still works there. Result: pass (owner, 2026-10-02)
+- **COMBAT-12. A placement changed in combat, then a re-sort.** Blizzard raid-style or EllesmereUI
+  party frames. Mid-pull, `/pfe set target.offsetX 10`, then have someone join or leave → the target
+  frames follow their members at the OLD offset; leave combat → they correct to the new offset. Put it
+  back with `/pfe reset target.offsetX`. Result: pass (owner, 2026-10-02)
 
 ## Debug console, diagnostics and perf
 
@@ -560,7 +585,8 @@ an older check whose behavior arrived or changed after its last pass, or that a 
 Ka0sAddonsCommonTasks plan owes and nobody ran. The second is a check that is new in this rewrite, or
 whose expected result was corrected against the code in it. The passes on record are the v0.1.0 full
 pass (2026-09-18), the minimap button re-run after M6 (2026-09-25: left-click, right-click menu and
-tooltip, out of combat) and the diagnostics checks (2026-09-26). Session PF of
+tooltip, out of combat), the diagnostics checks (2026-09-26) and the in-combat follow checks COMBAT-6
+and COMBAT-9 to COMBAT-12 (GI-PF-02, owner, 2026-10-02). Session PF of
 `2026-09-23-REVIEW_AND_STANDARDS_AUDIT_REMEDIATION/06_SMOKE_TESTS.md` (PF.1 to PF.12) and its Q.10
 were never run. Fill in each check's `Result:` line, then remove its row.
 
@@ -596,7 +622,6 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | COMBAT-3 | J 52, C 12 | `Locked — combat started` after PF-09 moved preview's combat listener (2026-09-24; owed as Q.10) |
 | COMBAT-4 | K 55 | the options menu's *Locked* in combat gives the unlock refusal (M6, 2026-09-25; the menu is new in M6) |
 | COMBAT-5 | G 37 | visibility changed in combat, now through `/pfe set` since the combat lock (2026-09-20) refuses the panel |
-| COMBAT-6 | I 47d | the clickable frames still fade with their party frame through the reshuffle (2026-09-18) |
 | COMBAT-7 | G 36a | Click to target toggled back in combat (PF-03, 2026-09-24; owed as PF.9), now through `/pfe set` |
 | COMBAT-8 | G 37 | nothing moves in combat, rewritten with a named drag for the same reason as COMBAT-5 |
 | DIAG-10 | new | the resizable debug console (LibKa0s v1.64.0, DL-PF-01, 2026-09-30) |

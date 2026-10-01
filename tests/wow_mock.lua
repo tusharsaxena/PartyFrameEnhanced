@@ -54,6 +54,15 @@ return function()
       rawset(f, "GetAttribute", function(self, k) return self.__attrs[k] end)
       rawset(f, "EnableMouse", function(self, on) self.__mouse = on end)
     end
+    -- SecureHandler*Template's methods exist only on a frame built from that template, as in
+    -- the client (ConsumableMaster/tests/wow_mock.lua is the precedent). Everywhere else they are
+    -- `false`: falsy for an `if frame.SetFrameRef then` guard, and a raise if called, where the
+    -- base stub's catch-all would have answered any capitalized method on any frame.
+    if type(template) == "string" and template:find("SecureHandler", 1, true) then
+      M.__secureHandler(f)
+    else
+      for _, method in ipairs(M.__SECURE_HANDLER_METHODS) do rawset(f, method, false) end
+    end
     if frameType == "StatusBar" then
       rawset(f, "SetMinMaxValues", function(self, lo, hi) self.__min, self.__max = lo, hi end)
       rawset(f, "SetValue", function(self, v) self.__value = v end)
@@ -216,6 +225,143 @@ return function()
   M.DEFAULT_CHAT_FRAME.AddMessage = function(_, msg)
     M.__chat[#M.__chat + 1] = msg
     if M.__recordPrint then M.__recordPrint(msg) end
+  end
+
+  -- ── SecureHandler: the header, the wrap, and the restricted environment (GI-PF-02, #3) ──────
+  --
+  -- What modules/SecureFollow.lua leans on, modeled closely enough that its restricted snippets
+  -- RUN here rather than being string-compared:
+  --   * a SecureHandlerBaseTemplate frame takes SetFrameRef and SetAttribute out of combat only
+  --     (the client blocks both on a protected frame under lockdown; here they raise, so a suite
+  --     sees the write that would have been blocked);
+  --   * SecureHandlerWrapScript / SecureHandlerUnwrapScript record a per-script wrap stack, raise
+  --     in combat, and unwrap pops the OUTERMOST wrap, answering its header, pre-body and post-body;
+  --   * `M.__changeAttribute(frame, name, value)` is the client changing a wrapped frame's
+  --     attribute (a SecureGroupHeader re-sort): every wrap's pre-body runs, outermost first, in
+  --     the restricted environment, then the frame's own OnAttributeChanged, then the post-bodies;
+  --   * the restricted environment refuses a table constructor, refuses every global outside a
+  --     short list, and hands snippets HANDLES, not frames: a handle answers only the restricted
+  --     methods below, and its SetPoint takes another handle as the relative frame, never a frame.
+  M.__SECURE_HANDLER_METHODS = { "SetFrameRef", "Execute", "WrapScript", "UnwrapScript" }
+
+  local frameOf = setmetatable({}, { __mode = "k" })   -- handle -> frame
+  local handleOf = setmetatable({}, { __mode = "k" })  -- frame -> handle
+  local HANDLE_METHODS = {
+    GetAttribute = function(f, k) return f:GetAttribute(k) end,
+    GetFrameRef = function(f, label)
+      local ref = f.__attrs and f.__attrs["frameref-" .. tostring(label)]
+      return ref and M.__handle(ref) or nil
+    end,
+    ClearAllPoints = function(f) f:ClearAllPoints() end,
+    SetPoint = function(f, point, rel, relPoint, x, y)
+      if type(point) ~= "string" then error("restricted SetPoint: point must be a string", 3) end
+      if rel ~= nil and frameOf[rel] == nil then
+        error("restricted SetPoint: the relative frame must be a handle", 3)
+      end
+      f:SetPoint(point, frameOf[rel], relPoint, x, y)
+    end,
+  }
+  function M.__handle(frame)
+    local h = handleOf[frame]
+    if h then return h end
+    h = setmetatable({}, { __index = function(_, k)
+      local fn = HANDLE_METHODS[k]
+      if not fn then error("restricted handle has no method " .. tostring(k), 2) end
+      return function(_, ...) return fn(frame, ...) end
+    end })
+    frameOf[h], handleOf[frame] = frame, h
+    return h
+  end
+  M.__frameOf = function(h) return frameOf[h] end
+
+  local RESTRICTED_GLOBALS = {
+    type = type, tostring = tostring, tonumber = tonumber, select = select,
+    format = string.format, strlen = string.len, strsub = string.sub, strfind = string.find,
+    strmatch = string.match, floor = math.floor, ceil = math.ceil, min = math.min, max = math.max,
+  }
+
+  --- Compile `body` as a wrap pre/post-body and run it with (self, name, value, owner). Raises on a
+  --- table constructor, on any global outside RESTRICTED_GLOBALS and on any global write.
+  function M.__runRestricted(body, chunkName, ...)
+    if type(body) ~= "string" then error("restricted: a snippet is a string", 2) end
+    if body:find("{", 1, true) then error("restricted: no table constructors (" .. chunkName .. ")", 2) end
+    local env = setmetatable({}, {
+      __index = function(_, k)
+        local v = RESTRICTED_GLOBALS[k]
+        if v == nil then error("restricted: global '" .. tostring(k) .. "' is not available", 2) end
+        return v
+      end,
+      __newindex = function(_, k) error("restricted: cannot set global '" .. tostring(k) .. "'", 2) end,
+    })
+    -- Lua 5.1 (the client's dialect, and the harness's): loadstring, then the env.
+    local fn, err = loadstring("local self, name, value, owner = ...\n" .. body, "=" .. chunkName)
+    if not fn then error(err, 2) end
+    setfenv(fn, env)
+    return fn(...)
+  end
+
+  local function refuseInCombat(what)
+    if M.InCombatLockdown() then error(what .. ": blocked under combat lockdown", 3) end
+  end
+
+  function M.__secureHandler(f)
+    f.__secureHandler = true
+    f.__attrs = f.__attrs or {}
+    f.__attrWrites = 0
+    rawset(f, "SetAttribute", function(self, k, v)
+      refuseInCombat("SetAttribute")
+      self.__attrWrites = self.__attrWrites + 1
+      self.__attrs[k] = v
+    end)
+    rawset(f, "GetAttribute", function(self, k) return self.__attrs[k] end)
+    rawset(f, "SetFrameRef", function(self, label, ref)
+      refuseInCombat("SetFrameRef")
+      self.__attrs["frameref-" .. label] = ref
+    end)
+    rawset(f, "Execute", function(self, body)
+      refuseInCombat("Execute")
+      return M.__runRestricted(body, "execute", M.__handle(self), nil, nil, M.__handle(self))
+    end)
+  end
+
+  M.__wrapCalls = {}
+  M.SecureHandlerWrapScript = function(frame, script, header, pre, post)
+    refuseInCombat("SecureHandlerWrapScript")
+    if type(header) ~= "table" or not header.__secureHandler then
+      error("SecureHandlerWrapScript: the header is not a SecureHandler frame", 2)
+    end
+    frame.__wraps = frame.__wraps or {}
+    local stack = frame.__wraps[script] or {}
+    frame.__wraps[script] = stack
+    stack[#stack + 1] = { header = header, pre = pre, post = post }
+    M.__wrapCalls[#M.__wrapCalls + 1] = { frame = frame, script = script, header = header }
+  end
+  M.SecureHandlerUnwrapScript = function(frame, script)
+    refuseInCombat("SecureHandlerUnwrapScript")
+    local stack = frame.__wraps and frame.__wraps[script]
+    if not stack or #stack == 0 then return nil end
+    local w = table.remove(stack)
+    return w.header, w.pre, w.post
+  end
+
+  function M.__changeAttribute(frame, name, value)
+    frame.__attrs = frame.__attrs or {}
+    frame.__attrs[name] = value
+    local stack = frame.__wraps and frame.__wraps.OnAttributeChanged or {}
+    local self_ = M.__handle(frame)
+    local ran = 0
+    for i = #stack, 1, -1 do
+      local w = stack[i]
+      if w.pre and M.__runRestricted(w.pre, "wrap-pre", self_, name, value, M.__handle(w.header)) == false then
+        break
+      end
+      ran = ran + 1
+    end
+    if ran == #stack then frame:__fire("OnAttributeChanged", name, value) end
+    for i = #stack - ran + 1, #stack do
+      local w = stack[i]
+      if w.post then M.__runRestricted(w.post, "wrap-post", self_, name, value, M.__handle(w.header)) end
+    end
   end
 
   return M

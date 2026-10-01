@@ -86,6 +86,9 @@ modules\CastBars.lua
 modules\UnitButtons.lua
 modules\TargetFrames.lua
 modules\PetFrames.lua
+# LOAD-BEARING: after Providers (reads NS.Providers.__list at load for the re-sorting providers'
+# snippets) and after TargetFrames and PetFrames, whose buttons its OnEnable takes frame refs to.
+modules\SecureFollow.lua
 # After every feature: its OnEnable reads the lock once every feature has registered with Anchor.
 # The stand-in party frame preview raises when you are not in a party; publishes NS.StandIn.
 modules\StandIn.lua

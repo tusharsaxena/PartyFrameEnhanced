@@ -196,10 +196,13 @@ test("parity: the Slash stub's CliProfile and ProfileSwitch print the library-ab
   }
   NS2.Print("spend") -- the once-per-session missing-library notice rides the first printed line
   local want = NS2.L["%s is unavailable: the LibKa0s library did not load."]:format("/pfe profile")
-  for _, call in ipairs({
+  -- Hoisted out of the `for ... in` header: lizard does not list a function literal there, and the
+  -- kit's sighted complexity suite (kit 35) reports the file as blind until it is a local.
+  local calls = {
     function() return cli:CliProfile("Healer") end,
     function() return cli:ProfileSwitch("Healer") end,
-  }) do
+  }
+  for _, call in ipairs(calls) do
     local before = #mocks2.__chat
     local answered = call()
     assertTrue(#mocks2.__chat == before + 1, "exactly one chat line")

@@ -29,7 +29,7 @@ marked as such rather than listed as a requirement.
 |---|---|---|---|
 | `lua5.1` (+ `luac5.1`) | **5.1 exactly** | the headless suite, `lua tests/run.lua`, and `lua tests/perf.lua` | `tests/_kit/loader.lua` sandboxes each file with `setfenv` |
 | `luacheck` | any recent | `luacheck .`, the other half of the green gate | `.luacheckrc` at the repo root |
-| `lizard` | any recent | the `complexity` suite of `tests/_kit/run-automated-tests.sh` (automated-tests) | the runner invokes `lizard -l lua -x "./libs/*" -x "./tests/_kit/*" .` |
+| `lizard` | any recent | the `complexity` suite of `tests/_kit/run-automated-tests.sh` (automated-tests) | the runner measures a sanitized shadow (`tests/_kit/lizard_sighted.lua`, kit 35) with `lizard -l lua -L 1500 -x "./libs/*" -x "./tests/_kit/*" .`, and fails the suite on a function-count parity mismatch |
 | `git` | any recent | the vendored-payload gate (`tests/test_vendor_sync.lua` reads the LibKa0s tag with `git`), the EOL gate (`tests/_kit/test_eol.lua` runs `git ls-files` / `git check-attr`), the prose gate (`tests/_kit/test_prose.lua` runs `git ls-files`), the cap census gate (`tests/_kit/test_layout_cap.lua` runs `git ls-files`) | those four files |
 | POSIX shell (`bash`) | any | `tests/_kit/run-automated-tests.sh` | its `#!/usr/bin/env bash` line |
 | A sibling `../LibKa0s` checkout | — | the vendored-payload gate compares against it; without it those cases **skip** with the reason | `tests/_kit/vendor_sync.lua` |
@@ -94,7 +94,7 @@ python3 -c "from PIL import Image; Image.open('media/logos/partyframeenhanced.lo
 lua tests/run.lua                                     # the suite — must be green
 luacheck .                                            # must be 0 warnings / 0 errors
 lua tests/perf.lua                                    # offline perf scenarios (outside the gate)
-lizard -l lua -x "./libs/*" -x "./tests/_kit/*" .     # the complexity report (release-time)
+bash tests/_kit/run-automated-tests.sh --suite complexity   # the sighted complexity report (release-time)
 ```
 
 See [`docs/testing.md`](docs/testing.md) for what those commands mean and when each is run.

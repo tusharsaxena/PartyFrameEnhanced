@@ -27,8 +27,9 @@ and `luacheck .`.
 ## Add a frame system (provider)
 
 1. Add a provider table to `modules/Providers.lua` and to its `PROVIDERS` list: `id`, `family`, `label`, `priority`,
-   `IsAvailable`, `IsActive`, `ForEachFrame`, `InstallHooks`. Presence-guard it; hooks are
-   `hooksecurefunc` / `HookScript` only.
+   `IsAvailable`, `IsActive`, `ForEachFrame`, `InstallHooks`, and `resorts = true` when its frames
+   re-assign units in combat (`modules/SecureFollow.lua` then builds a snippet for its id and wraps its
+   protected member frames). Presence-guard it; hooks are `hooksecurefunc` / `HookScript` only.
 2. List the addon in the TOC's `## OptionalDeps:`.
 3. Add its value to `general.provider`'s dropdown and its label to `locales/enUS.lua`.
 4. Test detection, unit reading (including a secret attribute) and a re-sort.

@@ -35,7 +35,17 @@ LAYOUT / CONFIG(section) / PROFILE
 Anchor, per feature:
   attached → SetPoint(element, point, FrameFor(unit), relativePoint, x, y)   (skipped if the key is unchanged)
   free     → stack the five elements from the feature's saved position (growth, spacing)
-  secure element in combat → fade to 0 and mark dirty; PLAYER_REGEN_ENABLED re-anchors
+  secure element in combat, its new frame wrapped by SecureFollow (Covers) → not faded: the snippet
+                            already moved it; forget the memo; PLAYER_REGEN_ENABLED re-pins
+  secure element in combat, anything else → fade to 0 and mark dirty; PLAYER_REGEN_ENABLED re-anchors
+
+In combat, on a re-sorting provider (EllesmereUI, Blizzard raid-style), modules/SecureFollow.lua:
+member frame's `unit` attribute changes (secure code, the provider's own sort)
+        ▼
+our wrapped OnAttributeChanged pre-body (restricted), reading our header's attributes
+  (pfe-provider, <f>-live, <f>-point/-rel/-x/-y, <f>-match and the edges, synced out of combat only)
+        ▼
+ClearAllPoints + SetPoint on that unit's target and pet buttons, anchored to the member frame
 ```
 
 ## 3. What each element shows

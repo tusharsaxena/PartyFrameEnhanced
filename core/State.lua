@@ -9,12 +9,15 @@ local _, NS = ...
 --             There is no separate test-mode flag: options-ui-§15 exempts an addon whose unlocked
 --             view already is its preview from that row.
 --   inParty   the last NS.Units.InParty answer, so a roster change republishes only on a flip
+--   followRefused  member frames whose secure wrap the client refused (modules/SecureFollow.lua);
+--             each keeps the in-combat fade
 NS.State = NS.State or {}
 local State = NS.State
 State.debug    = State.debug or false
 State.inCombat = State.inCombat or false
 State.preview  = State.preview or false
 State.inParty  = State.inParty or false
+State.followRefused = State.followRefused or 0
 
 -- The event names the client refused this session, in the order it refused them, each once. Host-
 -- owned (LibKa0s-Core's SafeRegister* keep no state): every registration site passes this list, the

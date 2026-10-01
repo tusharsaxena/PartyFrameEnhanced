@@ -199,6 +199,10 @@ local function secure(out)
     out:list("Secure", "queued keys:", NS.PendingSecureKeys())
     out:add("Secure", "flush listener armed=%s", NS.PendingRegenArmed())
     out:add("Secure", "blocked actions this session: %s", NS.BlockedActionCount())
+    -- The in-combat follow (#3): a frame that faded where COMBAT-6 expected a jump is either not
+    -- wrapped (the count) or refused by the client (the refusals).
+    local built, wrapped, refused = NS.SecureFollow.Status()
+    out:add("Secure", "follow: header=%s wrapped=%d refused=%d", built and "yes" or "no", wrapped, refused)
 end
 
 local function degradedArms()

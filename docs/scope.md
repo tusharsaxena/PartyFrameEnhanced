@@ -13,7 +13,11 @@ EllesmereUI's show:
 Each feature either **attaches** its elements to the party frame currently showing each unit
 (Blizzard classic, Blizzard raid-style, or EllesmereUI — detected automatically, overridable) or
 stacks them in one movable **free-placement** group. Every element fades with its party member's
-frame when that member is out of range.
+frame when that member is out of range. On the frame systems that re-sort in combat (EllesmereUI,
+Blizzard raid-style), the clickable target and pet frames follow their member through an in-combat
+reshuffle by a restricted snippet wrapped on the member frames (`modules/SecureFollow.lua`, #3, not
+yet confirmed in the client); anything that snippet does not cover fades out and comes back on
+`PLAYER_REGEN_ENABLED`.
 
 ## What it deliberately does not do
 
@@ -23,7 +27,9 @@ frame when that member is out of range.
   each one additive, but none ships in v1.1.0 (#2).
 - **Replace or restyle the party frames themselves.** It never hides, reparents, moves or calls into a
   Blizzard or EllesmereUI frame; it only reads their position and unit, and only through
-  `hooksecurefunc` / `HookScript`. The one other read is EllesmereUI's configured party frame size,
+  `hooksecurefunc` / `HookScript`. The one attachment is the in-combat follow's secure wrap on a
+  re-sorting provider's member frames, whose pre-body moves only this addon's own buttons and never
+  blocks the frame's own handler (`docs/ARCHITECTURE.md`, Taint Notes). The one other read is EllesmereUI's configured party frame size,
   taken read-only from its saved settings (`EllesmereUIDB`) to size the preview stand-in out of a
   party (a recorded `library-stack-§6` deviation in `docs/ARCHITECTURE.md`).
 - **Auras, power, target-of-target, focus.** The target frame is a compact "who is my party member
@@ -35,8 +41,9 @@ frame when that member is out of range.
 - **Decide anything from a secret value.** "Hide the target frame when the target is me" is not
   offered: comparing a compound unit token is always secret in Midnight, so it cannot be decided in
   Lua.
-- **Follow a mid-combat roster reshuffle with the clickable frames.** Secure frames cannot be moved in
-  combat; they fade out when their anchor stops matching and come back on `PLAYER_REGEN_ENABLED`.
+- **Follow a mid-combat reshuffle on Blizzard's classic party frames**, or onto a member frame created
+  in combat. Lua cannot move secure frames in combat, and there is no wrapped frame to move them from,
+  so they fade out when their anchor stops matching and come back on `PLAYER_REGEN_ENABLED`.
 - **Translate.** English only for now; the locale seam ships.
 
 Why these limits exist, with the evidence, is the design spec:

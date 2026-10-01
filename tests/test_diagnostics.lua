@@ -147,6 +147,15 @@ case("diagnostics: the secure-write queue's keys, the flush listener and the blo
   assertTrue(has(lines, "blocked actions this session: " .. (blocked + 1)), "the session's count")
 end)
 
+case("diagnostics: the in-combat follow's header, wrapped frames and refusals", function()
+  -- red under: no follow line in the secure section, which leaves COMBAT-6's "it faded instead of
+  -- following" with nothing to tell a refused wrap from a frame that was never wrapped (#3).
+  local built, wrapped, refused = NS.SecureFollow.Status()
+  assertTrue(built, "the mock has the secure-handler API, so the header is built")
+  assertTrue(has(report(), ("follow: header=yes wrapped=%d refused=%d"):format(wrapped, refused)),
+    "the follow's state, read-only")
+end)
+
 case("diagnostics: stood down with a write queued in combat, the flush listener reads armed", function()
   -- red under: a PendingRegenArmed that answers false whatever the listener's registration, which
   -- would hide the one event a stood-down addon keeps (slash-commands-§7) from the report that asks

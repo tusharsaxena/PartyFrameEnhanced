@@ -157,6 +157,17 @@ test("disabled: the fade frames and the free-placement holders are hidden", func
   assertContainers(false, "is hidden while disabled")
 end)
 
+test("disabled: the secure-follow header gates every in-combat follow off, and draws nothing", function()
+  -- red under: drop the sync from SecureFollow:Suspend. A wrap left on another addon's member frame
+  -- (ours not outermost: the Documented-deviations row) would keep moving our frames in combat.
+  local h = NS.SecureFollow.__header()
+  assertTrue(h ~= nil, "the header is built at OnEnable either way")
+  assertFalse(h:IsShown(), "the header is never on screen")
+  assertEqual(h:GetAttribute("target-live"), false, "target frames: no follow")
+  assertEqual(h:GetAttribute("pet-live"), false, "pet frames: no follow")
+  assertEqual(h:GetAttribute("pfe-provider"), "none", "and no provider for any snippet to match")
+end)
+
 test("disabled: no game event produces a write, a line, or a frame", function()
   -- red under: any handler that acts on the disabled state — the collection's live example is an
   -- addon that writes `locked = true` and prints to chat on entering combat WHILE DISABLED, which is

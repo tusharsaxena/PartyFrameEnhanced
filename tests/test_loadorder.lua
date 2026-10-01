@@ -96,6 +96,16 @@ end)
 -- The order flipped when test mode was removed (options-ui-§15): modules/TestMode.lua is gone, and
 -- Preview — which now drives the stand-in itself — became StandIn's consumer rather than its
 -- predecessor.
+test("loadorder: SecureFollow loads after Providers and the target and pet features, and the TOC says why", function()
+  -- red under: SecureFollow above Providers (its snippet table reads NS.Providers.__list at load),
+  -- or above a feature, whose buttons would not exist yet when its OnEnable takes the frame refs.
+  assertBefore("modules/providers.lua", "modules/securefollow.lua", "it reads the provider list at load")
+  assertBefore("modules/targetframes.lua", "modules/securefollow.lua", "frame refs to the target buttons")
+  assertBefore("modules/petframes.lua", "modules/securefollow.lua", "frame refs to the pet buttons")
+  assertTrue(readFile(TOC):find("whose buttons its OnEnable takes frame refs to", 1, true) ~= nil,
+    "the TOC line must say SecureFollow's position is load-bearing")
+end)
+
 test("loadorder: Preview loads after StandIn, and the TOC says why", function()
   assertBefore("modules/standin.lua", "modules/preview.lua", "Preview drives the stand-in")
   assertBefore("modules/anchor.lua", "modules/preview.lua", "Preview reaches NS.Anchor")

@@ -88,6 +88,7 @@ Kit.run{
     "test_castbars",
     "test_targetframes",
     "test_petframes",
+    "test_securefollow",
     "test_rangefade",
     "test_party",
     "test_preview",

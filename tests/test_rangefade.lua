@@ -236,6 +236,10 @@ case("rangefade: UnitMap and HookedCount report the frame map and the hooks, rea
   -- red under: handing out the live map (a reader could unmap a frame), or a count that ignores
   -- the hooks this resolve added.
   realHooks()
+  -- The hook set is weak-keyed, so member frames earlier suites dropped leave it whenever the
+  -- collector runs. Collected first, so a cycle that lands mid-case cannot shrink the count under
+  -- the assertion (it went red at random once tests/test_securefollow.lua added garbage before it).
+  collectgarbage("collect")
   local hookedBefore = RangeFade.HookedCount()
   local frames = installRaidStyle({ "player", "party1" })
   Providers.Resolve()

@@ -85,6 +85,7 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | resolve coalescing | 40 layout requests in one frame | — | — | exactly **1** resolve |
 | `resolveUnchanged` | a resolve that finds the frames it had | 0 | 0 | 0 API calls; ≤ 24 bytes |
 | `anchorUnchanged` | all three features' placement, nothing changed | 0 (**0 `SetPoint`**) | 0 | 0 `SetPoint`; ≤ 24 bytes |
+| `followSyncUnchanged` | the in-combat follow's header sync (`modules/SecureFollow.lua`, #3), nothing changed: every LAYOUT, CONFIG, PROFILE and VISIBILITY runs it | 0 (0 attribute writes) | 0 | 0 attribute writes; ≤ 24 bytes (set 2026-10-01) |
 | `castStartStop` | start + stop on all five cast bars, after one untimed warm-up cycle | 55 | 0 | ≤ 24 bytes |
 | `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
 | `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
@@ -94,7 +95,7 @@ filtering brought them down. The scenarios below pin the same properties here fr
 
 Figures from 2026-10-01 (Lua 5.1.5, WSL2), runs of `tests/perf.lua` that agreed to the last digit.
 Every ceiling is the figure measured plus 24 bytes — less than the 64 bytes one extra table costs, so
-the smallest allocation added to a hot path fails the run. Each was set on 2026-09-15; `castStartStop`'s
+the smallest allocation added to a hot path fails the run. Each was set on 2026-09-15 (`followSyncUnchanged`'s on 2026-10-01, when the scenario was added); `castStartStop`'s
 was re-derived on 2026-10-01 from 41 (16.6 + 24) to 24 (0 + 24), for the reason below.
 
 **Where `castStartStop`'s bytes came from (issue #12).** It read 16.6 bytes per iteration on

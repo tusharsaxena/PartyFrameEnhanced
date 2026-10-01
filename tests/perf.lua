@@ -163,6 +163,15 @@ local anchorSame = measure("anchorUnchanged", N, function() NS.Anchor.ApplyAll()
 assert_(anchorSame.setPointsPerIter == 0,
   ("an unchanged anchor pass made %.1f SetPoint calls, expected 0"):format(anchorSame.setPointsPerIter))
 
+-- 3b. The secure-follow sync (modules/SecureFollow.lua, #3) with nothing changed: every LAYOUT,
+--     CONFIG, PROFILE and VISIBILITY runs it, so it must write no attribute and build nothing.
+local followHeader = NS.SecureFollow.__header()
+assert_(followHeader ~= nil, "the secure-follow header was not built")
+local followWrites = followHeader.__attrWrites
+measure("followSyncUnchanged", N, NS.SecureFollow.Sync)
+assert_(followHeader.__attrWrites == followWrites,
+  ("an unchanged follow sync wrote %d attribute(s), expected 0"):format(followHeader.__attrWrites - followWrites))
+
 -- 4. A cast lifecycle per unit: start then stop, all five units — the busiest event path. The cast
 --    records are built once, outside the measured loop: they are the client's data, not the addon's.
 local bars = NS.CastBars.__bars
@@ -293,6 +302,7 @@ assert_(probeOff.apiPerIter == probeOn.apiPerIter, "the probe changed how many A
 local CEILINGS = {
   resolveUnchanged     = 24,
   anchorUnchanged      = 24,
+  followSyncUnchanged  = 24,
   castStartStop        = 24,   -- 0 + 24 after the warm-up cycle (2026-10-01); was 41, from 16.6 + 24
   castTick             = 24,
   targetTickUnchanged  = 24,

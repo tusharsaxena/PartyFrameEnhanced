@@ -6,7 +6,7 @@ badge and any count quoted in the docs must agree with it.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (16)
+### test_loadorder.lua (17)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
@@ -15,6 +15,7 @@ badge and any count quoted in the docs must agree with it.
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
+- loadorder: SecureFollow loads after Providers and the target and pet features, and the TOC says why
 - loadorder: Preview loads after StandIn, and the TOC says why
 - loadorder: modules/Diagnostics.lua loads after the console and before the settings
 - loadorder: tocFiles skips libs, directives and comments, and uses forward slashes
@@ -229,6 +230,31 @@ badge and any count quoted in the docs must agree with it.
 - petframes: the marker draws above the border
 - petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
+### test_securefollow.lua (22)
+
+- securefollow: setup — target and pet attached at their shipped placement
+- securefollow: one restricted snippet per RE-SORTING provider, and none for classic
+- securefollow: one SecureHandlerBaseTemplate header, hidden, holding a ref to every button
+- securefollow: Sync publishes the provider and each feature's placement as attributes
+- securefollow: a Sync that changes nothing writes no attribute
+- securefollow: a placement change in combat is queued, and lands at regen
+- securefollow: a re-sort in combat moves the member's target and pet frames to its new frame
+- securefollow: match width follows with both edges
+- securefollow: the snippet does nothing for another attribute, a raid unit, nil, or a stale provider
+- securefollow: a feature that is not live is left alone by the snippet
+- securefollow: frames that appear in combat are wrapped at regen, once each
+- securefollow: Blizzard classic and unprotected frames are never wrapped
+- securefollow: a refused wrap is recorded and leaves that frame on the fade
+- securefollow: a re-sort onto a wrapped frame is followed, not faded, and re-pinned at regen
+- securefollow: a re-sort onto an UNWRAPPED frame still fades (the COMBAT-6 fallback)
+- securefollow: regen re-pins a followed element even when the map is back where the memo was
+- securefollow: stand-down gates every follow off and unwraps where ours is outermost
+- securefollow: stand-down restores another addon's outer wrap and leaves ours gated beneath it
+- securefollow: a stand-down in combat queues the gate and the unwrap for regen
+- securefollow: without SecureHandlerWrapScript the module is inert and the fade is unchanged
+- securefollow: the degraded build (LibKa0s absent) loads the module
+- securefollow: teardown — the placement the earlier suites left is put back
+
 ### test_rangefade.lua (9)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
@@ -389,7 +415,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: `profile <name>` refuses in combat and switches nothing
 - slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (20)
+### test_disabled.lua (21)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -397,6 +423,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: leaving Edit Mode while disabled arms nothing
 - disabled: every frame that was on screen is hidden, and refused at the source
 - disabled: the fade frames and the free-placement holders are hidden
+- disabled: the secure-follow header gates every in-combat follow off, and draws nothing
 - disabled: no game event produces a write, a line, or a frame
 - disabled: the whole reserved surface still answers, and only feature verbs refuse
 - disabled: both diagnostics forms write a report, and it says the addon is stood down
@@ -412,7 +439,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
 
-### test_diagnostics.lua (17)
+### test_diagnostics.lua (18)
 
 - diagnostics: the console carries the brand and reads the sections at run time
 - diagnostics: every DX-PF section is present, in order
@@ -420,6 +447,7 @@ badge and any count quoted in the docs must agree with it.
 - diagnostics: per feature per unit, the element fields and the secure wants
 - diagnostics: the free-placement position prints stored and applied
 - diagnostics: the secure-write queue's keys, the flush listener and the blocked count
+- diagnostics: the in-combat follow's header, wrapped frames and refusals
 - diagnostics: stood down with a write queued in combat, the flush listener reads armed
 - diagnostics: a unit pinned to the stand-in is marked as such
 - diagnostics: the frame system, the unit map and the range fade
@@ -550,7 +578,7 @@ badge and any count quoted in the docs must agree with it.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 16 |
+| test_loadorder.lua | 17 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
@@ -567,6 +595,7 @@ badge and any count quoted in the docs must agree with it.
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
+| test_securefollow.lua | 22 |
 | test_rangefade.lua | 9 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
@@ -577,8 +606,8 @@ badge and any count quoted in the docs must agree with it.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 32 |
-| test_disabled.lua | 20 |
-| test_diagnostics.lua | 17 |
+| test_disabled.lua | 21 |
+| test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 10 |
 | test_surface_parity.lua | 14 |
@@ -587,4 +616,4 @@ badge and any count quoted in the docs must agree with it.
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
-| **Total** | **429** |
+| **Total** | **454** |

@@ -58,12 +58,12 @@ v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this
 
 ## Module Map
 
-Thirty-nine files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Forty files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
 Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup before PerfSetup (which requires the latch),
 PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element
-and UnitButtons before the features that capture them, StandIn before Preview and Preview after every
-feature, Schema before
+and UnitButtons before the features that capture them, SecureFollow after Providers and the target
+and pet features, StandIn before Preview and Preview after every feature, Schema before
 every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
@@ -133,10 +133,10 @@ Limitations).
 
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
-| `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade) |
-| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing) |
-| `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state) |
+| `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade), SecureFollow (wraps the active re-sorting provider's new frames, re-syncs its header) |
+| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing); SecureFollow (every section: re-syncs its header's attributes, writing only what changed) |
+| `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade, SecureFollow |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state), SecureFollow |
 
 ## Slash Commands
 
@@ -251,7 +251,10 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
    at once out of combat, deferred to `PLAYER_REGEN_ENABLED` in combat. A feature that is merely
    switched off keeps its `"hide"` driver; only the stand-down releases it. Providers also
    unregisters its `EditMode.Exit` EventRegistry callback, and its resolve burst arms nothing while
-   suspended;
+   suspended. SecureFollow gates every in-combat follow off (`<f>-live` false, `pfe-provider`
+   `"none"`) and unwraps each member frame where its wrap is the outermost; where another addon
+   wrapped the same script after it, that wrap is restored and ours stays attached, gated off (the
+   `slash-commands-§7` row under Documented deviations);
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;
@@ -293,13 +296,27 @@ on entering combat while disabled, and replacing the latch with a boolean.
 
 ## Taint Notes
 
-- **Never touch the frames we attach to.** No `Hide`, `SetParent`, `SetPoint` or call into a Blizzard
-  or EllesmereUI frame; change detection is `hooksecurefunc` and `HookScript` only. The preview
+- **Never touch the frames we attach to**, with the one exception the next bullet names. No `Hide`,
+  `SetParent`, `SetPoint` or call into a Blizzard or EllesmereUI frame; change detection is
+  `hooksecurefunc` and `HookScript` only. The preview
   stand-in (`modules/StandIn.lua`) reads another frame's size and position through getters only and
   is never anchored, parented or hooked to one. Imitating EllesmereUI, it takes EllesmereUI's
   configured party frame size, which `modules/Providers.lua` reads from EllesmereUI's saved settings
   (read-only, nil-guarded at every step): EllesmereUI's hidden party buttons carry its raid size
   until it lays out a party, so measuring one copies the wrong frame.
+- **The in-combat follow wraps another addon's or Blizzard's frame** (#3, `modules/SecureFollow.lua`).
+  On the providers that re-sort in combat (EllesmereUI, Blizzard raid-style), each protected member
+  frame gets `SecureHandlerWrapScript(frame, "OnAttributeChanged", header, snippet)` from our one
+  `SecureHandlerBaseTemplate` header: lazily, out of combat only, once per frame, never on Blizzard
+  classic or an unprotected frame. The snippet is a pre-body that never answers false, so the frame's
+  own handler always runs; it reads only our header's attributes and frame refs and moves only our
+  own target and pet buttons. The header's attributes and frame refs are written out of combat only
+  (`NS.RunSecure("follow:sync")`), so a frame followed in combat uses the placement as it stood when
+  combat began, and the regen pass corrects it. A refused wrap is caught, counted in
+  `NS.State.followRefused` and that frame keeps the fade. `modules/Providers.lua` stays read-only:
+  it only hands the frames out. Whether the client accepts the wrap from a third-party header, and
+  whether it taints EllesmereUI's `SecureGroupHeader_Update` or Blizzard's sort, is unproven offline
+  and is the owner's smoke (COMBAT-6, COMBAT-9, COMBAT-10).
 - **Secure buttons are created at `OnEnable`**, out of combat, never later: the ten
   `SecureUnitButtonTemplate` target and pet buttons (`modules/UnitButtons.lua`). Their parent is
   their unit's fade frame (`modules/RangeFade.lua`), set at creation and never changed. The fade
@@ -335,8 +352,13 @@ on entering combat while disabled, and replacing the latch with a boolean.
   placement (#2).
 - Blizzard's classic party layout never shows the player, so the player's attached elements have no
   frame there (free placement covers it; #8).
-- Secure target/pet frames can't move in combat; after a mid-combat roster reshuffle they fade until
-  combat ends (#3).
+- Secure target/pet frames can't be moved by Lua in combat. On the providers that re-sort in combat
+  (EllesmereUI, Blizzard raid-style), a restricted snippet wrapped on each member frame moves them
+  beside the right member at once (`modules/SecureFollow.lua`); a member frame created in combat
+  (unwrapped until regen), an unprotected or refused frame, and Blizzard classic keep the
+  fade-until-combat-ends fallback. A placement changed in combat (`/pfe set`) is followed with the
+  old placement until regen. None of it is proven in the client yet: #3 stays open until smoke checks
+  COMBAT-6, COMBAT-9 and COMBAT-10 pass.
 - English only (#9).
 - The out-of-range fade copies the party frame. On Blizzard's classic layout, which does not fade,
   it is the fixed ~40-yard `UnitInRange` check at 0.5. Spell-based ranges and a per-feature opacity
@@ -405,6 +427,7 @@ Frozen material named once as directories, never row by row: `automated-tests/<r
 
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
+| `slash-commands-§7` | On stand-down, `modules/SecureFollow.lua` unwraps a member frame's `OnAttributeChanged` only where its `SecureHandlerWrapScript` wrap is the outermost. Where another addon wrapped the same script after it, that wrap is restored exactly and ours stays attached while disabled, its snippet gated off (`<f>-live` false, `pfe-provider` `"none"`) — a gate, which §7 permits only for one-way hooks | `SecureHandlerUnwrapScript` pops the outermost wrap whoever owns it; there is no by-header unwrap, so removing ours from under another addon's wrap would mean tearing theirs off. The gated wrapper does no work beyond an attribute read per `unit` change on that one frame | 2026-10-01 (GI-PF-02, #3; owner default D9 in the 2026-10-01 GitHub issue pass, pending the owner's ratification) | Blizzard offers a safe by-header unwrap, or the standard extends the `hooksecurefunc` carve-out to secure wraps that cannot be unwrapped safely |
 | `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60 | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
 
 ### Files over the 1500-line cap

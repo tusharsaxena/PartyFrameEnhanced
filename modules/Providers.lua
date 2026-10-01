@@ -10,7 +10,10 @@ local _, NS = ...
 -- READ-ONLY by construction (library-stack-§6, events-frames-taint-§3): nothing here hides, moves,
 -- reparents or calls into another addon's or Blizzard's frame. Change detection is hooksecurefunc and
 -- HookScript only, and every hook just REQUESTS a resolve; the resolve itself runs on the next frame,
--- coalesced, so a burst of forty attribute changes during a re-sort costs one pass.
+-- coalesced, so a burst of forty attribute changes during a re-sort costs one pass. The in-combat
+-- follow's secure wrap on the member frames lives in modules/SecureFollow.lua, not here: this file
+-- only marks which providers re-sort (`resorts`) and hands the active one's frames out
+-- (Providers.ForEachActiveFrame).
 
 local L      = NS.L
 local Perf   = NS.Perf
@@ -96,7 +99,7 @@ local function erfChild(header, i)
 end
 
 local ELLESMERE = {
-    id = "ellesmere", family = "ellesmere", label = L["EllesmereUI"], priority = 100,
+    id = "ellesmere", family = "ellesmere", label = L["EllesmereUI"], priority = 100, resorts = true,
     IsAvailable = function()
         return ERFPartyHeader ~= nil and Compat.IsAddOnLoaded("EllesmereUIRaidFrames")
     end,
@@ -120,6 +123,7 @@ local ELLESMERE = {
 
 local BLIZZARD_RAID = {
     id = "blizzard-raid", family = "blizzard", label = L["Blizzard (raid-style)"], priority = 50,
+    resorts = true,
     IsAvailable = function() return CompactPartyFrame ~= nil end,
     IsActive = function()
         return Compat.UseRaidStyleParty() and Compat.FrameVisible(CompactPartyFrame)
@@ -255,6 +259,12 @@ end
 
 function Providers.ActiveId()
     return active and active.id or nil
+end
+
+--- Call `cb(frame)` for each member frame of the provider the last resolve used (none: no call).
+--- Read-only, like everything here: modules/SecureFollow.lua wraps what it is handed.
+function Providers.ForEachActiveFrame(cb)
+    if active then active.ForEachFrame(cb) end
 end
 
 --- The resolve's own flags, as a fresh table (the diagnostics report): suspended by a stand-down,

@@ -119,8 +119,15 @@ fallback (`Compat.UseRaidStyleParty`).
 ## Frame systems re-sort in combat
 
 Blizzard's `CompactPartyFrame:RefreshMembers` and EllesmereUI's SecureGroupHeader both re-assign which
-frame shows which unit in secure code, during combat. Cast bars follow at once; the secure target and
-pet frames fade and re-anchor at `PLAYER_REGEN_ENABLED` (`modules/Anchor.lua`, spec §6.4).
+frame shows which unit in secure code, during combat. Cast bars follow at once. The secure target and
+pet frames cannot be moved by Lua under lockdown, so `modules/SecureFollow.lua` wraps a restricted
+pre-body on each protected member frame's `OnAttributeChanged` (out of combat, once per frame), and
+the member's `unit` change moves its target and pet buttons in restricted code (#3). Anything not
+wrapped (a frame the header creates in combat, an unprotected or refused frame) and Blizzard classic,
+which never re-sorts, keep the fade and re-anchor at `PLAYER_REGEN_ENABLED` (`modules/Anchor.lua`,
+spec §6.4). Unverified in the client: that these frames change the `unit` ATTRIBUTE in combat (a
+frame that sets only the Lua `frame.unit` fires no wrap, and the fade stays), and that a third-party
+header may wrap them (smoke checks COMBAT-6, COMBAT-9, COMBAT-10).
 
 ## An unknown event name raises
 

@@ -31,6 +31,8 @@ read_globals = {
   "INTERRUPTED", "FAILED",
   -- Secure frames (target and pet frames).
   "RegisterStateDriver", "UnregisterStateDriver",
+  -- The in-combat follow's wrap on the re-sorting providers' member frames (modules/SecureFollow.lua).
+  "SecureHandlerWrapScript", "SecureHandlerUnwrapScript",
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
   "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "ERFPartyHeader",
   "ERFPartySelfButton", "EventRegistry",
@@ -73,6 +75,7 @@ files["modules/TargetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/PetFrames.lua"] = { ignore = { "212/self" } }
 files["modules/RangeFade.lua"] = { ignore = { "212/self" } }
 files["modules/Preview.lua"] = { ignore = { "212/self" } }
+files["modules/SecureFollow.lua"] = { ignore = { "212/self" } }
 
 -- tests/mock_menu.lua is LibKa0s v1.58.0's own client-menu fake, copied verbatim so a re-copy is a
 -- clean diff. It mirrors the client's `root:CreateCheckbox` / `element:SetEnabled` method shapes, so

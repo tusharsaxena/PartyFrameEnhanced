@@ -107,5 +107,6 @@ Kit.run{
     "test_vendor_sync",
     { name = "test_eol", dir = "tests/_kit/" },
     { name = "test_layout_cap", dir = "tests/_kit/" },
+    { name = "test_lizard_sighted", dir = "tests/_kit/" },
   },
 }

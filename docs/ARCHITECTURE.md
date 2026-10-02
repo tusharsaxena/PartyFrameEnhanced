@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.67.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s v1.68.0** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
@@ -40,7 +40,7 @@ with its party member's frame when they are out of range; the raid marker draws 
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
 click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
-diagnostics report for bug reports; and LibKa0s is re-vendored, v1.62.0 in the release and now at v1.67.0. What the addon
+diagnostics report for bug reports; and LibKa0s is re-vendored, v1.62.0 in the release and now at v1.68.0. What the addon
 took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
 ([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
 minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed
@@ -52,7 +52,7 @@ v1.58.0's Launcher minor 4 left click and options menu
 ([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)); and, since the
 release, v1.63.0's Slash minor 17 profile verb, which `/pfe profile <name>` and `profile use` route
 through ([revendor/2026-09-29-v1.63.0/](revendor/2026-09-29-v1.63.0/05_SUMMARY.md)), and v1.64.0's resizable
-debug console, copy window and perf panel, the console's Diagnostics link and a report run that turns logging on for the session (DebugLog 17.2), all of which arrive with the vendored files and need no wiring. v1.65.0 closes five debug gaps, and this addon wires all of them: `settings/Slash.lua` and `core/LifecycleSetup.lua` pass the gated sink as `debug`, so the dispatcher's refusals (`[Cmd]`) and each stand-down / stand-up edge (`[Lifecycle]`) are the library's lines and the host writes no copy; the settings panel's combat-lock refusals reach the `debug` `settings/OptionsSetup.lua` already passed (`[Cfg]`); the console's change gates (`NS.DebugChanged` / `NS.DebugOnce`, re-armed by Clear and by turning logging on) replace six hand-rolled memos; and `core/LauncherSetup.lua` passes `debugAtEnable`, so the launcher's login state lines land when logging is turned on ([debug.md](debug.md)). v1.67.0's OptionsIdList minor 3 reads `addonName`, which `settings/OptionsSetup.lua` now passes in the Options descriptor; this addon draws no IdList help marks, so the change is latent ([revendor/2026-10-02-v1.67.0/](revendor/2026-10-02-v1.67.0/05_SUMMARY.md)). v1.47.0 to
+debug console, copy window and perf panel, the console's Diagnostics link and a report run that turns logging on for the session (DebugLog 17.2), all of which arrive with the vendored files and need no wiring. v1.65.0 closes five debug gaps, and this addon wires all of them: `settings/Slash.lua` and `core/LifecycleSetup.lua` pass the gated sink as `debug`, so the dispatcher's refusals (`[Cmd]`) and each stand-down / stand-up edge (`[Lifecycle]`) are the library's lines and the host writes no copy; the settings panel's combat-lock refusals reach the `debug` `settings/OptionsSetup.lua` already passed (`[Cfg]`); the console's change gates (`NS.DebugChanged` / `NS.DebugOnce`, re-armed by Clear and by turning logging on) replace six hand-rolled memos; and `core/LauncherSetup.lua` passes `debugAtEnable`, so the launcher's login state lines land when logging is turned on ([debug.md](debug.md)). v1.67.0's OptionsIdList minor 3 reads `addonName`, which `settings/OptionsSetup.lua` now passes in the Options descriptor; this addon draws no IdList help marks, so the change is latent ([revendor/2026-10-02-v1.67.0/](revendor/2026-10-02-v1.67.0/05_SUMMARY.md)). v1.68.0's WidgetsDragHandle minor 4 adds an optional tooltip-placement hook; this addon builds no drag strip, so it is re-vendored and not adopted ([revendor/2026-10-02-v1.68.0/](revendor/2026-10-02-v1.68.0/05_SUMMARY.md)). v1.47.0 to
 v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
 ([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
 

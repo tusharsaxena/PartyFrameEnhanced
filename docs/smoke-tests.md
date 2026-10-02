@@ -12,9 +12,9 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 
 | ID range | Theme | What it covers |
 |---|---|---|
-| INSTALL-1 – 3 | Install and load | fresh install, `/reload`, the AddOn-list logo |
+| INSTALL-1 – 4 | Install and load | fresh install, `/reload`, the AddOn-list logo, a clean load on the vendored LibKa0s |
 | SLASH-1 – 6 | Slash commands | help, the long alias, unknown verbs, version, list, set and reset |
-| PANEL-1 – 6 | Settings panel | the landing page, the General tabs, the Defaults button, Size & Position |
+| PANEL-1 – 7 | Settings panel | the landing page, the General tabs, the Defaults button, Size & Position, every page after the descriptor names the addon |
 | PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
 | STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
 | PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
@@ -52,6 +52,10 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   and not a blank square. *Failure:* a blank square means `media/logos/partyframeenhanced.logo.128.tga`
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result:
+- **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at v1.67.0 (Core 10, Options
+  28, OptionsIdList 3), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  about a missing or older module. `/pfe config` → every page draws as it did. *Failure:* a page
+  that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Result:
 
 ## Slash commands
 
@@ -99,6 +103,11 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   width* grayed. With the page open, `/pfe set castbar.anchorMode attached` → it redraws back. Repeat
   on the Target Frames and Pet Frames pages. *Failure:* the redraw lags one click behind, an empty
   heading is left behind, or the dropdown closes itself mid-choice with a Lua error. Result:
+- **PANEL-7. Every page after the descriptor names the addon.** The Options descriptor now passes
+  `addonName` (LibKa0s#42). `/reload` → no Lua error on load. `/pfe debug on`, then `/pfe config` and
+  open every page (General and its three tabs, Cast Bars, Target Frames, Pet Frames, Profiles) → each
+  renders exactly as before. This addon has no item list, so no help mark is drawn and the console
+  shows no `[Cfg] help art:` line. Result:
 
 ## Profiles
 
@@ -633,3 +642,5 @@ were never run. Fill in each check's `Result:` line, then remove its row.
 | DIAG-15 | new | the library's `[Cmd]` slash refusals in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
 | DIAG-16 | new | the library's `[Lifecycle]` stand-down and stand-up edges in the console (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
 | DIAG-17 | new | the launcher's `registered` line, held at login and written when logging turns on (LibKa0s v1.65.0, DG-PF-01, 2026-10-01) |
+| INSTALL-4 | new | a clean load on LibKa0s v1.67.0; DIAG-10 to DIAG-12 also cover its Core 10 grip, which should resize exactly as on v1.66.0 (CA-PF-RV, 2026-10-02) |
+| PANEL-7 | new | every page renders as before once the Options descriptor passes `addonName` (LibKa0s v1.67.0, CA-PF-NM, 2026-10-02) |

@@ -494,7 +494,7 @@ badge and any count quoted in the docs must agree with it.
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
-### test_optionssetup.lua (10)
+### test_optionssetup.lua (11)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
@@ -506,6 +506,7 @@ badge and any count quoted in the docs must agree with it.
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
+- optionssetup: the Options descriptor names the addon folder, and the help-mark art is on disk
 
 ### test_surface_parity.lua (14)
 
@@ -609,11 +610,11 @@ badge and any count quoted in the docs must agree with it.
 | test_disabled.lua | 21 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
-| test_optionssetup.lua | 10 |
+| test_optionssetup.lua | 11 |
 | test_surface_parity.lua | 14 |
 | test_diagnostics_contract.lua | 9 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
-| **Total** | **454** |
+| **Total** | **455** |

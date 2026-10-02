@@ -1,4 +1,4 @@
-local _, NS = ...
+local addonName, NS = ...
 
 -- settings/OptionsSetup.lua — the LibKa0s-Options-1.0 seam (options-ui-§1). The canvas shell, the
 -- widget makers, the flow engine, the header and the scrollbar patch are the library's; this file
@@ -40,6 +40,9 @@ local lib = LibStub and LibStub("LibKa0s-Options-1.0", true)
 local descriptor = {
     parentTitle   = "Ka0s Party Frame Enhanced",
     mainPanelName = "PartyFrameEnhancedMainPanel",
+    -- The FOLDER name (vararg 1), read by OptionsIdList for its help-mark art via Media.Icon
+    -- (LibKa0s#42). Not the title: a wrong name falls back to the client glyph plus a Cfg debug line.
+    addonName     = addonName,
 
     print = function(line) print(line) end,
     debug = function(tag, fmt, ...) NS.Debug(tag, fmt, ...) end,

@@ -16,14 +16,14 @@ What to install is [`../DEPENDENCIES.md`](../DEPENDENCIES.md); this page is how 
 | Syntax-check one file | `luac5.1 -p <path/to/file.lua>` | no output |
 | In-game smoke tests | manual | [smoke-tests.md](./smoke-tests.md) |
 
-`.luacheckrc` carries **no top-level `ignore`**. Eleven `files[...]` stanzas each name one file. Ten
+`.luacheckrc` carries **no top-level `ignore`**. Twelve `files[...]` stanzas each name one file. Eleven
 of them name one code (`212/self`) for receivers a calling convention forces on a body that does not read them —
 `core/PartyFrameEnhanced.lua` (AceAddon/AceEvent handlers), `core/Database.lua` (`NS:InitDB`,
 `NS:RunMigrations`), `settings/Slash.lua` (the degraded `SlashLib:New` and the `Sl:` methods), and the
-seven modules whose lifecycle hooks are colon methods (`modules/Providers.lua`, `CastBars.lua`,
-`TargetFrames.lua`, `PetFrames.lua`, `RangeFade.lua`, `Preview.lua`, `Anchor.lua`). The reason for each
-sits above it in `.luacheckrc`. The eleventh, `tests/mock_menu.lua`, adds `432/self` to `212/self`: it
-is LibKa0s v1.58.0's client-menu fake copied verbatim, mirroring the client's method shapes. A twelfth
+eight modules whose lifecycle hooks are colon methods (`modules/Providers.lua`, `CastBars.lua`,
+`TargetFrames.lua`, `PetFrames.lua`, `RangeFade.lua`, `Preview.lua`, `SecureFollow.lua`, `Anchor.lua`). The reason for each
+sits above it in `.luacheckrc`. The twelfth, `tests/mock_menu.lua`, adds `432/self` to `212/self`: it
+is LibKa0s v1.58.0's client-menu fake copied verbatim, mirroring the client's method shapes. A thirteenth
 stanza, `files["tests/"]`, declares the harness globals for the test tree only, so no shipped file can
 reach for them.
 

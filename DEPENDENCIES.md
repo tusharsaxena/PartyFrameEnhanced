@@ -33,7 +33,7 @@ marked as such rather than listed as a requirement.
 | `git` | any recent | the vendored-payload gate (`tests/test_vendor_sync.lua` reads the LibKa0s tag with `git`), the EOL gate (`tests/_kit/test_eol.lua` runs `git ls-files` / `git check-attr`), the prose gate (`tests/_kit/test_prose.lua` runs `git ls-files`), the cap census gate (`tests/_kit/test_layout_cap.lua` runs `git ls-files`) | those four files |
 | POSIX shell (`bash`) | any | `tests/_kit/run-automated-tests.sh` | its `#!/usr/bin/env bash` line |
 | A sibling `../LibKa0s` checkout | — | the vendored-payload gate compares against it; without it those cases **skip** with the reason | `tests/_kit/vendor_sync.lua` |
-| `timeout` (coreutils) | any | *optional* — the wall-clock bound the test kit puts on every run (since kit revision 23); absent, the run is unbounded in time | `tests/_kit/framework.lua:122` checks `command -v timeout` first |
+| `timeout` (coreutils) | any | *optional* — the wall-clock bound the test kit puts on every run (since kit revision 23); absent, the run is unbounded in time | `tests/_kit/framework.lua:123` checks `command -v timeout` first |
 | `systemd-run --user` | any | *optional* — the process-tree memory cap on the outermost run; absent (no systemd user instance), that one bound is skipped and `ulimit -v` still applies | `tests/_kit/framework.lua:126` probes it before use |
 
 **Lua 5.1 is a requirement, not a preference.** The harness sandboxes each source file with
@@ -86,7 +86,16 @@ uncompressed 32-bit, 65,580 bytes:
 ```sh
 python3 -c "from PIL import Image; Image.open('media/logos/partyframeenhanced.logo.png').convert('RGBA').resize((128, 128), Image.LANCZOS).save('media/logos/partyframeenhanced.logo.128.tga', rle=False)"
 ```
-**None of this group is required to build, run or test the addon.**
+
+Both recipes above need Python 3 and Pillow. Ubuntu 24.04 ships Pillow as an apt package, which
+sidesteps the EXTERNALLY-MANAGED `pip` refusal (PEP 668):
+
+```sh
+sudo apt install -y python3 python3-pil
+
+# verify — must print a version
+python3 -c "import PIL; print(PIL.__version__)"
+```
 
 ## Am I set up correctly?
 

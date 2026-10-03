@@ -21,13 +21,13 @@ Derived from the schema — `group` declares each tab, in first-registration ord
 | Cast Bars | Border | the border block with *Show border* |
 | Cast Bars | Text | the font block, spell name, time left |
 | Cast Bars | Icon | spell icon and its side, the shield, the spark |
-| Target Frames | General | enable, click to target, update health, health refresh interval |
+| Target Frames | General | enable, click to target |
 | Target Frames | Size & Position | as Cast Bars |
 | Target Frames | Bar | the fill block, NPC reaction colors, the background |
 | Target Frames | Border | the border block with *Show border* |
 | Target Frames | Text | the font block, name, health percent |
 | Target Frames | Marker | the target's raid marker, its point on the bar, X/Y offsets |
-| Pet Frames | General | enable, click to target, update health |
+| Pet Frames | General | enable, click to target |
 | Pet Frames | Size & Position | as Cast Bars |
 | Pet Frames | Bar | the fill block (*Use class color* = the owner's class), the background |
 | Pet Frames | Border | the border block with *Show border* |

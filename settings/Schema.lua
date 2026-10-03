@@ -327,6 +327,7 @@ end
 -- a caller running before the reset can know. Every reset this addon drives goes through
 -- NS.ResetProfileCounted; a reset it did not drive (an AceDBOptions button) logs no count.
 
+-- How many profile rows sit off their default. No production caller; published for the headless suite.
 function NS.ProfileRowsOffDefault() return inst.CountOffDefault(profilePred) end
 
 function NS.ResetProfileCounted(db)

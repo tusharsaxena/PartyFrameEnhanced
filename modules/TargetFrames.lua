@@ -168,11 +168,13 @@ function TargetFrames.UpdateTicker()
     end
 end
 
+--- Whether the health ticker is running. No production caller; published for the headless suite.
 function TargetFrames.TickerRunning()
     return ticker ~= nil
 end
 
---- The running ticker's pace in seconds, or nil when it is not running.
+--- The running ticker's pace in seconds, or nil when it is not running. No production caller;
+--- published for the headless suite.
 function TargetFrames.TickerInterval()
     return tickerInterval
 end

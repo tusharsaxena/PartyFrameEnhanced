@@ -471,7 +471,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   instance, not a city), start with the setup in the label (`/pfe perf start party <frame system>
   <anchor mode>`) and pull the same pack for both arms. In the report, `petEvent` has calls and
   `targetRender` per `targetTick` pass is at most the number of members with a target. Paste the buffer
-  into `/wow-addon:perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer members have
+  into `/dev-copilot:wow-perf-analysis`. *Failure:* `targetRender` near 5 per pass while fewer members have
   targets (hidden buttons being repainted), or no `petEvent` row with a pet out. Result:
 - **DIAG-5. The diagnostics report appends, ungated.** `/pfe debug on`, join or leave a party (or
   `/pfe unlock` and `/pfe lock`) so a few trace lines land, then `/pfe diagnostics`. The trace is still

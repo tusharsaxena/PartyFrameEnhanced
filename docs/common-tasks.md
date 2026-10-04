@@ -64,4 +64,4 @@ never on a display string (localization-§4).
 
 Never from the sibling's working tree: `git -C ../LibKa0s archive <tag> LibKa0s testkit | tar -x -C
 <tmp>`, copy both folders whole, move the `CLAUDE.md` provenance line in the same commit, run the
-gate. `/wow-addon:revendor-libka0s` does it all.
+gate. `/dev-copilot:wow-revendor-libka0s` does it all.

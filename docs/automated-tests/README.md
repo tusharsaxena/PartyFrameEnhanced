@@ -33,7 +33,7 @@ commit** (`performance-§9`, `performance-§10`). A threshold that fails a run t
 reach for `--no-verify`, after which the gate protects nothing. They contribute `amber`, a signal
 rather than a stop.
 
-**At the tag all four gate** (`automated-tests-§3`, *The release gate*): `/wow-addon:bump-version`
+**At the tag all four gate** (`automated-tests-§3`, *The release gate*): `/dev-copilot:bump-version`
 reads the release run's `manifest.json` and refuses unless all four suites are at `pass` with
 `suites.complexity.warnings` at `0`. That is a separate checkpoint evaluated by a separate actor — the
 runner's exit code does not change — and a `skip` there is **NOT EVALUATED**, never a pass.

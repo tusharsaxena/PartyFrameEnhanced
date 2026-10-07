@@ -564,3 +564,48 @@ test("slash: `status` prints the frame system's label through NS.L", function()
   local want = "Frame system: " .. NS.L["Blizzard (raid-style)"]
   assertEqual(out[1]:sub(-#want), want, "the L-routed label ends the first line")
 end)
+
+-- The `Note:` line of `/pfe status`, or "" when there is none.
+local function statusNote()
+  for _, line in ipairs(slash("status")) do
+    local note = line:match("Note: (.*)$")
+    if note then return note end
+  end
+  return ""
+end
+
+-- Counts the comma-separated flags of a Note line that start with "unlocked".
+local function unlockedFlags(note)
+  local n, bare = 0, 0
+  for flag in (note .. ","):gmatch("%s*(.-),") do
+    if flag:sub(1, 8) == "unlocked" then n = n + 1 end
+    if flag == "unlocked" then bare = bare + 1 end
+  end
+  return n, bare
+end
+
+test("slash: `status` names an unlock with preview on once", function()
+  -- red under: statusFlags added the preview branch's 'unlocked (stand-in)' AND a bare
+  -- 'unlocked' from Anchor.IsUnlocked(), and applyLock sets both together, so the Note line read
+  -- 'unlocked (stand-in), unlocked' (PFE-R-04).
+  slash("unlock")
+  local note = statusNote()
+  slash("lock")
+  assertTrue(note:find("unlocked (", 1, true) ~= nil, "the preview branch names the view: " .. note)
+  local n, bare = unlockedFlags(note)
+  assertEqual(n, 1, "one unlocked flag: " .. note)
+  assertEqual(bare, 0, "no second bare 'unlocked': " .. note)
+end)
+
+test("slash: `status` still reports an unlock whose preview was refused", function()
+  -- The holders are grabbable but preview is off (setPreview refused): the bare flag is the only
+  -- one that says so.
+  NS.Anchor.SetUnlocked(true)
+  local preview = NS.State.preview
+  local note = statusNote()
+  NS.Anchor.SetUnlocked(false)
+  assertTrue(not preview, "precondition: preview off")
+  local n, bare = unlockedFlags(note)
+  assertEqual(n, 1, "one unlocked flag: " .. note)
+  assertEqual(bare, 1, "and it is the bare one: " .. note)
+end)

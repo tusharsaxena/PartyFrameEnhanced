@@ -205,7 +205,9 @@ local function statusFlags()
     elseif not NS.Units.InParty() then
         flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)"]
     end
-    if NS.Anchor.IsUnlocked() then flags[#flags + 1] = L["unlocked"] end
+    -- The preview branch above already names the view; the bare flag covers only an unlock
+    -- whose preview was refused (the holders grabbable, nothing standing in).
+    if NS.Anchor.IsUnlocked() and not NS.State.preview then flags[#flags + 1] = L["unlocked"] end
     if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end
     return flags
 end

@@ -26,7 +26,7 @@ answer differs between them:
 | `lint` | `luacheck .` | **gates** | **gates** |
 | `tests` | `lua tests/run.lua` | **gates** | **gates** |
 | `perf` | `lua tests/perf.lua` | no — recorded | **gates** — `pass` required |
-| `complexity` | `bash tests/_kit/run-automated-tests.sh --suite complexity` (sighted: kit 35 measures a sanitized shadow, with parity) | no — recorded | **gates** — `pass`, zero functions above CCN 15 |
+| `complexity` | `bash tests/_kit/run-automated-tests.sh --suite complexity` (sighted: the vendored kit, at the revision `CLAUDE.md`'s LibKa0s provenance line names, measures a sanitized shadow, with parity) | no — recorded | **gates** — `pass`, zero functions above CCN 15 |
 
 `perf` and `complexity` are **measured, recorded and diffed — they never fail a run and never block a
 commit** (`performance-§9`, `performance-§10`). A threshold that fails a run teaches everyone to

@@ -124,7 +124,7 @@ Limitations).
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade), SecureFollow (wraps the active re-sorting provider's new frames, re-syncs its header) |
 | `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing); SecureFollow (every section: re-syncs its header's attributes, writing only what changed) |
 | `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade, SecureFollow |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state), SecureFollow |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state; in combat it relocks a profile stored unlocked instead, with the combat re-lock line), SecureFollow |
 
 ## Slash Commands
 

@@ -167,12 +167,14 @@ Total.
 - anchor: a holder opts out of the client's layout cache; the addon owns its position
 - anchor: a holder still builds on a client without SetDontSavePosition
 
-### test_profile_switch.lua (4)
+### test_profile_switch.lua (6)
 
 - profile switch: Anchor places by the NEW profile even when it hears PROFILE first
 - profile switch: a real SetProfile each way follows the profile
 - profile switch: Reset all settings on a free profile returns it to attached
 - profile switch: copying a free profile in places by the copy
+- profile switch: copying an unlocked profile in combat keeps preview off and relocks it
+- profile switch: copying a locked profile in combat changes nothing and says nothing
 
 ### test_castbars.lua (14)
 
@@ -597,7 +599,7 @@ Total.
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
 | test_anchor.lua | 11 |
-| test_profile_switch.lua | 4 |
+| test_profile_switch.lua | 6 |
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
@@ -623,4 +625,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **457** |
+| **Total** | **459** |

@@ -87,20 +87,23 @@ function NS.PendingSecureKeys()
     return keys
 end
 
+-- The whole queue is taken, and both tables replaced, BEFORE anything runs: a write that raises can
+-- then strand nothing. Each write runs isolated through xpcall with the client's error handler, so
+-- the raise still reaches BugSack (or the default handler) and the writes after it still land; the
+-- raising key is free to queue again, because RunSecure's `if not pending[key]` guard sees it gone.
 local function flushSecure()
     if #pendingOrder == 0 then return end
-    local order = pendingOrder
-    pendingOrder = {}
-    local n = 0
+    local order, writes = pendingOrder, pending
+    pending, pendingOrder = {}, {}
+    local handler = geterrorhandler()
+    local n, raised = 0, 0
     for _, key in ipairs(order) do
-        local fn = pending[key]
-        pending[key] = nil
+        local fn = writes[key]
         if fn then
-            fn()
-            n = n + 1
+            if xpcall(fn, handler) then n = n + 1 else raised = raised + 1 end
         end
     end
-    NS.Debug("Secure", "flushed %d deferred write(s)", n)
+    NS.Debug("Secure", "flushed %d deferred write(s), %d raised", n, raised)
 end
 
 -- ── the pending-secure listener, and it is the ONLY thing a stood-down addon watches ─────────

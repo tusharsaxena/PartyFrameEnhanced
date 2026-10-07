@@ -33,6 +33,8 @@ read_globals = {
   "RegisterStateDriver", "UnregisterStateDriver",
   -- The in-combat follow's wrap on the re-sorting providers' member frames (modules/SecureFollow.lua).
   "SecureHandlerWrapScript", "SecureHandlerUnwrapScript",
+  -- A raise inside the secure-write queue or the unwrap pass is handed here (core, SecureFollow).
+  "geterrorhandler",
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
   "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "ERFPartyHeader",
   "ERFPartySelfButton", "EventRegistry",

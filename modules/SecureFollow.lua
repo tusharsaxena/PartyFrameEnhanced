@@ -191,6 +191,9 @@ end
 
 -- Remove our wrap where it is the outermost one. Where another header's wrap came off instead, put
 -- it back exactly as it was and keep ours recorded: it stays attached, gated off by the attributes.
+-- That re-wrap is guarded like Wrap's own: a raise goes to the client's error handler (never
+-- discarded) and the unwrap pass goes on to the next frame. A closure, because Lua 5.1's xpcall
+-- passes no arguments; this runs once per wrapped frame on a stand-down, not on a hot path.
 local function unwrapFrame(frame)
     local ok, h, pre, post = pcall(SecureHandlerUnwrapScript, frame, SCRIPT)
     if not ok then return false end
@@ -198,7 +201,7 @@ local function unwrapFrame(frame)
         wrapped[frame] = nil
         return true
     end
-    SecureHandlerWrapScript(frame, SCRIPT, h, pre, post)
+    xpcall(function() SecureHandlerWrapScript(frame, SCRIPT, h, pre, post) end, geterrorhandler())
     return false
 end
 

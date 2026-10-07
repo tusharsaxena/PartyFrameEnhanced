@@ -67,6 +67,40 @@ test("lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued
   assertEqual(#NS.PendingSecureKeys(), 0, "empty once regen flushes")
 end)
 
+test("lifecycle: one raising deferred write is reported, and the rest of the queue still runs", function()
+  -- red under: flushSecure calling each queued closure bare. The raise left the flush, 'b' never
+  -- ran, 'b' stayed in `pending` (gone from pendingOrder) so RunSecure never re-queued it, and
+  -- OnLeaveCombat never reached PublishVisibility.
+  local seen, ranB, visibility = {}, false, 0
+  local savedHandler = mocks.geterrorhandler
+  mocks.geterrorhandler = function() return function(err) seen[#seen + 1] = tostring(err) end end
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.VISIBILITY, function() visibility = visibility + 1 end)
+  inCombat(true)
+  NS.RunSecure("raiser", function() error("boom") end)
+  NS.RunSecure("b", function() ranB = true end)
+  inCombat(false)
+  local ok, err = pcall(NS.addon.OnLeaveCombat, NS.addon)
+  target:UnregisterMessage(NS.MSG.VISIBILITY)
+  mocks.geterrorhandler = savedHandler
+  local count, keys = NS.PendingSecureCount(), #NS.PendingSecureKeys()
+  -- The raising key is free to queue again: the `if not pending[key]` guard saw it cleared.
+  inCombat(true)
+  NS.RunSecure("raiser", function() end)
+  local requeued = NS.PendingSecureCount()
+  inCombat(false)
+  NS.addon:OnLeaveCombat()
+
+  assertTrue(ok, "the flush did not raise out of OnLeaveCombat: " .. tostring(err))
+  assertTrue(ranB, "the write queued after the raising one still ran")
+  assertEqual(#seen, 1, "the raise reached the error handler once")
+  assertTrue(seen[1] and seen[1]:find("boom", 1, true) ~= nil, "with its own message")
+  assertEqual(count, 0, "the queue is empty after the flush")
+  assertEqual(keys, 0, "and lists no key")
+  assertEqual(visibility, 1, "OnLeaveCombat still published VISIBILITY")
+  assertEqual(requeued, 1, "a later in-combat write under the raising key queues again")
+end)
+
 test("lifecycle: the session blocked-action counter counts only this addon's blocks", function()
   -- red under: a counter that also counts other addons' blocks, or one that ignores FORBIDDEN.
   local before = NS.BlockedActionCount()

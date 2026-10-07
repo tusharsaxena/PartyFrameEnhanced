@@ -360,6 +360,32 @@ test("slash: `profile new` on an existing name refuses and does NOT wipe it", fu
   assertTrue(out[1]:find("already exists", 1, true) ~= nil, "the 'already exists' line")
 end)
 
+test("slash: `profile new` switches once: one PROFILE, no reset line", function()
+  -- red under: NS.ResetProfileCounted after SetProfile in `new`. The fresh profile is already all
+  -- defaults, so the reset only re-ran adoptProfile: a second PROFILE broadcast and a no-op
+  -- '[Set] reset profile ... (0 rows)' line.
+  local start = NS.db:GetCurrentProfile()
+  local profiles, debugLines = 0, {}
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.PROFILE, function() profiles = profiles + 1 end)
+  local savedDebug = NS.Debug
+  NS.Debug = function(tag, fmt, ...) debugLines[#debugLines + 1] = tag .. " " .. fmt:format(...) end
+  local ok, err, out = slashSafe("profile new FreshOne")
+  NS.Debug = savedDebug
+  target:UnregisterMessage(NS.MSG.PROFILE)
+  local current = NS.db:GetCurrentProfile()
+  dropProfile(start, "FreshOne")
+
+  assertTrue(ok, tostring(err))
+  assertEqual(current, "FreshOne", "switched to the new profile")
+  assertEqual(profiles, 1, "every module rebuilds off one PROFILE message")
+  for _, line in ipairs(debugLines) do
+    assertTrue(not line:find("reset profile", 1, true), "no reset line: " .. line)
+  end
+  assertEqual(#out, 1, "one chat line")
+  assertTrue(out[1]:find("Created and switched", 1, true) ~= nil, "the 'Created and switched' line")
+end)
+
 test("slash: `profile use` on a missing name refuses and creates nothing", function()
   -- red under: `use` straight through SetProfile, which makes a profile out of any typo. `use`
   -- routes through the library's ProfileSwitch, so the refusal is its line and then the list.

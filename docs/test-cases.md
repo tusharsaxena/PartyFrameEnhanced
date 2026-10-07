@@ -95,13 +95,14 @@ Total.
 - perfsetup: live and stub both carry every Perf member the addon's source reads
 - perfsetup: without LibKa0s the stub carries every member the addon calls
 
-### test_lifecycle.lua (6)
+### test_lifecycle.lua (7)
 
 - lifecycle: a secure write out of combat runs at once
 - lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
 - lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued order
+- lifecycle: one raising deferred write is reported, and the rest of the queue still runs
 - lifecycle: the session blocked-action counter counts only this addon's blocks
 
 ### test_bus.lua (13)
@@ -232,7 +233,7 @@ Total.
 - petframes: the marker draws above the border
 - petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
-### test_securefollow.lua (22)
+### test_securefollow.lua (23)
 
 - securefollow: setup — target and pet attached at their shipped placement
 - securefollow: one restricted snippet per RE-SORTING provider, and none for classic
@@ -252,6 +253,7 @@ Total.
 - securefollow: regen re-pins a followed element even when the map is back where the memo was
 - securefollow: stand-down gates every follow off and unwraps where ours is outermost
 - securefollow: stand-down restores another addon's outer wrap and leaves ours gated beneath it
+- securefollow: a raising re-wrap of another addon's handler is reported and the unwrap pass goes on
 - securefollow: a stand-down in combat queues the gate and the unwrap for regen
 - securefollow: without SecureHandlerWrapScript the module is inert and the fade is unchanged
 - securefollow: the degraded build (LibKa0s absent) loads the module
@@ -382,7 +384,7 @@ Total.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (32)
+### test_slash.lua (33)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -405,6 +407,7 @@ Total.
 - slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
 - slash: the live set still ANSWERS and still ACTS while the addon is off
 - slash: `profile new` on an existing name refuses and does NOT wipe it
+- slash: `profile new` switches once: one PROFILE, no reset line
 - slash: `profile use` on a missing name refuses and creates nothing
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
@@ -589,7 +592,7 @@ Total.
 | test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
-| test_lifecycle.lua | 6 |
+| test_lifecycle.lua | 7 |
 | test_bus.lua | 13 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
@@ -598,7 +601,7 @@ Total.
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
-| test_securefollow.lua | 22 |
+| test_securefollow.lua | 23 |
 | test_rangefade.lua | 9 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
@@ -608,7 +611,7 @@ Total.
 | test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 32 |
+| test_slash.lua | 33 |
 | test_disabled.lua | 21 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
@@ -620,4 +623,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **454** |
+| **Total** | **457** |

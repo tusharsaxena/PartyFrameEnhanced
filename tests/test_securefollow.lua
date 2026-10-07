@@ -430,6 +430,35 @@ test("securefollow: stand-down restores another addon's outer wrap and leaves ou
   reset()
 end)
 
+test("securefollow: a raising re-wrap of another addon's handler is reported and the unwrap pass goes on", function()
+  -- red under: the restoring SecureHandlerWrapScript called bare in unwrapFrame. The first raise
+  -- left unwrapAll, so the other frame was never visited, and the error escaped the stand-down.
+  local frames = installEllesmere({ "player", "party1" })
+  local foreign = mocks.CreateFrame("Frame", nil, mocks.UIParent, "SecureHandlerBaseTemplate")
+  local savedUnwrap, savedWrap, savedHandler =
+    mocks.SecureHandlerUnwrapScript, mocks.SecureHandlerWrapScript, mocks.geterrorhandler
+  local seen, unwrapped = {}, 0
+  mocks.SecureHandlerUnwrapScript = function()
+    unwrapped = unwrapped + 1
+    return foreign, "-- theirs", nil
+  end
+  mocks.SecureHandlerWrapScript = function() error("rewrap refused") end
+  mocks.geterrorhandler = function() return function(err) seen[#seen + 1] = tostring(err) end end
+  local ok, err = pcall(NS.SetByPath, "enabled", false)
+  settle()
+  mocks.SecureHandlerUnwrapScript, mocks.SecureHandlerWrapScript, mocks.geterrorhandler =
+    savedUnwrap, savedWrap, savedHandler
+  NS.SetByPath("enabled", true)
+  settle()
+  reset()
+
+  assertTrue(ok, "the raise did not escape the stand-down: " .. tostring(err))
+  -- Frames an earlier case left recorded are visited too, so the pass is counted, not fixed at two.
+  assertTrue(unwrapped >= #frames, "every wrapped frame was visited, past the first raise")
+  assertEqual(#seen, unwrapped, "each refused re-wrap reached the error handler")
+  assertTrue(seen[1]:find("rewrap refused", 1, true) ~= nil, "with its own message")
+end)
+
 test("securefollow: a stand-down in combat queues the gate and the unwrap for regen", function()
   local frames = installEllesmere({ "player", "party1" })
   combat(true)

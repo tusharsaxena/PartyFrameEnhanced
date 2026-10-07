@@ -43,6 +43,10 @@ Every module rebuilds from the new profile off that one message.
 | copy | `[Set] copied profile '<source>' → '<current>'` |
 | reset | `[Set] reset profile '<name>' to defaults (N rows)` — N only when the addon drove the reset |
 
+`/pfe profile new <name>` is a switch and nothing more: it refuses a name that already exists, so
+`SetProfile` only ever creates, and a new profile is all defaults already. It writes the one
+`[Profile] changed` line and publishes **PROFILE** once; there is no reset after it.
+
 ## Reset all settings
 
 `/pfe resetall`, the General page's *Reset all settings* and Profiles → *Reset Profile* are **one act**:

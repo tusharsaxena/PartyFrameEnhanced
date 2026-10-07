@@ -344,6 +344,19 @@ return function()
     return w.header, w.pre, w.post
   end
 
+  -- The client's error handler, which the deferred secure-write queue and the follow's unwrap pass
+  -- hand a raise to so it still reaches BugSack while the loop carries on. The default records each
+  -- error and echoes it to stderr, so a raise nobody expected is visible in the run rather than
+  -- swallowed; a case that asserts on it swaps in its own.
+  M.__handledErrors = {}
+  M.geterrorhandler = function()
+    return function(err)
+      M.__handledErrors[#M.__handledErrors + 1] = err
+      io.stderr:write("geterrorhandler: ", tostring(err), "\n")
+      return err
+    end
+  end
+
   function M.__changeAttribute(frame, name, value)
     frame.__attrs = frame.__attrs or {}
     frame.__attrs[name] = value

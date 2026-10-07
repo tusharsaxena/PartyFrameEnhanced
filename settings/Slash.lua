@@ -305,14 +305,14 @@ local PROFILE_VERBS = {
         print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
     use = needsName("use", function(_, name) cli:ProfileSwitch(name) end),
-    -- SetProfile first, then the reset, so the reset lands on the new profile. An existing name is
-    -- refused: switching to it and resetting would wipe that whole profile.
+    -- An existing name is refused, so SetProfile only ever creates: the new profile is all defaults
+    -- already and needs no reset (one would only rebuild everything a second time). The switch's
+    -- one PROFILE broadcast and debug line are OnProfileChanged's.
     new = needsName("new", function(db, name)
         if exists(db, name) then
             return print(L["Profile '%s' already exists \226\128\148 use /pfe profile use or /pfe profile reset"]:format(name))
         end
         db:SetProfile(name)
-        NS.ResetProfileCounted(db)
         print(L["Created and switched to new profile '%s'"]:format(name))
     end),
     -- AceDB-3.0's CopyProfile raises on both of these (:581-587); refuse them before it can.

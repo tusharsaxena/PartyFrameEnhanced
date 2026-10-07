@@ -242,7 +242,9 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
    suspended. SecureFollow gates every in-combat follow off (`<f>-live` false, `pfe-provider`
    `"none"`) and unwraps each member frame where its wrap is the outermost; where another addon
    wrapped the same script after it, that wrap is restored and ours stays attached, gated off (the
-   `slash-commands-§7` row under Documented deviations);
+   `slash-commands-§7` row under Documented deviations). That restoring re-wrap runs through
+   `xpcall` with `geterrorhandler()`, as the wrap itself is guarded: a refusal is reported, never
+   discarded, and the unwrap pass goes on to the next frame;
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;
@@ -324,7 +326,11 @@ on entering combat while disabled, and replacing the latch with a boolean.
   painting its regions is not protected and happens in combat.
 - **Every secure write goes through `NS.RunSecure(key, fn)`**: run now out of combat, queued under its
   key in combat (the latest write per key wins), flushed on `PLAYER_REGEN_ENABLED`
-  (events-frames-taint-§2). `tests/test_lifecycle.lua` pins the queue.
+  (events-frames-taint-§2). The flush takes the whole queue and empties it **before** running
+  anything, then runs each write through `xpcall` with the client's `geterrorhandler()`: a write
+  that raises still reaches BugSack, the writes after it still land, the queue ends empty, its key
+  can queue again, and `OnLeaveCombat` still publishes `VISIBILITY`. `tests/test_lifecycle.lua`
+  pins the queue.
 - **Settings refuse to open in combat** (the library's gate, options-ui-§2) — never deferred. A page
   already on screen when combat starts, or reached through the AddOns sidebar in combat, goes under
   the library's gray cover and refuses every write, Defaults and tab click until combat ends (LibKa0s

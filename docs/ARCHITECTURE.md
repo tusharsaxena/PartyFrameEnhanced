@@ -52,7 +52,8 @@ Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup b
 PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element
 and UnitButtons before the features that capture them, SecureFollow after Providers and the target
 and pet features, StandIn before Preview and Preview after every feature, Schema before
-every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
+every settings file, OptionsSetup and ElementRows before every page, and the pages from General down,
+whose order is the settings sidebar's; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
 

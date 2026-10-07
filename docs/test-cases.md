@@ -68,10 +68,11 @@ Total.
 - coresetup: NS.MakeCloseButton hands the library this addon's folder name
 - coresetup: without LibKa0s the printer still prints, and says the library is missing once
 
-### test_envsetup.lua (2)
+### test_envsetup.lua (3)
 
 - envsetup: NS.Version never answers nil — the fallback constant when no reader answers
 - envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
+- envsetup: Meta never reads the bare GetAddOnMetadata global
 
 ### test_mediasetup.lua (4)
 
@@ -593,7 +594,7 @@ Total.
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
-| test_envsetup.lua | 2 |
+| test_envsetup.lua | 3 |
 | test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
@@ -628,4 +629,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **462** |
+| **Total** | **463** |

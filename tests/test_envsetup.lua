@@ -23,3 +23,15 @@ test("envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back 
   assertEqual(NS2.Version(), "9.9.9")
   mocks2.C_AddOns = nil
 end)
+
+test("envsetup: Meta never reads the bare GetAddOnMetadata global", function()
+  -- red under: the bare-global rung (the 11.0 AddOns purge removed the global; no admitted client
+  -- has it, so the ladder is Env, then C_AddOns, else nil).
+  local NS2, mocks2 = loadDegraded()
+  local calls = 0
+  mocks2.C_AddOns = nil
+  mocks2.GetAddOnMetadata = function() calls = calls + 1; return "bare" end
+  assertNil(NS2.Meta("Version"), "with Env and C_AddOns absent, Meta answers nil")
+  assertEqual(calls, 0, "the bare global is never read")
+  mocks2.GetAddOnMetadata = nil
+end)

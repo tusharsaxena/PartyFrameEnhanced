@@ -13,7 +13,7 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
 
 The console itself is the library's, and its contract lives in LibKa0s's
 [`docs/api/DebugLog/version-19.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-19.2.1-docs.md)
-(DebugLog 19.2.1 is the vendored minor, from LibKa0s v1.68.1). This page covers only what Party Frame
+(DebugLog 19.2.1 is the vendored minor, at the LibKa0s tag `CLAUDE.md`'s provenance line names). This page covers only what Party Frame
 Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
 chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 

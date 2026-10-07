@@ -485,6 +485,52 @@ test("disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED comple
   NS.SetByPath("pet.anchorMode", "attached")
 end)
 
+test("disabled: the pending-secure watcher is its own AceEvent target, armed once and released", function()
+  -- events-frames-taint-§1: an addon that embeds AceEvent MUST NOT make a private event frame, so
+  -- the one registration a stood-down addon keeps (slash-commands-§7) sits on a dedicated AceEvent
+  -- target -- not the addon object, whose PLAYER_REGEN_ENABLED is OnLeaveCombat, and not the bus.
+  -- red under: a CreateFrame watcher (its registration reads kind "frame", and it carries OnEvent).
+  local saved = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  enable(false)
+  NS.RunSecure("test:watcher", function() end)
+  NS.RunSecure("test:watcher2", function() end)
+  local live = {}
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.event == "PLAYER_REGEN_ENABLED" then live[#live + 1] = r end
+  end
+  assertEqual(#live, 1, "exactly one PLAYER_REGEN_ENABLED registration while stood down")
+  assertEqual(live[1].kind, "event", "an AceEvent registration, not a frame's")
+  assertTrue(live[1].target ~= NS.addon, "not the addon object")
+  assertTrue(live[1].target ~= NS.bus, "and not the message bus")
+  assertTrue(rawget(live[1].target, "__scripts") == nil, "the watcher is no frame")
+  assertTrue(NS.PendingRegenArmed(), "the diagnostics read it armed")
+
+  mocks.InCombatLockdown = saved
+  assertEqual(mocks.__fire("PLAYER_REGEN_ENABLED"), 1, "the watcher alone receives combat's end")
+  assertEqual(NS.PendingSecureCount(), 0, "and it ran the queue")
+  assertFalse(NS.PendingRegenArmed(), "the listener reads released")
+  assertEqual(#regs(), 0, "and nothing is left registered")
+
+  -- Stood back up in combat with a write queued: the watcher is disarmed, and the addon's own
+  -- OnLeaveCombat registration is the one that remains, untouched by the watcher's target.
+  mocks.InCombatLockdown = function() return true end
+  NS.RunSecure("test:watcher3", function() end)
+  assertTrue(NS.PendingRegenArmed(), "re-armed by a write queued while down")
+  enable(true)
+  assertFalse(NS.PendingRegenArmed(), "standing up disarms the watcher")
+  local addonOwns = false
+  for _, r in ipairs(mocks.__registrations()) do
+    if r.event == "PLAYER_REGEN_ENABLED" and r.target == NS.addon then addonOwns = true end
+  end
+  assertTrue(addonOwns, "the addon's OnLeaveCombat registration is back")
+  mocks.InCombatLockdown = saved
+  local others = mocks.__fire("PLAYER_REGEN_ENABLED")
+  assertTrue(others >= 1, "combat's end reaches the addon's own handler")
+  assertEqual(NS.PendingSecureCount(), 0, "which flushes the queue")
+  settle()
+end)
+
 test("disabled: in combat, the fade frames and holders hide once combat ends", function()
   -- red under: hide them outside NS.RunSecure. Secure buttons are parented to the fade frames and
   -- anchored to the holders, so a hide under lockdown is the client's to block and blame on us.

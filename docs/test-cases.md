@@ -422,7 +422,7 @@ Total.
 - slash: `profile <name>` refuses in combat and switches nothing
 - slash: `status` prints the frame system's label through NS.L
 
-### test_disabled.lua (21)
+### test_disabled.lua (22)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -442,6 +442,7 @@ Total.
 - disabled: out of combat, the target and pet state drivers are UNREGISTERED
 - disabled: re-enabled, the released state drivers are re-installed
 - disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
+- disabled: the pending-secure watcher is its own AceEvent target, armed once and released
 - disabled: in combat, the fade frames and holders hide once combat ends
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
@@ -614,7 +615,7 @@ Total.
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
 | test_slash.lua | 33 |
-| test_disabled.lua | 21 |
+| test_disabled.lua | 22 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
@@ -625,4 +626,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **459** |
+| **Total** | **460** |

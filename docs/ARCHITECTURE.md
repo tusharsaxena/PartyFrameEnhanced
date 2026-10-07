@@ -184,7 +184,7 @@ library's, the same on every addon (launcher-§2), rather than a preference.
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent`; `RAID_TARGET_UPDATE` (AceEvent, the module's own target) -- all held only while the feature is on and in a party (`syncEvents`) | `modules/PetFrames.lua` | pet frames |
 | `UNIT_IN_RANGE_UPDATE` (AceEvent, the module's own target; registered only while the fade is on, in a party, on Blizzard's classic frames) | `modules/RangeFade.lua` | the classic frames' own range check: `PartyMemberFrame` never fades for range, so there is nothing to copy. On EllesmereUI and raid-style frames the fade comes from post-hooks on each member frame's `SetAlpha` / `SetAlphaFromBoolean` instead, and no event is registered |
 | `PLAYER_REGEN_DISABLED` and `GROUP_ROSTER_UPDATE`, both only while preview is on (`listen(on)`) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
-| `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
+| `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua` (AceEvent, its own target: not the addon object, not the bus) | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
 
 Every row in this table registers through `NS.SafeRegisterEvent` / `NS.SafeRegisterUnitEvent` /
 `NS.SafeRegisterEvents` (LibKa0s-Core minor 8, published in `core/CoreSetup.lua`), so a name the client
@@ -256,8 +256,9 @@ to stop paying.
 
 Secure work — a state driver, `SetAttribute`, a `SetPoint` on a secure button — is refused under
 combat lockdown, so a stand-down that lands in combat holds the write pending and finishes it on
-`PLAYER_REGEN_ENABLED`. That listener lives on its own frame, is armed only while something is
-queued, and unregisters itself the moment it fires.
+`PLAYER_REGEN_ENABLED`. That listener lives on its own AceEvent target (not the addon object, whose
+`PLAYER_REGEN_ENABLED` is `OnLeaveCombat`, and not a bus target, which the stand-down releases), is
+armed only while something is queued, and unregisters itself the moment it fires.
 
 ### What survives, because it is setup
 

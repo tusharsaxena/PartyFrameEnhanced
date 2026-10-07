@@ -113,31 +113,39 @@ end
 -- completes it on PLAYER_REGEN_ENABLED, which slash-commands-§7 names as the one event registration
 -- a disabled addon is permitted to keep — and MUSTs that it is released the moment it fires.
 --
--- On its OWN frame rather than on the addon object, because the addon object's PLAYER_REGEN_ENABLED
--- is OnLeaveCombat and AceEvent keys a callback by (event, target): registering the same event on
--- the same target for a second reason silently replaces the first. Armed only when there is
+-- On its OWN AceEvent target rather than on the addon object, because the addon object's
+-- PLAYER_REGEN_ENABLED is OnLeaveCombat and AceEvent keys a callback by (event, target): registering
+-- the same event on the same target for a second reason silently replaces the first. Not a private
+-- CreateFrame either: an addon that embeds AceEvent MUST NOT make one (events-frames-taint-§1). And
+-- not a bus target, because the bus stands its targets down with the addon and this is the one
+-- registration that has to outlive the stand-down. Made once, at load. Armed only when there is
 -- something queued, so a stood-down addon with an empty queue watches nothing at all.
-local regenWatch
+local regenWatch = {}
+LibStub("AceEvent-3.0"):Embed(regenWatch)
+local regenArmed = false
+
+local function onRegenEnabled()
+    regenWatch:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    regenArmed = false
+    flushSecure()
+end
 
 function armPendingRegen()
-    if #pendingOrder == 0 then return end
-    if not regenWatch then
-        regenWatch = CreateFrame("Frame")
-        regenWatch:SetScript("OnEvent", function(self)
-            self:UnregisterAllEvents()
-            flushSecure()
-        end)
+    if #pendingOrder == 0 or regenArmed then return end
+    if NS.SafeRegisterEvent(regenWatch, "PLAYER_REGEN_ENABLED", onRegenEnabled, NS.RejectedEvents) then
+        regenArmed = true
     end
-    NS.SafeRegisterEvent(regenWatch, "PLAYER_REGEN_ENABLED", nil, NS.RejectedEvents)
 end
 
 function disarmPendingRegen()
-    if regenWatch then regenWatch:UnregisterAllEvents() end
+    if not regenArmed then return end
+    regenWatch:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    regenArmed = false
 end
 
 --- Whether the pending-secure listener is live right now (the diagnostics report).
 function NS.PendingRegenArmed()
-    return regenWatch ~= nil and regenWatch:IsEventRegistered("PLAYER_REGEN_ENABLED") == true
+    return regenArmed
 end
 
 -- ── the stand-down, reached from the latch in core/LifecycleSetup.lua ────────────────────────

@@ -106,6 +106,8 @@ settings\Slash.lua
 # LOAD-BEARING: publishes NS.Helpers, which every settings page calls at file load.
 settings\OptionsSetup.lua
 settings\About.lua
+# LOAD-BEARING as a block: General and every page below it call NS.RegisterOptionsPage at file
+# load, and the panel builds its sub-pages in registration order, so this order is the sidebar's.
 settings\General.lua
 # LOAD-BEARING: publishes NS.ElementRows, which every feature page calls at file load.
 settings\ElementRows.lua

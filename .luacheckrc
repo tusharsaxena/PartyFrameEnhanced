@@ -13,7 +13,7 @@ exclude_files = { "libs/", "docs/audits/", "docs/reviews/", "_dev/", "tests/_kit
 
 read_globals = {
   "_G", "LibStub", "CreateFrame", "UIParent", "select",
-  "Settings", "C_Timer", "C_AddOns", "GetAddOnMetadata", "IsAddOnLoaded", "DEFAULT_CHAT_FRAME",
+  "Settings", "C_Timer", "C_AddOns", "IsAddOnLoaded", "DEFAULT_CHAT_FRAME",
   "StaticPopup_Show", "hooksecurefunc", "InCombatLockdown", "UnitAffectingCombat",
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
   -- UnitExists is absent on purpose: a raw UnitExists(compound token) is the secret-value hazard
@@ -33,6 +33,8 @@ read_globals = {
   "RegisterStateDriver", "UnregisterStateDriver",
   -- The in-combat follow's wrap on the re-sorting providers' member frames (modules/SecureFollow.lua).
   "SecureHandlerWrapScript", "SecureHandlerUnwrapScript",
+  -- A raise inside the secure-write queue or the unwrap pass is handed here (core, SecureFollow).
+  "geterrorhandler",
   -- Frame systems we attach to — read-only, presence-guarded (library-stack-§6).
   "EditModeManagerFrame", "CompactPartyFrame", "PartyFrame", "ERFPartyHeader",
   "ERFPartySelfButton", "EventRegistry",

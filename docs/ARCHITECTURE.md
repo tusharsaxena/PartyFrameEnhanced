@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s v1.68.1** vendored whole, plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s** vendored whole (at the tag `CLAUDE.md`'s provenance line names), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
@@ -40,21 +40,9 @@ with its party member's frame when they are out of range; the raid marker draws 
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
 click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
-diagnostics report for bug reports; and LibKa0s is re-vendored, v1.62.0 in the release and now at v1.68.1. What the addon
-took from those runs is v1.46.1's settings-page combat lock, v1.55.0's Bus and Compat majors
-([revendor/2026-09-23-v1.55.0/](revendor/2026-09-23-v1.55.0/05_SUMMARY.md)), and v1.56.0's Schema
-minor 2 with `writeThrough`, Core minor 8's `SafeRegister*` family and the Slash stub's prescribed
-shape ([revendor/2026-09-23-v1.56.0/](revendor/2026-09-23-v1.56.0/05_SUMMARY.md)), v1.57.0's
-Launcher minor 3 status tooltip ([revendor/2026-09-24-v1.57.0/](revendor/2026-09-24-v1.57.0/05_SUMMARY.md)),
-v1.58.0's Launcher minor 4 left click and options menu
-([revendor/2026-09-25-v1.58.0/](revendor/2026-09-25-v1.58.0/05_SUMMARY.md)), and v1.60.0's DebugLog
-14.1 diagnostics report (`/pfe diagnostics`, sections in `modules/Diagnostics.lua`, [debug.md](debug.md)) and Slash minor 16's live `diagnostics` verb
-([revendor/2026-09-26-v1.60.0/](revendor/2026-09-26-v1.60.0/05_SUMMARY.md)); and, since the
-release, v1.63.0's Slash minor 17 profile verb, which `/pfe profile <name>` and `profile use` route
-through ([revendor/2026-09-29-v1.63.0/](revendor/2026-09-29-v1.63.0/05_SUMMARY.md)), and v1.64.0's resizable
-debug console, copy window and perf panel, the console's Diagnostics link and a report run that turns logging on for the session (DebugLog 17.2), all of which arrive with the vendored files and need no wiring. v1.65.0 closes five debug gaps, and this addon wires all of them: `settings/Slash.lua` and `core/LifecycleSetup.lua` pass the gated sink as `debug`, so the dispatcher's refusals (`[Cmd]`) and each stand-down / stand-up edge (`[Lifecycle]`) are the library's lines and the host writes no copy; the settings panel's combat-lock refusals reach the `debug` `settings/OptionsSetup.lua` already passed (`[Cfg]`); the console's change gates (`NS.DebugChanged` / `NS.DebugOnce`, re-armed by Clear and by turning logging on) replace six hand-rolled memos; and `core/LauncherSetup.lua` passes `debugAtEnable`, so the launcher's login state lines land when logging is turned on ([debug.md](debug.md)). v1.67.0's OptionsIdList minor 3 reads `addonName`, which `settings/OptionsSetup.lua` now passes in the Options descriptor; this addon draws no IdList help marks, so the change is latent ([revendor/2026-10-02-v1.67.0/](revendor/2026-10-02-v1.67.0/05_SUMMARY.md)). v1.68.0's WidgetsDragHandle minor 4 adds an optional tooltip-placement hook; this addon builds no drag strip, so it is re-vendored and not adopted ([revendor/2026-10-02-v1.68.0/](revendor/2026-10-02-v1.68.0/05_SUMMARY.md)). v1.68.1 is rename-only: test kit revision 36 names the dev-copilot plugin's commands, no LibStub minor moves, and nothing is adopted ([revendor/2026-10-04-v1.68.1/](revendor/2026-10-04-v1.68.1/05_SUMMARY.md)). v1.47.0 to
-v1.54.2 is the drag-handle widget and the `O.IdList` / `O.IdInput` run, and this addon draws neither
-([revendor/2026-09-24-v1.37.0-v1.54.2/](revendor/2026-09-24-v1.37.0-v1.54.2/05_SUMMARY.md)).
+diagnostics report for bug reports. LibKa0s is re-vendored whole (v1.62.0 in the release, and since
+then the tag `CLAUDE.md`'s provenance line names), and what each re-vendor brought and what this
+addon adopted from it is recorded per tag under [revendor/](revendor/).
 
 ## Module Map
 
@@ -64,7 +52,8 @@ Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup b
 PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element
 and UnitButtons before the features that capture them, SecureFollow after Providers and the target
 and pet features, StandIn before Preview and Preview after every feature, Schema before
-every settings file, and OptionsSetup and ElementRows before every page; the TOC comments each one and
+every settings file, OptionsSetup and ElementRows before every page, and the pages from General down,
+whose order is the settings sidebar's; the TOC comments each one and
 `tests/test_loadorder.lua` pins the ones a mistake would break silently. Full table:
 [module-map.md](module-map.md).
 
@@ -136,7 +125,7 @@ Limitations).
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade), SecureFollow (wraps the active re-sorting provider's new frames, re-syncs its header) |
 | `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing); SecureFollow (every section: re-syncs its header's attributes, writing only what changed) |
 | `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade, SecureFollow |
-| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state), SecureFollow |
+| `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state; in combat it relocks a profile stored unlocked instead, with the combat re-lock line), SecureFollow |
 
 ## Slash Commands
 
@@ -196,7 +185,7 @@ library's, the same on every addon (launcher-§2), rather than a preference.
 | `UNIT_PET` (owner), `UNIT_HEALTH` / `UNIT_MAXHEALTH` / `UNIT_NAME_UPDATE` (pet token), all `RegisterUnitEvent`; `RAID_TARGET_UPDATE` (AceEvent, the module's own target) -- all held only while the feature is on and in a party (`syncEvents`) | `modules/PetFrames.lua` | pet frames |
 | `UNIT_IN_RANGE_UPDATE` (AceEvent, the module's own target; registered only while the fade is on, in a party, on Blizzard's classic frames) | `modules/RangeFade.lua` | the classic frames' own range check: `PartyMemberFrame` never fades for range, so there is nothing to copy. On EllesmereUI and raid-style frames the fade comes from post-hooks on each member frame's `SetAlpha` / `SetAlphaFromBoolean` instead, and no event is registered |
 | `PLAYER_REGEN_DISABLED` and `GROUP_ROSTER_UPDATE`, both only while preview is on (`listen(on)`) | `modules/Preview.lua` (AceEvent, own target) | re-lock before lockdown, so nothing clickable survives into the fight; switch between the stand-in and the real party frames |
-| `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua`, its own frame | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
+| `PLAYER_REGEN_ENABLED` (armed only while a secure write is queued) | `core/PartyFrameEnhanced.lua` (AceEvent, its own target: not the addon object, not the bus) | finish a secure write the stand-down could not make under lockdown. **The one registration a disabled addon keeps** (slash-commands-§7), and it is released the moment it fires |
 
 Every row in this table registers through `NS.SafeRegisterEvent` / `NS.SafeRegisterUnitEvent` /
 `NS.SafeRegisterEvents` (LibKa0s-Core minor 8, published in `core/CoreSetup.lua`), so a name the client
@@ -254,7 +243,9 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
    suspended. SecureFollow gates every in-combat follow off (`<f>-live` false, `pfe-provider`
    `"none"`) and unwraps each member frame where its wrap is the outermost; where another addon
    wrapped the same script after it, that wrap is restored and ours stays attached, gated off (the
-   `slash-commands-§7` row under Documented deviations);
+   `slash-commands-§7` row under Documented deviations). That restoring re-wrap runs through
+   `xpcall` with `geterrorhandler()`, as the wrap itself is guarded: a refusal is reported, never
+   discarded, and the unwrap pass goes on to the next frame;
 3. `VISIBILITY` is published, so every element's show ladder re-decides and answers no **at the
    source** — a hidden frame comes back on a combat transition or a settings change, so hiding
    imperatively is not enough;
@@ -266,8 +257,9 @@ to stop paying.
 
 Secure work — a state driver, `SetAttribute`, a `SetPoint` on a secure button — is refused under
 combat lockdown, so a stand-down that lands in combat holds the write pending and finishes it on
-`PLAYER_REGEN_ENABLED`. That listener lives on its own frame, is armed only while something is
-queued, and unregisters itself the moment it fires.
+`PLAYER_REGEN_ENABLED`. That listener lives on its own AceEvent target (not the addon object, whose
+`PLAYER_REGEN_ENABLED` is `OnLeaveCombat`, and not a bus target, which the stand-down releases), is
+armed only while something is queued, and unregisters itself the moment it fires.
 
 ### What survives, because it is setup
 
@@ -336,7 +328,11 @@ on entering combat while disabled, and replacing the latch with a boolean.
   painting its regions is not protected and happens in combat.
 - **Every secure write goes through `NS.RunSecure(key, fn)`**: run now out of combat, queued under its
   key in combat (the latest write per key wins), flushed on `PLAYER_REGEN_ENABLED`
-  (events-frames-taint-§2). `tests/test_lifecycle.lua` pins the queue.
+  (events-frames-taint-§2). The flush takes the whole queue and empties it **before** running
+  anything, then runs each write through `xpcall` with the client's `geterrorhandler()`: a write
+  that raises still reaches BugSack, the writes after it still land, the queue ends empty, its key
+  can queue again, and `OnLeaveCombat` still publishes `VISIBILITY`. `tests/test_lifecycle.lua`
+  pins the queue.
 - **Settings refuse to open in combat** (the library's gate, options-ui-§2) — never deferred. A page
   already on screen when combat starts, or reached through the AddOns sidebar in combat, goes under
   the library's gray cover and refuses every write, Defaults and tab click until combat ends (LibKa0s
@@ -389,7 +385,7 @@ It is parked as an enhancement with the collection-wide WoW:F support work, LibK
 | `scope.md` | What the addon does and, explicitly, what it leaves out |
 | `module-map.md` | Every file, its responsibility, and the load order |
 | `schema.md` | SavedVariables, defaults, named non-setting state, migrations |
-| `settings-panel.md` | The `Tab \| Covers` table and the page → tab → row tree |
+| `settings-panel.md` | The `Page \| Covers` table and the page → tab → row tree |
 | `data-flow.md` | Frames found → elements placed → elements filled → shown or not |
 | `common-tasks.md` | Recipes: a setting, a verb, a provider, a report section, a bracket, a string, a re-vendor |
 
@@ -401,7 +397,7 @@ It is parked as an enhancement with the collection-wide WoW:F support work, LibK
 | `slash-dispatch.md` | Present | 18 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
-| `compat-layer.md` | Present | `core/Compat.lua` publishes 15 shims — 14 `function Compat.X` statements plus the `Compat.IsSecret` assignment; count both forms with `grep -cE '^function Compat\.\|^Compat\.[A-Za-z]+ *=' core/Compat.lua` (trigger: three or more) |
+| `compat-layer.md` | Present | `core/Compat.lua` publishes 14 shims (the standard's grep over `core/Compat.lua`, `grep -cE '^\s*function\s+[A-Za-z_][A-Za-z0-9_]*\.' core/Compat.lua`), plus `IsSecret` routed from `LibKa0s-Compat-1.0`, which is the library's and is not counted (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Present | The diagnostics report is a debug surface (`/pfe diagnostics`, `modules/Diagnostics.lua`) |
 
@@ -416,6 +412,13 @@ It is parked as an enhancement with the collection-wide WoW:F support work, LibK
 | `automated-tests/README.md` | What the automated-test record is and how to produce it |
 | `automated-tests/RESULTS.md` | One row per run; generated by the runner, never hand-edited apart from the watch list's `Disposition` column |
 
+### Addon-specific (documentation-§3, Tier 3)
+
+| Doc | Covers |
+|---|---|
+
+None.
+
 Frozen material named once as directories, never row by row: `automated-tests/<run>/`,
 `perf-analysis/<run>/`, `revendor/<date>/`, `audits/`, `reviews/` and `superpowers/` (the v0.1.0
 design spec and its checkpointed build plan).
@@ -425,7 +428,7 @@ design spec and its checkpointed build plan).
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
 | `slash-commands-§7` | On stand-down, `modules/SecureFollow.lua` unwraps a member frame's `OnAttributeChanged` only where its `SecureHandlerWrapScript` wrap is the outermost. Where another addon wrapped the same script after it, that wrap is restored exactly and ours stays attached while disabled, its snippet gated off (`<f>-live` false, `pfe-provider` `"none"`) — a gate, which §7 permits only for one-way hooks | `SecureHandlerUnwrapScript` pops the outermost wrap whoever owns it; there is no by-header unwrap, so removing ours from under another addon's wrap would mean tearing theirs off. The gated wrapper does no work beyond an attribute read per `unit` change on that one frame | 2026-10-01 (GI-PF-02, #3; owner default D9 in the 2026-10-01 GitHub issue pass, pending the owner's ratification) | Blizzard offers a safe by-header unwrap, or the standard extends the `hooksecurefunc` carve-out to secure wraps that cannot be unwrapped safely |
-| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60 | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
+| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60. Filed by the 2026-09-23 audit as PFE-15 (`docs/audits/2026-09-23/`); registered by commit 79cd225 (PF-22) | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
 
 ### Files over the 1500-line cap
 

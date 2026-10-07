@@ -37,11 +37,20 @@ copy, reset or switch never touches it.
 (debug-logging-§10) and then publishes **PROFILE** and **VISIBILITY**, and refreshes an open panel.
 Every module rebuilds from the new profile off that one message.
 
+The lock state comes with the profile, with one exception: a profile stored unlocked and adopted in
+combat (a `/pfe profile copy`, which has no combat check of its own, or another addon's
+`SetProfile`) is relocked and stored locked, and prints *Locked — combat started*, so preview never
+turns on mid-fight.
+
 | Event | Debug line |
 |---|---|
 | switch | `[Profile] changed → <name>` |
 | copy | `[Set] copied profile '<source>' → '<current>'` |
 | reset | `[Set] reset profile '<name>' to defaults (N rows)` — N only when the addon drove the reset |
+
+`/pfe profile new <name>` is a switch and nothing more: it refuses a name that already exists, so
+`SetProfile` only ever creates, and a new profile is all defaults already. It writes the one
+`[Profile] changed` line and publishes **PROFILE** once; there is no reset after it.
 
 ## Reset all settings
 

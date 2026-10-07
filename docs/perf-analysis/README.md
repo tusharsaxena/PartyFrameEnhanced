@@ -67,7 +67,7 @@ the step panel, which offers only the next legal step.
 ```
 
 Then use the debug console's **Copy** button. One paste carries the report, the dump and the
-lifecycle lines — the three inputs `/wow-addon:perf-analysis` needs. The last 10 runs also persist in
+lifecycle lines — the three inputs `/dev-copilot:wow-perf-analysis` needs. The last 10 runs also persist in
 `PartyFrameEnhancedPerfDB.runs`, in `WTF/Account/<ACCOUNT>/SavedVariables/PartyFrameEnhanced.lua`,
 outside the AceDB tree.
 

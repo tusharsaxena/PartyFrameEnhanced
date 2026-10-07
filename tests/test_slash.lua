@@ -360,6 +360,32 @@ test("slash: `profile new` on an existing name refuses and does NOT wipe it", fu
   assertTrue(out[1]:find("already exists", 1, true) ~= nil, "the 'already exists' line")
 end)
 
+test("slash: `profile new` switches once: one PROFILE, no reset line", function()
+  -- red under: NS.ResetProfileCounted after SetProfile in `new`. The fresh profile is already all
+  -- defaults, so the reset only re-ran adoptProfile: a second PROFILE broadcast and a no-op
+  -- '[Set] reset profile ... (0 rows)' line.
+  local start = NS.db:GetCurrentProfile()
+  local profiles, debugLines = 0, {}
+  local target = NS.NewBusTarget()
+  target:RegisterMessage(NS.MSG.PROFILE, function() profiles = profiles + 1 end)
+  local savedDebug = NS.Debug
+  NS.Debug = function(tag, fmt, ...) debugLines[#debugLines + 1] = tag .. " " .. fmt:format(...) end
+  local ok, err, out = slashSafe("profile new FreshOne")
+  NS.Debug = savedDebug
+  target:UnregisterMessage(NS.MSG.PROFILE)
+  local current = NS.db:GetCurrentProfile()
+  dropProfile(start, "FreshOne")
+
+  assertTrue(ok, tostring(err))
+  assertEqual(current, "FreshOne", "switched to the new profile")
+  assertEqual(profiles, 1, "every module rebuilds off one PROFILE message")
+  for _, line in ipairs(debugLines) do
+    assertTrue(not line:find("reset profile", 1, true), "no reset line: " .. line)
+  end
+  assertEqual(#out, 1, "one chat line")
+  assertTrue(out[1]:find("Created and switched", 1, true) ~= nil, "the 'Created and switched' line")
+end)
+
 test("slash: `profile use` on a missing name refuses and creates nothing", function()
   -- red under: `use` straight through SetProfile, which makes a profile out of any typo. `use`
   -- routes through the library's ProfileSwitch, so the refusal is its line and then the list.
@@ -537,4 +563,49 @@ test("slash: `status` prints the frame system's label through NS.L", function()
   NS.Providers.Resolve()
   local want = "Frame system: " .. NS.L["Blizzard (raid-style)"]
   assertEqual(out[1]:sub(-#want), want, "the L-routed label ends the first line")
+end)
+
+-- The `Note:` line of `/pfe status`, or "" when there is none.
+local function statusNote()
+  for _, line in ipairs(slash("status")) do
+    local note = line:match("Note: (.*)$")
+    if note then return note end
+  end
+  return ""
+end
+
+-- Counts the comma-separated flags of a Note line that start with "unlocked".
+local function unlockedFlags(note)
+  local n, bare = 0, 0
+  for flag in (note .. ","):gmatch("%s*(.-),") do
+    if flag:sub(1, 8) == "unlocked" then n = n + 1 end
+    if flag == "unlocked" then bare = bare + 1 end
+  end
+  return n, bare
+end
+
+test("slash: `status` names an unlock with preview on once", function()
+  -- red under: statusFlags added the preview branch's 'unlocked (stand-in)' AND a bare
+  -- 'unlocked' from Anchor.IsUnlocked(), and applyLock sets both together, so the Note line read
+  -- 'unlocked (stand-in), unlocked' (PFE-R-04).
+  slash("unlock")
+  local note = statusNote()
+  slash("lock")
+  assertTrue(note:find("unlocked (", 1, true) ~= nil, "the preview branch names the view: " .. note)
+  local n, bare = unlockedFlags(note)
+  assertEqual(n, 1, "one unlocked flag: " .. note)
+  assertEqual(bare, 0, "no second bare 'unlocked': " .. note)
+end)
+
+test("slash: `status` still reports an unlock whose preview was refused", function()
+  -- The holders are grabbable but preview is off (setPreview refused): the bare flag is the only
+  -- one that says so.
+  NS.Anchor.SetUnlocked(true)
+  local preview = NS.State.preview
+  local note = statusNote()
+  NS.Anchor.SetUnlocked(false)
+  assertTrue(not preview, "precondition: preview off")
+  local n, bare = unlockedFlags(note)
+  assertEqual(n, 1, "one unlocked flag: " .. note)
+  assertEqual(bare, 1, "and it is the bare one: " .. note)
 end)

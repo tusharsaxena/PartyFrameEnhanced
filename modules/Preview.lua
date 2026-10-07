@@ -32,6 +32,8 @@ local _, NS = ...
 -- ENTERING COMBAT RE-LOCKS, at PLAYER_REGEN_DISABLED while secure writes are still permitted, so no
 -- clickable placeholder and no stand-in anchor survives into the fight. That is where the old
 -- "combat ends test mode" guarantee went; with one switch, ending preview and locking are one act.
+-- A profile adopted mid-fight (a `/pfe profile copy`, another addon's SetProfile) cannot undo it:
+-- the PROFILE receiver relocks a profile stored unlocked instead of previewing it.
 
 local L = NS.L
 
@@ -194,10 +196,18 @@ ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
     end
 end)
 
--- A new profile carries its own lock state.
+-- A new profile carries its own lock state — except in combat, where the unlock it carries is
+-- refused exactly as NS.AcceptLock refuses any other. `/pfe profile copy` has no combat check of its
+-- own (and a third-party SetProfile none at all), and PLAYER_REGEN_DISABLED's re-lock has already
+-- fired, so this receiver is the last guard: it stores the profile relocked, says so in the combat
+-- re-lock's own words, and never turns preview on mid-fight (review F-001).
 ev:RegisterMessage(NS.MSG.PROFILE, function()
     if NS.GetSetting("enabled") ~= true then
         applyLock(false)
+    elseif NS.GetSetting("locked") == false and InCombatLockdown() then
+        NS.SetByPath("locked", true)
+        applyLock(false)   -- the row's onChange already did; a row-less (hollow) load did not
+        NS.Print(L["Locked \226\128\148 combat started"])
     else
         applyLock(NS.GetSetting("locked") == false)
     end

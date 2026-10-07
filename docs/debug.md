@@ -13,7 +13,7 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
 
 The console itself is the library's, and its contract lives in LibKa0s's
 [`docs/api/DebugLog/version-19.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-19.2.1-docs.md)
-(DebugLog 19.2.1 is the vendored minor, from LibKa0s v1.68.1). This page covers only what Party Frame
+(DebugLog 19.2.1 is the vendored minor, at the LibKa0s tag `CLAUDE.md`'s provenance line names). This page covers only what Party Frame
 Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
 chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
 
@@ -71,7 +71,7 @@ writes no copy of any of them, and `tests/test_library_lines.lua` pins each land
 | `Lifecycle` | the library, from `core/LifecycleSetup.lua`'s `debug` | Each stand-down and stand-up edge, one line naming the hold that moved and the resulting set (`stood down: added disabled (holds: disabled)`, `stood up: released perf (holds: none)`). A hold that fires no edge writes nothing. This addon writes no edge line of its own |
 | `Party` | `core/PartyFrameEnhanced.lua` | A roster change that flipped the party-only answer (joined or left a party, or the group became a raid) |
 | `Combat` | `core/PartyFrameEnhanced.lua` | Entering combat (secure writes queue from here); leaving it, with the rollup of what the fight counted (`castsStarted`, `castsInterrupted`, `targetEvents`, `targetTicks`) |
-| `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write held under combat lockdown, **once per key** with the count held (a later write under the key replaces it silently); the flush after combat or at a stand-up, with how many ran; how many writes a stand-down or stand-up leaves held, when there are any; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
+| `Secure` | `core/PartyFrameEnhanced.lua`, `modules/UnitButtons.lua` | A secure write held under combat lockdown, **once per key** with the count held (a later write under the key replaces it silently); the flush after combat or at a stand-up, with how many ran and how many raised (a raise goes to the client's error handler, and the rest of the queue still runs); how many writes a stand-down or stand-up leaves held, when there are any; a unit button's state driver set or released; a blocked or forbidden action blamed on this addon (ungated) |
 | `Bus` | `core/Bus.lua` | A message or event the client refused when the bus came back up |
 | `Provider` | `modules/Providers.lua` | A resolve that changed the frame system or any unit's frame (change-gated by the resolve itself); EllesmereUI or its raid frames loading after this addon; the Edit Mode exit callback refused, once per distinct error |
 | `Anchor` | `modules/Anchor.lua` | A placement pass that moved, faded or followed something (`moved N, no frame N, faded N, followed N`; a pass that changed nothing is silent). `followed` counts the secure elements an in-combat pass left to `modules/SecureFollow.lua`'s snippet instead of fading; a free-placement stack dropped after a drag, with its stored position; every stack reset to default |

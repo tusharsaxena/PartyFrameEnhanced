@@ -1,8 +1,10 @@
 # Test Cases
 
 The full inventory of every headless test case in this repo, grouped by the suite file it
-lives in. The `## Totals` table below is the **authoritative pass count** — the README test
-badge and any count quoted in the docs must agree with it.
+lives in. The `## Totals` table below counts the cases that run: its **Total** is the
+authoritative pass count, and the README test badge and any count quoted in the docs must equal
+it. A declared skip is listed by name in its group and counted on the `Skipped` row, never in
+Total.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
@@ -66,10 +68,11 @@ badge and any count quoted in the docs must agree with it.
 - coresetup: NS.MakeCloseButton hands the library this addon's folder name
 - coresetup: without LibKa0s the printer still prints, and says the library is missing once
 
-### test_envsetup.lua (2)
+### test_envsetup.lua (3)
 
 - envsetup: NS.Version never answers nil — the fallback constant when no reader answers
 - envsetup: without LibKa0s, Meta and Version read C_AddOns, then fall back to NS.version
+- envsetup: Meta never reads the bare GetAddOnMetadata global
 
 ### test_mediasetup.lua (4)
 
@@ -93,13 +96,14 @@ badge and any count quoted in the docs must agree with it.
 - perfsetup: live and stub both carry every Perf member the addon's source reads
 - perfsetup: without LibKa0s the stub carries every member the addon calls
 
-### test_lifecycle.lua (6)
+### test_lifecycle.lua (7)
 
 - lifecycle: a secure write out of combat runs at once
 - lifecycle: in combat a secure write queues, the same key replaces, and regen flushes in order
 - lifecycle: the regen events drive NS.State.inCombat and republish visibility
 - lifecycle: a blocked action blamed on this addon is logged, ungated
 - lifecycle: PendingSecureKeys is a copy of the queued keys, in first-queued order
+- lifecycle: one raising deferred write is reported, and the rest of the queue still runs
 - lifecycle: the session blocked-action counter counts only this addon's blocks
 
 ### test_bus.lua (13)
@@ -164,12 +168,14 @@ badge and any count quoted in the docs must agree with it.
 - anchor: a holder opts out of the client's layout cache; the addon owns its position
 - anchor: a holder still builds on a client without SetDontSavePosition
 
-### test_profile_switch.lua (4)
+### test_profile_switch.lua (6)
 
 - profile switch: Anchor places by the NEW profile even when it hears PROFILE first
 - profile switch: a real SetProfile each way follows the profile
 - profile switch: Reset all settings on a free profile returns it to attached
 - profile switch: copying a free profile in places by the copy
+- profile switch: copying an unlocked profile in combat keeps preview off and relocks it
+- profile switch: copying a locked profile in combat changes nothing and says nothing
 
 ### test_castbars.lua (14)
 
@@ -230,7 +236,7 @@ badge and any count quoted in the docs must agree with it.
 - petframes: the marker draws above the border
 - petframes: RAID_TARGET_UPDATE is held only while the feature is on and in a party
 
-### test_securefollow.lua (22)
+### test_securefollow.lua (23)
 
 - securefollow: setup — target and pet attached at their shipped placement
 - securefollow: one restricted snippet per RE-SORTING provider, and none for classic
@@ -250,6 +256,7 @@ badge and any count quoted in the docs must agree with it.
 - securefollow: regen re-pins a followed element even when the map is back where the memo was
 - securefollow: stand-down gates every follow off and unwraps where ours is outermost
 - securefollow: stand-down restores another addon's outer wrap and leaves ours gated beneath it
+- securefollow: a raising re-wrap of another addon's handler is reported and the unwrap pass goes on
 - securefollow: a stand-down in combat queues the gate and the unwrap for regen
 - securefollow: without SecureHandlerWrapScript the module is inert and the fade is unchanged
 - securefollow: the degraded build (LibKa0s absent) loads the module
@@ -380,7 +387,7 @@ badge and any count quoted in the docs must agree with it.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (32)
+### test_slash.lua (35)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -403,6 +410,7 @@ badge and any count quoted in the docs must agree with it.
 - slash: the gate is DENY BY DEFAULT -- every verb outside the live set refuses
 - slash: the live set still ANSWERS and still ACTS while the addon is off
 - slash: `profile new` on an existing name refuses and does NOT wipe it
+- slash: `profile new` switches once: one PROFILE, no reset line
 - slash: `profile use` on a missing name refuses and creates nothing
 - slash: `profile copy` refuses a missing name and the current profile, with no Lua error
 - slash: `profile delete` on a missing name refuses instead of claiming it deleted
@@ -414,8 +422,10 @@ badge and any count quoted in the docs must agree with it.
 - slash: a sub-verb matches in any case, and the current profile is already on
 - slash: `profile <name>` refuses in combat and switches nothing
 - slash: `status` prints the frame system's label through NS.L
+- slash: `status` names an unlock with preview on once
+- slash: `status` still reports an unlock whose preview was refused
 
-### test_disabled.lua (21)
+### test_disabled.lua (22)
 
 - disabled: the baseline — enabled, the addon registers and draws
 - disabled: every registration the addon owns is UNREGISTERED, not gated
@@ -435,6 +445,7 @@ badge and any count quoted in the docs must agree with it.
 - disabled: out of combat, the target and pet state drivers are UNREGISTERED
 - disabled: re-enabled, the released state drivers are re-installed
 - disabled: in combat, the release is queued and PLAYER_REGEN_ENABLED completes it
+- disabled: the pending-secure watcher is its own AceEvent target, armed once and released
 - disabled: in combat, the fade frames and holders hide once combat ends
 - disabled: unlocking through the seam prints only the collection line and writes nothing
 - disabled: the suite leaves the world enabled for the suites after it
@@ -583,20 +594,20 @@ badge and any count quoted in the docs must agree with it.
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
-| test_envsetup.lua | 2 |
+| test_envsetup.lua | 3 |
 | test_mediasetup.lua | 4 |
 | test_debuglog.lua | 4 |
 | test_perfsetup.lua | 5 |
-| test_lifecycle.lua | 6 |
+| test_lifecycle.lua | 7 |
 | test_bus.lua | 13 |
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
 | test_anchor.lua | 11 |
-| test_profile_switch.lua | 4 |
+| test_profile_switch.lua | 6 |
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
-| test_securefollow.lua | 22 |
+| test_securefollow.lua | 23 |
 | test_rangefade.lua | 9 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
@@ -606,15 +617,16 @@ badge and any count quoted in the docs must agree with it.
 | test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 32 |
-| test_disabled.lua | 21 |
+| test_slash.lua | 35 |
+| test_disabled.lua | 22 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
 | test_surface_parity.lua | 14 |
-| test_diagnostics_contract.lua | 9 |
+| test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
-| **Total** | **455** |
+| Skipped | 1 |
+| **Total** | **463** |

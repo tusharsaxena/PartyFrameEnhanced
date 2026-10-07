@@ -131,3 +131,75 @@ test("profile switch: copying a free profile in places by the copy", case(functi
   settle()
   assertPlaced("free", frames, "after copying " .. FREE)
 end))
+
+-- ── a profile adopted in combat cannot turn preview on (review F-001) ─────────────────────────
+-- `/pfe profile copy <name>` has no combat check of its own, so a copy mid-fight reaches Preview's
+-- PROFILE receiver through CopyProfile -> OnProfileCopied -> adoptProfile. The combat re-lock at
+-- PLAYER_REGEN_DISABLED has already fired by then, so the receiver itself has to hold the refusal.
+
+local SRC = "PFE-Src"
+local COMBAT_LINE = "Locked \226\128\148 combat started"
+
+local function chatSince(before)
+  local out = {}
+  for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
+  return table.concat(out, "\n")
+end
+
+local function anyCastPreview()
+  for _, el in pairs(Anchor.__features.castbar.elements) do
+    if el.__previewing then return true end
+  end
+  return false
+end
+
+-- SRC stored with `locked = srcLocked` (raw, so nothing is published from it), the store on a fresh
+-- COPY profile locked out of preview, then the copy made with InCombatLockdown stubbed true.
+local function copyInCombat(srcLocked)
+  local start = NS.db:GetCurrentProfile()
+  local savedCombat = mocks.InCombatLockdown
+  local result = {}
+  local ok, err = pcall(withFrames, function()
+    NS.db:SetProfile(SRC)
+    NS.db.profile.locked = srcLocked
+    NS.db:SetProfile(COPY)
+    settle()
+    T.assertFalse(NS.State.preview, "precondition: preview is off before the copy")
+    mocks.InCombatLockdown = function() return true end
+    local before = #mocks.__chat
+    NS.db:CopyProfile(SRC)
+    settle()
+    result.preview = NS.State.preview
+    result.locked = NS.GetSetting("locked")
+    result.chat = chatSince(before)
+    result.castPreview = anyCastPreview()
+  end)
+  mocks.InCombatLockdown = savedCombat
+  NS.db:SetProfile(start)
+  settle()
+  for _, name in ipairs({ SRC, COPY }) do
+    if hasProfile(name) then NS.db:DeleteProfile(name, true) end
+  end
+  settle()
+  if not ok then error(err, 0) end
+  return result
+end
+
+test("profile switch: copying an unlocked profile in combat keeps preview off and relocks it", function()
+  -- red under: the PROFILE receiver calling applyLock(locked == false) with no combat branch —
+  -- preview turns on mid-fight and the cast bars show their placeholders.
+  local r = copyInCombat(false)
+  T.assertFalse(r.preview, "preview stays off in combat")
+  T.assertEqual(r.locked, true, "the stored profile is relocked")
+  assertTrue(r.chat:find(COMBAT_LINE, 1, true) ~= nil, "the combat re-lock line is printed: " .. r.chat)
+  T.assertFalse(r.castPreview, "no cast-bar placeholder")
+end)
+
+test("profile switch: copying a locked profile in combat changes nothing and says nothing", function()
+  -- red under: the combat branch firing whatever the stored lock (a re-lock line nobody needed).
+  local r = copyInCombat(true)
+  T.assertFalse(r.preview, "preview stays off")
+  T.assertEqual(r.locked, true, "still locked")
+  assertTrue(r.chat:find(COMBAT_LINE, 1, true) == nil, "no re-lock line: " .. r.chat)
+  T.assertFalse(r.castPreview, "no cast-bar placeholder")
+end)

@@ -52,9 +52,9 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   and not a blank square. *Failure:* a blank square means `media/logos/partyframeenhanced.logo.128.tga`
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result:
-- **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at v1.68.1 (Core 10, Options
-  28, OptionsIdList 3, WidgetsDragHandle 4), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
-  about a missing or older module. `/pfe config` → every page draws as it did. *Failure:* a page
+- **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
+  line names (v1.71.0: Env 2, OptionsIdList 4, Slash 20, SlashParse 2, WidgetsLineChart 3, WidgetsAutocomplete 2), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Result:
 
 ## Slash commands

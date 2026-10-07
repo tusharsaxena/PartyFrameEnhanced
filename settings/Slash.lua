@@ -205,7 +205,9 @@ local function statusFlags()
     elseif not NS.Units.InParty() then
         flags[#flags + 1] = L["not in a party \226\128\148 nothing shows until you join one (try /pfe unlock)"]
     end
-    if NS.Anchor.IsUnlocked() then flags[#flags + 1] = L["unlocked"] end
+    -- The preview branch above already names the view; the bare flag covers only an unlock
+    -- whose preview was refused (the holders grabbable, nothing standing in).
+    if NS.Anchor.IsUnlocked() and not NS.State.preview then flags[#flags + 1] = L["unlocked"] end
     if NS.Perf.suspended then flags[#flags + 1] = L["suspended by a perf run"] end
     return flags
 end
@@ -305,14 +307,14 @@ local PROFILE_VERBS = {
         print(L["Current profile: %s"]:format(db:GetCurrentProfile()))
     end,
     use = needsName("use", function(_, name) cli:ProfileSwitch(name) end),
-    -- SetProfile first, then the reset, so the reset lands on the new profile. An existing name is
-    -- refused: switching to it and resetting would wipe that whole profile.
+    -- An existing name is refused, so SetProfile only ever creates: the new profile is all defaults
+    -- already and needs no reset (one would only rebuild everything a second time). The switch's
+    -- one PROFILE broadcast and debug line are OnProfileChanged's.
     new = needsName("new", function(db, name)
         if exists(db, name) then
             return print(L["Profile '%s' already exists \226\128\148 use /pfe profile use or /pfe profile reset"]:format(name))
         end
         db:SetProfile(name)
-        NS.ResetProfileCounted(db)
         print(L["Created and switched to new profile '%s'"]:format(name))
     end),
     -- AceDB-3.0's CopyProfile raises on both of these (:581-587); refuse them before it can.

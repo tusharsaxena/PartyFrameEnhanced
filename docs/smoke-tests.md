@@ -67,7 +67,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **SLASH-2. The long alias.** `/partyframeenhanced` and `/partyframeenhanced help` → the same as
   `/pfe` and `/pfe help`. Result:
 - **SLASH-3. Unknown verb.** `/pfe wibble` → `unknown command 'wibble'`, then the help block. Result:
-- **SLASH-4. Version.** `/pfe version` → `[PFE] v<the TOC version>` (`[PFE] v1.1.0` on 1.1.0).
+- **SLASH-4. Version.** `/pfe version` → `[PFE] v<the TOC version>` (`[PFE] v1.2.0` on 1.2.0).
   Result:
 - **SLASH-5. List.** `/pfe list` → a green header, the `[general]` group, then `path = value` rows
   with gold paths and white values, and no trailing colons. Result:

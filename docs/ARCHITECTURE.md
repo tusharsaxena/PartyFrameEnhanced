@@ -32,10 +32,16 @@ nothing (so no reorder list). **Schema was adopted last** (#14): it waited on th
 `writeThrough` list (Schema minor 2), without which a library-less load, whose Master controls
 composer is hollow, would have stopped `/pfe enable`, `/pfe disable` and `/pfe lock` from writing.
 
-Build status: v1.1.0 is the latest release (2026-09-27), gated on the release run
+Build status: v1.2.0 is the latest release (2026-10-09), gated on the release run
+[automated-tests/20261009-191745/](automated-tests/20261009-191745/ANALYSIS.md). What v1.2.0 adds over
+v1.1.0: target and pet frames follow an in-combat re-sort of the EllesmereUI or Blizzard raid-style party
+frames through SecureFollow instead of fading until combat ends; `/pfe profile` lists the profiles and
+`/pfe profile <name>` switches through the library's `CliProfile`; `/pfe diagnostics` turns debug logging
+on for the session and the console carries a Diagnostics link; a profile adopted unlocked in combat is
+relocked instead of previewed; `/pfe status` prints one unlocked flag. v1.1.0 (2026-09-27) was gated on
 [automated-tests/20260927-030324/](automated-tests/20260927-030324/ANALYSIS.md). v1.0.1 shipped with the
 offline perf pass, the release-candidate record, the first standards audit, the in-game smoke pass and
-the first party perf captures done. What v1.1.0 adds over v1.0.1: every element fades
+the first party perf captures done. What v1.1.0 added over v1.0.1: every element fades
 with its party member's frame when they are out of range; the raid marker draws above the border,
 pet frames get one, and its default anchor is Top; the Size & Position section draws only the
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left

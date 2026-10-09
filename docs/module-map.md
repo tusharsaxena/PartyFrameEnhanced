@@ -54,6 +54,6 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 
 `tests/run.lua` (load list, lifecycle kick, suite list), `tests/wow_mock.lua` (thin extender: unit
 classes, distinct recording regions and status bars, scripted casts, unit data by token (range
-included), secure attributes and state drivers, every frame's alpha calls, and the SecureHandler surface: the template-gated header, the wrap / unwrap recorder, `__changeAttribute` and the restricted environment the follow's snippets run in), `tests/degraded_env.lua` (library-absent load), `tests/perf.lua`
+included), secure attributes and state drivers, every frame's alpha calls, and the SecureHandler surface: the template-gated header, the wrap / unwrap recorder, `__changeAttribute` and the restricted environment the follow's snippets run in), `tests/degraded_env.lua` (library-absent load), `tests/launcher_env.lua` (a second whole-tree load against fake LibDataBroker-1.1 / LibDBIcon-1.0 majors, for `tests/test_launcher.lua`), `tests/mock_menu.lua` (the library's client-menu fake, copied verbatim), `tests/perf.lua`
 (offline scenarios, outside the gate), and one `tests/test_*.lua` per module. `tests/_kit/` is
 vendored and never edited.

@@ -109,7 +109,7 @@ Closed bus on AceEvent messages (`core/Bus.lua`); each receiver registers on its
 `NS.NewBusTarget()`, and every message has exactly one sending file (`tests/test_bus.lua` reads the
 source to check).
 
-The stand-down record is **`LibKa0s-Bus-1.0`** (`libs/LibKa0s/Bus.lua`, `docs/api/Bus/version-1-docs.md`
+The stand-down record is **`LibKa0s-Bus-1.0`** (`libs/LibKa0s/Bus.lua`, `docs/api/Bus/version-2-docs.md`
 in LibKa0s). `core/Bus.lua` builds one record with `Bus:New{ name, isDown }`, where `isDown` asks
 `NS.IsStoodDown` at call time, and keeps the host's names as one-line delegates: `NS.NewBusTarget`
 (a tracked target per receiver), `NS.BusStandDown` (events and messages down, the record kept) and

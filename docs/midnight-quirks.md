@@ -92,6 +92,17 @@ member frame and replays them on its own per-unit fade frame:
   never has to be multiplied with anything: the elements are the fade frame's children, so the
   client multiplies the two alphas itself.
 
+## Blizzard's party frames hold forbidden children
+
+Blizzard's raid-style member frames carry **forbidden** aura buttons
+(`Blizzard_AuraContainerFrameProviders.lua`). Any method on a forbidden frame except `IsForbidden`
+raises "Attempt to access forbidden object from code tainted by an AddOn". The strata code in
+`modules/RangeFade.lua` walks a party frame's children to find the highest level, and it skips any
+child whose `IsForbidden()` is `true`, along with everything under that child. The level and strata
+reads are `pcall`'d too. A party frame that cannot be read at all puts its unit's elements on LOW
+(Blizzard's unit-frame strata) at a fixed level of 50. *Breaks if tidied:* drop the `IsForbidden`
+check and the strata pass raises on every LAYOUT and VISIBILITY.
+
 ## Stops re-derive instead of matching ids
 
 A stop, fail or interrupt re-queries the unit before acting (`CastBars` `onEvent`): if the unit is

@@ -39,7 +39,8 @@ local _, NS = ...
 -- covered that would not cover the party frame too. Left on UIParent's MEDIUM, the elements drew
 -- over every LOW window -- other addons' panels included. A unit with no party frame borrows any
 -- member frame of the active system, and with none at all lands on LOW, where Blizzard's own unit
--- frames live. A fixed choice sets that strata and the same level. The children follow the fade
+-- frames live. A party frame that cannot be read (forbidden, or a read the client refuses) also
+-- lands on LOW, at a fixed level clear of a party frame's children. A fixed choice sets that strata and the same level. The children follow the fade
 -- frame's strata and level, and a fade frame parents secure buttons, so the write goes through the
 -- secure queue.
 
@@ -52,6 +53,9 @@ NS.RangeFade = RangeFade
 
 local CLASSIC_OUT_OF_RANGE = 0.5   -- what Blizzard's raid-style frames fade to
 local FALLBACK_STRATA = "LOW"      -- no party frame to copy: Blizzard's unit frames' strata
+-- A party frame that cannot be read (forbidden, or a read the client refuses): its level is
+-- unknown, so the elements take one clear of a party frame's own children on that strata.
+local FALLBACK_LEVEL = 50
 local MAX_LEVEL = 9000             -- the client's ceiling is 10000; the elements stack a few above
 -- general.strata's choices, lowercase for the CLI, as the client spells them.
 local STRATA = {
@@ -209,14 +213,22 @@ end
 
 -- The highest frame level in `frame` and everything under it. A party frame's health bar, texts
 -- and overlays are children above its own level; the cast bar has to clear all of them.
+-- A FORBIDDEN frame is skipped with everything under it: Blizzard's raid-style frames carry
+-- forbidden aura buttons, and any method but IsForbidden on one raises "Attempt to access
+-- forbidden object". The level read is pcall'd too, so a frame the client refuses costs only itself.
+local function readable(frame)
+    return type(frame) == "table" and type(frame.GetFrameLevel) == "function"
+        and not (type(frame.IsForbidden) == "function" and frame:IsForbidden() == true)
+end
+
 local function topLevel(frame, seen)
     seen = seen or {}
     seen[frame] = true
-    local top = frame:GetFrameLevel()
-    if type(top) ~= "number" then top = 0 end
+    local ok, top = pcall(frame.GetFrameLevel, frame)
+    if not ok or type(top) ~= "number" then top = 0 end
     if type(frame.GetChildren) ~= "function" then return top end
     for _, child in ipairs({ frame:GetChildren() }) do
-        if type(child) == "table" and not seen[child] and type(child.GetFrameLevel) == "function" then
+        if not seen[child] and readable(child) then
             local lvl = topLevel(child, seen)
             if lvl > top then top = lvl end
         end
@@ -236,10 +248,11 @@ function RangeFade.StackFor(unit)
     local frame = Providers.FrameFor(unit) or anyFrame()
     local fixed = STRATA[NS.GetSetting("general.strata")]
     if not frame then return fixed or FALLBACK_STRATA, 1 end
+    if not readable(frame) then return fixed or FALLBACK_STRATA, FALLBACK_LEVEL end
     local strata = fixed
     if not strata then
-        strata = frame:GetFrameStrata()
-        if type(strata) ~= "string" then strata = FALLBACK_STRATA end
+        local ok, s = pcall(frame.GetFrameStrata, frame)
+        strata = (ok and type(s) == "string") and s or FALLBACK_STRATA
     end
     return strata, math.min(topLevel(frame) + 1, MAX_LEVEL)
 end

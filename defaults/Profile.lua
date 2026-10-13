@@ -21,6 +21,9 @@ NS.defaults.profile = {
         -- Fade each unit's elements with its party frame when the member is out of range
         -- (modules/RangeFade.lua).
         rangeFade     = true,
+        -- Where the elements stack (modules/RangeFade.lua). "auto" copies each unit's party frame's
+        -- strata and sits just above it; otherwise "background" | "low" | "medium" | "high" | "dialog".
+        strata        = "auto",
         -- Health updates, shared by target and pet frames. Off: their bars are drawn full with no
         -- percent, the target ticker never runs and no pet health event is registered.
         -- tickInterval paces the target ticker only: compound tokens (partyNtarget) get no

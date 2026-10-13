@@ -327,6 +327,12 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   element at full opacity at once, out of range or not. Tick it back → the far member dims again.
   `/pfe unlock` in a party with someone out of range → every placeholder at full opacity; lock → the
   fade returns. Result: pass (owner-marked 2026-10-10)
+- **FADE-5. Frame strata.** General → Party frames → *Frame strata* on *Match party frames*: open a
+  window that overlaps the party frames (the Group Finder, another addon's panel) → it covers the
+  cast bars, target and pet frames just as it covers the party frames. A cast on an attached cast bar
+  still draws over the party frame, not behind it. Pick *High* → the elements draw over that window.
+  `/pfe set general.strata dialog` in combat → no error; the change lands as combat ends. *Failure:*
+  elements over a window that covers the party frames, or a cast bar hidden behind its party frame.
 
 ## Minimap button and broker
 

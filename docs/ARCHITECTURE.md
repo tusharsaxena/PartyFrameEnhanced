@@ -322,7 +322,8 @@ on entering combat while disabled, and replacing the latch with a boolean.
   on stand-down and shown on stand-up, before `NS.PublishVisibility`, through
   `NS.RunSecure("fade:shown")`, so a stand-down in combat waits for `PLAYER_REGEN_ENABLED`. The
   free-placement holders (`modules/Anchor.lua`), which secure buttons anchor to, do the same under
-  `holder:shown`.
+  `holder:shown`. Their strata and level (General → *Frame strata*: by default the party frame's
+  strata, a level above its highest child) are written the same way, under `fade:strata`.
 - **The out-of-range fade copies, it never calls in.** `modules/RangeFade.lua` post-hooks each member
   frame's `SetAlpha` and `SetAlphaFromBoolean` with `hooksecurefunc` and replays the call on its own
   fade frame. A secret flag goes to `SetAlphaFromBoolean` untouched; a secret number is tried on

@@ -32,6 +32,16 @@ local _, NS = ...
 --
 -- Full alpha whenever the fade does not apply: the setting off, the addon or a perf run suspending
 -- it, preview mode, or a unit with no party frame.
+--
+-- STRATA. The fade frames also set where the elements stack (General → Party frames → "Frame
+-- strata"). Automatic copies the unit's party frame's strata and sits one level above the highest
+-- frame in it, so an attached cast bar draws over the party frame and nothing else on screen is
+-- covered that would not cover the party frame too. Left on UIParent's MEDIUM, the elements drew
+-- over every LOW window -- other addons' panels included. A unit with no party frame borrows any
+-- member frame of the active system, and with none at all lands on LOW, where Blizzard's own unit
+-- frames live. A fixed choice sets that strata and the same level. The children follow the fade
+-- frame's strata and level, and a fade frame parents secure buttons, so the write goes through the
+-- secure queue.
 
 local Compat    = NS.Compat
 local Units     = NS.Units
@@ -41,6 +51,12 @@ local RangeFade = NS.RegisterModule({ name = "RangeFade" })
 NS.RangeFade = RangeFade
 
 local CLASSIC_OUT_OF_RANGE = 0.5   -- what Blizzard's raid-style frames fade to
+local FALLBACK_STRATA = "LOW"      -- no party frame to copy: Blizzard's unit frames' strata
+local MAX_LEVEL = 9000             -- the client's ceiling is 10000; the elements stack a few above
+-- general.strata's choices, lowercase for the CLI, as the client spells them.
+local STRATA = {
+    background = "BACKGROUND", low = "LOW", medium = "MEDIUM", high = "HIGH", dialog = "DIALOG",
+}
 
 local fades = {}                                         -- unit → fade frame
 local unitOf = {}                                        -- party frame → the unit it shows now
@@ -48,6 +64,7 @@ local hooked = setmetatable({}, { __mode = "k" })        -- party frames already
 local suspended = false
 local listening = false
 local ready = false                                      -- OnEnable has run (the DB exists)
+local stacked = {}                                       -- unit → "STRATA:level" last applied
 
 --- The frame `unit`'s elements are parented to. Created on first ask, by the features' OnEnable.
 function RangeFade.Parent(unit)
@@ -188,12 +205,75 @@ local function update()
     logMode()
 end
 
+-- ── strata ────────────────────────────────────────────────────────────────────────────────────
+
+-- The highest frame level in `frame` and everything under it. A party frame's health bar, texts
+-- and overlays are children above its own level; the cast bar has to clear all of them.
+local function topLevel(frame, seen)
+    seen = seen or {}
+    seen[frame] = true
+    local top = frame:GetFrameLevel()
+    if type(top) ~= "number" then top = 0 end
+    if type(frame.GetChildren) ~= "function" then return top end
+    for _, child in ipairs({ frame:GetChildren() }) do
+        if type(child) == "table" and not seen[child] and type(child.GetFrameLevel) == "function" then
+            local lvl = topLevel(child, seen)
+            if lvl > top then top = lvl end
+        end
+    end
+    return top
+end
+
+-- Any member frame of the active system: a unit with none of its own stacks with its party.
+local function anyFrame()
+    local found
+    Providers.ForEachActiveFrame(function(f) found = found or f end)
+    return found
+end
+
+--- Where `unit`'s elements stack: the strata name and the frame level.
+function RangeFade.StackFor(unit)
+    local frame = Providers.FrameFor(unit) or anyFrame()
+    local fixed = STRATA[NS.GetSetting("general.strata")]
+    if not frame then return fixed or FALLBACK_STRATA, 1 end
+    local strata = fixed
+    if not strata then
+        strata = frame:GetFrameStrata()
+        if type(strata) ~= "string" then strata = FALLBACK_STRATA end
+    end
+    return strata, math.min(topLevel(frame) + 1, MAX_LEVEL)
+end
+
+local function restack()
+    for _, unit in ipairs(Units.LIST) do
+        local fade = fades[unit]
+        if fade then
+            local strata, level = RangeFade.StackFor(unit)
+            local key = strata .. ":" .. level
+            if stacked[unit] ~= key then
+                fade:SetFrameStrata(strata)
+                fade:SetFrameLevel(level)
+                stacked[unit] = key
+                if NS.State.debug then
+                    NS.DebugChanged("Fade:stack:" .. unit, "Fade", "%s stacks at %s %d", unit, strata, level)
+                end
+            end
+        end
+    end
+end
+
+-- Read at run time, so a write held through combat lands on what the frames are by then.
+local function syncStrata()
+    if ready then NS.RunSecure("fade:strata", restack) end
+end
+
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
 
 function RangeFade:OnEnable()
     for _, unit in ipairs(Units.LIST) do RangeFade.Parent(unit) end
     ready = true
     update()
+    syncStrata()
 end
 
 -- Shown or hidden as one: secure buttons are parented to the fade frames, so under lockdown the
@@ -251,9 +331,14 @@ function RangeFade.Mode()
     return id == "blizzard-party" and "range" or "copy"
 end
 
-ev:RegisterMessage(NS.MSG.LAYOUT, update)
-ev:RegisterMessage(NS.MSG.VISIBILITY, update)
-ev:RegisterMessage(NS.MSG.PROFILE, update)
+local function onChange()
+    update()
+    syncStrata()
+end
+
+ev:RegisterMessage(NS.MSG.LAYOUT, onChange)
+ev:RegisterMessage(NS.MSG.VISIBILITY, onChange)
+ev:RegisterMessage(NS.MSG.PROFILE, onChange)
 ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
-    if section == "general" or section == "master" then update() end
+    if section == "general" or section == "master" then onChange() end
 end)

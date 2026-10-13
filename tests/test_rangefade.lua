@@ -83,6 +83,7 @@ local function reset()
   for _, unit in ipairs(NS.Units.LIST) do mocks.__units[unit] = nil end
   NS.db.profile.general.provider = "auto"
   NS.db.profile.general.rangeFade = true
+  NS.db.profile.general.strata = "auto"
   Providers.Resolve()
 end
 
@@ -252,4 +253,70 @@ case("rangefade: UnitMap and HookedCount report the frame map and the hooks, rea
   assertTrue(RangeFade.UnitMap().party1 == frames.party1, "mutating the copy changes nothing")
   frames.party1:SetAlpha(0.5)
   assertEqual(fade("party1").__alphaSet, 0.5, "and the copy still reaches party1's fade")
+end)
+
+-- Strata: the fade frames stack with the party frames, one level over the highest frame in them.
+local function recordStrata(unit)
+  local f = fade(unit)
+  rawset(f, "SetFrameStrata", function(self, s) self.__strata = s end)
+  return f
+end
+
+local function dress(frame, strata, level, childLevel)
+  rawset(frame, "GetFrameStrata", function() return strata end)
+  frame:SetFrameLevel(level)
+  local child = mocks.CreateFrame("Frame")
+  child:SetFrameLevel(childLevel)
+  rawset(child, "GetChildren", function() end)
+  rawset(frame, "GetChildren", function() return child end)
+end
+
+case("rangefade: Match party frames copies the party frame's strata, a level over its children", function()
+  -- red under: the elements left on UIParent's MEDIUM over a LOW party frame (they covered other
+  -- addons' LOW windows), or a level from the party frame alone, which its own health bar outranks.
+  local frames = installRaidStyle({ "player", "party1" })
+  dress(frames.party1, "LOW", 5, 12)
+  dress(frames.player, "LOW", 3, 4)
+  local f1, fp, f2 = recordStrata("party1"), recordStrata("player"), recordStrata("party2")
+  Providers.Resolve()
+  NS.bus:SendMessage(NS.MSG.LAYOUT)
+  assertEqual(f1.__strata, "LOW", "party1's elements share its party frame's strata")
+  assertEqual(f1:GetFrameLevel(), 13, "one above the party frame's highest child")
+  assertEqual(fp.__strata, "LOW", "the player's too")
+  assertEqual(fp:GetFrameLevel(), 5, "each unit over its own frame")
+  local s2 = RangeFade.StackFor("party2")
+  assertEqual(s2, "LOW", "a unit with no frame stacks with the party it would join")
+  assertTrue(f2.__strata == "LOW", "and its fade frame is written")
+end)
+
+case("rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW", function()
+  local frames = installRaidStyle({ "player", "party1" })
+  dress(frames.party1, "LOW", 5, 6)
+  local f1 = recordStrata("party1")
+  Providers.Resolve()
+  NS.SetByPath("general.strata", "high")
+  assertEqual(f1.__strata, "HIGH", "the chosen strata, as the client spells it")
+  assertEqual(f1:GetFrameLevel(), 7, "still above the party frame")
+  NS.SetByPath("general.strata", "auto")
+  assertEqual(f1.__strata, "LOW", "back to the party frame's")
+  mocks.CompactPartyFrame, mocks.EditModeManagerFrame = nil, nil
+  Providers.Resolve()
+  assertEqual(RangeFade.StackFor("party1"), "LOW", "no frame system on screen: LOW")
+end)
+
+case("rangefade: a strata change in combat waits for the secure queue", function()
+  local frames = installRaidStyle({ "player", "party1" })
+  dress(frames.party1, "LOW", 5, 6)
+  local f1 = recordStrata("party1")
+  Providers.Resolve()
+  NS.bus:SendMessage(NS.MSG.LAYOUT)
+  mocks.InCombatLockdown = function() return true end
+  local ok, err = pcall(function()
+    NS.SetByPath("general.strata", "dialog")
+    assertEqual(f1.__strata, "LOW", "a fade frame parents secure buttons: not written in combat")
+  end)
+  mocks.InCombatLockdown = function() return false end
+  mocks.__fireEvent("PLAYER_REGEN_ENABLED")
+  if not ok then error(err, 0) end
+  assertEqual(f1.__strata, "DIALOG", "written once combat ends")
 end)

@@ -60,6 +60,7 @@ The two reset rows above, and each page's **Defaults** header button.
 | Frame system | `general.provider` | Automatic / Blizzard / EllesmereUI; Providers re-resolves (CONFIG "general") |
 | Include my own row | `general.includePlayer` | the player's elements, wherever the frame system shows the player and always in free placement |
 | Fade with party frames | `general.rangeFade` | each unit's cast bar, target frame and pet frame fade with its party frame when the member is out of range: copied from EllesmereUI's and Blizzard raid-style's own fade, or on Blizzard classic (which does not fade) a ~40-yard `UnitInRange` check at 0.5. Off: every fade frame at full alpha (`modules/RangeFade.lua`) |
+| Frame strata | `general.strata` | the layer every element draws on, set on each unit's fade frame. *Match party frames* (default) copies the unit's party frame's strata and sits one level above the highest frame in it, so an attached cast bar draws over the party frame and windows that cover the party frames cover the elements too; with no party frame, any member frame of the active system, else LOW. Background / Low / Medium / High / Dialog fix the strata. Written through `NS.RunSecure("fade:strata")`: the fade frames parent secure buttons |
 
 ### Health updates
 

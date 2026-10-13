@@ -26,6 +26,14 @@ L["Show a cast bar, target frame and pet frame for yourself too, wherever your p
 L["Fade with party frames"] = "Fade with party frames"
 L["Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."] =
     "Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."
+L["Frame strata"] = "Frame strata"
+L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."] =
+    "Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."
+L["Match party frames"] = "Match party frames"
+L["Low"] = "Low"
+L["Medium"] = "Medium"
+L["High"] = "High"
+L["Dialog"] = "Dialog"
 
 -- Shared element rows (settings/ElementRows.lua)
 for _, key in ipairs({

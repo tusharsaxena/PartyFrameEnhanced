@@ -262,7 +262,7 @@ Total.
 - securefollow: the degraded build (LibKa0s absent) loads the module
 - securefollow: teardown — the placement the earlier suites left is put back
 
-### test_rangefade.lua (9)
+### test_rangefade.lua (12)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -273,6 +273,9 @@ Total.
 - rangefade: status names which way the fade is running
 - rangefade: a perf run's suspend drops the range event and restores full alpha
 - rangefade: UnitMap and HookedCount report the frame map and the hooks, read-only
+- rangefade: Match party frames copies the party frame's strata, a level over its children
+- rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW
+- rangefade: a strata change in combat waits for the secure queue
 
 ### test_party.lua (6)
 
@@ -608,7 +611,7 @@ Total.
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
 | test_securefollow.lua | 23 |
-| test_rangefade.lua | 9 |
+| test_rangefade.lua | 12 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
 | test_standin.lua | 14 |
@@ -629,4 +632,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **463** |
+| **Total** | **466** |

@@ -223,8 +223,9 @@ end
 function StandIn.Place(id, source, configured)
     local f = StandIn.Frame()
     if not FALLBACK[id] then id = "blizzard-party" end
-    -- Beneath what attaches to it, as a real party frame is: the elements are MEDIUM, and on their
-    -- own strata the stand-in's health bar covered the cast bar's icon but for a 1px rim.
+    -- LOW, as Blizzard's unit frames are. The elements stack just above it on Automatic strata
+    -- (modules/RangeFade.lua); before that they sat on MEDIUM, and on their own strata the stand-in's
+    -- health bar had covered the cast bar's icon but for a 1px rim.
     f:SetFrameStrata("LOW")
     local w, h = place(f, id, source, configured)
     local r, g, b = classColor()

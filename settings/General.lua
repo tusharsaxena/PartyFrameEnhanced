@@ -10,7 +10,7 @@ local _, NS = ...
 --                      [Minimap button]                                      <- stored in db.global
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
 --     Party frames     [Frame system]                 [Include my own row]
---                      [Fade with party frames]
+--                      [Fade with party frames]       [Frame strata]
 --
 -- Master controls is COMPOSED from one declaration (options-ui-§15, anti-pattern #73). Not
 -- frameless: the free-placement stacks are movable, so scale, alpha, lock and reset position apply.
@@ -163,6 +163,21 @@ NS.RegisterSchemaRows({
         label   = L["Fade with party frames"],
         desc    = L["Fade each party member's cast bar, target frame and pet frame along with their party frame when they are out of range. Blizzard's classic party frames don't fade, so there they fade to half opacity past about 40 yards."],
         default = D.general.rangeFade,
+    },
+    {
+        path    = "general.strata",
+        page    = PAGE,
+        group   = PARTY_GROUP,
+        order   = 40,
+        type    = "string",
+        label   = L["Frame strata"],
+        desc    = L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."],
+        default = D.general.strata,
+        values  = {
+            auto = L["Match party frames"], background = L["Background"], low = L["Low"],
+            medium = L["Medium"], high = L["High"], dialog = L["Dialog"],
+        },
+        sorting = { "auto", "background", "low", "medium", "high", "dialog" },
     },
 })
 

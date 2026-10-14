@@ -312,6 +312,26 @@ case("rangefade: a forbidden child of the party frame is skipped, never read", f
   assertEqual(f1:GetFrameLevel(), 9, "one over the readable frames")
 end)
 
+case("rangefade: a child that refuses its reads but is not flagged forbidden ends the walk there", function()
+  -- red under: in an M+ instance Blizzard's aura buttons answer IsForbidden() false, refuse
+  -- GetFrameLevel, and the walk went on to call GetChildren, raising "Attempt to access forbidden
+  -- object ... self:GetChildren()" out of the restack.
+  local frames = installRaidStyle({ "player", "party1" })
+  dress(frames.party1, "LOW", 5, 8)
+  local aura = mocks.CreateFrame("Button")
+  rawset(aura, "IsForbidden", function() return false end)
+  rawset(aura, "GetFrameLevel", function() error("Attempt to access forbidden object") end)
+  rawset(aura, "GetChildren", function() error("Attempt to access forbidden object") end)
+  local child = select(1, frames.party1:GetChildren())
+  rawset(child, "GetChildren", function() return aura end)
+  local f1 = recordStrata("party1")
+  Providers.Resolve()
+  local ok, err = pcall(NS.bus.SendMessage, NS.bus, NS.MSG.LAYOUT)
+  assertTrue(ok, tostring(err))
+  assertEqual(f1.__strata, "LOW")
+  assertEqual(f1:GetFrameLevel(), 9, "one over the readable frames")
+end)
+
 case("rangefade: a party frame that cannot be read falls back to LOW at a fixed level", function()
   -- red under: a forbidden party frame, or a strata read the client refuses, raising out of the
   -- restack instead of landing the elements where Blizzard's unit frames live.

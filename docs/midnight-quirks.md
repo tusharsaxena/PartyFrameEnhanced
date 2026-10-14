@@ -99,9 +99,12 @@ Blizzard's raid-style member frames carry **forbidden** aura buttons
 raises "Attempt to access forbidden object from code tainted by an AddOn". The strata code in
 `modules/RangeFade.lua` walks a party frame's children to find the highest level, and it skips any
 child whose `IsForbidden()` is `true`, along with everything under that child. The level and strata
-reads are `pcall`'d too. A party frame that cannot be read at all puts its unit's elements on LOW
-(Blizzard's unit-frame strata) at a fixed level of 50. *Breaks if tidied:* drop the `IsForbidden`
-check and the strata pass raises on every LAYOUT and VISIBILITY.
+reads are `pcall`'d too. In an instance (seen in M+) the same aura buttons answer `IsForbidden()`
+`false` and still refuse every read, `GetChildren` included, so a refused level read also ends the
+walk at that frame, and the `GetChildren` read is `pcall`'d. A party frame that cannot be read at
+all puts its unit's elements on LOW (Blizzard's unit-frame strata) at a fixed level of 50.
+*Breaks if tidied:* drop the `IsForbidden` check, or let the walk descend past a refused level
+read, and the strata pass raises on every LAYOUT and VISIBILITY.
 
 ## Stops re-derive instead of matching ids
 

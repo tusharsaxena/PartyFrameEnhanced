@@ -225,9 +225,13 @@ local function topLevel(frame, seen)
     seen = seen or {}
     seen[frame] = true
     local ok, top = pcall(frame.GetFrameLevel, frame)
-    if not ok or type(top) ~= "number" then top = 0 end
+    -- A refused read ends the branch: in an instance the aura buttons answer IsForbidden() false
+    -- and still refuse every read, GetChildren included.
+    if not ok or type(top) ~= "number" then return 0 end
     if type(frame.GetChildren) ~= "function" then return top end
-    for _, child in ipairs({ frame:GetChildren() }) do
+    local okKids, kids = pcall(function() return { frame:GetChildren() } end)
+    if not okKids then return top end
+    for _, child in ipairs(kids) do
         if not seen[child] and readable(child) then
             local lvl = topLevel(child, seen)
             if lvl > top then top = lvl end

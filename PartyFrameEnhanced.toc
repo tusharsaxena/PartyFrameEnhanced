@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: Ka0s Party Frame Enhanced
 ## Notes: Adds party cast bars, party target frames and party pet frames to Blizzard or EllesmereUI party frames.
 ## Author: add1kted2ka0s

@@ -3,7 +3,7 @@
 These are the in-client checks the headless suite cannot make: what the live client draws, the secure
 and secret-value paths, and the three frame systems the addon attaches to. The headless gate
 (`lua tests/run.lua`, `luacheck .`) covers the pure logic. Run a pass on a live **Retail (Midnight
-12.1.0 / Interface 120100)** client, starting from a clean `/reload`, theme by theme; turn logging on
+12.1.5 / Interface 120105)** client, starting from a clean `/reload`, theme by theme; turn logging on
 (`/pfe debug on`) only where a check says so. Record each check on its `Result:` line: the date and
 PASS, or FAIL and what you saw. A new pass overwrites the old results, and git keeps them. IDs are
 `<THEME>-<n>`: a new check takes the next free number in its theme, and a retired number is not reused.

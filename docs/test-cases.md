@@ -523,7 +523,7 @@ Total.
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
-- optionssetup: the Options descriptor names the addon folder, and the help-mark art is on disk
+- optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn
 
 ### test_surface_parity.lua (14)
 

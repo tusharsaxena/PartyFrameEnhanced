@@ -250,11 +250,13 @@ test("optionssetup: without the library, opening the panel prints one honest lin
   assertFalse(pcall(error, "sentinel"), "sanity")
 end)
 
-test("optionssetup: the Options descriptor names the addon folder, and the help-mark art is on disk", function()
+test("optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn", function()
   -- LibKa0s#42: OptionsIdList draws an IdList help mark from Media.Icon(d.addonName, "info"). The
-  -- descriptor must carry the folder name (vararg 1), not a title or a frame name, and the vendored
-  -- art must sit at the default vendorPath. red under: `local _, NS = ...`, a missing
-  -- `addonName = addonName,` row, or a re-vendor that dropped media/icons/info.tga.
+  -- descriptor must carry the folder name (vararg 1), not a title or a frame name. Since LibKa0s
+  -- v1.75.0 media/icons/ ships only what CLAUDE.md's `LibKa0s icons:` line declares (LibKa0s#57),
+  -- so `info` is owed only while a settings file draws an IdList; the kit's own parser reads the
+  -- line, and tests/test_vendor_sync.lua gates declared == shipped. red under: `local _, NS = ...`,
+  -- a dropped `addonName = addonName,` row, or an IdList added without declaring `info`.
   local f = assert(io.open("settings/OptionsSetup.lua", "rb"), "tests run from the repo root")
   local src = f:read("*a")
   f:close()
@@ -263,7 +265,29 @@ test("optionssetup: the Options descriptor names the addon folder, and the help-
   assertTrue(body ~= nil, "the Options descriptor literal is found")
   assertTrue(body:find("\n%s*addonName%s*=%s*addonName%s*,") ~= nil,
              "the descriptor passes addonName = addonName")
+
+  local VendorSync = dofile("tests/_kit/vendor_sync.lua")
+  local drawer
+  for _, name in ipairs(VendorSync.localNames("settings")) do
+    if name:match("%.lua$") then
+      local fh = assert(io.open("settings/" .. name, "rb"))
+      for line in fh:lines() do
+        -- A live call, not a comment or the degraded stub's no-op name list ("IdList",).
+        if line:gsub("%-%-.*$", ""):find("IdList%s*%(") then drawer = drawer or ("settings/" .. name) end
+      end
+      fh:close()
+    end
+  end
+  if not drawer then return end -- today: no IdList, so no help mark, and `info` is not owed
+
+  local doc = assert(io.open("CLAUDE.md", "rb"))
+  local decl, why = VendorSync.iconDeclaration(doc:read("*a"))
+  doc:close()
+  assertTrue(decl ~= nil, why or "CLAUDE.md carries a `LibKa0s icons:` line")
+  local declared = decl.mode == "all"
+  for _, n in ipairs(decl.names or {}) do declared = declared or n == "info" end
+  assertTrue(declared, drawer .. " draws an IdList, so the `LibKa0s icons:` line declares `info`")
   local art = io.open("libs/LibKa0s/media/icons/info.tga", "rb")
   assertTrue(art ~= nil, "libs/LibKa0s/media/icons/info.tga is vendored")
-  art:close()
+  if art then art:close() end
 end)

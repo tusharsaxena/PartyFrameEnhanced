@@ -107,7 +107,7 @@ test("parity: the Options stub carries every helper the degraded build can reach
     -- The AceGUI handle only a live panel stashes.
     "AceGUI",
     -- No caller in this addon; a stub member with no caller is a copy waiting to go stale.
-    "RefreshPanel", "PageBanner", "SubTabStrip",
+    "RefreshPanel", "PageBanner", "SubTabStrip", "Drawer",
     -- Constants the composers stamp onto their rows; nothing here reads the tables themselves.
     "CLASS_COLOR_NOTE", "FONT_FLAGS", "FONT_FLAGS_SORT", "VISIBILITY_SORT", "VISIBILITY_VALUES",
   })

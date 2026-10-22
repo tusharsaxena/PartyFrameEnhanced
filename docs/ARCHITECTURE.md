@@ -20,7 +20,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
-and **LibKa0s** vendored whole (at the tag `CLAUDE.md`'s provenance line names), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
+and **LibKa0s** vendored whole at the tag `CLAUDE.md`'s provenance line names, except `media/icons/`, which is pruned to the `LibKa0s icons:` line under it (library-stack-§7), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
@@ -28,7 +28,8 @@ launcher. The addon consumes twelve LibKa0s majors through one setup file each �
 Launcher (`core/LauncherSetup.lua`), Schema (`settings/Schema.lua`), Slash (`settings/Slash.lua`)
 and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
 are created once at enable and never churn (so no pool), the addon handles no items, and it orders
-nothing (so no reorder list). **Schema was adopted last** (#14): it waited on the library's
+nothing (so no reorder list). **Glow and Sim are vendored, not wired** either: nothing here glows, and
+secure unit frames cannot show made-up units, so there is no simulator (LibKa0s#54). **Schema was adopted last** (#14): it waited on the library's
 `writeThrough` list (Schema minor 2), without which a library-less load, whose Master controls
 composer is hollow, would have stopped `/pfe enable`, `/pfe disable` and `/pfe lock` from writing.
 
@@ -47,7 +48,8 @@ pet frames get one, and its default anchor is Top; the Size & Position section d
 placement block the anchor mode uses; the launcher shows a status tooltip, opens settings on a left
 click and an Enabled / Locked options menu on a right click; `/pfe diagnostics` writes a
 diagnostics report for bug reports. LibKa0s is re-vendored whole (v1.62.0 in the release, and since
-then the tag `CLAUDE.md`'s provenance line names), and what each re-vendor brought and what this
+then the tag `CLAUDE.md`'s provenance line names), except `media/icons/`, which is pruned to the
+`CLAUDE.md` `LibKa0s icons:` line (library-stack-§7), and what each re-vendor brought and what this
 addon adopted from it is recorded per tag under [revendor/](revendor/).
 
 ## Module Map

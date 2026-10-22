@@ -130,5 +130,5 @@ The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), lic
 Open Font License 1.1. It ships inside the bundled LibKa0s payload, with its license text beside it.
 
 The close, copy and clear marks on the debug console and the perf panel come from
-[Open Iconic](https://github.com/iconic/open-iconic) by Iconic, under the MIT license. They ship inside
+[Open Iconic](https://github.com/iconic/open-iconic) by Waybury, under the MIT license. They ship inside
 the bundled LibKa0s payload with their license (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

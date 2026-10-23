@@ -337,7 +337,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   cast bars, target and pet frames just as it covers the party frames. A cast on an attached cast bar
   still draws over the party frame, not behind it. Pick *High* → the elements draw over that window.
   `/pfe set general.strata dialog` in combat → no error; the change lands as combat ends. *Failure:*
-  elements over a window that covers the party frames, or a cast bar hidden behind its party frame.
+  elements over a window that covers the party frames, or a cast bar hidden behind its party frame. Result: pass (owner, 2026-10-23)
 
 ## Minimap button and broker
 

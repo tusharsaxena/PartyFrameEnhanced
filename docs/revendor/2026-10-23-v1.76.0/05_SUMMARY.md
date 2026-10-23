@@ -24,3 +24,19 @@ base, v1.75.2, comes from the CLAUDE.md provenance line and agrees with the last
   passed, 0 failed, 1 skipped (470), including `tests/test_vendor_sync.lua`'s cases (payloads match
   v1.76.0, icon folder equals the declaration, runner 100755). `luacheck .` gave 0 warnings and 0
   errors in 79 files. Complexity is a release check and was not run here.
+
+## Addendum — the tag moved (PF-RV2, LK-91)
+
+The local tag v1.76.0 was moved for LK-91 (step-panel labels bounded before the command column):
+tag object `546e284` -> `2949c78`, commit `9949368` -> `7e81ff7`. `libs/LibKa0s` and `tests/_kit`
+were copied whole again from the moved tag and `media/icons` re-pruned to the unchanged
+`LibKa0s icons: clear, close, copy.` line (kept 4, removed 5,836).
+
+- **Files that changed:** `libs/LibKa0s/PerfPanel.lua` (PerfPanel minor 7 -> 8: the step label is
+  bounded LABEL_GAP short of the command and truncates with word wrap off) and
+  `libs/LibKa0s/SimPanel.lua` (the same bound in the sim step panel; SimPanel 5, paired on the
+  shell's minor, so no counter moved). `tests/_kit` is byte-identical. Every other file unchanged.
+- **Delivered with the copy (class A):** the `/pfe perf` step panel's long labels now truncate
+  before the command column. No member or contract changed; no blocker; nothing to adopt.
+- **Docs:** `docs/smoke-tests.md` INSTALL-4's minor list now reads PerfPanel 8; its Result stays owed.
+- **Gate after the copy and prune:** see the PF-RV2 commit body.

@@ -53,7 +53,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
-  line names (v1.76.0: Core 11, Item 3, Media 5, MediaIcons 1, Widgets 14, DebugLog 20, DebugLogDiagnostics 3, Options 29, OptionsIdList 5, OptionsTabs 9, OptionsDrawer 1, Perf 15, PerfPanel 7, Glow 1, Sim 2, SimTimeline 3, SimPanel 5), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  line names (v1.76.0: Core 11, Item 3, Media 5, MediaIcons 1, Widgets 14, DebugLog 20, DebugLogDiagnostics 3, Options 29, OptionsIdList 5, OptionsTabs 9, OptionsDrawer 1, Perf 15, PerfPanel 8, Glow 1, Sim 2, SimTimeline 3, SimPanel 5), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
   about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
   `LibKa0s icons:` line declares (clear, close, copy): `/pfe debug on`, open the console → its Copy

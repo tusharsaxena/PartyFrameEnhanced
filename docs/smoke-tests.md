@@ -60,7 +60,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result: owed (v1.76.0 re-vendor)
+  art, the path still resolves, and no headless gate sees it. Result: pass (owner-marked 2026-10-23)
 
 ## Slash commands
 

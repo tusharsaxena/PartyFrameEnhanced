@@ -59,7 +59,7 @@ end)
 
 test("layers: the element ladder is root < fill < border < overlay, all inherited", function()
   -- red under: text, spark and shield as regions of the bar, under the border frame (a child of the
-  -- bar), and the marker on a layer of its own levelled once, at build, against a border that moves.
+  -- bar), and the marker on a layer of its own leveled once, at build, against a border that moves.
   withLayers(function()
     local el, host = element()
     local base = el:GetFrameLevel()
@@ -78,7 +78,7 @@ test("layers: the element ladder is root < fill < border < overlay, all inherite
     end
     assertTrue(el.bg.__owner == el and el.icon.__owner == el, "background and icon stay root regions")
     assertEqual(el.markerLayer, nil, "the one-off marker layer is gone")
-    -- Moving the stacking root carries the whole ladder: nothing below it was levelled by hand.
+    -- Moving the stacking root carries the whole ladder: nothing below it was leveled by hand.
     host:SetFrameLevel(40)
     assertEqual(el.overlay:GetFrameLevel(), 41 + LAYERS.LEVEL.OVERLAY, "re-stacked with its root")
   end)

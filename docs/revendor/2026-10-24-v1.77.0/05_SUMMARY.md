@@ -56,3 +56,31 @@ a refresh of the same tag, not a new re-vendor, and it writes no new bundle.
 - **Docs:** `docs/smoke-tests.md` INSTALL-4 now lists OptionsCompose 11; its Result stays owed.
 - **Gate** (through `ka0s-bounded`): `lua tests/run.lua` gave 476 passed, 0 failed, 1 skipped (477);
   before the stub fix 475 passed and 1 failed. `luacheck .` gave 0 warnings and 0 errors in 80 files.
+
+## Re-vendor after the tag moved again (one key button)
+
+The local tag v1.77.0 was moved again by LibKa0s `LK-96` (the owner's follow-up to item 015: one key
+button and Clear per row on the in-addon Keybindings tab; Options -> Keybindings is untouched). The
+release is still unpushed (`git -C ../LibKa0s ls-remote --tags origin v1.77.0` prints nothing), so
+this is again a refresh of the same tag and writes no new bundle.
+
+- **Old tag:** tag object `b2b8ee25c5f9fa26db146254bf786b366dec986b`, commit
+  `afae2f75cb7ff61c57156d9a3d8a6b2b9f4c5e10` (the M3 refresh above).
+- **New tag:** tag object `e9b126d961c2970e5b14d0566480f7c1d8b5e5e8`, commit
+  `2f2b2e22b4c9219cd8a4101d7e894681c7aea16e` (`git -C ../LibKa0s rev-parse v1.77.0^{}`).
+- **Minors that moved:** OptionsKeybinds 3 -> 4 (one key button and Clear per row). It is the only
+  file that changed under `LibKa0s/`; under `testkit/`, `bindings_xml.lua` (`Kit.keybindThroughTab`
+  slot 2 on a one-button row) and its `README.md` row changed. The kit revision stays 42 and the
+  provenance line stays v1.77.0.
+- **Copy and prune:** both payloads copied whole from `git archive v1.77.0 LibKa0s testkit tools`;
+  both diffs were empty before the prune. The tag's `tools/prune-icons.lua` kept 4 files (clear,
+  close, copy and the license) and removed 5,836, as before. Credits unchanged.
+- **Contract blocker:** none. `Kit.assertSurfaceParity` passed with no stub change: minor 4 adds no
+  public Options member, and this addon draws no Keybindings tab (its stub's `KeybindingsTab` and
+  `KeybindRows` stay inert).
+- **Adopted here:** nothing.
+- **Docs:** `docs/smoke-tests.md` INSTALL-4 now lists OptionsKeybinds 4; its Result stays owed. The
+  README test badge (484/484) and `docs/test-cases.md` (Total 484) already equal the suite.
+- **Gate** (through `ka0s-bounded`): `lua tests/run.lua` gave 484 passed, 0 failed, 1 skipped (485).
+  `luacheck .` gave 0 warnings and 0 errors in 81 files. No authored `.lua` file is above 1,500
+  lines (largest `tests/test_slash.lua`, 611).

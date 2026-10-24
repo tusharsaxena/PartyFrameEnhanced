@@ -2,16 +2,17 @@ local _, NS = ...
 
 -- settings/PetFrames.lua — the Pet Frames page:
 --
---     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
+--     [ General ][ Size and position ][ Bar ][ Text ][ Marker ]
 --
 --     General          [Enable pet frames] (solo)   [Click to target]
---                      (health updates are shared with target frames: General page → Health updates)
---     Size & Position  settings/ElementRows.lua's Size & Position rows
+--                      (health updates are shared with target frames: the General page > All elements)
+--     Size and position  settings/ElementRows.lua's Size and position rows
 --     Bar              -- Fill --        the canonical bar block (Use class color = the OWNER's class)
 --                      -- Background --  the background swatch and its class-color companion
---     Border           the canonical border block
---     Text             -- Font --  the canonical font block, then Show name · Show health percent
---     Marker           Show raid marker (solo) / Anchor point (solo) / X offset · Y offset
+--                      -- Border --      the canonical border block
+--     Text             -- Shown text --  Show name · Show health percent
+--                      -- Font --        the canonical font block
+--     Marker           Show raid marker (solo) / Bar anchor point (solo) / X offset · Y offset
 
 local L = NS.L
 local ElementRows = NS.ElementRows
@@ -42,20 +43,20 @@ ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
 ElementRows.Append(rows, ElementRows.Bar(PAGE, P, D))
 ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 50))
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
-ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
-rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Font"], order = 70,
+rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Shown text"], order = 10,
                        type = "bool", label = L["Show name"], desc = L["The unit's name."],
                        default = D.showName }
-rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Font"], order = 80,
+rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Shown text"], order = 20,
                        type = "bool", label = L["Show health percent"],
-                       desc = L["The unit's health as a percentage, at the right end."],
+                       desc = L["The unit's health as a percentage, at the right end. Needs Update health (the General page > All elements)."],
                        default = D.showPercent, disabledIf = healthOff }
+ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
 
 rows[#rows + 1] = row{ path = "showMarker", group = L["Marker"], order = 10, type = "bool", solo = true,
                        label = L["Show raid marker"],
                        desc = L["The pet's raid marker, when it has one."], default = D.showMarker }
 rows[#rows + 1] = row{ path = "markerPoint", group = L["Marker"], order = 20, type = "string",
-                       solo = true, label = L["Anchor point"],
+                       solo = true, label = L["Bar anchor point"],
                        desc = L["The point on the bar the marker's center sits on."],
                        default = D.markerPoint, values = ElementRows.POINT_LABELS,
                        sorting = NS.Constants.POINTS, disabledIf = markerOff }

@@ -14,13 +14,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 |---|---|---|
 | INSTALL-1 – 4 | Install and load | fresh install, `/reload`, the AddOn-list logo, a clean load on the vendored LibKa0s |
 | SLASH-1 – 6 | Slash commands | help, the long alias, unknown verbs, version, list, set and reset |
-| PANEL-1 – 7 | Settings panel | the landing page, the General tabs, the Defaults button, Size & Position, every page after the descriptor names the addon |
+| PANEL-1 – 10 | Settings panel | the landing page, the General tabs, the Defaults button, Size and position, every page after the descriptor names the addon, the 2026-10-24 layout of the Cast Bars, Target Frames and Pet Frames pages |
 | PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
 | STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
 | PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
 | CAST-1 – 7 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings |
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
+| LAYER-1 – 4 | Frame layering | the free-placement plate under its bars, texts and marks over the border, the stand-in's strata, the strata tooltip |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
@@ -53,14 +54,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
-  line names (v1.76.0: Core 11, Item 3, Media 5, MediaIcons 1, Widgets 14, DebugLog 20, DebugLogDiagnostics 3, Options 29, OptionsIdList 5, OptionsTabs 9, OptionsDrawer 1, Perf 15, PerfPanel 8, Glow 1, Sim 2, SimTimeline 3, SimPanel 5), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  line names (v1.77.0: Core 12, Item 3, Media 5, MediaIcons 1, Widgets 15, WidgetsDragHandle 5, WidgetsAutocomplete 3, DebugLog 21, DebugLogDiagnostics 3, Options 30, OptionsIds 3, OptionsIdList 5, OptionsTabs 9, OptionsCombat 2, OptionsCompose 11, OptionsDrawer 1, OptionsKeybinds 4, Perf 15, PerfPanel 9, Glow 1, Sim 2, SimTimeline 3, SimPanel 6), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
   about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
   `LibKa0s icons:` line declares (clear, close, copy): `/pfe debug on`, open the console → its Copy
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result: pass (owner-marked 2026-10-23)
+  art, the path still resolves, and no headless gate sees it. Result: owed (v1.77.0 re-vendor)
 
 ## Slash commands
 
@@ -86,21 +87,27 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **PANEL-1. Landing page.** Out of combat, `/pfe config` → Settings opens on **Ka0s Party Frame
   Enhanced**: the logo renders, and the Notes line and the slash-command list show (the same rows as
   `/pfe help`). Result: pass (owner-marked 2026-10-10)
-- **PANEL-2. General → Master controls.** Open **General** → a three-tab strip, **Master controls**,
-  **Party frames**, **Health updates** (UNIT-10 checks that tab's controls). Master controls holds,
+- **PANEL-2. General → Master controls.** Open **General** → a two-tab strip, **Master controls**,
+  **All elements** (PANEL-3 checks that tab, UNIT-10 its health controls). Master controls holds,
   in order, *Enable Party Frame Enhanced* · *General visibility* / *Master scale* · *Master alpha* /
   *Lock frame* · *Debug console* / *Minimap button*, then the button pair *Reset position* · *Reset
   all settings*. *General visibility* is a dropdown of four: Always, Only in combat, Only out of
-  combat, Never. *Failure:* a box labeled *Test mode* is the duplicate-switch finding (options-ui-§15
-  exempts this addon; anti-pattern #80). Result: pass (owner-marked 2026-10-10)
-- **PANEL-3. General → Party frames.** The **Party frames** tab → *Frame system* (Automatic / Blizzard
-  / EllesmereUI), *Include my own row* and *Fade with party frames*. Result: pass (owner-marked 2026-10-10)
+  combat, Never. Hover *Lock frame* → the tooltip says that while it is unlocked the display shows
+  placeholder content and that this is the addon's test mode, then that unlocking is refused in combat
+  and combat locks it again. *Failure:* a box labeled *Test mode* is the duplicate-switch finding
+  (options-ui-§15 exempts this addon; anti-pattern #80). Result:
+- **PANEL-3. General → All elements.** The **All elements** tab → a *Party frames* heading over
+  *Frame system* (Automatic / Blizzard / EllesmereUI) · *Include my own row* / *Fade with party frames*
+  · *Frame strata*, then a *Health updates* heading over *Update health* · *Target health refresh
+  (seconds)*. Note every value, `/reload`, reopen → every value is as it was, and `/pfe list` shows the
+  same `general.*` paths as before the layout change. *Failure:* a third tab, a row missing, or a
+  value that moved. Result:
 - **PANEL-4. The Defaults button.** It renders in the dark/gold options style, not as a red stone
   button (it is built on first show, after any UI skin loaded). Result: pass (owner-marked 2026-10-10)
 - **PANEL-5. Page Defaults.** `/pfe debug on`. Change *Master scale* and *Frame system*, then press
   General's **Defaults** → both revert, and the console shows one `[Set] reset general: 2 rows` line,
   not two `[Set]` lines. Result: pass (owner-marked 2026-10-10)
-- **PANEL-6. Size & Position shows only what applies.** Cast Bars → Size & Position opens with the
+- **PANEL-6. Size and position shows only what applies.** Cast Bars → Size and position opens with the
   *Size* block (Width, Height), then *Placement*. With *Attach to party frames*, the *Attached to party
   frames* block is drawn and there is no *Free placement* heading at all; with *Match party frame
   width* ticked, *Width* is grayed. Switch to *Free placement* → the tab redraws at once with the *Free
@@ -110,9 +117,28 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   heading is left behind, or the dropdown closes itself mid-choice with a Lua error. Result: pass (owner-marked 2026-10-10)
 - **PANEL-7. Every page after the descriptor names the addon.** The Options descriptor now passes
   `addonName` (LibKa0s#42). `/reload` → no Lua error on load. `/pfe debug on`, then `/pfe config` and
-  open every page (General and its three tabs, Cast Bars, Target Frames, Pet Frames, Profiles) → each
+  open every page (General and its tabs, Cast Bars, Target Frames, Pet Frames, Profiles) → each
   renders exactly as before. This addon has no item list, so no help mark is drawn and the console
   shows no `[Cfg] help art:` line. Result: pass (owner-marked 2026-10-10)
+- **PANEL-8. Cast Bars layout.** Cast Bars → five tabs: General, Size and position, Bar, Text, Icon
+  (no Border tab). General: *Enable cast bars* / *Fade out when a cast ends*. Bar: a *Fill* heading
+  over *Bar texture* · *Bar opacity* / *Normal cast color* · *Use class color* / *Show spark*, then
+  *Cast state colors* (Channel · Empowered / Can't be interrupted · Interrupted), *Background*, and
+  *Border* last (*Show border*, then style, thickness, color). Text: *Shown text* (*Show spell name* ·
+  *Show time left*) above *Font*. Icon: *Show spell icon* · *Icon side* / *Show shield*. Hover *Width*
+  and *Match party frame width* → each tooltip says when it is dimmed. Change one row on each tab,
+  `/reload` → every value kept; the page's **Defaults** still resets the border rows. *Failure:* a row
+  missing or duplicated, or a value that moved. Result:
+- **PANEL-9. Target Frames layout.** Target Frames → five tabs: General, Size and position, Bar, Text,
+  Marker. Bar: *Fill*, *Reaction colors*, *Background*, *Border*; hover *Hostile color* → the tooltip
+  ends *Needs Color NPCs by reaction.* Text: *Shown text* (*Show name* · *Show health percent*) above
+  *Font*; hover *Show health percent* → it ends *Needs Update health (the General page > All
+  elements).* Marker: *Show raid marker* / *Bar anchor point* / *X offset* · *Y offset*. Change one row
+  on each tab, `/reload` → every value kept. *Failure:* a row missing, or a value that moved. Result:
+- **PANEL-10. Pet Frames layout.** Pet Frames → the same five tabs as Target Frames. Bar: *Fill*,
+  *Background*, *Border*. Text and Marker as on Target Frames, with the same *Show health percent*
+  tooltip and *Bar anchor point*. Change one row on each tab, `/reload` → every value kept. *Failure:*
+  a row missing, or a value that moved. Result:
 
 ## Profiles
 
@@ -125,7 +151,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   `/pfe profile <name> switches profile`, then `Profile commands` and its seven sub-verb rows.
   `/pfe profile list` and `/pfe profile LIST` → the same list without the sub-verb rows.
   `/pfe profile current` → `Current profile: Test`. Result: pass (owner-marked 2026-10-10)
-- **PROFILE-4. Switch by name.** In a party, on Test, set Cast Bars → Size & Position → *Anchor mode*
+- **PROFILE-4. Switch by name.** In a party, on Test, set Cast Bars → Size and position → *Anchor mode*
   to *Free placement*. `/pfe debug on`, then `/pfe profile Default` → `Switched to profile 'Default'.`,
   one `[Profile] changed → Default` line on the console, and the cast bars go back over the party
   frames with no `/reload`. `/pfe profile use Test` → the same switch the other way, and the bars go
@@ -216,7 +242,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   Result: pass (owner-marked 2026-10-10)
 - **PREV-2. Preview in a party.** In a party, `/pfe unlock` → placeholders on every element at the real
   party frames, with no stand-in and no plate; `/pfe lock` → gone. Result: pass (owner-marked 2026-10-10)
-- **PREV-3. Free placement drags.** Set Cast Bars → Size & Position → *Anchor mode* to *Free
+- **PREV-3. Free placement drags.** Set Cast Bars → Size and position → *Anchor mode* to *Free
   placement* and unlock → a translucent plate labeled *Cast bars* appears over the stack. Drag it,
   lock, `/reload` → the stack is where you left it. General → *Reset position* (or
   `/pfe resetposition`) → back to its default. Result: pass (owner-marked 2026-10-10)
@@ -230,7 +256,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   on`: `/pfe unlock` → one stand-in party frame where EllesmereUI's first party frame sits, at its
   size, with a flat class-colored bar and a gray *(test)* after your name. It draws beneath what
   attaches to it, so the cast bar's spell icon shows whole. Party1's cast bar, target frame (skull) and
-  pet frame attach to it, and the Size & Position offsets move them. Drag it → they follow. The console
+  pet frame attach to it, and the Size and position offsets move them. Drag it → they follow. The console
   logs a `[Preview]` line naming where the size came from: `settings` (your EllesmereUI party frame
   width and height). *Failure:* a stand-in of a different size from your EllesmereUI party frames, or
   `frame` or `fallback` in the `[Preview]` line (EllesmereUI's settings could not be read). Result: pass (owner-marked 2026-10-10)
@@ -253,7 +279,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   never hides. Result: pass (owner-marked 2026-10-10)
 - **CAST-2. Your own row.** Raid-style or EllesmereUI (self shown): cast something → your bar appears
   over your own frame. Classic layout: no player bar (the layout never shows you); switch Cast Bars →
-  Size & Position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
+  Size and position → *Anchor mode* to *Free placement* and cast again → your bar appears in the stack.
   Result: pass (owner-marked 2026-10-10)
 - **CAST-3. Channels drain.** Watch a channel (Penance, Mind Flay on a dummy) → the bar starts full and
   drains. Result: pass (owner-marked 2026-10-10)
@@ -266,9 +292,9 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **CAST-6. Frame-system switch.** With EllesmereUI loaded, set General → *Frame system* to *Blizzard*
   while EllesmereUI hides Blizzard's frames → the bars disappear (no Blizzard frames on screen). Back
   to *Automatic* → they return under EllesmereUI's frames. Result: pass (owner-marked 2026-10-10)
-- **CAST-7. Settings.** Cast Bars page → six tabs (General, Size & Position, Bar, Border, Text, Icon).
-  Change *Cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars*
-  off → no bar appears on the next cast. Result: pass (owner-marked 2026-10-10)
+- **CAST-7. Settings.** Cast Bars page → five tabs (General, Size and position, Bar, Text, Icon).
+  Change *Normal cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars*
+  off → no bar appears on the next cast. Result:
 
 ## Target and pet frames
 
@@ -293,20 +319,20 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **UNIT-7. Raid markers.** Mark a member's target with a skull → the skull appears on that target
   frame. Mark a member's pet → the skull appears on that pet frame; clear it → it goes. Result: pass (owner-marked 2026-10-10)
 - **UNIT-8. Marker placement.** `/pfe unlock` (the preview shows a skull on every target frame).
-  Target Frames → Marker: set *Anchor point* to *Right* → the skull's center moves to the bar's right
+  Target Frames → Marker: set *Bar anchor point* to *Right* → the skull's center moves to the bar's right
   end; drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes
   and the three placement controls gray out. Repeat on Pet Frames → Marker. *Failure:* the skull stays
   put until `/reload`. Result: pass (owner-marked 2026-10-10)
-- **UNIT-9. Marker over the border.** Target Frames → Border: tick *Show border*, and mark a member's
+- **UNIT-9. Marker over the border.** Target Frames → Bar → Border: tick *Show border*, and mark a member's
   target → the skull draws on top of the border's edge. Repeat on Pet Frames. *Failure:* the border's
   line cuts across the skull. Result: pass (owner-marked 2026-10-10)
-- **UNIT-10. Health updates off.** General → Health updates: untick *Update health* → *Health
-  refresh* grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames.
+- **UNIT-10. Health updates off.** General → All elements → Health updates: untick *Update health* →
+  *Target health refresh* grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames.
   With a member targeting a mob, its bar sits full with no percent while the mob takes damage, and a
   pet's bar does the same while the pet takes damage. `/pfe debug on` shows no `[Target] health ticker
   started` line (one followed at once by `health ticker stopped` is the unresolved-target repaint, and
   is expected). Tick it back → the real health and percent return at once on both. With a target up,
-  drag *Health refresh* to 1 → the bar updates about once a second straight away, with no need to
+  drag *Target health refresh* to 1 → the bar updates about once a second straight away, with no need to
   retarget. Result: pass (owner-marked 2026-10-10)
 - **UNIT-11. Click to target.** Click a target frame → you target that unit, in combat too. Click a pet
   frame → you target the pet. Out of combat, untick *Click to target* on Target Frames → clicks pass
@@ -328,16 +354,42 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **FADE-3. Blizzard classic.** Raid-style off: the classic frames themselves never dim, but a member
   past about 40 yards has their elements at half opacity. `/pfe status` → *Range fade: own range check
   (classic frames)*. Result: pass (owner-marked 2026-10-10)
-- **FADE-4. The switch, and preview.** General → Party frames: untick *Fade with party frames* → every
+- **FADE-4. The switch, and preview.** General → All elements: untick *Fade with party frames* → every
   element at full opacity at once, out of range or not. Tick it back → the far member dims again.
   `/pfe unlock` in a party with someone out of range → every placeholder at full opacity; lock → the
   fade returns. Result: pass (owner-marked 2026-10-10)
-- **FADE-5. Frame strata.** General → Party frames → *Frame strata* on *Match party frames*: open a
+- **FADE-5. Frame strata.** General → All elements → *Frame strata* on *Match party frames*: open a
   window that overlaps the party frames (the Group Finder, another addon's panel) → it covers the
   cast bars, target and pet frames just as it covers the party frames. A cast on an attached cast bar
   still draws over the party frame, not behind it. Pick *High* → the elements draw over that window.
   `/pfe set general.strata dialog` in combat → no error; the change lands as combat ends. *Failure:*
   elements over a window that covers the party frames, or a cast bar hidden behind its party frame. Result: pass (owner, 2026-10-23)
+
+## Frame layering
+
+- **LAYER-1. The plate sits under its bars.** Solo (the stand-in is up), set Target Frames → Size and
+  position → *Anchor mode* to *Free placement*, tick *Click to target*, and `/pfe unlock` → the
+  translucent blue plate shows *behind* the target bars, between and around them, never tinting the
+  bars themselves. Drag a bar or the *Target frames* caption → the whole stack moves. Pick General →
+  *Frame strata* *High*, then *Low* → the plate stays under the bars on both. In a party, unlocked with
+  free placement, left-click a target frame → it still targets that unit. *Failure:* a blue tint over
+  the bars, a stack that will not drag, or a click on a target frame that does nothing while
+  unlocked. Result:
+- **LAYER-2. Texts and marks over the border.** On the Bar tab's Border section of Cast Bars, Target Frames and Pet Frames
+  tick *Show border* and raise its size to 12 → the name and time texts, the cast bar's spark and shield
+  (an uninterruptible cast), and the raid marker on a target or pet frame all draw *over* the border's
+  edge, none cut by it. Untick *Show border* → the border goes and every text, spark and marker still
+  shows. *Failure:* a border edge drawn across a text, the spark or the shield, or text that vanishes
+  with the border off. Result:
+- **LAYER-3. The stand-in's strata.** Solo, `/pfe unlock` on each frame system (EllesmereUI, Blizzard
+  raid-style, Blizzard classic), then `/dump PartyFrameEnhancedStandIn:GetFrameStrata()` → the same
+  strata as the imitated frame system's party frames (`/fstack` over a real party frame in a party), LOW
+  where they cannot be read. Party1's cast bar still draws over the stand-in, its icon whole. *Failure:*
+  the stand-in on a strata the real party frames are not on, or a cast bar hidden behind it. Result:
+- **LAYER-4. The strata tooltip.** Hover General → All elements → *Frame strata* → the tooltip keeps its
+  first sentences about the cast bars, target frames and pet frames, then explains the layers once and
+  says Dialog and above also cover confirmation dialogs, this addon's debug console and the Settings
+  window. The choices and the default (*Match party frames*) are unchanged. Result:
 
 ## Minimap button and broker
 
@@ -600,7 +652,10 @@ Checks:
 
 ## Pending sign-off
 
-None. On 2026-10-10 the owner marked every check in this file as passed, recorded on its
+On 2026-10-10 the owner marked every check in this file as passed, recorded on its
 `Result:` line as `pass (owner-marked 2026-10-10)`; a check that already carried a dated owner pass
 keeps it. A check added or rewritten after that date is listed here until its `Result:` line records
 a pass.
+
+- LAYER-1, LAYER-2, LAYER-3, LAYER-4 (frame layering, 2026-10-24).
+- PANEL-2, PANEL-3, PANEL-8, PANEL-9, PANEL-10, CAST-7 (settings layout, item 020, 2026-10-24).

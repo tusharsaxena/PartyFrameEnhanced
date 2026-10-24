@@ -2,17 +2,20 @@ local _, NS = ...
 
 -- settings/CastBars.lua — the Cast Bars page:
 --
---     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Icon ]
+--     [ General ][ Size and position ][ Bar ][ Text ][ Icon ]
 --
---     General          [Enable cast bars] (solo)            [Fade out]
---     Size & Position  settings/ElementRows.lua's Size & Position rows
---     Bar       -- Fill --        the canonical bar block (the fill is the plain-cast color)
---               -- Cast colors -- Channel · Empowered / Can't be interrupted · Interrupted
---               -- Background --  the background swatch and its class-color companion
---     Border    the canonical border block
---     Text      -- Font --        the canonical font block, then Show spell name · Show time left
---     Icon      Show spell icon · Icon side / Show shield · Show spark
+--     General            [Enable cast bars] (solo) / [Fade out when a cast ends]
+--     Size and position  settings/ElementRows.lua's Size and position rows
+--     Bar   -- Fill --              the canonical bar block (Normal cast color), then Show spark
+--           -- Cast state colors -- Channel · Empowered / Can't be interrupted · Interrupted
+--           -- Background --        the background swatch and its class-color companion
+--           -- Border --            the canonical border block
+--     Text  -- Shown text --        Show spell name · Show time left
+--           -- Font --              the canonical font block
+--     Icon  Show spell icon · Icon side / Show shield
 --
+-- Show spark rides the fill's edge, so it is the bar block's one extra (options-ui-§16), appended
+-- after the composed rows.
 -- The cast-state colors are a PALETTE — one color per cast state — so they carry no class-color
 -- companion (options-ui-§17's one exemption).
 
@@ -34,13 +37,17 @@ local rows = {
          desc = L["Show a cast bar for each party member (and for you, when your own row is included)."],
          default = D.enabled },
     row{ path = "fadeOut", group = L["General"], order = 20, type = "bool",
-         label = L["Fade out"], desc = L["Fade a finished cast out instead of hiding it at once."],
+         label = L["Fade out when a cast ends"],
+         desc = L["Fade the bar out when a cast ends, including after an interrupted cast's hold, instead of hiding it at once."],
          default = D.fadeOut },
 }
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
 
-ElementRows.Append(rows, ElementRows.Bar(PAGE, P, D, { barColor = L["Cast color"] }))
+ElementRows.Append(rows, ElementRows.Bar(PAGE, P, D, { barColor = L["Normal cast color"] }, {
+    { path = P .. "showSpark", type = "bool", label = L["Show spark"],
+      desc = L["A bright edge riding the fill."], default = D.showSpark },
+}))
 for i, spec in ipairs({
     { "channelColor", L["Channel color"], L["Fill color while channeling."] },
     { "empowerColor", L["Empowered color"], L["Fill color while charging an empowered spell."] },
@@ -48,28 +55,27 @@ for i, spec in ipairs({
       L["Fill color for a cast that cannot be interrupted."] },
     { "failedColor", L["Interrupted color"], L["Fill color while an interrupted or failed cast is held."] },
 }) do
-    rows[#rows + 1] = row{ path = spec[1], group = L["Bar"], subgroup = L["Cast colors"],
-                           order = 40 + i * 10, type = "color", hasAlpha = true,
+    rows[#rows + 1] = row{ path = spec[1], group = L["Bar"], subgroup = L["Cast state colors"],
+                           order = 50 + i * 10, type = "color", hasAlpha = true,
                            label = spec[2], desc = spec[3], default = D[spec[1]] }
 end
 ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 100))
 
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
 
-ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
-rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Font"], order = 70,
+rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Shown text"], order = 10,
                        type = "bool", label = L["Show spell name"],
                        desc = L["The spell's name on the bar."], default = D.showName }
-rows[#rows + 1] = row{ path = "showTime", group = L["Text"], subgroup = L["Font"], order = 80,
+rows[#rows + 1] = row{ path = "showTime", group = L["Text"], subgroup = L["Shown text"], order = 20,
                        type = "bool", label = L["Show time left"],
                        desc = L["Seconds left on the cast, at the bar's right end."], default = D.showTime }
+ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
 
 for i, spec in ipairs({
     { "showIcon", "bool", L["Show spell icon"], L["The spell's icon at one end of the bar."] },
     { "iconSide", "string", L["Icon side"], L["Which end of the bar the icon sits at."],
       { LEFT = L["Left"], RIGHT = L["Right"] }, { "LEFT", "RIGHT" } },
     { "showShield", "bool", L["Show shield"], L["A small shield on a cast that cannot be interrupted."] },
-    { "showSpark", "bool", L["Show spark"], L["A bright edge riding the fill."] },
 }) do
     rows[#rows + 1] = row{ path = spec[1], group = L["Icon"], order = i * 10, type = spec[2],
                            label = spec[3], desc = spec[4], default = D[spec[1]],

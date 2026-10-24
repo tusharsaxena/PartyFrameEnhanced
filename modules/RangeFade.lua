@@ -1,7 +1,7 @@
 local _, NS = ...
 
 -- modules/RangeFade.lua — every element fades with its party member's frame when that member is out
--- of range (General → Party frames → "Fade with party frames").
+-- of range (General > All elements > "Fade with party frames").
 --
 -- ONE FADE FRAME PER UNIT. Each unit's cast bar, target frame and pet frame are parented to a plain
 -- frame of this module's, and only that frame's alpha changes here. The client multiplies a parent's
@@ -33,16 +33,24 @@ local _, NS = ...
 -- Full alpha whenever the fade does not apply: the setting off, the addon or a perf run suspending
 -- it, preview mode, or a unit with no party frame.
 --
--- STRATA. The fade frames also set where the elements stack (General → Party frames → "Frame
+-- STRATA. The fade frames also set where the elements stack (General > All elements > "Frame
 -- strata"). Automatic copies the unit's party frame's strata and sits one level above the highest
 -- frame in it, so an attached cast bar draws over the party frame and nothing else on screen is
 -- covered that would not cover the party frame too. Left on UIParent's MEDIUM, the elements drew
 -- over every LOW window -- other addons' panels included. A unit with no party frame borrows any
 -- member frame of the active system, and with none at all lands on LOW, where Blizzard's own unit
 -- frames live. A party frame that cannot be read (forbidden, or a read the client refuses) also
--- lands on LOW, at a fixed level clear of a party frame's children. A fixed choice sets that strata and the same level. The children follow the fade
--- frame's strata and level, and a fade frame parents secure buttons, so the write goes through the
--- secure queue.
+-- lands on LOW, at a fixed level clear of a party frame's children. A fixed choice sets that strata
+-- and the same level. The children follow the fade frame's strata and level, and a fade frame parents
+-- secure buttons, so the write goes through the secure queue.
+--
+-- THE HOLDERS follow too (frame-layering-§2, drag backplate). Each free-placement holder
+-- (modules/Anchor.lua) takes the strata of the lowest fade frame in its stack, at that fade frame's
+-- level: the fade frame draws nothing, so the plate sits under every element and over the party
+-- frame's own top level. Left on UIParent's MEDIUM, a holder drew its plate over elements on a LOW
+-- party frame's strata and swallowed a target frame's click while unlocked. Secure elements anchor
+-- to the holders, so their writes ride the same secure key. Every strata and level here comes from
+-- core/Constants.lua's LAYERS.
 
 local Compat    = NS.Compat
 local Units     = NS.Units
@@ -51,16 +59,15 @@ local Providers = NS.Providers
 local RangeFade = NS.RegisterModule({ name = "RangeFade" })
 NS.RangeFade = RangeFade
 
+local LAYERS = NS.Constants.LAYERS
+local LEVEL = LAYERS.LEVEL
+local RANK = LAYERS.STRATA_RANK
+
 local CLASSIC_OUT_OF_RANGE = 0.5   -- what Blizzard's raid-style frames fade to
-local FALLBACK_STRATA = "LOW"      -- no party frame to copy: Blizzard's unit frames' strata
--- A party frame that cannot be read (forbidden, or a read the client refuses): its level is
--- unknown, so the elements take one clear of a party frame's own children on that strata.
-local FALLBACK_LEVEL = 50
-local MAX_LEVEL = 9000             -- the client's ceiling is 10000; the elements stack a few above
+-- No party frame to copy: Blizzard's unit frames' strata.
+local FALLBACK_STRATA = LAYERS.STRATA.HOST_FALLBACK
 -- general.strata's choices, lowercase for the CLI, as the client spells them.
-local STRATA = {
-    background = "BACKGROUND", low = "LOW", medium = "MEDIUM", high = "HIGH", dialog = "DIALOG",
-}
+local STRATA = LAYERS.PLAYER_STRATA
 
 local fades = {}                                         -- unit → fade frame
 local unitOf = {}                                        -- party frame → the unit it shows now
@@ -69,6 +76,7 @@ local suspended = false
 local listening = false
 local ready = false                                      -- OnEnable has run (the DB exists)
 local stacked = {}                                       -- unit → "STRATA:level" last applied
+local holderStacked = setmetatable({}, { __mode = "k" }) -- holder → "STRATA:level" last applied
 
 --- The frame `unit`'s elements are parented to. Created on first ask, by the features' OnEnable.
 function RangeFade.Parent(unit)
@@ -247,25 +255,62 @@ local function anyFrame()
     return found
 end
 
---- Where `unit`'s elements stack: the strata name and the frame level.
+-- UIParent's level: the base of a fade frame's level when there is no party frame to measure.
+local function uiBase()
+    local ok, l = pcall(UIParent.GetFrameLevel, UIParent)
+    return (ok and type(l) == "number") and l or 0
+end
+
+--- Where `unit`'s elements stack: the strata name and the frame level. Every level is relative:
+--- over the party frame's highest readable descendant, else over UIParent (frame-layering-§3).
 function RangeFade.StackFor(unit)
     local frame = Providers.FrameFor(unit) or anyFrame()
     local fixed = STRATA[NS.GetSetting("general.strata")]
-    if not frame then return fixed or FALLBACK_STRATA, 1 end
-    if not readable(frame) then return fixed or FALLBACK_STRATA, FALLBACK_LEVEL end
+    if not frame then return fixed or FALLBACK_STRATA, uiBase() + LEVEL.NO_HOST end
+    -- A party frame that cannot be read (forbidden, or a read the client refuses): its level is
+    -- unknown, so the elements take one clear of a party frame's own children on that strata.
+    if not readable(frame) then return fixed or FALLBACK_STRATA, uiBase() + LEVEL.UNREADABLE end
     local strata = fixed
     if not strata then
         local ok, s = pcall(frame.GetFrameStrata, frame)
-        strata = (ok and type(s) == "string") and s or FALLBACK_STRATA
+        strata = (ok and type(s) == "string" and RANK[s]) and s or FALLBACK_STRATA
     end
-    return strata, math.min(topLevel(frame) + 1, MAX_LEVEL)
+    return strata, math.min(topLevel(frame) + LEVEL.HOST_STEP, LEVEL.CEILING)
+end
+
+-- Whether stack (s, l) is under stack (s2, l2): strata first, then level.
+local function lower(s, l, s2, l2)
+    return not s2 or RANK[s] < RANK[s2] or (s == s2 and l < l2)
+end
+
+-- Every holder onto the lowest included unit's stack (strata, level), read by restack's own pass so
+-- the level walk runs once per unit.
+local function restackHolders(strata, level)
+    local anchor = NS.Anchor
+    if not (strata and anchor and anchor.ForEachHolder) then return end
+    level = level + LEVEL.BACKPLATE
+    local key = strata .. ":" .. level
+    anchor.ForEachHolder(function(holder, feature)
+        if holderStacked[holder] ~= key then
+            holder:SetFrameStrata(strata)
+            holder:SetFrameLevel(level)
+            holderStacked[holder] = key
+            if NS.State.debug then
+                NS.DebugChanged("Fade:holder:" .. feature, "Fade", "%s holder at %s %d", feature, strata, level)
+            end
+        end
+    end)
 end
 
 local function restack()
+    local lowStrata, lowLevel
     for _, unit in ipairs(Units.LIST) do
         local fade = fades[unit]
         if fade then
             local strata, level = RangeFade.StackFor(unit)
+            if Units.IsIncluded(unit) and lower(strata, level, lowStrata, lowLevel) then
+                lowStrata, lowLevel = strata, level
+            end
             local key = strata .. ":" .. level
             if stacked[unit] ~= key then
                 fade:SetFrameStrata(strata)
@@ -277,12 +322,17 @@ local function restack()
             end
         end
     end
+    restackHolders(lowStrata, lowLevel)
 end
 
 -- Read at run time, so a write held through combat lands on what the frames are by then.
 local function syncStrata()
     if ready then NS.RunSecure("fade:strata", restack) end
 end
+
+--- Re-stack now (through the secure queue). modules/Anchor.lua calls it when a holder is built, which
+--- can be after this module's own OnEnable stacked the fade frames.
+RangeFade.SyncStrata = syncStrata
 
 -- ── lifecycle ─────────────────────────────────────────────────────────────────────────────────
 

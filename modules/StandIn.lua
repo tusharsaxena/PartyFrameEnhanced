@@ -11,13 +11,15 @@ local _, NS = ...
 -- the ones a real party gets, and wears one of three looks. The looks are approximations, judged by
 -- eye in docs/smoke-tests.md.
 --
--- READ-ONLY toward other frames: GetSize / GetLeft / GetTop / GetEffectiveScale only, each answer
--- checked for a plain number before it is compared. Never anchored, parented or hooked to a Blizzard
+-- READ-ONLY toward other frames: GetSize / GetLeft / GetTop / GetEffectiveScale / GetFrameStrata
+-- only, each number checked for a plain number before it is compared, and the strata for a plain
+-- client strata name before it is used. Never anchored, parented or hooked to a Blizzard
 -- or EllesmereUI frame. The stand-in is an insecure plain Frame; the secure target and pet buttons may
 -- pin to it out of combat, the only time test mode runs.
 
 local Compat = NS.Compat
 local L      = NS.L
+local LAYERS = NS.Constants.LAYERS
 
 local StandIn = {}
 NS.StandIn = StandIn
@@ -150,6 +152,8 @@ end
 
 local function build()
     local f = CreateFrame("Frame", "PartyFrameEnhancedStandIn", UIParent, "BackdropTemplate")
+    -- On a host strata from birth, never UIParent's MEDIUM until first placed (StandIn.Place).
+    f:SetFrameStrata(LAYERS.STRATA.HOST_FALLBACK)
     f:SetMovable(true)
     -- Placed afresh from the imitated frame every time; a client-cached position is never wanted.
     if f.SetDontSavePosition then f:SetDontSavePosition(true) end
@@ -211,6 +215,14 @@ local function place(f, id, source, configured)
     return w, h
 end
 
+-- The strata of the frame the stand-in imitates, when the read answers a plain client strata name;
+-- otherwise the strata Blizzard's own unit frames live on.
+local function strataOf(source)
+    local s = read(source, "GetFrameStrata")
+    if type(s) == "string" and not Compat.IsSecret(s) and LAYERS.STRATA_RANK[s] then return s end
+    return LAYERS.STRATA.HOST_FALLBACK
+end
+
 --- The stand-in, built on first ask.
 function StandIn.Frame()
     frame = frame or build()
@@ -223,10 +235,12 @@ end
 function StandIn.Place(id, source, configured)
     local f = StandIn.Frame()
     if not FALLBACK[id] then id = "blizzard-party" end
-    -- LOW, as Blizzard's unit frames are. The elements stack just above it on Automatic strata
-    -- (modules/RangeFade.lua); before that they sat on MEDIUM, and on their own strata the stand-in's
-    -- health bar had covered the cast bar's icon but for a 1px rim.
-    f:SetFrameStrata("LOW")
+    -- The imitated frames' own strata (frame-layering-§1, host-matched), LOW when it cannot be read,
+    -- as Blizzard's unit frames are. The elements stack just above it on Automatic strata
+    -- (modules/RangeFade.lua), exactly as they will against the real frames in a party; before that
+    -- they sat on MEDIUM, and on their own strata the stand-in's health bar had covered the cast
+    -- bar's icon but for a 1px rim.
+    f:SetFrameStrata(strataOf(source))
     local w, h = place(f, id, source, configured)
     local r, g, b = classColor()
     PRESETS[id](f, w, h, r, g, b)

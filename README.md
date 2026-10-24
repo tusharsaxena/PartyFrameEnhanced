@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-469%2F469_passing-green)
+![Tests](https://img.shields.io/badge/Tests-484%2F484_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -46,16 +46,17 @@ Setting it up the way you like takes three steps. The **Cast Bars**, **Target Fr
 **Pet Frames** pages are laid out the same way, so you do each step once per feature.
 
 - Pick what you want. The first box on each page's **General** tab turns that feature on or off,
-  so switch off anything you don't need. The **General** page decides whether you get a row for
-  yourself too (**Include my own row**) and which party frames to attach to. Leave **Frame system** on
-  **Automatic** unless you run both Blizzard's frames and EllesmereUI's.
-- Place each feature on its **Size & Position** tab. Attached, it sits on each party frame, and
+  so switch off anything you don't need. The **General** page's **All elements** tab decides whether
+  you get a row for yourself too (**Include my own row**) and which party frames to attach to. Leave
+  **Frame system** on **Automatic** unless you run both Blizzard's frames and EllesmereUI's.
+- Place each feature on its **Size and position** tab. Attached, it sits on each party frame, and
   the anchor points and X and Y offsets nudge it into place. Switch **Anchor mode** to **Free
   placement** and all five go in one stack you drag wherever you want, with a growth direction and
   spacing. The tab only shows the settings for the mode you picked.
-- Make it look right. The **Bar**, **Border** and **Text** tabs hold the textures, colors and
-  fonts. Cast bars get a color for each kind of cast, target frames can color NPCs by how they
-  feel about you, and target and pet frames have a **Marker** tab for the raid marker.
+- Make it look right. The **Bar** tab holds the fill, the colors, the background and the border,
+  and the **Text** tab chooses which text is shown and its font. Cast bars get a color for each
+  kind of cast, target frames can color NPCs by how they feel about you, and target and pet frames
+  have a **Marker** tab for the raid marker.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim with their party
 frame. The minimap button opens the settings on a left click, and a right click gives you

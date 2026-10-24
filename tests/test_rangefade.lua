@@ -367,6 +367,62 @@ case("rangefade: a fixed strata overrides the party frame's, and nothing to copy
   assertEqual(RangeFade.StackFor("party1"), "LOW", "no frame system on screen: LOW")
 end)
 
+-- The free-placement holders (frame-layering-§2, drag backplate): the strata of their stack's lowest
+-- fade frame, at that fade frame's level, so the plate draws under every element.
+local function recordHolders()
+  local holders = {}
+  for _, key in ipairs(NS.Anchor.__order) do
+    local h = NS.Anchor.__features[key].holder
+    rawset(h, "SetFrameStrata", function(self, s) self.__strata = s end)
+    holders[key] = h
+  end
+  return holders
+end
+
+local function lowestStack()
+  local lowStrata, lowLevel
+  local rank = NS.Constants.LAYERS.STRATA_RANK
+  for _, unit in ipairs(NS.Units.LIST) do
+    if NS.Units.IsIncluded(unit) then
+      local s, l = RangeFade.StackFor(unit)
+      if not lowStrata or rank[s] < rank[lowStrata] or (s == lowStrata and l < lowLevel) then
+        lowStrata, lowLevel = s, l
+      end
+    end
+  end
+  return lowStrata, lowLevel
+end
+
+case("rangefade: a free-placement holder stacks on its elements' strata, under every one of them", function()
+  -- red under: the holders left on UIParent's MEDIUM over elements on a LOW party frame's strata,
+  -- where the plate drew over the bars and the holder swallowed a target frame's click while unlocked.
+  local frames = installRaidStyle({ "player", "party1", "party2" })
+  dress(frames.party1, "LOW", 5, 12)
+  dress(frames.party2, "LOW", 2, 3)
+  dress(frames.player, "LOW", 8, 9)
+  local holders = recordHolders()
+  for _, unit in ipairs(NS.Units.LIST) do recordStrata(unit) end
+  Providers.Resolve()
+  NS.SetByPath("general.strata", "medium")
+  NS.SetByPath("general.strata", "auto")
+  local strata, level = lowestStack()
+  assertEqual(strata, "LOW")
+  for key, h in pairs(holders) do
+    assertEqual(h.__strata, "LOW", key .. ": the elements' strata, not UIParent's MEDIUM")
+    assertEqual(h:GetFrameLevel(), level + NS.Constants.LAYERS.LEVEL.BACKPLATE, key .. ": the lowest fade level")
+    for _, unit in ipairs(NS.Units.LIST) do
+      if NS.Units.IsIncluded(unit) then
+        assertTrue(h:GetFrameLevel() < fade(unit):GetFrameLevel() + 1, key .. " under " .. unit .. "'s elements")
+      end
+    end
+  end
+  NS.SetByPath("general.strata", "high")
+  for key, h in pairs(holders) do
+    assertEqual(h.__strata, "HIGH", key .. " follows a fixed strata with its elements")
+  end
+  for _, h in pairs(holders) do rawset(h, "SetFrameStrata", nil) end
+end)
+
 case("rangefade: a strata change in combat waits for the secure queue", function()
   local frames = installRaidStyle({ "player", "party1" })
   dress(frames.party1, "LOW", 5, 6)

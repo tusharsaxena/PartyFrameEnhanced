@@ -262,7 +262,7 @@ Total.
 - securefollow: the degraded build (LibKa0s absent) loads the module
 - securefollow: teardown — the placement the earlier suites left is put back
 
-### test_rangefade.lua (15)
+### test_rangefade.lua (16)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -278,7 +278,16 @@ Total.
 - rangefade: a child that refuses its reads but is not flagged forbidden ends the walk there
 - rangefade: a party frame that cannot be read falls back to LOW at a fixed level
 - rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW
+- rangefade: a free-placement holder stacks on its elements' strata, under every one of them
 - rangefade: a strata change in combat waits for the secure queue
+
+### test_layers.lua (5)
+
+- layers: one table names every strata and level the addon writes
+- layers: the element ladder is root < fill < border < overlay, all inherited
+- layers: the overlay takes no mouse, so a click-to-target button keeps its click
+- layers: Show border off clears the border's backdrop and keeps it shown
+- layers: the Frame strata row's tooltip is the library's strata tooltip
 
 ### test_party.lua (6)
 
@@ -300,7 +309,7 @@ Total.
 - status: names the frame system, each unit, each feature, and anything switched off
 - preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (14)
+### test_standin.lua (15)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -308,7 +317,7 @@ Total.
 - standin: copies the source's size and top-left through the effective-scale ratio
 - standin: a zero size takes the system's fallback, and no position goes to the center
 - standin: a secret size or position is never compared — fallback and center
-- standin: draws beneath what attaches to it (LOW strata), as a real party frame does
+- standin: draws beneath what attaches to it, on the strata of the frames it imitates
 - standin: marks the player's name (test), with no corner tag for an element to cover, and drags
 - standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
@@ -316,6 +325,7 @@ Total.
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
 - standin: opts out of the client's layout cache; the addon places it every time
 - standin: still builds on a client without SetDontSavePosition
+- standin: is on a host strata from the moment it is built, before it is first placed
 
 ### test_preview_standin.lua (17)
 
@@ -515,15 +525,26 @@ Total.
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
-- optionssetup: every feature page has a Size & Position tab that opens with Size
-- optionssetup: Size & Position draws only the placement block the anchor mode uses (shownWhen)
+- optionssetup: every feature page has a Size and position tab that opens with Size
+- optionssetup: Size and position draws only the placement block the anchor mode uses (shownWhen)
 - optionssetup: the hidden block stays in the schema and /pfe set still reaches it
 - optionssetup: Match party frame width dims in free placement, and Width with Match width
-- optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker
+- optionssetup: one Health updates subsection drives both features; health rows dim with it, marker rows with the marker
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 - optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn
+
+### test_settings_layout.lua (8)
+
+- layout: every stored path, its page, default, range, values and wiring are unchanged
+- layout: General has two tabs; All elements holds Party frames, then Health updates
+- layout: Lock frame says it is the preview switch, in the library's words and a combat note
+- layout: every feature page's tabs, with Border merged into Bar
+- layout: Text opens with Shown text, then the font block
+- layout: Size and position keeps Size first, and its tooltips say why a row is dimmed
+- layout: the Cast Bars words, and Show spark rides the Fill block
+- layout: dependants say what they need, and the marker's point names the bar
 
 ### test_surface_parity.lua (14)
 
@@ -614,10 +635,11 @@ Total.
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
 | test_securefollow.lua | 23 |
-| test_rangefade.lua | 15 |
+| test_rangefade.lua | 16 |
+| test_layers.lua | 5 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
-| test_standin.lua | 14 |
+| test_standin.lua | 15 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
@@ -628,6 +650,7 @@ Total.
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
+| test_settings_layout.lua | 8 |
 | test_surface_parity.lua | 14 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -635,4 +658,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **469** |
+| **Total** | **484** |

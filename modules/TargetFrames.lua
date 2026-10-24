@@ -152,7 +152,7 @@ local function tickerWanted()
     return false
 end
 
---- Run the ticker exactly while it has something to do, at the shared Health refresh pace. A new
+--- Run the ticker exactly while it has something to do, at the shared Target health refresh pace. A new
 --- pace restarts a running ticker at it; before, it only took effect on the next start.
 function TargetFrames.UpdateTicker()
     local want = tickerWanted()

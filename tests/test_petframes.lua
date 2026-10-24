@@ -146,8 +146,9 @@ end)
 -- draws above the bar's own regions, so the border's edge cut across the marker (owner-reported).
 test("petframes: the marker draws above the border", function()
   local btn = buttons.party1
-  assertTrue(btn.markerLayer:GetFrameLevel() > btn.border:GetFrameLevel(),
-    "the marker's layer must stack above the border frame")
+  assertTrue(btn.overlay.__parent == btn.border, "the overlay frame rides the border")
+  assertTrue(btn.overlay:GetFrameLevel() > btn.border:GetFrameLevel(),
+    "the marker's overlay must stack above the border frame")
 end)
 
 -- SESSION-LONG REGISTRATIONS (review F-017): RAID_TARGET_UPDATE follows the feature's syncEvents

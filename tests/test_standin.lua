@@ -118,15 +118,30 @@ test("standin: a secret size or position is never compared — fallback and cent
   assertEqual(p.point, "CENTER")
 end)
 
-test("standin: draws beneath what attaches to it (LOW strata), as a real party frame does", function()
+test("standin: draws beneath what attaches to it, on the strata of the frames it imitates", function()
   -- red under: the stand-in on the elements' own strata, where its health bar covered the cast
-  -- bar's icon and left a 1px rim of it showing.
+  -- bar's icon and left a 1px rim of it showing; then a literal LOW for every frame system.
   local f = StandIn.Frame()
   local strata
   rawset(f, "SetFrameStrata", function(_, s) strata = s end)
   StandIn.Place("ellesmere", nil)
+  assertEqual(strata, "LOW", "nothing to read: where Blizzard's unit frames live")
+  local src = source(100, 40, 10, 500)
+  rawset(src, "GetFrameStrata", function() return "MEDIUM" end)
+  StandIn.Place("ellesmere", src)
+  assertEqual(strata, "MEDIUM", "the imitated frame's own strata")
+  rawset(src, "GetFrameStrata", function() error("Attempt to access forbidden object") end)
+  StandIn.Place("ellesmere", src)
+  assertEqual(strata, "LOW", "a refused read falls back")
+  rawset(src, "GetFrameStrata", function() return "NOT_A_STRATA" end)
+  StandIn.Place("ellesmere", src)
+  assertEqual(strata, "LOW", "an answer that is no strata falls back")
+  mocks.issecretvalue = function(v) return v == "HIGH" end
+  rawset(src, "GetFrameStrata", function() return "HIGH" end)
+  StandIn.Place("ellesmere", src)
+  mocks.issecretvalue = nil
   rawset(f, "SetFrameStrata", nil)
-  assertEqual(strata, "LOW")
+  assertEqual(strata, "LOW", "a secret answer is never used")
 end)
 
 test("standin: marks the player's name (test), with no corner tag for an element to cover, and drags", function()
@@ -232,11 +247,12 @@ local function freshStandIn(present)
       local f = mocks.CreateFrame(frameType, name, ...)
       if name then
         rawset(f, "SetDontSavePosition", present and function(_, v) calls[name] = { v } end or false)
+        rawset(f, "SetFrameStrata", function(_, s) calls.strata = s end)
       end
       return f
     end,
   }, { __index = mocks })
-  local ns2 = { Compat = NS.Compat, L = NS.L }
+  local ns2 = { Compat = NS.Compat, L = NS.L, Constants = NS.Constants }
   local Loader = dofile("tests/_kit/loader.lua")
   Loader.addonName = "PartyFrameEnhanced"
   Loader.load("modules/StandIn.lua", ns2, view)
@@ -259,4 +275,12 @@ test("standin: still builds on a client without SetDontSavePosition", function()
   local f = fresh.Frame()
   f:Hide()
   assertTrue(f ~= nil)
+end)
+
+test("standin: is on a host strata from the moment it is built, before it is first placed", function()
+  -- red under: the strata set only in Place, so the frame existed on UIParent's MEDIUM until dressed.
+  local fresh, calls = freshStandIn(true)
+  local f = fresh.Frame()
+  f:Hide()
+  assertEqual(calls.strata, "LOW", "Blizzard's unit frames' strata, at build")
 end)

@@ -2,16 +2,19 @@ local _, NS = ...
 
 -- settings/General.lua — the General page (options-ui-§13/§15):
 --
---     [ Master controls ][ Party frames ]
+--     [ Master controls ][ All elements ]
 --
 --     Master controls  [Enable Party Frame Enhanced]  [General visibility]
 --                      [Master scale]                 [Master alpha]
 --                      [Lock frame]                   [Debug console]
 --                      [Minimap button]                                      <- stored in db.global
 --                      [Reset position]               [Reset all settings]   <- afterGroup pair
---     Party frames     [Frame system]                 [Include my own row]
---                      [Fade with party frames]       [Frame strata]
+--     All elements     -- Party frames --   [Frame system]            [Include my own row]
+--                                           [Fade with party frames]  [Frame strata]
+--                      -- Health updates -- [Update health]           [Target health refresh (seconds)]
 --
+-- All elements holds what the cast bars, target frames and pet frames share, so both subsections
+-- sit on the General page and its Defaults resets them.
 -- Master controls is COMPOSED from one declaration (options-ui-§15, anti-pattern #73). Not
 -- frameless: the free-placement stacks are movable, so scale, alpha, lock and reset position apply.
 
@@ -21,7 +24,24 @@ local H = NS.Helpers
 local D = NS.defaults.profile
 
 local PAGE = "general"
-local PARTY_GROUP = L["Party frames"]
+local SHARED_GROUP = L["All elements"]
+local PARTY_SUB = L["Party frames"]
+
+-- Frame strata's values. Its tooltip is the library's strata tooltip (frame-layering-§1, a MUST for
+-- a player strata row), handed the client names the row offers so it adds what Dialog covers: Dialog
+-- shipped before the BACKGROUND-to-HIGH rule and keeps its stored value.
+local STRATA_VALUES = {
+    auto = L["Match party frames"], background = L["Background"], low = L["Low"],
+    medium = L["Medium"], high = L["High"], dialog = L["Dialog"],
+}
+local function strataTooltip()
+    local offered = {}
+    for key in pairs(STRATA_VALUES) do
+        local strata = NS.Constants.LAYERS.PLAYER_STRATA[key]
+        if strata then offered[#offered + 1] = strata end
+    end
+    return H.StrataTooltip(offered) or ""
+end
 
 -- The console toggle is session state bound to the console window itself (options-ui-§15); both arms
 -- of core/DebugLogSetup.lua answer ConsoleCheckbox, so a library-less build still gets an honest row.
@@ -78,6 +98,11 @@ local masterRows, masterTail = H.MasterControls({
     page             = PAGE,
     addonName        = "Party Frame Enhanced",
     frameless        = false,
+    -- Unlocking IS the preview (options-ui-§15's exemption), so Lock frame takes the library's one
+    -- sentence for that, and the note adds what modules/Preview.lua does about combat: NS.AcceptLock
+    -- refuses an unlock under InCombatLockdown, and PLAYER_REGEN_DISABLED locks again.
+    lockIsPreview    = true,
+    notes            = { locked = L["Unlocking is refused in combat, and combat locks it again."] },
     debugConsolePath = DEBUG_CONSOLE_PATH,
     minimapPath      = MINIMAP_PATH,
     defaults         = {
@@ -135,7 +160,8 @@ NS.RegisterSchemaRows({
     {
         path    = "general.provider",
         page    = PAGE,
-        group   = PARTY_GROUP,
+        group   = SHARED_GROUP,
+        subgroup = PARTY_SUB,
         order   = 10,
         type    = "string",
         label   = L["Frame system"],
@@ -147,7 +173,8 @@ NS.RegisterSchemaRows({
     {
         path    = "general.includePlayer",
         page    = PAGE,
-        group   = PARTY_GROUP,
+        group   = SHARED_GROUP,
+        subgroup = PARTY_SUB,
         order   = 20,
         type    = "bool",
         label   = L["Include my own row"],
@@ -157,7 +184,8 @@ NS.RegisterSchemaRows({
     {
         path    = "general.rangeFade",
         page    = PAGE,
-        group   = PARTY_GROUP,
+        group   = SHARED_GROUP,
+        subgroup = PARTY_SUB,
         order   = 30,
         type    = "bool",
         label   = L["Fade with party frames"],
@@ -167,32 +195,32 @@ NS.RegisterSchemaRows({
     {
         path    = "general.strata",
         page    = PAGE,
-        group   = PARTY_GROUP,
+        group   = SHARED_GROUP,
+        subgroup = PARTY_SUB,
         order   = 40,
         type    = "string",
         label   = L["Frame strata"],
-        desc    = L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."],
+        desc    = L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."]
+            .. " " .. strataTooltip(),
         default = D.general.strata,
-        values  = {
-            auto = L["Match party frames"], background = L["Background"], low = L["Low"],
-            medium = L["Medium"], high = L["High"], dialog = L["Dialog"],
-        },
+        values  = STRATA_VALUES,
         sorting = { "auto", "background", "low", "medium", "high", "dialog" },
     },
 })
 
--- The Health updates tab: one switch and one pace for both unit-button features, so target and pet
+-- The Health updates subsection: one switch and one pace for both unit-button features, so target and pet
 -- frames can never disagree. Pet frames follow the switch only; their health comes from the game's
 -- own events, so the pace is the target ticker's.
-local HEALTH_GROUP = L["Health updates"]
+local HEALTH_SUB = L["Health updates"]
 local function healthOff() return NS.GetSetting("general.updateHealth") ~= true end
 
 NS.RegisterSchemaRows({
     {
         path    = "general.updateHealth",
         page    = PAGE,
-        group   = HEALTH_GROUP,
-        order   = 10,
+        group   = SHARED_GROUP,
+        subgroup = HEALTH_SUB,
+        order   = 50,
         type    = "bool",
         label   = L["Update health"],
         desc    = L["Track health on target and pet frames. Off: their bars stay full with no percent, and no health updates run."],
@@ -201,10 +229,11 @@ NS.RegisterSchemaRows({
     {
         path       = "general.tickInterval",
         page       = PAGE,
-        group      = HEALTH_GROUP,
-        order      = 20,
+        group      = SHARED_GROUP,
+        subgroup   = HEALTH_SUB,
+        order      = 60,
         type       = "number",
-        label      = L["Health refresh (seconds)"],
+        label      = L["Target health refresh (seconds)"],
         desc       = L["How often a shown target frame's health updates. Lower is smoother and costs more. Pet frames update on the game's own health events."],
         default    = D.general.tickInterval,
         min        = 0.1,

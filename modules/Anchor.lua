@@ -313,7 +313,16 @@ function Anchor.Register(spec)
     holder.grip:SetScript("OnDragStop", dropHolder)
     spec.__drag, spec.__drop = dragHolder, dropHolder
     spec.holder = holder
+    -- Its strata and level are its stack's (frame-layering-§2, drag backplate): modules/RangeFade.lua
+    -- writes them with the fade frames' and re-stacks now, for a holder built after it first did.
+    if NS.RangeFade and NS.RangeFade.SyncStrata then NS.RangeFade.SyncStrata() end
     return spec
+end
+
+--- Call `fn(holder, key)` for every feature's free-placement holder, in registration order. The
+--- strata writer (modules/RangeFade.lua) stacks them, so it never reaches into this module's locals.
+function Anchor.ForEachHolder(fn)
+    for _, key in ipairs(order) do fn(features[key].holder, key) end
 end
 
 -- Grabbable exactly while unlocked and in free placement. The holder carries no secure frame's

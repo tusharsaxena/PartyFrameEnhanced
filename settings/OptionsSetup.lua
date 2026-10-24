@@ -151,6 +151,8 @@ if not lib then
     Helpers.ID_NAME_HINT      = {}
     -- A defaults-tooltip suffix (LibKa0s v1.77.0); no panel draws here, so it is empty.
     Helpers.KEYBINDS_UNCHANGED = ""
+    -- The Reset all tooltip (LibKa0s v1.77.0, compose minor 11); inert, so an empty string.
+    Helpers.ResetAllTooltip    = function() return "" end
     Helpers.__panels   = function() return {} end
     Helpers.__panelFor = function() return nil end
 

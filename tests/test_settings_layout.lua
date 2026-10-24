@@ -7,7 +7,7 @@ local T = _G.PFE_TEST
 local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 local NS = T.NS
 
--- ── the guard: the SET of settings, and everything stored or behavioural about each ──────────
+-- ── the guard: the SET of settings, and everything stored or behavioral about each ──────────
 
 local function ser(v)
   if type(v) == "table" then

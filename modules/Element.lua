@@ -1,8 +1,9 @@
 local _, NS = ...
 
 -- modules/Element.lua — what the three features' elements have in common: the regions (background,
--- status bar, border, two text lines, optional icon / spark / shield / marker), the config-driven
--- restyle, the unit-colored parts, and the first rungs of every element's show decision.
+-- status bar, border, an overlay frame carrying two text lines and the optional spark / shield /
+-- marker, an optional icon), the config-driven restyle, the unit-colored parts, and the first rungs
+-- of every element's show decision.
 --
 -- Built onto a root the feature creates — a plain Frame for a cast bar, a SecureUnitButtonTemplate
 -- button for a target or pet frame — so one set of drawing code serves both.
@@ -24,38 +25,44 @@ local FONT_FLAGS = { NONE = "" }
 --- Add the shared regions to `root`. opts = { icon, spark, shield, marker }.
 function Element.Build(root, opts)
     opts = opts or {}
+    -- THE LADDER (frame-layering-§3; core/Constants.lua LAYERS.LEVEL), every rung INHERITED, never
+    -- set: root regions (background, icon) < the status bar (FILL) < the border frame, a child of
+    -- the bar (BORDER) < the overlay frame, a child of the border (OVERLAY). A region draws under
+    -- every child frame of its own frame, so text, spark, shield and marker drawn on the bar sat
+    -- under the border's edge; on the overlay they draw over it. Inherited because the whole ladder
+    -- then moves with the fade frame whenever modules/RangeFade.lua restacks it: an explicit level
+    -- set here at build would have to be re-asserted on every restack.
     local bar = CreateFrame("StatusBar", nil, root)
     root.bar = bar
     root.bg = root:CreateTexture(nil, "BACKGROUND")
-    root.text = bar:CreateFontString(nil, "OVERLAY")
+    -- Always shown, so the overlay riding it always draws: Show border off clears its backdrop
+    -- instead (applyBorder).
+    root.border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+    -- Mouse-off, so a click-to-target button under it keeps its click.
+    local overlay = CreateFrame("Frame", nil, root.border)
+    overlay:SetAllPoints(bar)
+    overlay:EnableMouse(false)
+    root.overlay = overlay
+    root.text = overlay:CreateFontString(nil, "OVERLAY")
     root.text:SetJustifyH("LEFT")
     root.text:SetWordWrap(false)
-    root.text2 = bar:CreateFontString(nil, "OVERLAY")
+    root.text2 = overlay:CreateFontString(nil, "OVERLAY")
     root.text2:SetJustifyH("RIGHT")
-    -- A child of the bar draws above the bar and the icon.
-    root.border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
     if opts.icon then
         root.icon = root:CreateTexture(nil, "ARTWORK")
         root.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     end
     if opts.spark then
-        root.spark = bar:CreateTexture(nil, "OVERLAY")
+        root.spark = overlay:CreateTexture(nil, "OVERLAY")
         root.spark:SetTexture(SPARK_TEXTURE)
         root.spark:SetBlendMode("ADD")
     end
     if opts.shield then
-        root.shield = bar:CreateTexture(nil, "OVERLAY")
+        root.shield = overlay:CreateTexture(nil, "OVERLAY")
         root.shield:SetTexture(SHIELD_TEXTURE)
     end
     if opts.marker then
-        -- On a layer of its own one level above the border: a region of the bar draws under every
-        -- child frame of the bar, the border included, so a marker there sat behind the border's
-        -- edge. Not a region of the border frame, which hides when the border is off.
-        local layer = CreateFrame("Frame", nil, bar)
-        layer:SetFrameLevel(root.border:GetFrameLevel() + 1)
-        layer:SetAllPoints(bar)
-        root.markerLayer = layer
-        root.marker = layer:CreateTexture(nil, "OVERLAY")
+        root.marker = overlay:CreateTexture(nil, "OVERLAY")
         root.marker:SetTexture(MARKER_TEXTURE)
     end
     -- The alpha this element wants; Anchor's combat fade restores to it (modules/Anchor.lua).
@@ -120,10 +127,14 @@ local function applyMarks(el, h, cfg, scale)
     end
 end
 
+-- The border frame is never hidden: the overlay frame is its child (Element.Build). Off, its edge is
+-- cleared and it lies over the element's own rect.
 local function applyBorder(el, cfg)
     local b = el.border
     if not cfg.borderShow then
-        b:Hide()
+        b:ClearBackdrop()
+        b:ClearAllPoints()
+        b:SetAllPoints(el)
         return
     end
     local size = cfg.borderSize or 1
@@ -133,7 +144,6 @@ local function applyBorder(el, cfg)
     b:SetPoint("BOTTOMRIGHT", el, "BOTTOMRIGHT", out, -out)
     b:SetBackdrop({ edgeFile = NS.FetchMedia("border", cfg.borderStyle, C.FALLBACK_BORDER),
                     edgeSize = size })
-    b:Show()
 end
 
 local function applyFont(fs, font, size, flags, shadow)

@@ -90,6 +90,7 @@ Kit.run{
     "test_petframes",
     "test_securefollow",
     "test_rangefade",
+    "test_layers",
     "test_party",
     "test_preview",
     "test_standin",

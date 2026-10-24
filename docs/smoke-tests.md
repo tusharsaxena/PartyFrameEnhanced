@@ -21,6 +21,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | CAST-1 – 7 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings |
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
+| LAYER-1 – 4 | Frame layering | the free-placement plate under its bars, texts and marks over the border, the stand-in's strata, the strata tooltip |
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
@@ -339,6 +340,32 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   `/pfe set general.strata dialog` in combat → no error; the change lands as combat ends. *Failure:*
   elements over a window that covers the party frames, or a cast bar hidden behind its party frame. Result: pass (owner, 2026-10-23)
 
+## Frame layering
+
+- **LAYER-1. The plate sits under its bars.** Solo (the stand-in is up), set Target Frames → Size &
+  Position → *Anchor mode* to *Free placement*, tick *Click to target*, and `/pfe unlock` → the
+  translucent blue plate shows *behind* the target bars, between and around them, never tinting the
+  bars themselves. Drag a bar or the *Target frames* caption → the whole stack moves. Pick General →
+  *Frame strata* *High*, then *Low* → the plate stays under the bars on both. In a party, unlocked with
+  free placement, left-click a target frame → it still targets that unit. *Failure:* a blue tint over
+  the bars, a stack that will not drag, or a click on a target frame that does nothing while
+  unlocked. Result:
+- **LAYER-2. Texts and marks over the border.** On the Border tab of Cast Bars, Target Frames and Pet Frames
+  tick *Show border* and raise its size to 12 → the name and time texts, the cast bar's spark and shield
+  (an uninterruptible cast), and the raid marker on a target or pet frame all draw *over* the border's
+  edge, none cut by it. Untick *Show border* → the border goes and every text, spark and marker still
+  shows. *Failure:* a border edge drawn across a text, the spark or the shield, or text that vanishes
+  with the border off. Result:
+- **LAYER-3. The stand-in's strata.** Solo, `/pfe unlock` on each frame system (EllesmereUI, Blizzard
+  raid-style, Blizzard classic), then `/dump PartyFrameEnhancedStandIn:GetFrameStrata()` → the same
+  strata as the imitated frame system's party frames (`/fstack` over a real party frame in a party), LOW
+  where they cannot be read. Party1's cast bar still draws over the stand-in, its icon whole. *Failure:*
+  the stand-in on a strata the real party frames are not on, or a cast bar hidden behind it. Result:
+- **LAYER-4. The strata tooltip.** Hover General → Party frames → *Frame strata* → the tooltip keeps its
+  first sentences about the cast bars, target frames and pet frames, then explains the layers once and
+  says Dialog and above also cover confirmation dialogs, this addon's debug console and the Settings
+  window. The choices and the default (*Match party frames*) are unchanged. Result:
+
 ## Minimap button and broker
 
 - **LAUNCH-1. The button and its logo.** Log in → a round button on the minimap ring showing the Party
@@ -600,7 +627,9 @@ Checks:
 
 ## Pending sign-off
 
-None. On 2026-10-10 the owner marked every check in this file as passed, recorded on its
+On 2026-10-10 the owner marked every check in this file as passed, recorded on its
 `Result:` line as `pass (owner-marked 2026-10-10)`; a check that already carried a dated owner pass
 keeps it. A check added or rewritten after that date is listed here until its `Result:` line records
 a pass.
+
+- LAYER-1, LAYER-2, LAYER-3, LAYER-4 (frame layering, 2026-10-24).

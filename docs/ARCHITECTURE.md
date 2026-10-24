@@ -325,7 +325,8 @@ on entering combat while disabled, and replacing the latch with a boolean.
   `NS.RunSecure("fade:shown")`, so a stand-down in combat waits for `PLAYER_REGEN_ENABLED`. The
   free-placement holders (`modules/Anchor.lua`), which secure buttons anchor to, do the same under
   `holder:shown`. Their strata and level (General → *Frame strata*: by default the party frame's
-  strata, a level above its highest child) are written the same way, under `fade:strata`.
+  strata, a level above its highest child), and the holders' (their stack's lowest fade frame's),
+  are written the same way, under `fade:strata`.
 - **The out-of-range fade copies, it never calls in.** `modules/RangeFade.lua` post-hooks each member
   frame's `SetAlpha` and `SetAlphaFromBoolean` with `hooksecurefunc` and replays the call on its own
   fade frame. A secret flag goes to `SetAlphaFromBoolean` untouched; a secret number is tried on
@@ -348,6 +349,28 @@ on entering combat while disabled, and replacing the latch with a boolean.
   v1.46); nothing touches Blizzard's settings window, and the addon keeps no combat guard of its own.
 - **Secret values** are never compared, formatted or used in arithmetic; they are handed to C methods
   that accept them. The binding rules are the spec's §7.
+
+## Frame layering
+
+Where each frame sits in the draw order (frame-layering, standard v2.88.0). The strata and levels
+themselves live once in `NS.Constants.LAYERS` (`core/Constants.lua`), whose header comment states the
+whole stack; every `SetFrameStrata` and `SetFrameLevel` the addon makes reads it, and every level is
+relative to a base frame. The tiers, bottom up:
+
+- **Fade frame** (one per unit, `modules/RangeFade.lua`): the stacking root. Host-matched by default
+  (the party frame's strata, one level over its highest readable descendant), or the player's fixed
+  *Frame strata*. Its strata row's tooltip is the library's `O.StrataTooltip`, which says what Dialog
+  covers.
+- **Free-placement holder** (`modules/Anchor.lua`): the drag backplate, on its stack's lowest fade
+  frame's strata and level, so its plate draws under every element.
+- **Elements** (cast bar, target frame, pet frame): children of the fade frame. Inside each, an
+  inherited ladder: root regions < status bar < border frame < a mouse-off overlay frame carrying both
+  texts, the spark, the shield and the raid marker (`modules/Element.lua`).
+- **Stand-in** (`modules/StandIn.lua`, preview out of a party): the imitated frame system's strata,
+  LOW when it cannot be read.
+- **Library and Blizzard tiers**: the LibKa0s debug console and perf panel (DIALOG, toplevel), its copy
+  window (FULLSCREEN) and menus (FULLSCREEN_DIALOG), Blizzard's Settings panel (HIGH) and StaticPopups
+  (DIALOG), tooltips (TOOLTIP).
 
 ## Known Limitations
 

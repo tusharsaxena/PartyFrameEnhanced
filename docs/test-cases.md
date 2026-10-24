@@ -262,7 +262,7 @@ Total.
 - securefollow: the degraded build (LibKa0s absent) loads the module
 - securefollow: teardown — the placement the earlier suites left is put back
 
-### test_rangefade.lua (15)
+### test_rangefade.lua (16)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -278,7 +278,16 @@ Total.
 - rangefade: a child that refuses its reads but is not flagged forbidden ends the walk there
 - rangefade: a party frame that cannot be read falls back to LOW at a fixed level
 - rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW
+- rangefade: a free-placement holder stacks on its elements' strata, under every one of them
 - rangefade: a strata change in combat waits for the secure queue
+
+### test_layers.lua (5)
+
+- layers: one table names every strata and level the addon writes
+- layers: the element ladder is root < fill < border < overlay, all inherited
+- layers: the overlay takes no mouse, so a click-to-target button keeps its click
+- layers: Show border off clears the border's backdrop and keeps it shown
+- layers: the Frame strata row's tooltip is the library's strata tooltip
 
 ### test_party.lua (6)
 
@@ -300,7 +309,7 @@ Total.
 - status: names the frame system, each unit, each feature, and anything switched off
 - preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (14)
+### test_standin.lua (15)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -308,7 +317,7 @@ Total.
 - standin: copies the source's size and top-left through the effective-scale ratio
 - standin: a zero size takes the system's fallback, and no position goes to the center
 - standin: a secret size or position is never compared — fallback and center
-- standin: draws beneath what attaches to it (LOW strata), as a real party frame does
+- standin: draws beneath what attaches to it, on the strata of the frames it imitates
 - standin: marks the player's name (test), with no corner tag for an element to cover, and drags
 - standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
@@ -316,6 +325,7 @@ Total.
 - standin: cleared while suspended, it leaves the map at once and the resume re-sends LAYOUT
 - standin: opts out of the client's layout cache; the addon places it every time
 - standin: still builds on a client without SetDontSavePosition
+- standin: is on a host strata from the moment it is built, before it is first placed
 
 ### test_preview_standin.lua (17)
 
@@ -614,10 +624,11 @@ Total.
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
 | test_securefollow.lua | 23 |
-| test_rangefade.lua | 15 |
+| test_rangefade.lua | 16 |
+| test_layers.lua | 5 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
-| test_standin.lua | 14 |
+| test_standin.lua | 15 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
@@ -635,4 +646,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **469** |
+| **Total** | **476** |

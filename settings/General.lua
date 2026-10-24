@@ -23,6 +23,22 @@ local D = NS.defaults.profile
 local PAGE = "general"
 local PARTY_GROUP = L["Party frames"]
 
+-- Frame strata's values. Its tooltip is the library's strata tooltip (frame-layering-§1, a MUST for
+-- a player strata row), handed the client names the row offers so it adds what Dialog covers: Dialog
+-- shipped before the BACKGROUND-to-HIGH rule and keeps its stored value.
+local STRATA_VALUES = {
+    auto = L["Match party frames"], background = L["Background"], low = L["Low"],
+    medium = L["Medium"], high = L["High"], dialog = L["Dialog"],
+}
+local function strataTooltip()
+    local offered = {}
+    for key in pairs(STRATA_VALUES) do
+        local strata = NS.Constants.LAYERS.PLAYER_STRATA[key]
+        if strata then offered[#offered + 1] = strata end
+    end
+    return H.StrataTooltip(offered) or ""
+end
+
 -- The console toggle is session state bound to the console window itself (options-ui-§15); both arms
 -- of core/DebugLogSetup.lua answer ConsoleCheckbox, so a library-less build still gets an honest row.
 -- Its get/set are stamped onto the composed row below, so the seam reads and writes the window.
@@ -171,12 +187,10 @@ NS.RegisterSchemaRows({
         order   = 40,
         type    = "string",
         label   = L["Frame strata"],
-        desc    = L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."],
+        desc    = L["Which layer the cast bars, target frames and pet frames draw on. Match party frames puts them on your party frames' layer, just above them, so windows that cover your party frames cover these too. Pick a higher layer if something hides them."]
+            .. " " .. strataTooltip(),
         default = D.general.strata,
-        values  = {
-            auto = L["Match party frames"], background = L["Background"], low = L["Low"],
-            medium = L["Medium"], high = L["High"], dialog = L["Dialog"],
-        },
+        values  = STRATA_VALUES,
         sorting = { "auto", "background", "low", "medium", "high", "dialog" },
     },
 })

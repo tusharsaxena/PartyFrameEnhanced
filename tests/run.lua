@@ -104,6 +104,7 @@ Kit.run{
     "test_diagnostics",
     "test_launcher",
     "test_optionssetup",
+    "test_settings_layout",
     "test_surface_parity",
     { name = "test_diagnostics_contract", dir = "tests/_kit/" },
     "test_vendor_sync",

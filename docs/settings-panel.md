@@ -11,10 +11,10 @@ Notes line and the slash command list, with no tabs. Under it are five pages:
 
 | Page | Covers |
 |---|---|
-| General | **Master controls**: enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all<br>**Party frames**: which frame system elements attach to; whether your own row is included; fading with the party frames out of range<br>**Health updates**: one *Update health* switch and *Health refresh* pace, shared by target and pet frames |
-| Cast Bars | **General**: enable, fade out<br>**Size & Position**: size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); only the block the anchor mode uses is drawn (`shownWhen`, LibKa0s v1.45.0)<br>**Bar**: the fill block, the cast-state palette, the background<br>**Border**: the border block with *Show border*<br>**Text**: the font block, spell name, time left<br>**Icon**: spell icon and its side, the shield, the spark |
-| Target Frames | **General**: enable, click to target<br>**Size & Position**: as Cast Bars<br>**Bar**: the fill block, NPC reaction colors, the background<br>**Border**: the border block with *Show border*<br>**Text**: the font block, name, health percent<br>**Marker**: the target's raid marker, its point on the bar, X/Y offsets |
-| Pet Frames | **General**: enable, click to target<br>**Size & Position**: as Cast Bars<br>**Bar**: the fill block (*Use class color* = the owner's class), the background<br>**Border**: the border block with *Show border*<br>**Text**: the font block, name, health percent<br>**Marker**: the pet's raid marker, its point on the bar, X/Y offsets |
+| General | **Master controls**: enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all<br>**All elements**, what the three features share: *Party frames* (which frame system elements attach to; whether your own row is included; fading with the party frames out of range; the frame strata), then *Health updates* (one *Update health* switch and the *Target health refresh* pace, shared by target and pet frames) |
+| Cast Bars | **General**: enable, fade out when a cast ends<br>**Size and position**: size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); only the block the anchor mode uses is drawn (`shownWhen`, LibKa0s v1.45.0)<br>**Bar**: the fill block and the spark, the cast-state palette, the background, the border block with *Show border*<br>**Text**: the shown text (spell name, time left), then the font block<br>**Icon**: spell icon and its side, the shield |
+| Target Frames | **General**: enable, click to target<br>**Size and position**: as Cast Bars<br>**Bar**: the fill block, NPC reaction colors, the background, the border block<br>**Text**: the shown text (name, health percent), then the font block<br>**Marker**: the target's raid marker, its point on the bar, X/Y offsets |
+| Pet Frames | **General**: enable, click to target<br>**Size and position**: as Cast Bars<br>**Bar**: the fill block (*Use class color* = the owner's class), the background, the border block<br>**Text**: the shown text (name, health percent), then the font block<br>**Marker**: the pet's raid marker, its point on the bar, X/Y offsets |
 | Profiles | AceDBOptions: create, switch, copy, reset, delete profiles |
 
 ## General
@@ -30,7 +30,7 @@ free-placement stacks are movable, so every row applies.
 | General visibility | `visibility` | Always / Only in combat / Only out of combat / Never; publishes VISIBILITY |
 | Master scale | `scale` | multiplies every element's size (CONFIG "master") |
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
-| Lock frame | `locked` | **The addon's one preview switch** (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
+| Lock frame | `locked` | **The addon's one preview switch**, and its tooltip says so: the composer's `lockIsPreview` sentence (LibKa0s compose minor 9), then the host's `notes.locked`, *Unlocking is refused in combat, and combat locks it again.* (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
 | Minimap button | `global.minimap.shown` | shows or hides the launcher's minimap button (launcher-§3). **The row and its path say SHOWN and the stored key (LibDBIcon's `global.minimap.hide`) says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` stamps them onto the composed row) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons. It also **survives both resets** — *Reset all settings* and this page's own *Defaults* button — because the choice is a per-installation display preference, like the button's position; see *Resets* below. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged. **The button's tooltip** (launcher-§1) is drawn by `LibKa0s-Launcher-1.0` on every hover, the addon disabled or not: the label and `v<version>`, `Enabled: Yes\|No` (this page's *Enable* row), `Locked: Yes\|No` (the *Lock frame* row), `Left-click: Open settings` and `Right-click: Options menu`. There is no `Test mode` line, because the addon has no Test mode row. **The button's clicks** (launcher-§2): left-click opens this panel in either state; right-click opens the options menu, *Enabled* (this page's *Enable* row, through the `/pfe enable\|disable` handler) and *Locked* (the *Lock frame* row, through `NS.ToggleLock`), with *Locked* grayed while the addon is disabled |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
@@ -53,7 +53,11 @@ The two reset rows above, and each page's **Defaults** header button.
   composed row's `default = true` put a hidden button back on the minimap.
   `/pfe reset global.minimap.shown` still works — the exemption is for sweeps.
 
-### Party frames
+### All elements
+
+Two subsections on one tab, both on the General page, so General's **Defaults** resets them.
+
+#### Party frames
 
 | Control | Schema path | Behavior |
 |---|---|---|
@@ -62,18 +66,18 @@ The two reset rows above, and each page's **Defaults** header button.
 | Fade with party frames | `general.rangeFade` | each unit's cast bar, target frame and pet frame fade with its party frame when the member is out of range: copied from EllesmereUI's and Blizzard raid-style's own fade, or on Blizzard classic (which does not fade) a ~40-yard `UnitInRange` check at 0.5. Off: every fade frame at full alpha (`modules/RangeFade.lua`) |
 | Frame strata | `general.strata` | the layer every element draws on, set on each unit's fade frame. *Match party frames* (default) copies the unit's party frame's strata and sits one level above the highest frame in it, so an attached cast bar draws over the party frame and windows that cover the party frames cover the elements too; with no party frame, any member frame of the active system, else LOW; a party frame that cannot be read (forbidden, or a refused read) lands on LOW, 50 levels over UIParent. Forbidden children (Blizzard's aura buttons), and any child whose level read is refused, are skipped in the level walk with everything under them. Background / Low / Medium / High / Dialog fix the strata. The free-placement holders follow, at their stack's lowest fade level. Written through `NS.RunSecure("fade:strata")`: the fade frames parent secure buttons. The tooltip ends with the library's strata tooltip (`O.StrataTooltip`), which says what Dialog covers |
 
-### Health updates
+#### Health updates
 
 One switch and one pace for both unit-button features, so target and pet frames cannot disagree.
 
 | Control | Schema path | Behavior |
 |---|---|---|
 | Update health | `general.updateHealth` | off: target and pet bars are drawn full with no percent; the target ticker runs only to repaint a target that had not resolved yet, and no pet health event is registered. *Show health percent* on both Text tabs dims with it |
-| Health refresh (seconds) | `general.tickInterval` | the target health ticker's pace (0.1–1.0); a new pace restarts a running ticker. Pets update from the game's own health events, so it does not apply to them. Dimmed while *Update health* is off |
+| Target health refresh (seconds) | `general.tickInterval` | the target health ticker's pace (0.1–1.0); a new pace restarts a running ticker. Pets update from the game's own health events, so it does not apply to them. Dimmed while *Update health* is off |
 
 ## Cast Bars
 
-Every path is under `castbar.`. The Size & Position tab is shared by all three feature pages
+Every path is under `castbar.`. The Size and position tab is shared by all three feature pages
 (`settings/ElementRows.lua`); the Border, Text-font and Bar-fill blocks come from the library's
 composers, and every companion there resolves to the **tracked unit's** class
 (`classColorSource = "unit"`).
@@ -82,14 +86,14 @@ composers, and every companion there resolves to the **tracked unit's** class
 
 | Subgroup | Controls → path |
 |---|---|
-| — | Enable cast bars → `enabled` · Fade out → `fadeOut` |
+| — | Enable cast bars → `enabled` · Fade out when a cast ends → `fadeOut` (every ended cast, an interrupted one after its hold) |
 
-### Size & Position
+### Size and position
 
 | Subgroup | Controls → path |
 |---|---|
-| Size | Width → `width` (dimmed while attached with *Match party frame width* on) · Height → `height` |
-| Placement | Anchor mode → `anchorMode` · Match party frame width → `matchWidth` (dimmed in free placement) |
+| Size | Width → `width` (dimmed while attached with *Match party frame width* on; its tooltip says so) · Height → `height` |
+| Placement | Anchor mode → `anchorMode` · Match party frame width → `matchWidth` (dimmed in free placement; its tooltip says so) |
 | Attached to party frames | Anchor point → `point` · Party frame point → `relativePoint` · X/Y offset → `offsetX`/`offsetY` (all dimmed in free placement) |
 | Free placement | Growth direction → `growth` · Spacing → `spacing` (both dimmed while attached) |
 
@@ -100,33 +104,29 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Cast color (`barColor`) · Use class color |
-| Cast colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
+| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Show spark → `showSpark` (the bar block's one `extra`: the spark rides the fill) |
+| Cast state colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
 | Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
-
-### Border
-
-| Subgroup | Controls → path |
-|---|---|
-| — | Show border · Border style · Border thickness (px) · Border color · Use class color |
+| Border | Show border · Border style · Border thickness (px) · Border color · Use class color (order 120, after Background) |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
-| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Show spell name → `showName` · Show time left → `showTime` |
+| Shown text | Show spell name → `showName` · Show time left → `showTime` |
+| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow |
 
 ### Icon
 
 | Subgroup | Controls → path |
 |---|---|
-| — | Show spell icon → `showIcon` · Icon side → `iconSide` · Show shield → `showShield` · Show spark → `showSpark` |
+| — | Show spell icon → `showIcon` · Icon side → `iconSide` · Show shield → `showShield` |
 
 ## Target Frames
 
-Paths under `target.`. Size & Position, Border and Text-font as on Cast Bars.
+Paths under `target.`. Size and position, Border and Text-font as on Cast Bars.
 
-With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
+With the shared *Update health* (General → All elements → Health updates) off, the bar is drawn full with no percent
 and the ticker runs only while a shown target is still unresolved (no name yet).
 
 *Click to target* and every size or position change are secure writes: made in combat, they apply
@@ -138,7 +138,7 @@ when combat ends.
 |---|---|
 | — | Enable target frames → `enabled` · Click to target → `clickToTarget` |
 
-### Size & Position
+### Size and position
 
 As on Cast Bars.
 
@@ -147,32 +147,30 @@ As on Cast Bars.
 | Subgroup | Controls → path |
 |---|---|
 | Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) |
-| Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion) |
+| Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion; each swatch's tooltip ends *Needs Color NPCs by reaction.*) |
 | Background | Background color · Use class color |
-
-### Border
-
-As on Cast Bars.
+| Border | the border block, as on Cast Bars |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
-| Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
+| Shown text | Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off; its tooltip ends *Needs Update health (the General page > All elements).*) |
+| Font | the font block |
 
 ### Marker
 
 | Subgroup | Controls → path |
 |---|---|
-| — | Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` (the last three dimmed while the marker is off) |
+| — | Show raid marker → `showMarker` · Bar anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` (the last three dimmed while the marker is off) |
 
-The marker's center sits on *Anchor point* of the bar; the default, *Top*, is half over the bar's top edge, centered.
+The marker's center sits on *Bar anchor point* of the bar; the default, *Top*, is half over the bar's top edge, centered.
 
 ## Pet Frames
 
-Paths under `pet.`. Size & Position, Border and Text-font as on Cast Bars.
+Paths under `pet.`. Size and position, Border and Text-font as on Cast Bars.
 
-With the shared *Update health* (General → Health updates) off, the bar is drawn full with no percent
+With the shared *Update health* (General → All elements → Health updates) off, the bar is drawn full with no percent
 and the pet's health events are unregistered.
 
 ### General
@@ -181,7 +179,7 @@ and the pet's health events are unregistered.
 |---|---|
 | — | Enable pet frames → `enabled` · Click to target → `clickToTarget` |
 
-### Size & Position
+### Size and position
 
 As on Cast Bars.
 
@@ -191,22 +189,20 @@ As on Cast Bars.
 |---|---|
 | Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
 | Background | Background color · Use class color |
-
-### Border
-
-As on Cast Bars.
+| Border | the border block, as on Cast Bars |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
-| Font | the font block · Show name → `showName` · Show health percent → `showPercent` (dimmed while Update health is off) |
+| Shown text | as on Target Frames: Show name → `showName` · Show health percent → `showPercent` |
+| Font | the font block |
 
 ### Marker
 
 | Subgroup | Controls → path |
 |---|---|
-| — | as on Target Frames: Show raid marker → `showMarker` · Anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` |
+| — | as on Target Frames: Show raid marker → `showMarker` · Bar anchor point → `markerPoint` · X/Y offset → `markerOffsetX`/`markerOffsetY` |
 
 ## Profiles
 

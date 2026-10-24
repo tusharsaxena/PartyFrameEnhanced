@@ -43,8 +43,8 @@ The TOC is the source of truth for order; `tests/test_loadorder.lua` pins the lo
 | 32 | `settings/Slash.lua` | `NS.COMMANDS` (incl. `enable` / `disable`, `lock` / `unlock`, `status`, `diagnostics` and `profile`; `runDebug` hands `debug diagnostics` to the same report, and `runProfile` routes the profile list and every switch through the library's `cli:CliProfile` / `cli:ProfileSwitch`), the Slash descriptor, `/pfe` + `/partyframeenhanced` | before OptionsSetup (the landing page renders its rows) |
 | 33 | `settings/OptionsSetup.lua` | `NS.Helpers` (the Options instance) + load-completing stub | **load-bearing**: before every page file |
 | 34 | `settings/About.lua` | the landing page body | after OptionsSetup |
-| 35 | `settings/General.lua` | Master controls + Party frames tabs, the reset popup | after OptionsSetup; **load-bearing** as a block with the pages below: each registers its options page at load, and the sidebar lists them in registration order |
-| 36 | `settings/ElementRows.lua` | the Size & Position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
+| 35 | `settings/General.lua` | Master controls + All elements tabs, the reset popup | after OptionsSetup; **load-bearing** as a block with the pages below: each registers its options page at load, and the sidebar lists them in registration order |
+| 36 | `settings/ElementRows.lua` | the Size and position rows and the composed Border / Font / Bar / Background blocks the feature pages share; the page builder | **load-bearing**: every feature page calls it at load |
 | 37 | `settings/CastBars.lua` | the Cast Bars page | after ElementRows; sidebar order |
 | 38 | `settings/TargetFrames.lua` | the Target Frames page | after ElementRows; sidebar order |
 | 39 | `settings/PetFrames.lua` | the Pet Frames page | after ElementRows; sidebar order |

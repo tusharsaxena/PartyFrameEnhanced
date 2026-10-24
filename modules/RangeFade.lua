@@ -1,7 +1,7 @@
 local _, NS = ...
 
 -- modules/RangeFade.lua — every element fades with its party member's frame when that member is out
--- of range (General → Party frames → "Fade with party frames").
+-- of range (General > All elements > "Fade with party frames").
 --
 -- ONE FADE FRAME PER UNIT. Each unit's cast bar, target frame and pet frame are parented to a plain
 -- frame of this module's, and only that frame's alpha changes here. The client multiplies a parent's
@@ -33,7 +33,7 @@ local _, NS = ...
 -- Full alpha whenever the fade does not apply: the setting off, the addon or a perf run suspending
 -- it, preview mode, or a unit with no party frame.
 --
--- STRATA. The fade frames also set where the elements stack (General → Party frames → "Frame
+-- STRATA. The fade frames also set where the elements stack (General > All elements > "Frame
 -- strata"). Automatic copies the unit's party frame's strata and sits one level above the highest
 -- frame in it, so an attached cast bar draws over the party frame and nothing else on screen is
 -- covered that would not cover the party frame too. Left on UIParent's MEDIUM, the elements drew

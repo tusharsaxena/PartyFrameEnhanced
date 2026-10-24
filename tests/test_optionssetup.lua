@@ -49,7 +49,7 @@ local COMPOSED = {
                         -- button row the compose-minor-7 `minimapPath` seam emits (launcher-§3).
                         -- NOT eight: options-ui-§15 exempts this addon from Test mode, its unlocked
                         -- view being its preview.
-  CastBarsBar    = 4,   -- settings/CastBars.lua: BarGroup (Fill)
+  CastBarsBar    = 5,   -- settings/CastBars.lua: BarGroup (Fill), plus Show spark as its one extra
   CastBarsBg     = 2,   --   ColorPair (Background)
   CastBarsBorder = 5,   --   BorderGroup, with Show border
   CastBarsFont   = 6,   --   FontGroup
@@ -62,7 +62,7 @@ test("optionssetup: the degraded load registers every host-declared row; the gap
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
   assertEqual(#NS.Schema, 126, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 68, "the library-absent schema")
+  assertEqual(#NS2.Schema, 67, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 
@@ -80,13 +80,14 @@ local function dimmed(rows, path)
   return cond ~= nil and cond(rows[path]) == true
 end
 
-test("optionssetup: every feature page has a Size & Position tab that opens with Size", function()
+test("optionssetup: every feature page has a Size and position tab that opens with Size", function()
   local L = NS.L
   for _, page in ipairs({ "castbar", "target", "pet" }) do
     local tab = {}
     for _, row in ipairs(NS.SchemaForPage(page)) do
       assertTrue(row.group ~= L["Position"], page .. ": no tab is still called Position")
-      if row.group == L["Size & Position"] then tab[#tab + 1] = row end
+      assertTrue(row.group ~= L["Size & Position"], page .. ": no tab is still called Size & Position")
+      if row.group == L["Size and position"] then tab[#tab + 1] = row end
     end
     assertEqual(tab[1].path, page .. ".width", page .. ": Width opens the tab")
     assertEqual(tab[1].subgroup, L["Size"])
@@ -95,7 +96,7 @@ test("optionssetup: every feature page has a Size & Position tab that opens with
   end
 end)
 
---- The labels a render of `page`'s Size & Position tab draws, in order, with `page`'s anchor mode
+--- The labels a render of `page`'s Size and position tab draws, in order, with `page`'s anchor mode
 --- set to `mode` first. Rendered through the library into a throwaway panel, the kit's AceGUI
 --- recording every widget made.
 local panelSeq = 0
@@ -104,7 +105,7 @@ local function positionLabels(page, mode)
   T.mocks.__fireTimers()
   local rows = {}
   for _, row in ipairs(NS.SchemaForPage(page)) do
-    if row.group == NS.L["Size & Position"] then rows[#rows + 1] = row end
+    if row.group == NS.L["Size and position"] then rows[#rows + 1] = row end
   end
   panelSeq = panelSeq + 1
   local ctx = NS.Helpers.CreatePanel("PFESwitchedProbe" .. panelSeq, "Probe", {})
@@ -120,17 +121,17 @@ local function positionLabels(page, mode)
   return table.concat(out, ","), ctx
 end
 
-test("optionssetup: Size & Position draws only the placement block the anchor mode uses (shownWhen)", function()
+test("optionssetup: Size and position draws only the placement block the anchor mode uses (shownWhen)", function()
   local L = NS.L
   for _, page in ipairs({ "castbar", "target", "pet" }) do
     local attachedDrawn = positionLabels(page, "attached")
     -- red under: the rows still gated by disabledIf (both blocks drawn, one dimmed), or a hidden
     -- block's heading drawn over nothing
-    assertEqual(attachedDrawn, table.concat({ L["Size & Position"], L["Size"], L["Width"], L["Height"], L["Placement"],
+    assertEqual(attachedDrawn, table.concat({ L["Size and position"], L["Size"], L["Width"], L["Height"], L["Placement"],
       L["Anchor mode"], L["Match party frame width"], L["Attached to party frames"], L["Anchor point"],
       L["Party frame point"], L["X offset"], L["Y offset"] }, ","), page .. ": attached")
     local freeDrawn = positionLabels(page, "free")
-    assertEqual(freeDrawn, table.concat({ L["Size & Position"], L["Size"], L["Width"], L["Height"], L["Placement"],
+    assertEqual(freeDrawn, table.concat({ L["Size and position"], L["Size"], L["Width"], L["Height"], L["Placement"],
       L["Anchor mode"], L["Match party frame width"], L["Free placement"], L["Growth direction"],
       L["Spacing"] }, ","), page .. ": free")
     NS.ApplyDefault(NS.FindSchemaRow(page .. ".anchorMode"))
@@ -173,11 +174,13 @@ test("optionssetup: Match party frame width dims in free placement, and Width wi
   T.mocks.__fireTimers()
 end)
 
-test("optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker", function()
+test("optionssetup: one Health updates subsection drives both features; health rows dim with it, marker rows with the marker", function()
   local L = NS.L
   local general, target, pet = rowsByPath("general"), rowsByPath("target"), rowsByPath("pet")
-  T.assertEqual(general["general.updateHealth"].group, L["Health updates"], "on the General page's own tab")
-  T.assertEqual(general["general.tickInterval"].group, L["Health updates"])
+  T.assertEqual(general["general.updateHealth"].group, L["All elements"], "on the General page's All elements tab")
+  T.assertEqual(general["general.updateHealth"].subgroup, L["Health updates"], "under its own heading")
+  T.assertEqual(general["general.tickInterval"].group, L["All elements"])
+  T.assertEqual(general["general.tickInterval"].subgroup, L["Health updates"])
   for _, path in ipairs({ "target.updateHealth", "target.tickInterval", "pet.updateHealth" }) do
     T.assertTrue(NS.FindSchemaRow(path) == nil, path .. " is gone: one shared setting, not one per page")
   end

@@ -13,6 +13,7 @@ local L = setmetatable(NS.L or {}, { __index = function(_, k) return k end })
 NS.L = L
 
 -- General page
+L["All elements"] = "All elements"
 L["Party frames"] = "Party frames"
 L["Frame system"] = "Frame system"
 L["Which party frames the elements attach to. Automatic uses EllesmereUI's party frames when they are shown and Blizzard's otherwise."] =
@@ -42,27 +43,28 @@ for _, key in ipairs({
     "Top left", "Top", "Top right", "Left", "Center", "Right", "Bottom left", "Bottom", "Bottom right",
     "Attach to party frames", "Down", "Up",
     "Anchor mode", "Attach each element to its party member's frame, or keep all five in one stack you place yourself.",
-    "Match party frame width", "Attached: stretch each element across its party frame, edge to edge. Its Width setting is then ignored.",
+    "Match party frame width", "Attached only (dimmed in free placement): stretch each element across its party frame, edge to edge. Width is then ignored.",
     "Anchor point", "The point on the element that is pinned.",
     "Party frame point", "The point on the party frame it is pinned to.",
     "X offset", "Horizontal nudge from the pin, in pixels.",
     "Y offset", "Vertical nudge from the pin, in pixels.",
     "Growth direction", "Which way the stack grows from its first element.",
     "Spacing", "Gap between elements in the stack, in pixels.",
-    "Width", "Element width in pixels, before Master scale.",
+    "Width", "Element width in pixels, before Master scale. Dimmed while attached with Match party frame width on.",
     "Height", "Element height in pixels, before Master scale.",
 }) do L[key] = key end
 
 -- Cast bars (settings/CastBars.lua, modules/CastBars.lua)
 for _, key in ipairs({
     "Enable cast bars", "Show a cast bar for each party member (and for you, when your own row is included).",
-    "Fade out", "Fade a finished cast out instead of hiding it at once.",
-    "Cast color", "Cast colors",
+    "Fade out when a cast ends",
+    "Fade the bar out when a cast ends, including after an interrupted cast's hold, instead of hiding it at once.",
+    "Normal cast color", "Cast state colors",
     "Channel color", "Fill color while channeling.",
     "Empowered color", "Fill color while charging an empowered spell.",
     "Can't be interrupted color", "Fill color for a cast that cannot be interrupted.",
     "Interrupted color", "Fill color while an interrupted or failed cast is held.",
-    "Show spell name", "The spell's name on the bar.",
+    "Shown text", "Show spell name", "The spell's name on the bar.",
     "Show time left", "Seconds left on the cast, at the bar's right end.",
     "Show spell icon", "The spell's icon at one end of the bar.",
     "Icon side", "Which end of the bar the icon sits at.",
@@ -78,14 +80,15 @@ for _, key in ipairs({
 for _, key in ipairs({
     "Enable target frames", "Show what each party member is targeting, beside their party frame.",
     "Click to target", "Left-click a target frame to target that unit yourself. Applied out of combat.",
-    "Health refresh (seconds)",
+    "Target health refresh (seconds)",
     "Reaction colors", "Color NPCs by reaction",
     "Color a non-player target by how it feels about you. When the game hides that, the hostile color is used.",
-    "Hostile color", "Bar color for a hostile NPC.",
-    "Neutral color", "Bar color for a neutral NPC.",
-    "Friendly color", "Bar color for a friendly NPC.",
+    "Hostile color", "Bar color for a hostile NPC. Needs Color NPCs by reaction.",
+    "Neutral color", "Bar color for a neutral NPC. Needs Color NPCs by reaction.",
+    "Friendly color", "Bar color for a friendly NPC. Needs Color NPCs by reaction.",
     "Show name", "The unit's name.",
-    "Show health percent", "The unit's health as a percentage, at the right end.",
+    "Show health percent",
+    "The unit's health as a percentage, at the right end. Needs Update health (the General page > All elements).",
     "Marker", "Show raid marker", "The target's raid marker, when it has one.",
     "Restore every Target Frames setting on this profile to its addon default.",
     "Enable pet frames", "Show each party member's pet, beside their party frame.",
@@ -98,6 +101,7 @@ for _, key in ipairs({
 -- Preview mode and the holders' labels (modules/Preview.lua, modules/Anchor.lua)
 for _, key in ipairs({
     "cannot unlock during combat \226\128\148 the clickable frames cannot move until it ends",
+    "Unlocking is refused in combat, and combat locks it again.",
     "Cast bars", "Target frames", "Pet frames",
 }) do L[key] = key end
 
@@ -112,10 +116,10 @@ for _, key in ipairs({
     "unlocked (stand-in)", "unlocked (your party frames)",
 }) do L[key] = key end
 
--- Size & Position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
+-- Size and position tab, health updates and marker placement (settings/ElementRows.lua, the Target and
 -- Pet pages)
 for _, key in ipairs({
-    "Size & Position", "Update health", "Health updates",
+    "Size and position", "Update health", "Health updates", "Bar anchor point",
     "Track health on target and pet frames. Off: their bars stay full with no percent, and no health updates run.",
     "How often a shown target frame's health updates. Lower is smoother and costs more. Pet frames update on the game's own health events.",
     "The point on the bar the marker's center sits on.",

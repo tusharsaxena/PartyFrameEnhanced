@@ -525,15 +525,26 @@ Total.
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
 - optionssetup: the degraded load registers every host-declared row; the gap is the composers'
-- optionssetup: every feature page has a Size & Position tab that opens with Size
-- optionssetup: Size & Position draws only the placement block the anchor mode uses (shownWhen)
+- optionssetup: every feature page has a Size and position tab that opens with Size
+- optionssetup: Size and position draws only the placement block the anchor mode uses (shownWhen)
 - optionssetup: the hidden block stays in the schema and /pfe set still reaches it
 - optionssetup: Match party frame width dims in free placement, and Width with Match width
-- optionssetup: one Health updates tab drives both features; health rows dim with it, marker rows with the marker
+- optionssetup: one Health updates subsection drives both features; health rows dim with it, marker rows with the marker
 - optionssetup: the stub publishes every member a page file touches at load
 - optionssetup: Reset All resets the active profile only — the list and the active profile stay
 - optionssetup: without the library, opening the panel prints one honest line
 - optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn
+
+### test_settings_layout.lua (8)
+
+- layout: every stored path, its page, default, range, values and wiring are unchanged
+- layout: General has two tabs; All elements holds Party frames, then Health updates
+- layout: Lock frame says it is the preview switch, in the library's words and a combat note
+- layout: every feature page's tabs, with Border merged into Bar
+- layout: Text opens with Shown text, then the font block
+- layout: Size and position keeps Size first, and its tooltips say why a row is dimmed
+- layout: the Cast Bars words, and Show spark rides the Fill block
+- layout: dependants say what they need, and the marker's point names the bar
 
 ### test_surface_parity.lua (14)
 
@@ -639,6 +650,7 @@ Total.
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
+| test_settings_layout.lua | 8 |
 | test_surface_parity.lua | 14 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -646,4 +658,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **476** |
+| **Total** | **484** |

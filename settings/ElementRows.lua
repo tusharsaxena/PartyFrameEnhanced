@@ -1,7 +1,8 @@
 local _, NS = ...
 
--- settings/ElementRows.lua — the row sets the three feature pages share: the Size & Position tab, and thin
--- wrappers over the library's border and font composers so every page declares them the same way.
+-- settings/ElementRows.lua — the row sets the three feature pages share: the Size and position tab, and
+-- thin wrappers over the library's bar, border and font composers so every page declares them the same
+-- way. The Bar tab holds Fill, the page's palette (Cast Bars and Target Frames), Background, then Border.
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
 
 local L = NS.L
@@ -27,14 +28,14 @@ ElementRows.UNIT_CLASS = UNIT_CLASS
 
 ElementRows.POINT_LABELS = POINT_LABELS
 
---- The Size & Position tab: the size first, then the anchor mode, the attached pin and the free
+--- The Size and position tab: the size first, then the anchor mode, the attached pin and the free
 --- stack. Only the placement block the current anchor mode uses is DRAWN (`shownWhen`, LibKa0s
 --- v1.45.0): the other block's rows stay in the schema, stored, and `/pfe set` still reaches them.
 --- The library watches Anchor mode and redraws the tab once, on the next frame, when it changes.
 --- Match party frame width sits in the selector's own Placement block, so it is dimmed rather than
 --- hidden in free placement, and Width is dimmed while Match party frame width sets it.
 function ElementRows.Position(page, prefix, D)
-    local group = L["Size & Position"]
+    local group = L["Size and position"]
     local modePath, matchPath = prefix .. "anchorMode", prefix .. "matchWidth"
     local ATTACHED_ONLY = { path = modePath, equals = "attached" }
     local FREE_ONLY = { path = modePath, equals = "free" }
@@ -48,7 +49,8 @@ function ElementRows.Position(page, prefix, D)
     end
     return {
         row{ path = "width", subgroup = L["Size"], order = 10, type = "number",
-             label = L["Width"], desc = L["Element width in pixels, before Master scale."],
+             label = L["Width"],
+             desc = L["Element width in pixels, before Master scale. Dimmed while attached with Match party frame width on."],
              default = D.width, min = 40, max = 400, step = 1, disabledIf = widthFromFrame },
         row{ path = "height", subgroup = L["Size"], order = 20, type = "number",
              label = L["Height"], desc = L["Element height in pixels, before Master scale."],
@@ -59,7 +61,7 @@ function ElementRows.Position(page, prefix, D)
              default = D.anchorMode, values = ANCHOR_MODES, sorting = { "attached", "free" } },
         row{ path = "matchWidth", subgroup = L["Placement"], order = 40, type = "bool",
              label = L["Match party frame width"],
-             desc = L["Attached: stretch each element across its party frame, edge to edge. Its Width setting is then ignored."],
+             desc = L["Attached only (dimmed in free placement): stretch each element across its party frame, edge to edge. Width is then ignored."],
              default = D.matchWidth, disabledIf = free },
         row{ path = "point", subgroup = L["Attached to party frames"], order = 50, type = "string",
              label = L["Anchor point"], desc = L["The point on the element that is pinned."],
@@ -83,10 +85,11 @@ function ElementRows.Position(page, prefix, D)
     }
 end
 
---- The canonical border block (options-ui-§16), with its Show border toggle.
+--- The canonical border block (options-ui-§16), with its Show border toggle: the last subsection of
+--- the Bar tab, at order 120, after Background (100/110 on Cast Bars and Target Frames, 50/60 on Pet).
 function ElementRows.Border(page, prefix, D)
     return H.BorderGroup({
-        prefix = prefix, page = page, group = L["Border"], order = 10, show = true,
+        prefix = prefix, page = page, group = L["Bar"], subgroup = L["Border"], order = 120, show = true,
         classColor = UNIT_CLASS,
         defaults = {
             borderShow = D.borderShow, borderStyle = D.borderStyle, borderSize = D.borderSize,
@@ -95,10 +98,11 @@ function ElementRows.Border(page, prefix, D)
     })
 end
 
---- The canonical font block (options-ui-§16) opening the Text tab.
+--- The canonical font block (options-ui-§16) on the Text tab, after the page's Shown text toggles
+--- (orders 10 and 20): what text is drawn comes before how it looks.
 function ElementRows.Font(page, prefix, D)
     return H.FontGroup({
-        prefix = prefix, page = page, group = L["Text"], subgroup = L["Font"], order = 10,
+        prefix = prefix, page = page, group = L["Text"], subgroup = L["Font"], order = 30,
         classColor = UNIT_CLASS,
         defaults = {
             font = D.font, fontSize = D.fontSize, fontColor = D.fontColor,
@@ -108,11 +112,12 @@ function ElementRows.Font(page, prefix, D)
     })
 end
 
---- The canonical bar block (options-ui-§16) under a Fill subgroup of the Bar tab.
-function ElementRows.Bar(page, prefix, D, labels)
+--- The canonical bar block (options-ui-§16) under a Fill subgroup of the Bar tab. `extra` (optional)
+--- is the page's own fill rows, appended after the block by the composer (Cast Bars' Show spark).
+function ElementRows.Bar(page, prefix, D, labels, extra)
     return H.BarGroup({
         prefix = prefix, page = page, group = L["Bar"], subgroup = L["Fill"], order = 10,
-        classColor = UNIT_CLASS, labels = labels,
+        classColor = UNIT_CLASS, labels = labels, extra = extra,
         defaults = {
             barTexture = D.barTexture, barAlpha = D.barAlpha, barColor = D.barColor,
             useClassColorBar = D.useClassColorBar,

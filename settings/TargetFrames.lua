@@ -2,17 +2,18 @@ local _, NS = ...
 
 -- settings/TargetFrames.lua — the Target Frames page:
 --
---     [ General ][ Size & Position ][ Bar ][ Border ][ Text ][ Marker ]
+--     [ General ][ Size and position ][ Bar ][ Text ][ Marker ]
 --
 --     General          [Enable target frames] (solo)   [Click to target]
---                      (health updates are shared with pet frames: General page → Health updates)
---     Size & Position  settings/ElementRows.lua's Size & Position rows
+--                      (health updates are shared with pet frames: the General page > All elements)
+--     Size and position  settings/ElementRows.lua's Size and position rows
 --     Bar              -- Fill --             the canonical bar block
 --                      -- Reaction colors --  Color NPCs by reaction · Hostile / Neutral · Friendly
 --                      -- Background --       the background swatch and its class-color companion
---     Border           the canonical border block
---     Text             -- Font --  the canonical font block, then Show name · Show health percent
---     Marker           Show raid marker (solo) / Anchor point (solo) / X offset · Y offset
+--                      -- Border --           the canonical border block
+--     Text             -- Shown text --  Show name · Show health percent
+--                      -- Font --        the canonical font block
+--     Marker           Show raid marker (solo) / Bar anchor point (solo) / X offset · Y offset
 --
 -- The reaction colors are a palette (one color per reaction), so they carry no class-color companion
 -- (options-ui-§17's exemption).
@@ -51,9 +52,9 @@ rows[#rows + 1] = row{ path = "colorReaction", group = L["Bar"], subgroup = L["R
                        desc = L["Color a non-player target by how it feels about you. When the game hides that, the hostile color is used."],
                        default = D.colorReaction }
 for i, spec in ipairs({
-    { "hostileColor", L["Hostile color"], L["Bar color for a hostile NPC."] },
-    { "neutralColor", L["Neutral color"], L["Bar color for a neutral NPC."] },
-    { "friendlyColor", L["Friendly color"], L["Bar color for a friendly NPC."] },
+    { "hostileColor", L["Hostile color"], L["Bar color for a hostile NPC. Needs Color NPCs by reaction."] },
+    { "neutralColor", L["Neutral color"], L["Bar color for a neutral NPC. Needs Color NPCs by reaction."] },
+    { "friendlyColor", L["Friendly color"], L["Bar color for a friendly NPC. Needs Color NPCs by reaction."] },
 }) do
     rows[#rows + 1] = row{ path = spec[1], group = L["Bar"], subgroup = L["Reaction colors"],
                            order = 50 + i * 10, type = "color", hasAlpha = true,
@@ -63,20 +64,20 @@ ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 100))
 
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
 
-ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
-rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Font"], order = 70,
+rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Shown text"], order = 10,
                        type = "bool", label = L["Show name"], desc = L["The unit's name."],
                        default = D.showName }
-rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Font"], order = 80,
+rows[#rows + 1] = row{ path = "showPercent", group = L["Text"], subgroup = L["Shown text"], order = 20,
                        type = "bool", label = L["Show health percent"],
-                       desc = L["The unit's health as a percentage, at the right end."],
+                       desc = L["The unit's health as a percentage, at the right end. Needs Update health (the General page > All elements)."],
                        default = D.showPercent, disabledIf = healthOff }
+ElementRows.Append(rows, ElementRows.Font(PAGE, P, D))
 
 rows[#rows + 1] = row{ path = "showMarker", group = L["Marker"], order = 10, type = "bool", solo = true,
                        label = L["Show raid marker"],
                        desc = L["The target's raid marker, when it has one."], default = D.showMarker }
 rows[#rows + 1] = row{ path = "markerPoint", group = L["Marker"], order = 20, type = "string",
-                       solo = true, label = L["Anchor point"],
+                       solo = true, label = L["Bar anchor point"],
                        desc = L["The point on the bar the marker's center sits on."],
                        default = D.markerPoint, values = ElementRows.POINT_LABELS,
                        sorting = NS.Constants.POINTS, disabledIf = markerOff }

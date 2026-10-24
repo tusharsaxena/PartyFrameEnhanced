@@ -142,12 +142,15 @@ if not lib then
         "PatchAlwaysShowScrollbar", "SetRenderer",
         "SetChromeHeight", "TabStrip", "PageHeader", "RenderTabbedSchema",
         "SelectTab", "ChoiceGrid", "IdInput", "IdList", "NavRail",
+        "StrataTooltip", "KeybindingsTab", "KeybindRows",
     }) do
         Helpers[name] = function() end
     end
     Helpers.ResolveId         = function() return nil end
     Helpers.UnnamedCandidates = function() return nil end
     Helpers.ID_NAME_HINT      = {}
+    -- A defaults-tooltip suffix (LibKa0s v1.77.0); no panel draws here, so it is empty.
+    Helpers.KEYBINDS_UNCHANGED = ""
     Helpers.__panels   = function() return {} end
     Helpers.__panelFor = function() return nil end
 

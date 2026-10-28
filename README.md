@@ -128,8 +128,24 @@ you file there gets seen.
 ## Credits
 
 The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), licensed under the SIL
-Open Font License 1.1. It ships inside the bundled LibKa0s payload, with its license text beside it.
+Open Font License 1.1.
 
-The close, copy and clear marks on the debug console and the perf panel come from
-[Open Iconic](https://github.com/iconic/open-iconic) by Waybury, under the MIT license. They ship inside
-the bundled LibKa0s payload with their license (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).
+Ka0s Default, the skin every profile starts on, draws [Oxanium](https://github.com/sevmeyer/oxanium)
+by The Oxanium Project Authors, also SIL Open Font License 1.1.
+
+The other skins draw on seven more SIL Open Font License 1.1 faces, one family per skin:
+[Inter](https://github.com/rsms/inter) by The Inter Project Authors,
+[Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
+[Vollkorn](https://github.com/FAlthausen/Vollkorn-Typeface) by The Vollkorn Project Authors,
+[Bitter](https://github.com/solmatas/BitterPro) by The Bitter Project Authors,
+[Philosopher](https://github.com/alexeiva/philosopher) by The Philosopher Project Authors,
+[Fira Sans](https://github.com/mozilla/Fira) by The Mozilla Foundation and Telefonica S.A., and
+[Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) by the Braille Institute of
+America. Inter, Nunito, Vollkorn, Bitter and Oxanium are static weights cut from upstream's
+variable fonts.
+
+The close, copy and clear marks on the debug console and the perf panel, and the skin picker's
+settings and preview marks, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
+under the MIT license. Only the icons the addon draws are shipped. The fonts and the icons are
+bundled inside the LibKa0s payload, with their license text beside them
+(`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

@@ -54,14 +54,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
-  line names (v1.77.0: Core 12, Item 3, Media 5, MediaIcons 1, Widgets 15, WidgetsDragHandle 5, WidgetsAutocomplete 3, DebugLog 21, DebugLogDiagnostics 3, Options 30, OptionsIds 3, OptionsIdList 5, OptionsTabs 9, OptionsCombat 2, OptionsCompose 11, OptionsDrawer 1, OptionsKeybinds 4, Perf 15, PerfPanel 9, Glow 1, Sim 2, SimTimeline 3, SimPanel 6), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  line names (v1.80.0: Core 13, Item 3, Media 9, MediaIcons 1, Widgets 16, WidgetsDragHandle 6, WidgetsAutocomplete 4, WidgetsCopyWindow 1, DebugLog 22, DebugLogDiagnostics 5, DebugLogWindow 1, Options 34, OptionsIds 4, OptionsIdList 6, OptionsTabs 10, OptionsCombat 3, OptionsCompose 13, OptionsDrawer 2, OptionsKeybinds 5, OptionsAppearance 3, OptionsSkinPicker 1, Perf 15, PerfPanel 10, Glow 1, Sim 2, SimTimeline 3, SimPanel 7, Skin 7, SkinDefs 15, SkinPaint 11, SkinPaintExtras 5, SkinPaintControls 9, SkinEUI 2, SkinAce 4, Toast 1), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
   about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
-  `LibKa0s icons:` line declares (clear, close, copy): `/pfe debug on`, open the console → its Copy
+  `LibKa0s icons:` line declares (clear, close, copy, eye, settings; the last two are the skin picker's): `/pfe debug on`, open the console → its Copy
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result: pass (owner, 2026-10-24)
+  art, the path still resolves, and no headless gate sees it. Result:
 
 ## Slash commands
 
@@ -661,3 +661,6 @@ On 2026-10-24 the owner reported that every check of the keybindings, settings l
 layering run passed (the LibKa0s v1.77.0 re-vendor's INSTALL-4, the settings layout's PANEL-2, PANEL-3,
 PANEL-8 to PANEL-10 and CAST-7, and the frame layering's LAYER-1 to LAYER-4), recorded on each
 `Result:` line as `pass (owner, 2026-10-24)`. None is owed.
+
+After the LibKa0s v1.80.0 re-vendor (PF-RV of the 2026-10-29 skinning rollout): INSTALL-4 (rewritten:
+the v1.80.0 minors and the two picker icons).

@@ -104,17 +104,21 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Show spark → `showSpark` (the bar block's one `extra`: the spark rides the fill) |
+| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Show spark → `showSpark` (the bar block's one `extra`: the spark rides the fill) |
 | Cast state colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
 | Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
-| Border | Show border · Border style · Border thickness (px) · Border color · Use class color (order 120, after Background) |
+| Border | Show border · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` (order 120, after Background) |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
 | Shown text | Show spell name → `showName` · Show time left → `showTime` |
-| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow |
+| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Use the skin's font → `fontFromSkin` |
+
+The three *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the picker
+it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture, border
+style or HUD font. Colors, sizes, flags and the shadow never follow the skin.
 
 ### Icon
 
@@ -146,7 +150,7 @@ As on Cast Bars.
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) |
+| Fill | Bar texture · Bar opacity · Bar color · Use class color (a **player** target's class) · Use the skin's texture |
 | Reaction colors | Color NPCs by reaction → `colorReaction` · Hostile · Neutral · Friendly (palette: no companion; each swatch's tooltip ends *Needs Color NPCs by reaction.*) |
 | Background | Background color · Use class color |
 | Border | the border block, as on Cast Bars |
@@ -187,7 +191,7 @@ As on Cast Bars.
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) |
+| Fill | Bar texture · Bar opacity · Bar color · Use class color (the **owner's** class) · Use the skin's texture |
 | Background | Background color · Use class color |
 | Border | the border block, as on Cast Bars |
 

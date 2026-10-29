@@ -425,3 +425,9 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, function()
     refreshAll()
 end)
 ev:RegisterMessage(NS.MSG.LAYOUT, function() if cfg then refreshAll() end end)
+
+-- A skin switch, a font or texture override, or EllesmereUI's looks moving restyles every cast bar
+-- (skinning-§6): the media keys a companion follows resolve anew. Not a bus message: the library
+-- owns the notification, and a hidden, stood-down bar restyled here is drawn right when it comes
+-- back. Cast bars are plain frames, so no secure write is involved.
+NS.Skin.OnLooksChanged(function() if cfg then reskinAll() end end)

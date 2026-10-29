@@ -350,6 +350,13 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 
+-- A skin switch, a font or texture override, or EllesmereUI's looks moving restyles every target frame
+-- (skinning-§6): the media keys a companion follows resolve anew. Through reskinAll, so the restyle
+-- of these secure buttons stays one RunSecure write, deferred to combat's end under lockdown
+-- (Risks R1). Not a bus message: the library owns the notification, and a hidden, stood-down
+-- element restyled here is drawn right when it comes back.
+NS.Skin.OnLooksChanged(function() if cfg then reskinAll() end end)
+
 -- THE PLAYER'S OWN TARGET. `UNIT_TARGET` fires when a PARTY member's target changes and NOT when
 -- the player's does -- that is `PLAYER_TARGET_CHANGED`, which carries no unit argument. The
 -- per-owner registration above therefore covered four of the five tracked units, and the player's

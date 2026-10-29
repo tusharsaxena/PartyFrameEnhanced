@@ -570,6 +570,20 @@ Total.
 - skin holders: back on Ka0s Default both return to today's pixels
 - skin holders: a skin whose wash is none leaves the plate clear, never stale
 
+### test_skin_hud.lua (11)
+
+- skin hud: every HUD section's three companions default to true (X3)
+- skin hud: each companion is a composed bool row defaulting to true, written through the seam
+- skin hud: following the skin, an element draws Ka0s Default's bar, border and HUD face
+- skin hud: a companion turned off draws the player's own pick again
+- skin hud: a skin that leaves a token alone falls back to the player's pick
+- skin hud: the structure memo holds the RESOLVED keys, so a skin switch restyles
+- skin hud: the HUD colors stay the player's under every skin (X4)
+- skin hud: a skin switch restyles the live cast bars, target and pet frames
+- skin hud: v2 sets every stored profile's HUD companions to follow the skin
+- skin hud: v2 keeps a drawn border the player's own (D2)
+- skin hud: the reset runs once; a pick the player makes after it is kept
+
 ### test_skin_literals.lua (3)
 
 - skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
@@ -686,6 +700,7 @@ Total.
 | test_settings_layout.lua | 8 |
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 4 |
+| test_skin_hud.lua | 11 |
 | test_skin_literals.lua | 3 |
 | test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
@@ -694,4 +709,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **508** |
+| **Total** | **519** |

@@ -45,18 +45,21 @@ local PINNED = {
   ["castbar.anchorMode"] = "castbar|string|attached|nil|nil|nil|attached,free|false|onChange=false|dim=false|shown=nil",
   ["castbar.barAlpha"] = "castbar|number|1|0|1|0.05|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.barColor"] = "castbar|color|{a=1,b=0,g=0.7,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["castbar.barTexture"] = "castbar|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["castbar.barTexture"] = "castbar|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["castbar.barTextureFromSkin"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.bgColor"] = "castbar|color|{a=0.6,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.borderColor"] = "castbar|color|{a=1,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.borderShow"] = "castbar|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.borderSize"] = "castbar|number|8|0|16|1|nil|false|onChange=false|dim=false|shown=nil",
-  ["castbar.borderStyle"] = "castbar|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["castbar.borderStyle"] = "castbar|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["castbar.borderStyleFromSkin"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.channelColor"] = "castbar|color|{a=1,b=1,g=0.7,r=0.3}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.empowerColor"] = "castbar|color|{a=1,b=1,g=0.5,r=0.8}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.enabled"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.fadeOut"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.failedColor"] = "castbar|color|{a=1,b=0.2,g=0.2,r=0.9}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["castbar.font"] = "castbar|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["castbar.font"] = "castbar|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["castbar.fontFromSkin"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontColor"] = "castbar|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontFlags"] = "castbar|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontShadow"] = "castbar|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
@@ -93,15 +96,18 @@ local PINNED = {
   ["pet.anchorMode"] = "pet|string|attached|nil|nil|nil|attached,free|false|onChange=false|dim=false|shown=nil",
   ["pet.barAlpha"] = "pet|number|1|0|1|0.05|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.barColor"] = "pet|color|{a=1,b=0.35,g=0.7,r=0.35}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["pet.barTexture"] = "pet|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["pet.barTexture"] = "pet|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["pet.barTextureFromSkin"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.bgColor"] = "pet|color|{a=0.6,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.borderColor"] = "pet|color|{a=1,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.borderShow"] = "pet|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.borderSize"] = "pet|number|8|0|16|1|nil|false|onChange=false|dim=false|shown=nil",
-  ["pet.borderStyle"] = "pet|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["pet.borderStyle"] = "pet|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["pet.borderStyleFromSkin"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.clickToTarget"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.enabled"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["pet.font"] = "pet|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["pet.font"] = "pet|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["pet.fontFromSkin"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.fontColor"] = "pet|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.fontFlags"] = "pet|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["pet.fontShadow"] = "pet|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
@@ -137,16 +143,19 @@ local PINNED = {
   ["target.anchorMode"] = "target|string|attached|nil|nil|nil|attached,free|false|onChange=false|dim=false|shown=nil",
   ["target.barAlpha"] = "target|number|1|0|1|0.05|nil|false|onChange=false|dim=false|shown=nil",
   ["target.barColor"] = "target|color|{a=1,b=0.25,g=0.75,r=0.25}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["target.barTexture"] = "target|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["target.barTexture"] = "target|string|Blizzard|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["target.barTextureFromSkin"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.bgColor"] = "target|color|{a=0.6,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.borderColor"] = "target|color|{a=1,b=0,g=0,r=0}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.borderShow"] = "target|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.borderSize"] = "target|number|8|0|16|1|nil|false|onChange=false|dim=false|shown=nil",
-  ["target.borderStyle"] = "target|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["target.borderStyle"] = "target|string|Blizzard Tooltip|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["target.borderStyleFromSkin"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.clickToTarget"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.colorReaction"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.enabled"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["target.font"] = "target|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=false|shown=nil",
+  ["target.font"] = "target|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
+  ["target.fontFromSkin"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.fontColor"] = "target|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.fontFlags"] = "target|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["target.fontShadow"] = "target|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
@@ -188,7 +197,7 @@ test("layout: every stored path, its page, default, range, values and wiring are
     end
   end
   for path in pairs(PINNED) do assertTrue(seen[path], path .. " is still a setting") end
-  assertEqual(count, 133, "the set of settings")
+  assertEqual(count, 142, "the set of settings")
 end)
 
 -- ── the layout ───────────────────────────────────────────────────────────────────────────────
@@ -282,7 +291,7 @@ test("layout: every feature page's tabs, with Border merged into Bar", function(
     assertEqual(table.concat(tabs, ","), table.concat(want, ","), page .. ": tabs")
     local bar = byTab[L["Bar"]]
     assertEqual(headings(bar), table.concat(barHeadings[page], ","), page .. ": Bar headings")
-    assertEqual(bar[#bar].path, page .. ".useClassColorBorder", page .. ": the border block closes Bar")
+    assertEqual(bar[#bar].path, page .. ".borderStyleFromSkin", page .. ": the border block closes Bar")
     local rows = byPath(page)
     assertEqual(rows[page .. ".borderShow"].subgroup, L["Border"])
     assertEqual(rows[page .. ".borderShow"].order, 120, page .. ": border after the background")
@@ -297,7 +306,7 @@ test("layout: Text opens with Shown text, then the font block", function()
     local text = byTab[L["Text"]]
     assertEqual(headings(text), L["Shown text"] .. "," .. L["Font"], page)
     assertEqual(paths(text, page .. "."),
-      shown .. ",font,fontSize,fontColor,useClassColorFont,fontFlags,fontShadow", page)
+      shown .. ",font,fontSize,fontColor,useClassColorFont,fontFlags,fontShadow,fontFromSkin", page)
   end
 end)
 
@@ -321,9 +330,9 @@ test("layout: the Cast Bars words, and Show spark rides the Fill block", functio
   assertEqual(rows["castbar.barColor"].label, L["Normal cast color"])
   assertEqual(rows["castbar.channelColor"].subgroup, L["Cast state colors"])
   local _, byTab = drawn("castbar")
-  assertEqual(paths(byTab[L["Bar"]], "castbar."), "barTexture,barAlpha,barColor,useClassColorBar,showSpark,"
-    .. "channelColor,empowerColor,uninterruptibleColor,failedColor,bgColor,useClassColorBg,"
-    .. "borderShow,borderStyle,borderSize,borderColor,useClassColorBorder")
+  assertEqual(paths(byTab[L["Bar"]], "castbar."), "barTexture,barAlpha,barColor,useClassColorBar,"
+    .. "barTextureFromSkin,showSpark,channelColor,empowerColor,uninterruptibleColor,failedColor,bgColor,"
+    .. "useClassColorBg,borderShow,borderStyle,borderSize,borderColor,useClassColorBorder,borderStyleFromSkin")
   assertEqual(rows["castbar.showSpark"].subgroup, L["Fill"])
   assertEqual(paths(byTab[L["Icon"]], "castbar."), "showIcon,iconSide,showShield")
 end)

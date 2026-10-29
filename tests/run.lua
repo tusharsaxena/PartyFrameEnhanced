@@ -107,6 +107,7 @@ Kit.run{
     "test_settings_layout",
     "test_skinsetup",
     "test_skin_holders",
+    "test_skin_hud",
     "test_skin_literals",
     "test_surface_parity",
     { name = "test_diagnostics_contract", dir = "tests/_kit/" },

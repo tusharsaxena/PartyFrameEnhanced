@@ -1,0 +1,15 @@
+Independent review of PartyFrameEnhanced's skin adoption (PF-RV..PF-05), 2026-10-29.
+Verdict: Approve; six minor findings, no blocker or major. Reviewer gate: 536 passed / 0 failed / 1 skipped; luacheck 0/0 at each of the six commits.
+
+Fixed:
+1. Ignore fonts did not reach the HUD (S.Resolve('hud.font') ignores the owner's ignoreFonts). Composed on the addon side (rung 1): NS.SkinIgnoresFonts (Skin:GetIgnore; false degraded) in core/SkinSetup.lua; Element.MediaKeys keeps cfg.font while it is on. The resolved face is already in the structure signature and SetIgnore fires OnLooksChanged, so a toggle restyles live. Red-first case in tests/test_skin_hud.lua (on Ka0s Default: Obsidian's HUD face is Friz via the library's KEEP, which would have masked it); smoke SKIN-24. -> a40c9dd (PF-03)
+2. High Contrast drag plate opaque black (list.sel = #000000 at alpha 1). pf.mover now has skins = { contrast = { 1, 0.9, 0, 0.25 } } (HC yellow #FFE600 at 0.25). Pinned in tests/test_skin_holders.lua; SKIN-6 names High Contrast. -> 7a91388 (PF-02)
+3. D4 (cast-icon edge) skipped with no note. Recorded in docs/ARCHITECTURE.md's Skins section as not adopted, with why and a re-check trigger (the note route the inventory allows; Ka0s Default draws no icon edge). -> 3a0dd72 (PF-05)
+4. Literal gate missed SetShadowColor / SetStatusBarColor. Added to COLOR_ARGS; the D5 shadow literal is now a named ALLOW entry; planted lines of each shape in the falsifiability case (verified red with the entry removed). -> 51b9a17 (PF-02)
+5. Show border under Ka0s Default draws nothing until 'Use the skin's border' is unticked (X5, no code change). README troubleshooting row, ARCHITECTURE line, smoke SKIN-25 (fresh profile). -> 3a0dd72 (PF-05)
+
+Declined:
+6. PF-RV (5c5448a) trailer names session_01JV4dmMQQ4HwqVN5saduTPG, the interrupted earlier session that wrote it. Truthful for that session; not amended (history rewriting is the owner's call). Recorded here as an interrupted-session commit.
+
+Post-fix gate at 3a0dd72: ka0s-bounded lua tests/run.lua 538 passed / 0 failed / 1 skipped (the standing diagnostics-contract opt-out); ka0s-bounded luacheck . 0 warnings / 0 errors. docs/test-cases.md and the README badge regenerated (538).
+Process note: a40c9dd's on-disk docs briefly lost CRLF from a Python write (the eol test caught it); committed blobs were normalized, disk repaired with rm + git checkout before the next commit.

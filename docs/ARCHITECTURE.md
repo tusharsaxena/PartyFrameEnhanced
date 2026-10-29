@@ -423,7 +423,9 @@ collection's first adopter; only the paths, the brand and the preview are this a
   skin leaves the token alone. Colors, sizes, the outline, the shadow, the spark, the shield, the raid
   marker and the cast-state, reaction and class colors stay the player's or the client's under every
   skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
-  `bar.texture`) wherever a companion is on.
+  `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
+  whatever its font companion says: `S.Resolve` does not consult the exception, so `Element.MediaKeys`
+  asks `NS.SkinIgnoresFonts` (`Skin:GetIgnore`) and composes it on this side.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`

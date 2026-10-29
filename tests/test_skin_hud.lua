@@ -137,6 +137,32 @@ test("skin hud: the structure memo holds the RESOLVED keys, so a skin switch res
   assertTrue(Element.Reskin(el, cfg, nil), "a companion toggle moves the memo")
 end))
 
+test("skin hud: Ignore fonts gives the HUD the player's own face back, live", withFetches(function(fetched)
+  -- Ka0s Default, whose HUD face (Oxanium) differs from the stored pick (Friz); several other skins
+  -- keep Friz (the library's KEEP), which would hide the bug.
+  local el, cfg = probe("castbar")
+  Element.Reskin(el, cfg, cfg, true)
+  assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "following: the skin's face")
+  local ok, err = pcall(function()
+    Skin:SetIgnore(OWNER, nil, true)
+    settle()
+    assertEqual(NS.SkinIgnoresFonts(), true, "the seam reads the applied exception")
+    -- red under: Element.MediaKeys resolving hud.font whatever the owner's ignoreFonts says.
+    assertTrue(Element.Reskin(el, cfg, cfg), "toggling Ignore fonts moves the memo")
+    assertEqual(lastKey(fetched, "font"), "Friz Quadrata TT", "ignoring fonts: the stored face")
+    assertEqual(lastKey(fetched, "statusbar"), NS.Skin.Token("bar.texture"), "the texture still follows")
+    -- The live cast bars restyled on the exception's own OnLooksChanged.
+    for _, unit in ipairs(NS.Units.LIST) do
+      assertTrue(NS.CastBars.__bars[unit].__structure:find("Friz Quadrata TT", 1, true) ~= nil,
+        unit .. "'s cast bar went back to its own face")
+    end
+  end)
+  Skin:SetIgnore(OWNER, nil, false)
+  settle()
+  if not ok then error(err, 0) end
+  assertEqual(NS.SkinIgnoresFonts(), false, "the exception off again")
+end))
+
 test("skin hud: the HUD colors stay the player's under every skin (X4)", withFetches(function()
   local el, cfg = probe("castbar")
   choose("ember")

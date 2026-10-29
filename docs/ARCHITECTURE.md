@@ -467,7 +467,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   outside `core/SkinSetup.lua` and a reasoned allow-list (the stand-in's look and its *(test)* mark,
   the chat lines). An entry that matches nothing fails the gate, and a planted literal proves it can
   fail. The HUD text's `SetShadowColor(0, 0, 0, 1)` is the client's stock shadow, drawn only when the
-  player turns *Font shadow* on, and stays (DECISIONS D5).
+  player turns *Font shadow* on, and stays, as a named allow-list entry (DECISIONS D5); the gate
+  scans `SetShadowColor` and `SetStatusBarColor` too.
 
 ## Known Limitations
 

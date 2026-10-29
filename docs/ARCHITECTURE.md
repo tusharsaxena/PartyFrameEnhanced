@@ -394,7 +394,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   file load, labeled *Ka0s Party Frame Enhanced*, with its read and write seams (`NS.SkinChoice`,
   `NS.WriteSkinChoice`, both through the one write seam `NS.SetByPath`), the debug console as the
   EllesmereUI provider's log, and this addon's one **owner token**, `pf.mover` (the free-placement
-  plate's wash: Ka0s Default's exact `0, 0.6, 1, 0.25`, every other skin its `list.sel`; gap PF-G1).
+  plate's wash: Ka0s Default's exact `0, 0.6, 1, 0.25`, every other skin its `list.sel`, except High Contrast, whose `list.sel` is opaque black, so
+  its plate is its yellow focus color at 0.25; gap PF-G1).
   It publishes `NS.Skin`, the owner's facade, which every surface this addon draws reads, and
   `NS.ApplySkinChoice`, `NS.ApplySkinIgnore`, `NS.ApplySkinOverride`, `NS.SkinPaintAceTree` and the
   picker's three functions ([module-map.md](module-map.md)). Without the library a degraded facade

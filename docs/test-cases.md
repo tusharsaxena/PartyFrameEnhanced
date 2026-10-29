@@ -563,14 +563,15 @@ Total.
 - Skin seam: a profile switch applies the new profile's skin before anything is published
 - Skin seam: Skin is General's last tab, and one pick there is one repaint
 
-### test_skin_holders.lua (4)
+### test_skin_holders.lua (5)
 
 - skin holders: under Ka0s Default the plate and caption keep today's exact colors
 - skin holders: the plate reads pf.mover and the caption the accent role, never a literal
 - skin holders: back on Ka0s Default both return to today's pixels
+- skin holders: under High Contrast the plate is a translucent yellow wash, never opaque black
 - skin holders: a skin whose wash is none leaves the plate clear, never stale
 
-### test_skin_hud.lua (11)
+### test_skin_hud.lua (12)
 
 - skin hud: every HUD section's three companions default to true (X3)
 - skin hud: each companion is a composed bool row defaulting to true, written through the seam
@@ -578,6 +579,7 @@ Total.
 - skin hud: a companion turned off draws the player's own pick again
 - skin hud: a skin that leaves a token alone falls back to the player's pick
 - skin hud: the structure memo holds the RESOLVED keys, so a skin switch restyles
+- skin hud: Ignore fonts gives the HUD the player's own face back, live
 - skin hud: the HUD colors stay the player's under every skin (X4)
 - skin hud: a skin switch restyles the live cast bars, target and pet frames
 - skin hud: v2 sets every stored profile's HUD companions to follow the skin
@@ -719,8 +721,8 @@ Total.
 | test_optionssetup.lua | 11 |
 | test_settings_layout.lua | 8 |
 | test_skinsetup.lua | 13 |
-| test_skin_holders.lua | 4 |
-| test_skin_hud.lua | 11 |
+| test_skin_holders.lua | 5 |
+| test_skin_hud.lua | 12 |
 | test_skin_literals.lua | 3 |
 | test_skin_picker.lua | 17 |
 | test_surface_parity.lua | 17 |
@@ -730,4 +732,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **536** |
+| **Total** | **538** |

@@ -75,8 +75,11 @@ local BRAND = "Ka0s Party Frame Enhanced"
 -- Ka0s Default keeps its pixels, and `follow` is the library role every other skin draws it from.
 NS.SKIN_TOKENS = {
     -- The free-placement holder's plate, shown while unlocked (modules/Anchor.lua): "grab here".
-    -- Gap PF-G1. Follows the list selection wash, each skin's accent at a low alpha.
-    ["pf.mover"] = { default = { 0, 0.6, 1, 0.25 }, follow = "list.sel" },
+    -- Gap PF-G1. Follows the list selection wash, each skin's accent at a low alpha. High Contrast
+    -- is the exception: its list.sel is an opaque black (it marks a selection with an outline), so
+    -- its plate is its yellow focus color (#FFE600) at the same 0.25.
+    ["pf.mover"] = { default = { 0, 0.6, 1, 0.25 }, follow = "list.sel",
+                     skins = { contrast = { 1, 0.9, 0, 0.25 } } },
 }
 
 -- The Ka0s Default library tokens the DEGRADED facade answers, copied from the library and limited

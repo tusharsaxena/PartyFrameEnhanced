@@ -99,6 +99,14 @@ test("skin holders: back on Ka0s Default both return to today's pixels", withHol
   same(holder.label.__textColor, { 1, 0.82, 0, 1 }, "the caption back on Ka0s Default")
 end))
 
+test("skin holders: under High Contrast the plate is a translucent yellow wash, never opaque black", withHolder(function(holder)
+  choose("contrast")
+  -- red under: following list.sel, which High Contrast sets to an opaque #000000 (it marks a
+  -- selection with rowSelOutline instead), so the plate became a solid black block.
+  same(holder.plate.__color, { 1, 0.9, 0, 0.25 }, "the plate under High Contrast")
+  assertTrue(holder.plate.__color[4] < 0.5, "the plate stays translucent")
+end))
+
 test("skin holders: a skin whose wash is none leaves the plate clear, never stale", withHolder(function(holder)
   local orig = NS.Skin.Color
   NS.Skin.Color = function(name) if name == "pf.mover" then return nil end return orig(name) end

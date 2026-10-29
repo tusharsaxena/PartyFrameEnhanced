@@ -672,9 +672,10 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   placement*, `/pfe unlock` → under **Ka0s Default** each stack's plate is the same translucent blue as
   before this run and its caption (*Cast bars*, *Target frames*, *Pet frames*) the same gold, now in
   Oxanium. Pick each other skin → with no reload each plate takes that skin's selection wash (or none,
-  where the skin has none) and each caption the skin's accent color and face. Back to Ka0s Default →
+  where the skin has none) and each caption the skin's accent color and face; under **High Contrast**
+  the plate is a translucent yellow, never a solid black block. Back to Ka0s Default →
   exactly the blue and gold again. *Failure:* a plate left in the last skin's color, or a Ka0s Default
-  plate a different blue. Result:
+  plate a different blue, or an opaque plate under High Contrast. Result:
 - **SKIN-7. The settings pages, every skin (PF-01, PF-04).** On the Skin tab untick **Ignore settings
   panel**, then pick each skin and walk General's three tabs, Cast Bars, Target Frames, Pet Frames
   (their composer rows: the dropdowns, the color swatches, the check boxes, the sliders) and

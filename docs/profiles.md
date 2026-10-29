@@ -26,7 +26,8 @@ The switch's one debug line is the handler's below, not the verb's.
 
 Everything in `defaults/Profile.lua`: Master controls, the frame-system choice, and every feature's
 settings — including each feature's free-placement position, so switching profile moves the stacks
-too. Session state (the debug flag, preview mode, the combat flag) is never in a profile.
+too. The skin is in the profile too (`skin.*`: the source, the skin, the Scope, the Font and
+texture overrides and whether the first-run skin picker was closed), so a switch changes the look. Session state (the debug flag, preview mode, the combat flag) is never in a profile.
 
 The perf capture ring (`PartyFrameEnhancedPerfDB`) is deliberately **outside** the profile tree, so a
 copy, reset or switch never touches it.
@@ -36,6 +37,12 @@ copy, reset or switch never touches it.
 `core/Database.lua` registers one handler per AceDB event; each logs its one debug line
 (debug-logging-§10) and then publishes **PROFILE** and **VISIBILITY**, and refreshes an open panel.
 Every module rebuilds from the new profile off that one message.
+
+Before any of that, the adopt takes a shown first-run skin picker down without marking it seen (a
+pending preview is put back), then applies the new profile's skin (`NS.ApplySkinChoice`), so every
+handler of the messages already reads it. After the messages, the picker shows again if the new
+profile has not closed it: a new or reset profile starts unseen (ruling O3), a copy carries the
+source's flag, and the addon must be standing up.
 
 The lock state comes with the profile, with one exception: a profile stored unlocked and adopted in
 combat (a `/pfe profile copy`, which has no combat check of its own, or another addon's

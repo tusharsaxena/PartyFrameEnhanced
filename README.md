@@ -98,6 +98,7 @@ Enhanced is built around that, so a pull can't break it.
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | On EllesmereUI and Blizzard's raid-style party frames they should move with their party member straight away; if they fade instead, send `/pfe diagnostics` with a bug report. On Blizzard's classic party frames they come back when combat ends, because the game doesn't let addons move clickable frames in combat. |
 | Cast bars or target frames draw over other windows, or hide behind something | By default they sit on the same layer as your party frames, so a window that covers your party frames covers them too. To change that, pick another layer under **Frame strata** on the **General** page. |
+| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border style and font follow the skin unless you untick **Use the skin's texture**, **border** or **font** on a page's **Bar** and **Text** tabs and pick your own. Your colors and sizes are never changed. |
 | The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
 | Something looks wrong and I want to report it | Follow [Reporting a bug](#reporting-a-bug) below. |
 

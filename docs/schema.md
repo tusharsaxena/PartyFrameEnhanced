@@ -26,6 +26,26 @@ general.tickInterval  = 0.2      the target health ticker's pace, seconds (pets 
 ```
 
 ```text
+skin.source      = "ka0s"   "ka0s" (the Ka0s skin below) | "eui" (EllesmereUI's look)
+skin.skin        = "ka0s"   every registered skin's key: ka0s | obsidian | azeroth | glass | contrast | ember | wow | midnight | forever
+skin.ignorePanel = true     the Scope: keep the settings panel in the client's own look
+skin.ignoreFonts = false    the Scope: keep every font as the client draws it (the skin still colors the text)
+skin.font        = ""       the Font override: an LSM font key, "" for the skin's own
+skin.texture     = ""       the Texture override: an LSM statusbar key, "" for the skin's own
+skin.pickerSeen  = false    the first-run skin picker was closed on this profile (drawn by nothing)
+```
+
+**The skin this addon wears** (skinning-§2, §3), per profile. Every `skin.*` row is a General-page
+schema row in the Skin tab's group (`Appearance`) with `skipRender`, because the library's tab draws
+the first six itself; `pickerSeen` is drawn by nothing and written only by the picker's close. All
+seven are written only through `NS.SetByPath`, so `/pfe get|set skin.skin` validates against the
+registered skins, every reset reaches them (a profile reset puts the picker back to unseen, so it
+shows again), and a write publishes `CONFIG("skin")`. Each row's `onChange` applies only its own half
+(`core/SkinSetup.lua`). `skin.font` and `skin.texture` are free text, not a list, because a media
+pack may register its keys after the settings files load; a key no pack registers is stored and the
+skin's own face or texture is drawn.
+
+```text
 castbar.enabled = true                       castbar.fadeOut = true
 castbar.anchorMode = "attached"              "attached" | "free"
 castbar.point = "TOP"  castbar.relativePoint = "TOP"  castbar.offsetX = 0  castbar.offsetY = 0

@@ -11,7 +11,7 @@ Notes line and the slash command list, with no tabs. Under it are five pages:
 
 | Page | Covers |
 |---|---|
-| General | **Master controls**: enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all<br>**All elements**, what the three features share: *Party frames* (which frame system elements attach to; whether your own row is included; fading with the party frames out of range; the frame strata), then *Health updates* (one *Update health* switch and the *Target health refresh* pace, shared by target and pet frames) |
+| General | **Master controls**: enable, general visibility, master scale / alpha, lock, debug console, minimap button, reset position, reset all<br>**All elements**, what the three features share: *Party frames* (which frame system elements attach to; whether your own row is included; fading with the party frames out of range; the frame strata), then *Health updates* (one *Update health* switch and the *Target health refresh* pace, shared by target and pet frames)<br>**Skin** (the library's tab, last): the skin source, the nine skins, the Font and texture overrides, the Scope, *Copy to every Ka0s addon…* |
 | Cast Bars | **General**: enable, fade out when a cast ends<br>**Size and position**: size (width, height), then anchor mode, match width, the attached pin (points, offsets), the free stack (growth, spacing); only the block the anchor mode uses is drawn (`shownWhen`, LibKa0s v1.45.0)<br>**Bar**: the fill block and the spark, the cast-state palette, the background, the border block with *Show border*<br>**Text**: the shown text (spell name, time left), then the font block<br>**Icon**: spell icon and its side, the shield |
 | Target Frames | **General**: enable, click to target<br>**Size and position**: as Cast Bars<br>**Bar**: the fill block, NPC reaction colors, the background, the border block<br>**Text**: the shown text (name, health percent), then the font block<br>**Marker**: the target's raid marker, its point on the bar, X/Y offsets |
 | Pet Frames | **General**: enable, click to target<br>**Size and position**: as Cast Bars<br>**Bar**: the fill block (*Use class color* = the owner's class), the background, the border block<br>**Text**: the shown text (name, health percent), then the font block<br>**Marker**: the pet's raid marker, its point on the bar, X/Y offsets |
@@ -74,6 +74,25 @@ One switch and one pace for both unit-button features, so target and pet frames 
 |---|---|---|
 | Update health | `general.updateHealth` | off: target and pet bars are drawn full with no percent; the target ticker runs only to repaint a target that had not resolved yet, and no pet health event is registered. *Show health percent* on both Text tabs dims with it |
 | Target health refresh (seconds) | `general.tickInterval` | the target health ticker's pace (0.1–1.0); a new pace restarts a running ticker. Pets update from the game's own health events, so it does not apply to them. Dimmed while *Update health* is off |
+
+### Skin
+
+The library's tab (`O.AppearanceTab`, LibKa0s OptionsAppearance; skinning-§3), keyed `Appearance` and
+labeled **Skin**, handed to `RenderTabbedSchema` as a host tab with this addon's read and write seams
+(`NS.SkinChoice`, `NS.WriteSkinChoice`). It is the page's **last** tab, since General has no
+Keybindings tab. The library draws every control; the rows below are schema rows with `skipRender`,
+so General's **Defaults**, *Reset all settings* and `/pfe set` all reach them.
+
+| Control | Schema path | Behavior |
+|---|---|---|
+| Skin source | `skin.source` | Ka0s skins / EllesmereUI. EllesmereUI is disabled while the library's gate is closed (skinning-§5), with each condition and its fix listed. Ka0s to EllesmereUI applies live; back offers one reload |
+| Skin (under a **Look** heading) | `skin.skin` | the nine skins, each with its swatches, name and one line; a pick repaints this addon live: the HUD's bar texture, border style and font where a *Use the skin's …* companion is on, the free-placement holders, the settings pages (unless *Ignore settings panel*), the debug console and the perf panel |
+| Font · Texture (*Font and texture*) | `skin.font` · `skin.texture` | an override of the skin's face (`font.body`, `font.title`, `hud.font`) and bar texture (`bar.texture`); *Skin's own* is `""`. The HUD takes them wherever its companions are on |
+| Ignore settings panel · Ignore fonts (the Scope) | `skin.ignorePanel` · `skin.ignoreFonts` | keep this addon's settings panel in the client's look (on in a new profile); keep every font as the client draws it |
+| Copy to every Ka0s addon… | — (button) | the library's: confirms, naming the loaded Ka0s addons that use skins, then writes this choice into each through its own write seam; disabled, with a hint, while no other loaded addon has adopted |
+
+`skin.pickerSeen`, the first-run skin picker's memory, is a row in the same group that nothing draws
+([schema.md](schema.md)). The picker's gear opens this tab.
 
 ## Cast Bars
 
@@ -211,4 +230,7 @@ As on Cast Bars.
 ## Profiles
 
 AceDBOptions' table, rendered by AceConfigDialog (`settings/Profiles.lua`): create, switch,
-copy, reset, delete profiles. It registers no schema rows. See [profiles.md](profiles.md).
+copy, reset, delete profiles. It registers no schema rows. The tree AceConfigDialog draws is painted
+for this addon's skin after every Open (`NS.SkinPaintAceTree`), and left stock while *Ignore settings
+panel* is on. A switch wears the new profile's skin; a new or reset profile starts on Ka0s Default with the
+picker unseen, and a copy carries the source's. See [profiles.md](profiles.md).

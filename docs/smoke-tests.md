@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 24 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD |
+| SKIN-1 – 25 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD, Show border under Ka0s Default |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -777,6 +777,12 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   (Friz Quadrata on a default profile), as do the holders' captions; the bar textures stay the skin's.
   Untick it → Oxanium again. Repeat under **Obsidian** with a section's *Font* set to something other
   than Friz. *Failure:* HUD text that keeps the skin's face with the box ticked. Result:
+- **SKIN-25. Show border under Ka0s Default needs your own style (PF-03; X5, D2).** On a **new**
+  profile under **Ka0s Default**, Cast Bars → Bar, tick **Show border** → no border appears, because
+  *Use the skin's border* is ticked and Ka0s Default's border is *None*. Untick *Use the skin's border*
+  and pick a **Border style** → the border draws. Pick **Obsidian** with the box ticked again → the
+  skin's own border draws. *Failure:* no border with the box unticked and a style picked, or the
+  README's troubleshooting row missing. Result:
 
 ## Non-English client
 
@@ -839,4 +845,5 @@ tab, **Skin**), PANEL-8 to PANEL-10 (amended: the *Use the skin's …* companion
 (new: the one-time HUD reset's visible change under Ka0s Default, X5, and that it runs once; the Skin
 tab; every skin on the HUD, the holders, the settings pages, the Profiles tree and the tool windows;
 the overrides; what stays unskinned; EllesmereUI on and off; the copy; profiles; combat; and the
-first-run skin picker), and SKIN-24 (new in the review fix: Ignore fonts on the HUD).
+first-run skin picker), and SKIN-24 and SKIN-25 (new in the review fixes: Ignore fonts on the HUD, and the extra step
+Show border takes under Ka0s Default).

@@ -426,7 +426,15 @@ collection's first adopter; only the paths, the brand and the preview are this a
   skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
   whatever its font companion says: `S.Resolve` does not consult the exception, so `Element.MediaKeys`
-  asks `NS.SkinIgnoresFonts` (`Skin:GetIgnore`) and composes it on this side.
+  asks `NS.SkinIgnoresFonts` (`Skin:GetIgnore`) and composes it on this side. Under Ka0s Default
+  the skin's border is *None*, so *Show border* draws nothing until the player unticks *Use the skin's
+  border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so).
+- **Cast icon edge (DECISIONS PartyFrameEnhanced D4) not adopted.** The cast icon is a Texture, and
+  `S.IconBorder` takes a frame, so a skin's icon edge would need a new holder frame around `el.icon` in
+  `modules/Element.lua`, with its own layout on both icon sides. Ka0s Default draws no icon edge, so
+  nothing is lost there; under other skins the cast icon keeps its plain trimmed square. Skipped as the
+  inventory allows (low priority). Re-check trigger: a player asks for skinned icon edges, or the
+  library's `S.IconBorder` takes a Texture.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`

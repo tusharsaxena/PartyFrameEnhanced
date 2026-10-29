@@ -563,6 +563,19 @@ Total.
 - Skin seam: a profile switch applies the new profile's skin before anything is published
 - Skin seam: Skin is General's last tab, and one pick there is one repaint
 
+### test_skin_holders.lua (4)
+
+- skin holders: under Ka0s Default the plate and caption keep today's exact colors
+- skin holders: the plate reads pf.mover and the caption the accent role, never a literal
+- skin holders: back on Ka0s Default both return to today's pixels
+- skin holders: a skin whose wash is none leaves the plate clear, never stale
+
+### test_skin_literals.lua (3)
+
+- skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
+- skin literals: every allow-list entry carries its reason
+- skin literals: the gate is falsifiable, a planted literal of each shape is reported
+
 ### test_surface_parity.lua (17)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
@@ -672,6 +685,8 @@ Total.
 | test_optionssetup.lua | 11 |
 | test_settings_layout.lua | 8 |
 | test_skinsetup.lua | 13 |
+| test_skin_holders.lua | 4 |
+| test_skin_literals.lua | 3 |
 | test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -679,4 +694,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **501** |
+| **Total** | **508** |

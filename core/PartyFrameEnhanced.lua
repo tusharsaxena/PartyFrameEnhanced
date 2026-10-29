@@ -312,6 +312,10 @@ end
 
 local function adoptProfile(tag, fmt, ...)
     NS.Debug(tag, fmt, ...)
+    -- The new profile's skin FIRST (skinning-§2): Skin:SetChoice repaints every frame recorded for
+    -- this owner and fires OnLooksChanged, so every handler of the messages below already reads the
+    -- new profile's skin. Idempotent: a profile on the same skin repaints nothing.
+    if NS.ApplySkinChoice then NS.ApplySkinChoice() end
     -- A profile switch can flip `enabled` with no verb and no checkbox touched, so the latch is
     -- re-evaluated BEFORE anything is published: a profile that enables the addon has to be back up
     -- to hear the messages below, and one that disables it has nothing that should hear them.

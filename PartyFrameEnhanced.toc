@@ -54,6 +54,11 @@ core\Util.lua
 core\EnvSetup.lua
 # LOAD-BEARING: after Namespace (NS.PREFIX), before every file that prints or captures NS.Print.
 core\CoreSetup.lua
+# LOAD-BEARING: the LibKa0s-Skin-1.0 seam (skinning-§1). Registers the owner at FILE LOAD, so the
+# EllesmereUI provider offers it before EllesmereUI dispatches its skins, and publishes NS.Skin
+# before core\PerfSetup.lua, core\DebugLogSetup.lua and every module that draws; after CoreSetup
+# (NS.Print). It publishes NS.SKIN_VALUES, which settings\General.lua reads at load.
+core\SkinSetup.lua
 # LOAD-BEARING: publishes NS.lifecycle, which core\PerfSetup.lua hands LibKa0s-Perf-1.0 at file load.
 core\LifecycleSetup.lua
 # LOAD-BEARING: publishes NS.Perf before any module takes `local Perf = NS.Perf` at file scope.

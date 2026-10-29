@@ -8,12 +8,13 @@ Total.
 
 **Generated — do not hand-edit.** Regenerate with `lua tests/run.lua --list > docs/test-cases.md`.
 
-### test_loadorder.lua (17)
+### test_loadorder.lua (18)
 
 - loadorder: tocFiles returns the addon's files, locale first and settings last
 - loadorder: core/MediaSetup.lua loads before core/Constants.lua, and the TOC says why
 - loadorder: LifecycleSetup loads before PerfSetup, and the TOC says why
 - loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugLogSetup
+- loadorder: SkinSetup loads after CoreSetup and before every surface that draws, and the TOC says why
 - loadorder: OptionsSetup loads before every settings page
 - loadorder: Schema loads before every settings file, and the TOC says why
 - loadorder: PerfSetup loads before every module
@@ -538,7 +539,7 @@ Total.
 ### test_settings_layout.lua (8)
 
 - layout: every stored path, its page, default, range, values and wiring are unchanged
-- layout: General has two tabs; All elements holds Party frames, then Health updates
+- layout: General has three tabs; All elements holds Party frames, then Health updates
 - layout: Lock frame says it is the preview switch, in the library's words and a combat note
 - layout: every feature page's tabs, with Border merged into Bar
 - layout: Text opens with Shown text, then the font block
@@ -546,7 +547,23 @@ Total.
 - layout: the Cast Bars words, and Show spark rides the Fill block
 - layout: dependants say what they need, and the marker's point names the bar
 
-### test_surface_parity.lua (14)
+### test_skinsetup.lua (13)
+
+- Skin seam: the owner is the folder name, and NS.Skin is its facade
+- Skin seam: the read answers Ka0s Default before the profile store exists
+- Skin seam: the owner's own token keeps Ka0s Default's pixels and follows its role elsewhere
+- Skin seam: the skin keys default to Ka0s Default, and the picker unseen on every profile
+- Skin seam: every skin key is a skip-render row in General's Appearance group
+- Skin seam: the skin row's values are every registered skin, in the library's order
+- Skin seam: /pfe set refuses a skin that is not registered and applies one that is
+- Skin seam: the write seam lands every half through NS.SetByPath
+- Skin seam: another addon's copy to every Ka0s addon repaints this addon once
+- Skin seam: /pfe set reaches an exception and an override, and only its own half
+- Skin seam: applying the stored profile carries its exceptions and overrides
+- Skin seam: a profile switch applies the new profile's skin before anything is published
+- Skin seam: Skin is General's last tab, and one pick there is one repaint
+
+### test_surface_parity.lua (17)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
@@ -562,6 +579,9 @@ Total.
 - parity: the Slash stub's CliProfile and ProfileSwitch print the library-absent line and switch nothing
 - parity: a bare /pfe runs `config` in the library-absent build too
 - parity: the Slash stub dispatches verbs, aliases, typos and the disabled gate as the library does
+- parity: the degraded Skin facade answers every name the live facade carries
+- parity: the Skin seam publishes the same NS members on both paths
+- parity: each host-copy skin token is the live library's Ka0s Default value
 
 ### test_diagnostics_contract.lua (9)
 
@@ -617,7 +637,7 @@ Total.
 
 | Suite | Cases |
 |-------|------:|
-| test_loadorder.lua | 17 |
+| test_loadorder.lua | 18 |
 | test_schema.lua | 21 |
 | test_database.lua | 6 |
 | test_coresetup.lua | 4 |
@@ -651,11 +671,12 @@ Total.
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
 | test_settings_layout.lua | 8 |
-| test_surface_parity.lua | 14 |
+| test_skinsetup.lua | 13 |
+| test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **484** |
+| **Total** | **501** |

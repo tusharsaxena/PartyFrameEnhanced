@@ -29,6 +29,10 @@ function NS:InitDB()
         NS.db = { profile = sv.profile, global = sv.global }
     end
     NS:RunMigrations()
+    -- The profile's skin, the moment the store exists (skinning-§2): core/SkinSetup.lua registered
+    -- the owner at file load on Ka0s Default, before there was a profile to read. Before any module
+    -- builds a frame (OnEnable), so the first paint is already this profile's skin.
+    if NS.ApplySkinChoice then NS.ApplySkinChoice() end
 end
 
 -- The schema this build writes: the runner's target (savedvariables-§1). v1 is the shape v0.1.0

@@ -15,6 +15,17 @@ NS.defaults.profile = {
     alpha      = 1.0,
     locked     = true,
 
+    -- The skin this addon wears (skinning-§2: per addon, per profile), drawn by the library's Skin
+    -- tab on the General page (core/SkinSetup.lua). Ka0s Default, the look before skins. The Scope:
+    -- the settings panel left the client's, the fonts skinned (the owner's call for LootHistory,
+    -- 2026-10-27). The Font and texture overrides: an LSM key each, "" for the skin's own.
+    -- `pickerSeen`: the first-run skin picker was closed on this profile, so every profile, old or
+    -- new, shows it once (ruling O3 of the 2026-10-29 rollout).
+    skin = {
+        source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
+        font = "", texture = "", pickerSeen = false,
+    },
+
     general = {
         provider      = "auto",   -- "auto" | "blizzard" | "ellesmere"
         includePlayer = true,

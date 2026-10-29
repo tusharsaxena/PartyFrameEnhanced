@@ -45,12 +45,9 @@ if not lib then
         return c.r, c.g, c.b, a
     end
 
-    -- The shared chrome degrades to nothing rather than to a hand-copied backdrop: SKIN's values are
-    -- the contract (standalone-windows), and a host copy is the one that goes stale. SKIN is an empty
-    -- table so a reader may index it without a guard; MakeCloseButton answers nil, as the library's
-    -- own does where CreateFrame is unavailable.
-    NS.SKIN            = {}
-    NS.ApplySkin       = function() end
+    -- MakeCloseButton answers nil, as the library's own does where CreateFrame is unavailable.
+    -- The window skin is LibKa0s-Skin-1.0's, through the owner's facade NS.Skin (core/SkinSetup.lua),
+    -- never an unbound Core.ApplySkin (anti-pattern #107).
     NS.MakeCloseButton = function() return nil end
 
     -- The pcalled event registration helper (events-frames-taint-§1), one rung: the pcall and the
@@ -102,10 +99,6 @@ NS.ResolveColor = lib.ResolveColor
 NS.SafeRegisterEvent     = lib.SafeRegisterEvent
 NS.SafeRegisterUnitEvent = lib.SafeRegisterUnitEvent
 NS.SafeRegisterEvents    = lib.SafeRegisterEvents
-
--- The shared window edge, published flat so a module reaches it by name (standalone-windows).
-NS.SKIN      = lib.SKIN
-NS.ApplySkin = lib.ApplySkin
 
 -- WRAPPED, TO SAY WHO IS ASKING, and the wrapper is a MUST (standalone-windows). The library draws
 -- the catalog's `close` mark only when told which FOLDER to build the path from; a two-argument call

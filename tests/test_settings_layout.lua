@@ -126,6 +126,13 @@ local PINNED = {
   ["pet.useClassColorFont"] = "pet|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.width"] = "pet|number|80|40|400|1|nil|false|onChange=false|dim=true|shown=nil",
   ["scale"] = "general|number|1|0.5|2|0.05|nil|false|onChange=false|dim=false|shown=nil",
+  ["skin.font"] = "general|string||nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
+  ["skin.ignoreFonts"] = "general|bool|false|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
+  ["skin.ignorePanel"] = "general|bool|true|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
+  ["skin.pickerSeen"] = "general|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
+  ["skin.skin"] = "general|string|ka0s|nil|nil|nil|azeroth,contrast,ember,forever,glass,ka0s,midnight,obsidian,wow|false|onChange=true|dim=false|shown=nil",
+  ["skin.source"] = "general|string|ka0s|nil|nil|nil|eui,ka0s|false|onChange=true|dim=false|shown=nil",
+  ["skin.texture"] = "general|string||nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["state.debugConsole"] = "general|bool|nil|nil|nil|nil|nil|true|onChange=true|dim=false|shown=nil",
   ["target.anchorMode"] = "target|string|attached|nil|nil|nil|attached,free|false|onChange=false|dim=false|shown=nil",
   ["target.barAlpha"] = "target|number|1|0|1|0.05|nil|false|onChange=false|dim=false|shown=nil",
@@ -181,7 +188,7 @@ test("layout: every stored path, its page, default, range, values and wiring are
     end
   end
   for path in pairs(PINNED) do assertTrue(seen[path], path .. " is still a setting") end
-  assertEqual(count, 126, "the set of settings")
+  assertEqual(count, 133, "the set of settings")
 end)
 
 -- ── the layout ───────────────────────────────────────────────────────────────────────────────
@@ -236,11 +243,12 @@ local function byPath(page)
   return out
 end
 
-test("layout: General has two tabs; All elements holds Party frames, then Health updates", function()
+test("layout: General has three tabs; All elements holds Party frames, then Health updates", function()
   local L = NS.L
   local tabs, byTab = drawn("general")
-  -- red under: the old Party frames and Health updates tabs still standing on their own
-  assertEqual(table.concat(tabs, ","), NS.Helpers.MASTER_GROUP .. "," .. L["All elements"])
+  -- red under: the old Party frames and Health updates tabs still standing on their own. The third
+  -- is the skin rows' group, "Appearance", the key of the library's Skin tab (skinning-§3), last.
+  assertEqual(table.concat(tabs, ","), NS.Helpers.MASTER_GROUP .. "," .. L["All elements"] .. ",Appearance")
   local tab = byTab[L["All elements"]]
   assertEqual(paths(tab, ""), "general.provider,general.includePlayer,general.rangeFade,general.strata,"
     .. "general.updateHealth,general.tickInterval")

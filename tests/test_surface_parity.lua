@@ -264,3 +264,64 @@ test("parity: the Slash stub dispatches verbs, aliases, typos and the disabled g
   out = dispatch("wibble")
   assertTrue(out[1]:find("unknown command 'wibble'", 1, true) ~= nil, "a typo while disabled is unknown")
 end)
+
+-- ── Skin (the owner's facade, and the seam's NS members; core/SkinSetup.lua) ─────────────────────
+
+local skinDegraded -- one library-absent load for the three Skin cases
+local function skinNS()
+  if not skinDegraded then skinDegraded = loadDegraded() end
+  return skinDegraded
+end
+
+test("parity: the degraded Skin facade answers every name the live facade carries", function()
+  -- Live, NS.Skin is LibKa0s-Skin-1.0's `Skin:For("PartyFrameEnhanced")`; without the library it is
+  -- the host's table, whose painting names are no-ops and whose Token / Color / Text answer the host
+  -- copy NS.SKIN_FALLBACK and the owner tokens' defaults. A facade is per owner, so this is the
+  -- two-table form, key for key, with nothing ignored: a vocabulary name the library adds fails
+  -- here until the stub answers it.
+  T.assertSurfaceParity(NS.Skin, skinNS().Skin, "Skin facade vs host stub", {})
+end)
+
+test("parity: the Skin seam publishes the same NS members on both paths", function()
+  -- Members from: grep -nE '^\s*function NS\.[A-Za-z_]+|^\s*NS\.[A-Za-z_]+\s*=' core/SkinSetup.lua
+  local f = io.open("core/SkinSetup.lua", "r")
+  local src = f:read("*a")
+  f:close()
+  local found, n = {}, 0
+  for line in src:gmatch("[^\r\n]+") do
+    local key = line:match("^%s*function NS%.([A-Za-z_][A-Za-z0-9_]*)")
+      or line:match("^%s*NS%.([A-Za-z_][A-Za-z0-9_]*)%s*[=,]")
+    if key and not found[key] then found[key] = true; n = n + 1 end
+  end
+  assertTrue(found.ApplySkinChoice and n >= 8, "the derivation found only " .. n .. " members")
+  local live, degraded = {}, {}
+  for key in pairs(found) do live[key], degraded[key] = NS[key], skinNS()[key] end
+  T.assertSurfaceParity(live, degraded, "Skin seam (NS members)")
+end)
+
+test("parity: each host-copy skin token is the live library's Ka0s Default value", function()
+  -- The degraded facade answers Ka0s Default from NS.SKIN_FALLBACK, a copy of the library's own
+  -- values limited to the tokens this addon reads; the owner tokens answer their own default. A
+  -- copy is the thing that drifts, so each is held to LibKa0s-Skin-1.0's live answer here.
+  -- red under: a token added to the copy with a value of its own, or the library moving a value.
+  local live = T.mocks.LibStub("LibKa0s-Skin-1.0"):ResolveSkin("ka0s")
+  local S2 = skinNS().Skin
+  local n = 0
+  local function same(label, c, want)
+    for i = 1, 4 do
+      local a, b = c[i] or 1, want[i] or 1
+      assertTrue(math.abs(a - b) < 1e-6, ("%s[%d]: host copy %s, library %s"):format(label, i, a, b))
+    end
+  end
+  for name, c in pairs(skinNS().SKIN_FALLBACK) do
+    n = n + 1
+    assertTrue(type(live[name]) == "table", name .. " is not a Ka0s Default color token in the library")
+    same(name, c, live[name])
+    same(name .. " (degraded Token)", S2.Token(name), live[name])
+  end
+  for name, def in pairs(skinNS().SKIN_TOKENS) do
+    n = n + 1
+    same(name .. " (degraded Token)", S2.Token(name), def.default)
+  end
+  assertTrue(n > 0, "the host copy is empty, so this case asserts nothing")
+end)

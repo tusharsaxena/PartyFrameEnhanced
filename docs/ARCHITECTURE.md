@@ -21,8 +21,9 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
 for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
 and **LibKa0s** vendored whole at the tag `CLAUDE.md`'s provenance line names, except `media/icons/`, which is pruned to the `LibKa0s icons:` line under it (library-stack-§7), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
-launcher. The addon consumes twelve LibKa0s majors through one setup file each — Media
-(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Compat
+launcher. The addon consumes thirteen LibKa0s majors through one setup file each — Media
+(`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Skin
+(`core/SkinSetup.lua`, [§ Skins](#skins)), Compat
 (`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
 (`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
 Launcher (`core/LauncherSetup.lua`), Schema (`settings/Schema.lua`), Slash (`settings/Slash.lua`)
@@ -54,9 +55,11 @@ addon adopted from it is recorded per tag under [revendor/](revendor/).
 
 ## Module Map
 
-Forty files load, in the fixed folder order `libs → locales → core → defaults → modules →
+Forty-one files load, in the fixed folder order `libs → locales → core → defaults → modules →
 settings`. The load-bearing positions are Namespace (publishes `NS.PREFIX`), MediaSetup before
-Constants (`FONT_MONO`), CoreSetup before anything that prints, LifecycleSetup before PerfSetup (which requires the latch),
+Constants (`FONT_MONO`), CoreSetup before anything that prints, SkinSetup after CoreSetup and before
+PerfSetup, DebugLogSetup, every module and General (it registers the skin owner at file load and
+publishes `NS.Skin` and the skin rows' values), LifecycleSetup before PerfSetup (which requires the latch),
 PerfSetup before every module that captures `NS.Perf`, DebugLogSetup after its three inputs, Providers first among the modules, RangeFade before the features that parent to it, Element
 and UnitButtons before the features that capture them, SecureFollow after Providers and the target
 and pet features, StandIn before Preview and Preview after every feature, Schema before
@@ -87,6 +90,10 @@ other row-less path is refused. On a full load the composed row takes the write 
 (`HostSchemaStub`, copied from the library's reference stub) is write-completing and log-silent;
 `tests/test_surface_parity.lua` pins it against the live instance and the library.
 
+- **The skin rows:** `skin.source`, `skin.skin`, `skin.ignorePanel`, `skin.ignoreFonts`,
+  `skin.font`, `skin.texture` and `skin.pickerSeen`, General's Skin tab (key `Appearance`). They
+  are schema rows like any other, written only through `NS.SetByPath`, but `skipRender`: the
+  library's tab draws them ([§ Skins](#skins)).
 - **Structural registries:** none. The player creates and deletes nothing.
 - **Named non-setting state:** `castbar.position`, `target.position` and `pet.position` — each
   feature's free-placement anchor, written only by a drag. Owner: `modules/Anchor.lua`; writers: its
@@ -131,7 +138,7 @@ Limitations).
 | Message | Sender | Payload | Consumers |
 |---|---|---|---|
 | `Ka0s_PartyFrameEnhanced_LayoutChanged` | `modules/Providers.lua` | none | Anchor (re-places every feature), CastBars, TargetFrames, PetFrames (re-decide visibility), RangeFade (re-hooks and re-seeds each unit's fade), SecureFollow (wraps the active re-sorting provider's new frames, re-syncs its header) |
-| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing); SecureFollow (every section: re-syncs its header's attributes, writing only what changed) |
+| `Ka0s_PartyFrameEnhanced_ConfigChanged` | `settings/Schema.lua` (the write seam) | section: `master` / `general` / `castbar` / `target` / `pet` / `skin` (the Skin tab's rows; only SecureFollow's every-section re-sync hears it, and it changes nothing there: a skin change repaints through `NS.Skin.OnLooksChanged`, not the bus) | CastBars, TargetFrames, PetFrames (their own section, `master`, `general`); Anchor (a feature's section, `master`, `general`); Providers, RangeFade (`general`, `master`); Preview (`general`: re-dresses the stand-in while previewing); SecureFollow (every section: re-syncs its header's attributes, writing only what changed) |
 | `Ka0s_PartyFrameEnhanced_VisibilityChanged` | `core/PartyFrameEnhanced.lua` (`NS.PublishVisibility`) | none | CastBars, TargetFrames, PetFrames, RangeFade, SecureFollow |
 | `Ka0s_PartyFrameEnhanced_ProfileChanged` | `core/PartyFrameEnhanced.lua` | none | CastBars, TargetFrames, PetFrames, Providers, Anchor, RangeFade, Preview (applies the new profile's lock state; in combat it relocks a profile stored unlocked instead, with the combat re-lock line), SecureFollow |
 
@@ -182,7 +189,8 @@ library's, the same on every addon (launcher-§2), rather than a preference.
 
 | Event | Where | Why |
 |---|---|---|
-| `PLAYER_ENTERING_WORLD` | `core/PartyFrameEnhanced.lua` | republish VISIBILITY |
+| `PLAYER_ENTERING_WORLD` | `core/PartyFrameEnhanced.lua` | republish VISIBILITY; on the login or reload entry only, light the first-run skin picker's two-second fuse (`NS.ScheduleSkinPicker`) |
+| `PLAYER_REGEN_ENABLED` (a one-shot bus target, armed only while a picker start is held in combat) | `core/SkinSetup.lua` | show the first-run skin picker once combat ends; released the moment it fires, and by the stand-down |
 | `PLAYER_REGEN_DISABLED` / `_ENABLED` | `core/PartyFrameEnhanced.lua` | the combat flag; ENABLED flushes the secure-write queue |
 | `ADDON_ACTION_BLOCKED` / `_FORBIDDEN` | `core/PartyFrameEnhanced.lua` | log a blocked action blamed on this addon, ungated |
 | `GROUP_ROSTER_UPDATE` | `core/PartyFrameEnhanced.lua` | the party-only flip (`NS.Units.InParty`): republish VISIBILITY |
@@ -241,7 +249,9 @@ mid-capture and silently ruin the run. There is no `:StandUp()` member to call.
 
 `NS.StandDown` (`core/PartyFrameEnhanced.lua`), in this order, and the order is load-bearing:
 
-1. the lifecycle events come off the addon object;
+1. the lifecycle events come off the addon object, and the first-run skin picker comes down
+   (`NS.HideSkinPicker`: a shown picker closed without marking it seen, a held start and a lit login
+   fuse dropped), so it comes back on the next login the addon stands up for;
 2. every module's `Suspend` runs — every `RegisterUnitEvent` on every element frame actually
    **unregistered**, every timer and `OnUpdate` canceled, and the ten target and pet buttons' secure
    visibility state drivers **unregistered** (`UnitButtons.Release`), not replaced with `"hide"`:
@@ -275,7 +285,9 @@ The chat command registration, the dispatcher and the `COMMANDS` table; the sett
 registration and the panel body; the AceDB handle, the single write seam and AceDB's
 `OnProfileChanged` / `OnProfileCopied` / `OnProfileReset` callbacks (a profile switch can flip
 `enabled` with nothing else touched, so `adoptProfile` re-evaluates the latch before it publishes
-anything); and the launcher's registration. None of these is a feature, and keeping them live costs
+anything); the launcher's registration; and the skin owner's registration with `LibKa0s-Skin-1.0`
+(its recorded frames and `OnLooksChanged` listeners, so a skin picked while the addon is off is worn
+when it stands up). None of these is a feature, and keeping them live costs
 nothing the stand-down was trying to reclaim.
 
 ### Standing back up
@@ -369,8 +381,102 @@ relative to a base frame. The tiers, bottom up:
 - **Stand-in** (`modules/StandIn.lua`, preview out of a party): the imitated frame system's strata,
   LOW when it cannot be read.
 - **Library and Blizzard tiers**: the LibKa0s debug console and perf panel (DIALOG, toplevel), its copy
-  window (FULLSCREEN) and menus (FULLSCREEN_DIALOG), Blizzard's Settings panel (HIGH) and StaticPopups
-  (DIALOG), tooltips (TOOLTIP).
+  window (FULLSCREEN) and menus (FULLSCREEN_DIALOG), the first-run skin picker (the library's, DIALOG),
+  Blizzard's Settings panel (HIGH) and StaticPopups (DIALOG), tooltips (TOOLTIP).
+
+## Skins
+
+The 2026-10-29 skinning rollout (Ka0sAddonsCommonTasks `docs/2026-10-29-SKINNING_ROLLOUT/`, items
+PF-01 to PF-05) adopted `LibKa0s-Skin-1.0` (skinning-§1 to §6). The shape is LootHistory's, the
+collection's first adopter; only the paths, the brand and the preview are this addon's.
+
+- **The seam.** `core/SkinSetup.lua` registers the owner `"PartyFrameEnhanced"` (the folder name) at
+  file load, labeled *Ka0s Party Frame Enhanced*, with its read and write seams (`NS.SkinChoice`,
+  `NS.WriteSkinChoice`, both through the one write seam `NS.SetByPath`), the debug console as the
+  EllesmereUI provider's log, and this addon's one **owner token**, `pf.mover` (the free-placement
+  plate's wash: Ka0s Default's exact `0, 0.6, 1, 0.25`, every other skin its `list.sel`, except High Contrast, whose `list.sel` is opaque black, so
+  its plate is its yellow focus color at 0.25; gap PF-G1).
+  It publishes `NS.Skin`, the owner's facade, which every surface this addon draws reads, and
+  `NS.ApplySkinChoice`, `NS.ApplySkinIgnore`, `NS.ApplySkinOverride`, `NS.SkinPaintAceTree` and the
+  picker's three functions ([module-map.md](module-map.md)). Without the library a degraded facade
+  answers every vocabulary name, `Token` and `Color` from `NS.SKIN_FALLBACK` and the owner token's
+  default, and `Resolve` answers the player's own pick, so the addon draws what it drew before skins.
+  `tests/test_surface_parity.lua` holds the degraded facade and the fallback copy to the live library.
+- **The choice is per profile.** Seven rows under `skin.` ([schema.md](schema.md)): the source and the
+  skin, the Scope's two exceptions (*Ignore settings panel*, on in a new profile, and *Ignore fonts*),
+  the Font and texture overrides (`""` for the skin's own) and `pickerSeen`. All but `pickerSeen` are
+  drawn by the library's Skin tab (`O.AppearanceTab`, key `Appearance`), General's last tab, since the
+  page has no Keybindings tab ([settings-panel.md](settings-panel.md#skin)). Each row's `onChange`
+  applies only its own half, so a tab pick or another addon's *Copy to every Ka0s addon* is one
+  effective `Skin:SetChoice` and one repaint, while a bare `/pfe set skin.skin obsidian` still
+  repaints.
+- **Repaint flow.** `NS.ApplySkinChoice` runs at the end of `NS:InitDB` and first in every profile
+  adopt (switch, copy, reset), before the latch and the PROFILE message, applying the stored pair
+  with the stored exceptions and overrides. `Skin:SetChoice` repaints every frame recorded for the
+  owner and then fires `NS.Skin.OnLooksChanged`, on which the free-placement holders, the cast bars,
+  the target frames and the pet frames each restyle (the target and pet frames' secure restyle
+  through `NS.RunSecure`, deferred to combat's end under lockdown).
+- **The HUD follows the skin's bar texture, border style and font** (skinning-§6; DECISIONS X4).
+  Each of `castbar`, `target` and `pet` has `barTextureFromSkin`, `borderStyleFromSkin` and
+  `fontFromSkin`, the composers' *Use the skin's …* companions, default true (X3). `modules/Element.lua`
+  resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
+  companion)` at restyle time only, never on the hot path, and falls back to the player's pick where a
+  skin leaves the token alone. Colors, sizes, the outline, the shadow, the spark, the shield, the raid
+  marker and the cast-state, reaction and class colors stay the player's or the client's under every
+  skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
+  `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
+  whatever its font companion says: `S.Resolve` does not consult the exception, so `Element.MediaKeys`
+  asks `NS.SkinIgnoresFonts` (`Skin:GetIgnore`) and composes it on this side. Under Ka0s Default
+  the skin's border is *None*, so *Show border* draws nothing until the player unticks *Use the skin's
+  border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so).
+- **Cast icon edge (DECISIONS PartyFrameEnhanced D4) not adopted.** The cast icon is a Texture, and
+  `S.IconBorder` takes a frame, so a skin's icon edge would need a new holder frame around `el.icon` in
+  `modules/Element.lua`, with its own layout on both icon sides. Ka0s Default draws no icon edge, so
+  nothing is lost there; under other skins the cast icon keeps its plain trimmed square. Skipped as the
+  inventory allows (low priority). Re-check trigger: a player asks for skinned icon edges, or the
+  library's `S.IconBorder` takes a Texture.
+- **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
+  every stored HUD section, and the border companion true except where the section draws a border
+  (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
+  (DECISIONS PartyFrameEnhanced D2; [schema.md](schema.md#migrations)). **So under Ka0s Default the
+  HUD looks different after this run** (X5, D11): the bars draw the Ka0s Default bar instead of
+  Blizzard's and their text Oxanium SemiBold instead of Friz Quadrata. That is the rulings' intended
+  change, not a regression.
+- **The free-placement holders** (`modules/Anchor.lua`) are the one surface outside the HUD this addon
+  draws: the plate reads `pf.mover`, and the caption takes `S.Text`'s accent role (gold under Ka0s
+  Default, as before, in the skin's body face).
+- **The first-run skin picker** (O3; X6). `NS.MaybeShowSkinPicker` shows the library's picker
+  (`O.SkinPicker`) while the profile's `skin.pickerSeen` is false and the addon stands up: two seconds
+  after the login or reload entry, and after every profile event, because a new, copied or reset
+  profile carries its own flag; a start in combat waits for `PLAYER_REGEN_ENABLED`. Only the player's
+  close writes `pickerSeen`; `NS.HideSkinPicker` (the stand-down, and first in every profile adopt)
+  takes it down unmarked. Its gear opens General on the Skin tab. **Its eye unlocks** through the
+  write seam (`locked = false`), because unlocking is this addon's preview (options-ui-§15; DECISIONS
+  D6): the placeholders on the real party frames, or the stand-in out of a party. It leaves the
+  addon unlocked, and is refused where the unlock is (combat, a perf suspend).
+- **The library draws the rest.** The settings pages (the Options descriptor's `addonName` is the
+  owner), the debug console and its copy window, and the perf panel are the library's and carry the
+  owner already. The Profiles page's AceConfigDialog tree is painted after every Open
+  (`NS.SkinPaintAceTree`, `settings/Profiles.lua`); nothing is painted while *Ignore settings panel*
+  is on.
+- **The EllesmereUI provider** is the library's (`SkinEUI.lua`). With source `eui` and its gate
+  holding, the owner wears EllesmereUI's look (Ka0s Default with EllesmereUI's accent, panel color
+  and font over it); otherwise the Ka0s skin, and the Skin tab names the failing condition. `ka0s` to
+  `eui` is live; back needs one reload. `## OptionalDeps` already names EllesmereUI. This addon reads
+  `EllesmereUIDB` itself only for the stand-in's size, never for the skin gate (the `library-stack-§6`
+  row under *Documented deviations*).
+- **What stays unskinned, on purpose.** The stand-in party frame (`modules/StandIn.lua`) imitates the
+  frame system it stands in for, so offsets tuned against it hold. The reset confirmation is a
+  StaticPopup (Blizzard's). Chat lines (`NS.PREFIX`, the `ON` / `OFF` marks, refusals) go to the
+  chat frame, which is not a skinned surface (X7). The launcher's tooltip is GameTooltip, drawn by
+  `LibKa0s-Launcher-1.0`.
+- **The color gate.** `tests/test_skin_literals.lua` (LootHistory's anti-pattern #107 gate) fails on
+  a numeric color literal in a paint call or a `|cff` escape in `core/`, `modules/` or `settings/`
+  outside `core/SkinSetup.lua` and a reasoned allow-list (the stand-in's look and its *(test)* mark,
+  the chat lines). An entry that matches nothing fails the gate, and a planted literal proves it can
+  fail. The HUD text's `SetShadowColor(0, 0, 0, 1)` is the client's stock shadow, drawn only when the
+  player turns *Font shadow* on, and stays, as a named allow-list entry (DECISIONS D5); the gate
+  scans `SetShadowColor` and `SetStatusBarColor` too.
 
 ## Known Limitations
 
@@ -400,6 +506,9 @@ relative to a base frame. The tiers, bottom up:
   switch through the schema's `writeThrough` list but run no row `onChange`, because the composed row
   is not there to carry one (unchanged from before the Schema adoption). The stored value is what the
   next load reads. `tests/test_schema.lua` pins the writes.
+- On a load without LibKa0s there is no skin: no Skin tab, no picker, and every surface draws what it
+  drew before skins (the HUD the player's own picks, the holders their fixed plate and gold caption),
+  from `core/SkinSetup.lua`'s degraded facade. The `skin.*` rows are still stored and read.
 
 Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
 #1–#13 were filed from, and #14 was the deferred `LibKa0s-Schema-1.0` adoption, now landed. #15 is a
@@ -460,7 +569,7 @@ design spec and its checkpointed build plan).
 | Rule | What differs | Why | Decided | Re-check trigger |
 |---|---|---|---|---|
 | `slash-commands-§7` | On stand-down, `modules/SecureFollow.lua` unwraps a member frame's `OnAttributeChanged` only where its `SecureHandlerWrapScript` wrap is the outermost. Where another addon wrapped the same script after it, that wrap is restored exactly and ours stays attached while disabled, its snippet gated off (`<f>-live` false, `pfe-provider` `"none"`) — a gate, which §7 permits only for one-way hooks | `SecureHandlerUnwrapScript` pops the outermost wrap whoever owns it; there is no by-header unwrap, so removing ours from under another addon's wrap would mean tearing theirs off. The gated wrapper does no work beyond an attribute read per `unit` change on that one frame | 2026-10-01 (GI-PF-02, #3; owner default D9 in the 2026-10-01 GitHub issue pass, pending the owner's ratification) | Blizzard offers a safe by-header unwrap, or the standard extends the `hooksecurefunc` carve-out to secure wraps that cannot be unwrapped safely |
-| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60. Filed by the 2026-09-23 audit as PFE-15 (`docs/audits/2026-09-23/`); registered by commit 79cd225 (PF-22) | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
+| `library-stack-§6` | `modules/Providers.lua` `ellesmereConfiguredSize()` reads `EllesmereUIDB.profiles[active].addons.EllesmereUIRaidFrames.partyFrameWidth` / `partyFrameHeight`, read-only and nil-guarded, only to size the preview stand-in out of a party | EllesmereUI's hidden party buttons carry its raid size until it lays out a party, so measuring one copies the wrong frame; the fallback is EllesmereUI's own 125 × 60. Filed by the 2026-09-23 audit as PFE-15 (`docs/audits/2026-09-23/`); registered by commit 79cd225 (PF-22). It is not skinning-§5's skin gate, which this addon never reads or copies (the library's `SkinEUI.lua` owns it): skinning-§5 keeps a row ratified before the provider existed (2026-10-29 skinning rollout, DECISIONS PartyFrameEnhanced D9) | 2026-09-24 | EllesmereUI exposes its configured party size through a frame or API, or its hidden party buttons report party size |
 
 ### Files over the 1500-line cap
 

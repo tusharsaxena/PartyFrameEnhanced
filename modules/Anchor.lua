@@ -254,6 +254,30 @@ function Anchor.ApplyAll()
     for _, key in ipairs(order) do Anchor.Apply(key) end
 end
 
+-- ── the holder's look (skinning-§1) ───────────────────────────────────────────────────────────
+
+--- Paint a holder's plate from this addon's own token `pf.mover` (core/SkinSetup.lua; gap PF-G1):
+--- Ka0s Default's exact 0, 0.6, 1, 0.25, every other skin its own wash. Read at call time, never
+--- cached, so the OnLooksChanged repaint below draws the new skin. A skin whose wash is none
+--- clears the plate rather than leaving the last skin's color on it.
+local function paintPlate(plate)
+    local r, g, b, a = NS.Skin.Color("pf.mover")
+    if r == nil then
+        plate:SetTexture(nil)
+    else
+        plate:SetColorTexture(r, g, b, a)
+    end
+end
+
+-- A skin switch, an override change or EllesmereUI's looks moving repaints every holder's plate.
+-- The caption needs no host repaint: S.Text records it and the library replays it.
+NS.Skin.OnLooksChanged(function()
+    for _, key in ipairs(order) do
+        local holder = features[key].holder
+        if holder and holder.plate then paintPlate(holder.plate) end
+    end
+end)
+
 -- ── registration and dragging ─────────────────────────────────────────────────────────────────
 
 --- Register one feature. `spec` = { key, secure, elements = { [unit] = frame }, config = fn → the
@@ -265,14 +289,17 @@ function Anchor.Register(spec)
     local holder = CreateFrame("Frame", "PartyFrameEnhanced_" .. spec.key .. "_Holder", UIParent)
     holder:SetSize(1, 1)
     -- What a player grabs while unlocked: a translucent plate and the feature's name, shown only
-    -- for a free-placement feature in unlocked mode (Anchor.SetUnlocked).
+    -- for a free-placement feature in unlocked mode (Anchor.SetUnlocked). Both through the skin:
+    -- the plate is `pf.mover` (paintPlate), the caption the `accent` text role in the skin's body
+    -- face at GameFontNormalSmall's size, scaled (gold under Ka0s Default, as the template drew it).
     holder.plate = holder:CreateTexture(nil, "BACKGROUND")
     holder.plate:SetAllPoints(holder)
-    holder.plate:SetColorTexture(0, 0.6, 1, 0.25)
+    paintPlate(holder.plate)
     holder.plate:Hide()
     holder.label = holder:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     holder.label:SetPoint("BOTTOM", holder, "TOP", 0, 2)
     holder.label:SetText(spec.label or spec.key)
+    NS.Skin.Text(holder.label, "accent")
     holder.label:Hide()
     -- THE NAME PLATE IS A HANDLE, because the plate alone is not one. A FontString takes no mouse
     -- input, so the label above the stack was only ever a caption; everything grabbable was the

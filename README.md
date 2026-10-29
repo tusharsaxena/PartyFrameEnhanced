@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-484%2F484_passing-green)
+![Tests](https://img.shields.io/badge/Tests-538%2F538_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -98,6 +98,8 @@ Enhanced is built around that, so a pull can't break it.
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | On EllesmereUI and Blizzard's raid-style party frames they should move with their party member straight away; if they fade instead, send `/pfe diagnostics` with a bug report. On Blizzard's classic party frames they come back when combat ends, because the game doesn't let addons move clickable frames in combat. |
 | Cast bars or target frames draw over other windows, or hide behind something | By default they sit on the same layer as your party frames, so a window that covers your party frames covers them too. To change that, pick another layer under **Frame strata** on the **General** page. |
+| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border style and font follow the skin unless you untick **Use the skin's texture**, **border** or **font** on a page's **Bar** and **Text** tabs and pick your own. Your colors and sizes are never changed. |
+| I ticked **Show border** and no border appears | Under the **Ka0s Default** skin the skin's border is *None*, and **Use the skin's border** is ticked by default. Untick it on the same **Bar** tab and pick a **Border style** to draw your own. |
 | The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
 | Something looks wrong and I want to report it | Follow [Reporting a bug](#reporting-a-bug) below. |
 
@@ -128,8 +130,24 @@ you file there gets seen.
 ## Credits
 
 The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), licensed under the SIL
-Open Font License 1.1. It ships inside the bundled LibKa0s payload, with its license text beside it.
+Open Font License 1.1.
 
-The close, copy and clear marks on the debug console and the perf panel come from
-[Open Iconic](https://github.com/iconic/open-iconic) by Waybury, under the MIT license. They ship inside
-the bundled LibKa0s payload with their license (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).
+Ka0s Default, the skin every profile starts on, draws [Oxanium](https://github.com/sevmeyer/oxanium)
+by The Oxanium Project Authors, also SIL Open Font License 1.1.
+
+The other skins draw on seven more SIL Open Font License 1.1 faces, one family per skin:
+[Inter](https://github.com/rsms/inter) by The Inter Project Authors,
+[Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
+[Vollkorn](https://github.com/FAlthausen/Vollkorn-Typeface) by The Vollkorn Project Authors,
+[Bitter](https://github.com/solmatas/BitterPro) by The Bitter Project Authors,
+[Philosopher](https://github.com/alexeiva/philosopher) by The Philosopher Project Authors,
+[Fira Sans](https://github.com/mozilla/Fira) by The Mozilla Foundation and Telefonica S.A., and
+[Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) by the Braille Institute of
+America. Inter, Nunito, Vollkorn, Bitter and Oxanium are static weights cut from upstream's
+variable fonts.
+
+The close, copy and clear marks on the debug console and the perf panel, and the skin picker's
+settings and preview marks, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
+under the MIT license. Only the icons the addon draws are shipped. The fonts and the icons are
+bundled inside the LibKa0s payload, with their license text beside them
+(`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

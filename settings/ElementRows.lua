@@ -3,6 +3,9 @@ local _, NS = ...
 -- settings/ElementRows.lua — the row sets the three feature pages share: the Size and position tab, and
 -- thin wrappers over the library's bar, border and font composers so every page declares them the same
 -- way. The Bar tab holds Fill, the page's palette (Cast Bars and Target Frames), Background, then Border.
+-- The three composers take `fromSkin = true` (skinning-§6): each adds its "Use the skin's texture /
+-- border / font" companion after its rows, defaulting to the profile's true (X3), and disables the
+-- picker it governs while it is on. modules/Element.lua draws through S.Resolve.
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
 
 local L = NS.L
@@ -90,9 +93,10 @@ end
 function ElementRows.Border(page, prefix, D)
     return H.BorderGroup({
         prefix = prefix, page = page, group = L["Bar"], subgroup = L["Border"], order = 120, show = true,
-        classColor = UNIT_CLASS,
+        classColor = UNIT_CLASS, fromSkin = true,
         defaults = {
-            borderShow = D.borderShow, borderStyle = D.borderStyle, borderSize = D.borderSize,
+            borderShow = D.borderShow, borderStyle = D.borderStyle, borderStyleFromSkin = D.borderStyleFromSkin,
+            borderSize = D.borderSize,
             borderColor = D.borderColor, useClassColorBorder = D.useClassColorBorder,
         },
     })
@@ -103,9 +107,9 @@ end
 function ElementRows.Font(page, prefix, D)
     return H.FontGroup({
         prefix = prefix, page = page, group = L["Text"], subgroup = L["Font"], order = 30,
-        classColor = UNIT_CLASS,
+        classColor = UNIT_CLASS, fromSkin = true,
         defaults = {
-            font = D.font, fontSize = D.fontSize, fontColor = D.fontColor,
+            font = D.font, fontFromSkin = D.fontFromSkin, fontSize = D.fontSize, fontColor = D.fontColor,
             useClassColorFont = D.useClassColorFont, fontFlags = D.fontFlags,
             fontShadow = D.fontShadow,
         },
@@ -114,12 +118,14 @@ end
 
 --- The canonical bar block (options-ui-§16) under a Fill subgroup of the Bar tab. `extra` (optional)
 --- is the page's own fill rows, appended after the block by the composer (Cast Bars' Show spark).
+--- From order 0: with its Use the skin's texture companion the block is five rows (0-40), so Show
+--- spark (50) still closes it before the page's own rows from 50/60.
 function ElementRows.Bar(page, prefix, D, labels, extra)
     return H.BarGroup({
-        prefix = prefix, page = page, group = L["Bar"], subgroup = L["Fill"], order = 10,
-        classColor = UNIT_CLASS, labels = labels, extra = extra,
+        prefix = prefix, page = page, group = L["Bar"], subgroup = L["Fill"], order = 0,
+        classColor = UNIT_CLASS, labels = labels, extra = extra, fromSkin = true,
         defaults = {
-            barTexture = D.barTexture, barAlpha = D.barAlpha, barColor = D.barColor,
+            barTexture = D.barTexture, barTextureFromSkin = D.barTextureFromSkin, barAlpha = D.barAlpha, barColor = D.barColor,
             useClassColorBar = D.useClassColorBar,
         },
     })

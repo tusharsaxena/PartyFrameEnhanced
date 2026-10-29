@@ -190,6 +190,9 @@ end
 --- bus itself come down. Reversed, the publish would reach nobody and the frames would stay up.
 function NS.StandDown()
     for event in pairs(LIFECYCLE_EVENTS) do addon:UnregisterEvent(event) end
+    -- The first-run skin picker is a frame this addon shows: down unmarked, so it comes back on the
+    -- next login the addon stands up for (core/SkinSetup.lua).
+    if NS.HideSkinPicker then NS.HideSkinPicker() end
     each("Suspend")
     NS.PublishVisibility()
     NS.BusStandDown()
@@ -245,10 +248,13 @@ function addon:OnEnable()
     NS.ApplyEnabled(NS.GetSetting("enabled"))
 end
 
-function addon:OnEnterWorld()
+function addon:OnEnterWorld(_, isInitialLogin, isReloadingUi)
     NS.State.inParty = NS.Units.InParty()
     NS.Debug("State", "entered world: %s", NS.State.inParty and "in a party" or "not in a party")
     NS.PublishVisibility()
+    -- The first-run skin picker (core/SkinSetup.lua), once per session: the login or reload entry,
+    -- never a zone change. The stored skin was applied in NS:InitDB; in combat it holds.
+    if (isInitialLogin or isReloadingUi) and NS.ScheduleSkinPicker then NS.ScheduleSkinPicker() end
 end
 
 -- The party-only rule (NS.Units.InParty) can flip on a roster change: republish, so every element
@@ -312,6 +318,14 @@ end
 
 local function adoptProfile(tag, fmt, ...)
     NS.Debug(tag, fmt, ...)
+    -- FIRST of all, the first-run skin picker down, quietly (core/SkinSetup.lua): a showing belongs
+    -- to the profile it opened on, and taking it down puts back a pending preview, so that lands
+    -- before the new profile's skin below.
+    if NS.HideSkinPicker then NS.HideSkinPicker() end
+    -- The new profile's skin FIRST (skinning-§2): Skin:SetChoice repaints every frame recorded for
+    -- this owner and fires OnLooksChanged, so every handler of the messages below already reads the
+    -- new profile's skin. Idempotent: a profile on the same skin repaints nothing.
+    if NS.ApplySkinChoice then NS.ApplySkinChoice() end
     -- A profile switch can flip `enabled` with no verb and no checkbox touched, so the latch is
     -- re-evaluated BEFORE anything is published: a profile that enables the addon has to be back up
     -- to hear the messages below, and one that disables it has nothing that should hear them.
@@ -319,6 +333,10 @@ local function adoptProfile(tag, fmt, ...)
     publishProfile()
     NS.PublishVisibility()
     if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
+    -- The first-run skin picker again: a new or reset profile starts from `skin.pickerSeen` false,
+    -- so it shows over the new profile's skin; one that has seen it stays down. After the latch, so
+    -- a profile with the addon switched off shows nothing.
+    if NS.MaybeShowSkinPicker then NS.MaybeShowSkinPicker() end
 end
 
 function NS.OnProfileChanged()

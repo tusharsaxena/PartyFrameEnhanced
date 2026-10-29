@@ -74,7 +74,21 @@ local function enable(on) NS.SetByPath("enabled", on) settle() end
 -- baseline would pass every assertion below trivially.
 local R_on, F_on = {}, {}
 
+--- LET THE SKIN LIBRARY'S LOGIN RETRY SETTLE (LootHistory's tests/test_disabled.lua bringUp). Since
+--- LibKa0s v1.78.0 the first RegisterOwner (core/SkinSetup.lua) makes LibKa0s-Skin-1.0's EllesmereUI
+--- retry frame, registered for ADDON_LOADED and PLAYER_LOGIN; in the client PLAYER_LOGIN fires once,
+--- long before a player can switch the addon off, and the frame unregisters both. The headless run
+--- never fires it, so the frame would stand in the baseline as two game events that are the
+--- library's, not this addon's, and not a survivor of the stand-down. Delivering the one login event
+--- the client delivers puts the frame where every real session has it.
+local function settleSkinRetry()
+  local skinLib = mocks.LibStub("LibKa0s-Skin-1.0", true)
+  local retry = skinLib and skinLib.__euiEventFrame
+  if retry then retry:__fire("OnEvent", "PLAYER_LOGIN") end
+end
+
 test("disabled: the baseline — enabled, the addon registers and draws", function()
+  settleSkinRetry()
   enable(true)
   NS.SetByPath("locked", false)
   settle()

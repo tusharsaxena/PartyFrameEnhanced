@@ -29,6 +29,8 @@ read_globals = {
   "SetPortraitTexture", "UnitPowerType", "PowerBarColor",
   -- The client's own localized words for a stopped cast, displayed only.
   "INTERRUPTED", "FAILED",
+  -- The client's default face, the degraded skin facade's GetFont answer (core/SkinSetup.lua).
+  "STANDARD_TEXT_FONT",
   -- Secure frames (target and pet frames).
   "RegisterStateDriver", "UnregisterStateDriver",
   -- The in-combat follow's wrap on the re-sorting providers' member frames (modules/SecureFollow.lua).

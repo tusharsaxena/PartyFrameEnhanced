@@ -222,6 +222,13 @@ ev:RegisterMessage(NS.MSG.VISIBILITY, whenReady(function()
 end))
 ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 
+-- A skin switch, a font or texture override, or EllesmereUI's looks moving restyles every pet frame
+-- (skinning-§6): the media keys a companion follows resolve anew. Through reskinAll, so the restyle
+-- of these secure buttons stays one RunSecure write, deferred to combat's end under lockdown
+-- (Risks R1). Not a bus message: the library owns the notification, and a hidden, stood-down
+-- element restyled here is drawn right when it comes back.
+NS.Skin.OnLooksChanged(function() if cfg then reskinAll() end end)
+
 -- Markers change for every unit at once; one repaint pass over the allowed buttons. Held by
 -- syncModuleEvents above, only while the feature is on and in a party.
 onRaidTarget = whenReady(function()

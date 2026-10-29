@@ -15,6 +15,17 @@ NS.defaults.profile = {
     alpha      = 1.0,
     locked     = true,
 
+    -- The skin this addon wears (skinning-§2: per addon, per profile), drawn by the library's Skin
+    -- tab on the General page (core/SkinSetup.lua). Ka0s Default, the look before skins. The Scope:
+    -- the settings panel left the client's, the fonts skinned (the owner's call for LootHistory,
+    -- 2026-10-27). The Font and texture overrides: an LSM key each, "" for the skin's own.
+    -- `pickerSeen`: the first-run skin picker was closed on this profile, so every profile, old or
+    -- new, shows it once (ruling O3 of the 2026-10-29 rollout).
+    skin = {
+        source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
+        font = "", texture = "", pickerSeen = false,
+    },
+
     general = {
         provider      = "auto",   -- "auto" | "blizzard" | "ellesmere"
         includePlayer = true,
@@ -46,8 +57,12 @@ NS.defaults.profile = {
         width = 140, height = 16, growth = "DOWN", spacing = 4,
         position = nil,
 
+        -- The three `*FromSkin` companions (barTexture, borderStyle, font) are the composer's "Use the
+        -- skin's ..." rows (skinning-§6): true, so a new or reset profile draws the skin's bar
+        -- texture, border style and HUD face, as an adopted one does after the v2 reset (X3 of the
+        -- 2026-10-29 rollout). The picks beside them stay stored, and come back when one is turned off.
         -- Bar: the canonical block (the fill is the plain-cast color), then the cast-state palette.
-        barTexture = "Blizzard", barAlpha = 1.0,
+        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
         barColor = { r = 1.0, g = 0.7, b = 0.0, a = 1.0 }, useClassColorBar = false,
         channelColor         = { r = 0.3, g = 0.7, b = 1.0, a = 1.0 },
         empowerColor         = { r = 0.8, g = 0.5, b = 1.0, a = 1.0 },
@@ -56,11 +71,11 @@ NS.defaults.profile = {
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
 
         -- Border: off by default — a 16 px bar reads cleaner on its background alone.
-        borderShow = false, borderStyle = "Blizzard Tooltip", borderSize = 8,
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
 
         -- Text
-        font = "Friz Quadrata TT", fontSize = 11,
+        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 11,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
         fontFlags = "OUTLINE", fontShadow = false,
         showName = true, showTime = true,
@@ -81,7 +96,7 @@ NS.defaults.profile = {
         width = 110, height = 20, growth = "DOWN", spacing = 4,
         position = nil,
 
-        barTexture = "Blizzard", barAlpha = 1.0,
+        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
         barColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 }, useClassColorBar = false,
         -- NPCs by their reaction to you; a secret reaction reads as hostile.
         colorReaction = true,
@@ -90,10 +105,10 @@ NS.defaults.profile = {
         friendlyColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 },
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
 
-        borderShow = false, borderStyle = "Blizzard Tooltip", borderSize = 8,
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
 
-        font = "Friz Quadrata TT", fontSize = 10,
+        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 10,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
         fontFlags = "OUTLINE", fontShadow = false,
         showName = true, showPercent = true,
@@ -114,14 +129,14 @@ NS.defaults.profile = {
         width = 80, height = 14, growth = "DOWN", spacing = 4,
         position = nil,
 
-        barTexture = "Blizzard", barAlpha = 1.0,
+        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
         barColor = { r = 0.35, g = 0.70, b = 0.35, a = 1.0 }, useClassColorBar = false,
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
 
-        borderShow = false, borderStyle = "Blizzard Tooltip", borderSize = 8,
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
 
-        font = "Friz Quadrata TT", fontSize = 9,
+        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 9,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
         fontFlags = "OUTLINE", fontShadow = false,
         showName = true, showPercent = false,

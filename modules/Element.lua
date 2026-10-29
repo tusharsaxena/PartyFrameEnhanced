@@ -90,13 +90,42 @@ local function applyIcon(el, h, look)
     return h, 0
 end
 
+-- ── the HUD style the skin governs (skinning-§6) ─────────────────────────────────────────────────
+--
+-- Three media picks follow the skin while their composer companion (`<key>FromSkin`, default true:
+-- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border style
+-- (`bar.borderStyle`) and the text face (`hud.font`). Only those three: the HUD COLORS, sizes, flags
+-- and shadow stay the player's (X4). Each resolves through the facade at RESKIN time, never on the
+-- hot path (the cast OnUpdate, the target ticker, applyFill), and the resolved LSM key, not the
+-- stored pick, enters the structure signature, so a skin switch moves the memo. A skin that leaves a
+-- token alone falls back to the player's own pick. Never S.BarTexture: that records the bar and
+-- would repaint it over the player's own pick once the companion is turned off (Risks R4).
+local function resolved(token, pick, fromSkin)
+    if fromSkin ~= true then return pick end
+    local v = NS.Skin.Resolve(token, pick, true)
+    if type(v) ~= "string" or v == "" then return pick end
+    return v
+end
+
+--- The three media keys `cfg` draws with now: bar texture, border style, font face. The Scope's
+--- *Ignore fonts* keeps the player's own face whatever the font companion says (the library's
+--- P.font does the same for its strings; S.Resolve does not ask). The exception fires
+--- OnLooksChanged, and the face it answers is in the signature, so a toggle restyles.
+function Element.MediaKeys(cfg)
+    local fontFromSkin = cfg.fontFromSkin
+    if NS.SkinIgnoresFonts and NS.SkinIgnoresFonts() then fontFromSkin = false end
+    return resolved("bar.texture", cfg.barTexture, cfg.barTextureFromSkin),
+        resolved("bar.borderStyle", cfg.borderStyle, cfg.borderStyleFromSkin),
+        resolved("hud.font", cfg.font, fontFromSkin)
+end
+
 -- The status bar between the insets, and the background behind it in the same texture.
-local function applyBar(el, cfg, left, right)
+local function applyBar(el, textureKey, left, right)
     local bar = el.bar
     bar:ClearAllPoints()
     bar:SetPoint("TOPLEFT", el, "TOPLEFT", left, 0)
     bar:SetPoint("BOTTOMRIGHT", el, "BOTTOMRIGHT", -right, 0)
-    local texture = NS.FetchMedia("statusbar", cfg.barTexture, C.FALLBACK_TEXTURE)
+    local texture = NS.FetchMedia("statusbar", textureKey, C.FALLBACK_TEXTURE)
     bar:SetStatusBarTexture(texture)
     el.bg:ClearAllPoints()
     el.bg:SetAllPoints(bar)
@@ -129,7 +158,7 @@ end
 
 -- The border frame is never hidden: the overlay frame is its child (Element.Build). Off, its edge is
 -- cleared and it lies over the element's own rect.
-local function applyBorder(el, cfg)
+local function applyBorder(el, cfg, styleKey)
     local b = el.border
     if not cfg.borderShow then
         b:ClearBackdrop()
@@ -142,10 +171,12 @@ local function applyBorder(el, cfg)
     b:ClearAllPoints()
     b:SetPoint("TOPLEFT", el, "TOPLEFT", -out, out)
     b:SetPoint("BOTTOMRIGHT", el, "BOTTOMRIGHT", out, -out)
-    b:SetBackdrop({ edgeFile = NS.FetchMedia("border", cfg.borderStyle, C.FALLBACK_BORDER),
+    b:SetBackdrop({ edgeFile = NS.FetchMedia("border", styleKey, C.FALLBACK_BORDER),
                     edgeSize = size })
 end
 
+-- The shadow, when the player turns it on, is the client's stock text shadow (1, -1, black: the
+-- same the library's own P.font draws), not chrome the skin owns (D5).
 local function applyFont(fs, font, size, flags, shadow)
     fs:SetFont(font, size, flags)
     if shadow then
@@ -157,8 +188,8 @@ local function applyFont(fs, font, size, flags, shadow)
 end
 
 -- Both text lines in the configured face: the name on the left, clipped by the right-hand one.
-local function applyFonts(el, cfg, scale)
-    local font = NS.FetchMedia("font", cfg.font, C.FALLBACK_FONT)
+local function applyFonts(el, cfg, fontKey, scale)
+    local font = NS.FetchMedia("font", fontKey, C.FALLBACK_FONT)
     local size = (cfg.fontSize or 11) * scale
     local flags = FONT_FLAGS[cfg.fontFlags] or cfg.fontFlags or ""
     applyFont(el.text, font, size, flags, cfg.fontShadow)
@@ -175,12 +206,14 @@ end
 -- and a fresh backdrop table per commit on the cast bars alone (tests/perf.lua's settingsDrag; the
 -- same finding KickCD recorded as F-015). IF YOU ADD A CONFIG READ TO THE STRUCTURAL HALF, ADD THE
 -- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
-local function structureSignature(cfg, look, scale)
+-- The three media keys are the RESOLVED ones (Element.MediaKeys): a companion toggle, a skin switch
+-- or a font or texture override moves them, and the memo with them.
+local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey)
     return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
-        tostring(cfg.barTexture), tostring(cfg.borderShow), tostring(cfg.borderStyle),
-        tostring(cfg.borderSize), tostring(cfg.font), tostring(cfg.fontSize),
+        tostring(textureKey), tostring(cfg.borderShow), tostring(styleKey),
+        tostring(cfg.borderSize), tostring(fontKey), tostring(cfg.fontSize),
         tostring(cfg.fontFlags), tostring(cfg.fontShadow), tostring(cfg.markerPoint),
         tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY))
 end
@@ -198,17 +231,18 @@ end
 function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
     look = look or {}
-    local sig = structureSignature(cfg, look, scale)
+    local textureKey, styleKey, fontKey = Element.MediaKeys(cfg)
+    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey)
     if force or el.__structure ~= sig then
         el.__structure = sig
         local h = (cfg.height or 16) * scale
         el:SetHeight(h)
         -- Attached and matching the party frame's width, the two edge anchors set the width.
         if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
-        applyBar(el, cfg, applyIcon(el, h, look))
+        applyBar(el, textureKey, applyIcon(el, h, look))
         applyMarks(el, h, cfg, scale)
-        applyBorder(el, cfg)
-        applyFonts(el, cfg, scale)
+        applyBorder(el, cfg, styleKey)
+        applyFonts(el, cfg, fontKey, scale)
         applyMasterAlpha(el)
         return true
     end

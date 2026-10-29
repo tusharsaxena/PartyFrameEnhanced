@@ -59,6 +59,19 @@ test("loadorder: CoreSetup loads after Namespace and before PerfSetup and DebugL
   assertBefore("core/constants.lua", "core/debuglogsetup.lua", "the console reads FONT_MONO")
 end)
 
+test("loadorder: SkinSetup loads after CoreSetup and before every surface that draws, and the TOC says why", function()
+  -- red under: SkinSetup at PLAYER_LOGIN or below a module (NS.Skin nil at that module's file scope,
+  -- and the EllesmereUI provider offered the owner after EllesmereUI dispatched its skins), or above
+  -- CoreSetup (no NS.Print for the reload line), or below General (NS.SKIN_VALUES read at load).
+  assertBefore("core/coresetup.lua", "core/skinsetup.lua", "the reload line prints through NS.Print")
+  assertBefore("core/skinsetup.lua", "core/perfsetup.lua", "the perf panel paints for the owner")
+  assertBefore("core/skinsetup.lua", "core/debuglogsetup.lua", "the console paints for the owner")
+  assertBefore("core/skinsetup.lua", "modules/element.lua", "every HUD element reads NS.Skin")
+  assertBefore("core/skinsetup.lua", "settings/general.lua", "General reads NS.SKIN_VALUES at load")
+  assertTrue(readFile(TOC):find("Registers the owner at FILE LOAD", 1, true) ~= nil,
+    "the TOC line must say SkinSetup's position is load-bearing")
+end)
+
 test("loadorder: OptionsSetup loads before every settings page", function()
   local index = tocIndex()
   local setup = index["settings/optionssetup.lua"]

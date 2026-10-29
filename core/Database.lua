@@ -29,23 +29,54 @@ function NS:InitDB()
         NS.db = { profile = sv.profile, global = sv.global }
     end
     NS:RunMigrations()
+    -- The profile's skin, the moment the store exists (skinning-§2): core/SkinSetup.lua registered
+    -- the owner at file load on Ka0s Default, before there was a profile to read. Before any module
+    -- builds a frame (OnEnable), so the first paint is already this profile's skin.
+    if NS.ApplySkinChoice then NS.ApplySkinChoice() end
 end
-
--- The schema this build writes: the runner's target (savedvariables-§1). v1 is the shape v0.1.0
--- ships. The defaults declare `global.schemaVersion = 0` and never this value (defaults/Profile.lua
--- says why); the runner owns the stamp.
-NS.SCHEMA_VERSION = 1
 
 -- The ladder, in order: one row per schema version, shaped
 -- `{ to = N, scope = "profile"|"global", apply = function(tbl) … end }`. v1 is the shape v0.1.0
--- ships, so the ladder is empty; a future stored-value change adds its row here, and raises
--- NS.SCHEMA_VERSION, in the same change as the row it affects.
+-- ships. A stored-value change adds its row here in the same change as the row it affects, and the
+-- runner's target, NS.SCHEMA_VERSION below, moves with it.
 --
 -- A "profile" step runs over every STORED profile, and a raw stored profile has its defaults
 -- stripped (AceDB's removeDefaults at logout, or it was never activated), so every step reads with
 -- a fallback and is idempotent against a fresh default profile.
-local SCHEMA_STEPS = {}
+
+-- The HUD sections whose bar texture, border style and font follow the skin (skinning-§6).
+local HUD_SECTIONS = { "castbar", "target", "pet" }
+
+--- v1 -> v2: the one-time HUD style reset (skinning-§6, owner ruling R3; O2 of the 2026-10-29
+--- skinning rollout), so the skin shows at once for every player. Sets the three `*FromSkin`
+--- companions of each HUD section on: the bar texture and the font always, and the border style
+--- only where the section does not draw a border. Ka0s Default's border style is "None", so a player
+--- who turned Show border on would lose it; their companion is written FALSE instead, because the
+--- default (true) would otherwise apply (D2). The companions are written directly, never through
+--- Skin.ResetToSkin: on a raw stored profile the companion is absent (it is new), and ResetToSkin
+--- would then write the "@skin" sentinel into the LSM key (Risks R3). The picks themselves are left
+--- alone, so a player who turns a companion off gets their old pick back. A section the profile never
+--- stored keeps the defaults, which already follow the skin. Idempotent.
+local function hudFollowsSkin(p)
+    for _, key in ipairs(HUD_SECTIONS) do
+        local sec = p[key]
+        if type(sec) == "table" then
+            sec.barTextureFromSkin = true
+            sec.fontFromSkin = true
+            sec.borderStyleFromSkin = sec.borderShow ~= true
+        end
+    end
+end
+
+local SCHEMA_STEPS = {
+    { to = 2, scope = "profile", apply = hudFollowsSkin },
+}
 NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
+
+-- The schema this build writes: the runner's target (savedvariables-§1), the ladder's highest step.
+-- The defaults declare `global.schemaVersion = 0` and never this value (defaults/Profile.lua says
+-- why); the runner owns the stamp.
+NS.SCHEMA_VERSION = SCHEMA_STEPS[#SCHEMA_STEPS].to
 
 --- The tables one step applies to: the account-wide table for a "global" step; for a "profile"
 --- step every stored profile — AceDB's raw `profiles` (which includes the active one; the kit's

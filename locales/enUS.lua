@@ -36,6 +36,31 @@ L["Medium"] = "Medium"
 L["High"] = "High"
 L["Dialog"] = "Dialog"
 
+-- The Skin tab's rows (settings/General.lua) and the skin seam (core/SkinSetup.lua). The tab's own
+-- words are the library's (LibKa0s OptionsAppearance's APPEARANCE_STRINGS).
+L["Skin source"] = "Skin source"
+L["Where this addon's look comes from: the Ka0s skin chosen below, or EllesmereUI."] =
+    "Where this addon's look comes from: the Ka0s skin chosen below, or EllesmereUI."
+L["Skin"] = "Skin"
+L["The Ka0s skin this addon wears. Changes its bars, text and settings right away."] =
+    "The Ka0s skin this addon wears. Changes its bars, text and settings right away."
+L["Ignore settings panel"] = "Ignore settings panel"
+L["Keep this addon's settings panel in the game's own look. Its bars and text still wear the skin."] =
+    "Keep this addon's settings panel in the game's own look. Its bars and text still wear the skin."
+L["Ignore fonts"] = "Ignore fonts"
+L["Keep every font in this addon as the game draws it. The skin still colors the text."] =
+    "Keep every font in this addon as the game draws it. The skin still colors the text."
+L["Texture"] = "Texture"
+L["The font this addon's text uses, over the skin's own. Empty keeps the skin's."] =
+    "The font this addon's text uses, over the skin's own. Empty keeps the skin's."
+L["The texture this addon's bars use, over the skin's own. Empty keeps the skin's."] =
+    "The texture this addon's bars use, over the skin's own. Empty keeps the skin's."
+L["Skin picker seen"] = "Skin picker seen"
+L["Whether the first-run skin picker was closed on this profile."] =
+    "Whether the first-run skin picker was closed on this profile."
+L["Reload your interface (/reload) to finish changing the skin."] =
+    "Reload your interface (/reload) to finish changing the skin."
+
 -- Shared element rows (settings/ElementRows.lua)
 for _, key in ipairs({
     "General", "Placement", "Attached to party frames", "Free placement", "Size",

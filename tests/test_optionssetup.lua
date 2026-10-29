@@ -49,20 +49,21 @@ local COMPOSED = {
                         -- button row the compose-minor-7 `minimapPath` seam emits (launcher-§3).
                         -- NOT eight: options-ui-§15 exempts this addon from Test mode, its unlocked
                         -- view being its preview.
-  CastBarsBar    = 5,   -- settings/CastBars.lua: BarGroup (Fill), plus Show spark as its one extra
+  -- Each media group counts its `fromSkin` companion (skinning-§6; PF-03 of the 2026-10-29 rollout).
+  CastBarsBar    = 6,   -- settings/CastBars.lua: BarGroup (Fill) 5, plus Show spark as its one extra
   CastBarsBg     = 2,   --   ColorPair (Background)
-  CastBarsBorder = 5,   --   BorderGroup, with Show border
-  CastBarsFont   = 6,   --   FontGroup
-  TargetFrames   = 17,  -- settings/TargetFrames.lua: BarGroup 4, ColorPair 2, BorderGroup 5, FontGroup 6
-  PetFrames      = 17,  -- settings/PetFrames.lua: the same four blocks
+  CastBarsBorder = 6,   --   BorderGroup, with Show border
+  CastBarsFont   = 7,   --   FontGroup
+  TargetFrames   = 20,  -- settings/TargetFrames.lua: BarGroup 5, ColorPair 2, BorderGroup 6, FontGroup 7
+  PetFrames      = 20,  -- settings/PetFrames.lua: the same four blocks
 }
 
 test("optionssetup: the degraded load registers every host-declared row; the gap is the composers'", function()
   local NS2 = loadDegraded()
   local composed = 0
   for _, n in pairs(COMPOSED) do composed = composed + n end
-  assertEqual(#NS.Schema, 126, "the fully loaded schema")
-  assertEqual(#NS2.Schema, 67, "the library-absent schema")
+  assertEqual(#NS.Schema, 142, "the fully loaded schema")
+  assertEqual(#NS2.Schema, 74, "the library-absent schema")
   assertEqual(#NS.Schema - #NS2.Schema, composed, "the gap is exactly the hollow composers' rows")
 end)
 

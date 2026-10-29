@@ -7,7 +7,7 @@
 | `PartyFrameEnhancedDB` | the AceDB store: `profiles`, `profileKeys`, `global` | `core/Database.lua` |
 | `PartyFrameEnhancedPerfDB` | the perf capture ring (last 10 runs), outside the AceDB tree | `LibKa0s-Perf-1.0` via `core/PerfSetup.lua` |
 
-## Profile shape (v1)
+## Profile shape (v2)
 
 Defaults are in `defaults/Profile.lua`, the only place a default is written.
 
@@ -26,18 +26,38 @@ general.tickInterval  = 0.2      the target health ticker's pace, seconds (pets 
 ```
 
 ```text
+skin.source      = "ka0s"   "ka0s" (the Ka0s skin below) | "eui" (EllesmereUI's look)
+skin.skin        = "ka0s"   every registered skin's key: ka0s | obsidian | azeroth | glass | contrast | ember | wow | midnight | forever
+skin.ignorePanel = true     the Scope: keep the settings panel in the client's own look
+skin.ignoreFonts = false    the Scope: keep every font as the client draws it (the skin still colors the text)
+skin.font        = ""       the Font override: an LSM font key, "" for the skin's own
+skin.texture     = ""       the Texture override: an LSM statusbar key, "" for the skin's own
+skin.pickerSeen  = false    the first-run skin picker was closed on this profile (drawn by nothing)
+```
+
+**The skin this addon wears** (skinning-§2, §3), per profile. Every `skin.*` row is a General-page
+schema row in the Skin tab's group (`Appearance`) with `skipRender`, because the library's tab draws
+the first six itself; `pickerSeen` is drawn by nothing and written only by the picker's close. All
+seven are written only through `NS.SetByPath`, so `/pfe get|set skin.skin` validates against the
+registered skins, every reset reaches them (a profile reset puts the picker back to unseen, so it
+shows again), and a write publishes `CONFIG("skin")`. Each row's `onChange` applies only its own half
+(`core/SkinSetup.lua`). `skin.font` and `skin.texture` are free text, not a list, because a media
+pack may register its keys after the settings files load; a key no pack registers is stored and the
+skin's own face or texture is drawn.
+
+```text
 castbar.enabled = true                       castbar.fadeOut = true
 castbar.anchorMode = "attached"              "attached" | "free"
 castbar.point = "TOP"  castbar.relativePoint = "TOP"  castbar.offsetX = 0  castbar.offsetY = 0
 castbar.matchWidth = true  castbar.width = 140  castbar.height = 16
 castbar.growth = "DOWN"  castbar.spacing = 4  castbar.position = nil (named non-setting state)
-castbar.barTexture = "Blizzard"  castbar.barAlpha = 1.0
+castbar.barTexture = "Blizzard"  castbar.barTextureFromSkin = true  castbar.barAlpha = 1.0
 castbar.barColor = {1, 0.7, 0, 1}  castbar.useClassColorBar = false        (the plain-cast fill)
 castbar.channelColor / empowerColor / uninterruptibleColor / failedColor   (palette, no companion)
 castbar.bgColor = {0, 0, 0, 0.6}  castbar.useClassColorBg = false
-castbar.borderShow = false  borderStyle = "Blizzard Tooltip"  borderSize = 8
+castbar.borderShow = false  borderStyle = "Blizzard Tooltip"  borderStyleFromSkin = true  borderSize = 8
 castbar.borderColor = {0, 0, 0, 1}  castbar.useClassColorBorder = false
-castbar.font = "Friz Quadrata TT"  fontSize = 11  fontColor = {1, 1, 1, 1}
+castbar.font = "Friz Quadrata TT"  fontFromSkin = true  fontSize = 11  fontColor = {1, 1, 1, 1}
 castbar.useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
 castbar.showName = true  showTime = true  showIcon = true  iconSide = "LEFT"
 castbar.showShield = true  showSpark = true
@@ -47,22 +67,31 @@ castbar.showShield = true  showSpark = true
 target.enabled = true  target.clickToTarget = true
 target.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = 0
 target.matchWidth = false  width = 110  height = 20  growth = "DOWN"  spacing = 4  position = nil
-target.barTexture = "Blizzard"  barAlpha = 1.0  barColor = {0.25, 0.75, 0.25, 1}  useClassColorBar = false
+target.barTexture = "Blizzard"  barTextureFromSkin = true  barAlpha = 1.0  barColor = {0.25, 0.75, 0.25, 1}  useClassColorBar = false
 target.colorReaction = true  hostileColor / neutralColor / friendlyColor   (palette, no companion)
 target.bgColor = {0, 0, 0, 0.6}  useClassColorBg = false
-target.borderShow = false  borderStyle  borderSize = 8  borderColor  useClassColorBorder = false
-target.font  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
+target.borderShow = false  borderStyle  borderStyleFromSkin = true  borderSize = 8  borderColor  useClassColorBorder = false
+target.font  fontFromSkin = true  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
 target.showName = true  showPercent = true  showMarker = true
 target.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 
 pet.enabled = true  pet.clickToTarget = true
 pet.anchorMode = "attached"  point = "TOPLEFT"  relativePoint = "TOPRIGHT"  offsetX = 4  offsetY = -20
 pet.matchWidth = false  width = 80  height = 14  growth = "DOWN"  spacing = 4  position = nil
-pet.barTexture  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)
+pet.barTexture  barTextureFromSkin  barAlpha  barColor = {0.35, 0.70, 0.35, 1}  useClassColorBar = false   (the OWNER's class)
 pet.bgColor  useClassColorBg  pet.border…  pet.font…  (as target)
 pet.showName = true  showPercent = false  showMarker = true
 pet.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 ```
+
+**The HUD style that follows the skin** (skinning-§6). Each section's `barTextureFromSkin`,
+`borderStyleFromSkin` and `fontFromSkin` are the composers' *Use the skin's texture / border / font*
+companions (`fromSkin = true` in `settings/ElementRows.lua`), default **true**. While one is on its
+picker is dimmed and `modules/Element.lua` draws the skin's `bar.texture`, `bar.borderStyle` or
+`hud.font` through `S.Resolve`; the stored pick beside it is kept and comes back when it is turned off.
+Only those three follow the skin: every color, the sizes, the outline and the shadow stay the
+player's. A skin switch restyles every element (each feature's `OnLooksChanged` listener runs its
+reskin, the target and pet frames' through `NS.RunSecure`).
 
 The Master controls tab carries **one** `sessionOnly` row, which does not reach the profile.
 **Debug console** is `state.debugConsole`, whose value is the console window's own visibility.
@@ -83,7 +112,7 @@ now the `locked` row's validate.
 ## Global
 
 ```text
-global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (1)
+global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (2)
 global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
@@ -118,7 +147,7 @@ Because the path is not a storage path, `NS.ValidateSchema` skips its resolution
 
 **No migration.** The row's CLI path was `global.minimap.hide` until the launcher-§3 rename; the
 stored key did not move, so a player who hid the button keeps it hidden with no SavedVariables step,
-and `NS.SCHEMA_VERSION` stays at 1. The old path answers `Setting not found`; a macro running
+and `NS.SCHEMA_VERSION` stayed at 1. The old path answers `Setting not found`; a macro running
 `/pfe set global.minimap.hide true` becomes `/pfe set global.minimap.shown false`.
 
 ## The write seam
@@ -142,16 +171,16 @@ over `NS.Schema` and binds `NS.SetByPath`, `NS.GetSetting`, `NS.FindSchemaRow`, 
 
 `NS:RunMigrations` (`core/Database.lua`) walks an ordered ladder of
 `{ to = N, scope = "profile"|"global", apply = fn }` steps above `global.schemaVersion`, towards
-`NS.SCHEMA_VERSION`. **v1 is the shape v0.1.0 ships, so the ladder is empty.** A future stored-value
-change — a type change, a rename, a moved key — adds its step and raises `NS.SCHEMA_VERSION` in the
-same change as the row, and records it here.
+`NS.SCHEMA_VERSION`, which is the ladder's highest step. v1 is the shape v0.1.0 ships. A stored-value
+change — a type change, a rename, a moved key — adds its step in the same change as the row, and
+records it here.
 
 The rules the runner keeps (savedvariables-§1):
 
 - **The default is 0, and the runner owns the stamp.** `defaults/Profile.lua` declares
   `global.schemaVersion = 0`, never the current version: AceDB strips a value equal to its default at
   logout, so a current-version default would never persist, and AceDB backfills a declared default onto
-  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (1) after the walk, and that value
+  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (2) after the walk, and that value
   persists because it differs from the default.
 - **A profile step runs over every stored profile**, not just the active one: `apply` is called with
   each table in AceDB's raw `profiles` (the active one included), or with the one profile on the
@@ -164,3 +193,4 @@ The rules the runner keeps (savedvariables-§1):
 | Version | Change | Step |
 |---|---|---|
 | 1 | initial shape | — |
+| 2 | the HUD style follows the skin (skinning-§6, ruling R3; O2 of the 2026-10-29 skinning rollout): the one-time reset | `profile`: on each stored `castbar`, `target` and `pet` section, `barTextureFromSkin` and `fontFromSkin` become true, and `borderStyleFromSkin` becomes true unless the section draws a border (`borderShow = true`), where it is written false so the player's border survives Ka0s Default's `None` style. The picks are not touched, and a section never stored keeps the defaults, which already follow. Written directly, never through `Skin.ResetToSkin`, which on a raw profile without the companion would put the `@skin` sentinel into the pick. Runs once: the stamp holds a later choice. |

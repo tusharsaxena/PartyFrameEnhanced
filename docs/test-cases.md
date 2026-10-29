@@ -590,6 +590,26 @@ Total.
 - skin literals: every allow-list entry carries its reason
 - skin literals: the gate is falsifiable, a planted literal of each shape is reported
 
+### test_skin_picker.lua (17)
+
+- Skin picker: the spec names this owner, its seams, the Skin tab and the eye
+- Skin picker: an unseen profile shows it; a seen one does not
+- Skin picker: the login or reload entry lights a two-second fuse; a zone change does not
+- Skin picker: the stand-down puts out a lit fuse
+- Skin picker: in combat a start waits for PLAYER_REGEN_ENABLED, once
+- Skin picker: a held start is dropped by the stand-down's HideSkinPicker
+- Skin picker: never while the addon is switched off
+- Skin picker: a new profile and a reset profile show it again
+- Skin picker: the player's close marks it seen; this addon's own hide does not
+- Skin picker: a profile that has seen it takes a shown picker down, unmarked
+- Skin picker: a profile switch takes a shown picker down before the new skin
+- Skin picker: the eye unlocks through the write seam, this addon's preview
+- Skin picker: the eye in combat is the unlock's own refusal
+- Skin picker: Apply with no pick saves nothing and marks the picker seen
+- Skin picker: the write seam a saved pick reaches stores both halves
+- Profiles page: the tree AceConfigDialog drew is painted for this owner, after the Open
+- Profiles page: the seam binds the owner and degrades to nothing painted
+
 ### test_surface_parity.lua (17)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
@@ -702,6 +722,7 @@ Total.
 | test_skin_holders.lua | 4 |
 | test_skin_hud.lua | 11 |
 | test_skin_literals.lua | 3 |
+| test_skin_picker.lua | 17 |
 | test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -709,4 +730,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **519** |
+| **Total** | **536** |

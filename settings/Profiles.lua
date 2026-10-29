@@ -44,6 +44,10 @@ local function build(mainCategory)
         -- a hidden frame — a blank page under the header.
         container.frame:Show()
         AceConfigDialog:Open(APPNAME, container)
+        -- AceConfigDialog acquires from AceGUI itself, past the Options instance's owner proxy, so
+        -- the tree it just drew is painted for this owner here, after every Open (skinning-§3,
+        -- core/SkinSetup.lua NS.SkinPaintAceTree).
+        if NS.SkinPaintAceTree then NS.SkinPaintAceTree(container) end
     end)
 
     return Settings.RegisterCanvasLayoutSubcategory(mainCategory, ctx.panel, "Profiles")

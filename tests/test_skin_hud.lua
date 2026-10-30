@@ -138,16 +138,17 @@ test("skin hud: the structure memo holds the RESOLVED keys, so a skin switch res
 end))
 
 test("skin hud: Ignore fonts gives the HUD the player's own face back, live", withFetches(function(fetched)
-  -- Ka0s Default, whose HUD face (Oxanium) differs from the stored pick (Friz); several other skins
-  -- keep Friz (the library's KEEP), which would hide the bug.
+  -- Ka0s Default, whose HUD face (Oxanium) differs from the stored pick (Friz). The library's own
+  -- S.Resolve answers the stored pick for hud.font while the owner ignores fonts (LibKa0s v1.81.0,
+  -- Skin minor 8), so the addon composes nothing on its side: no seam of its own is left.
+  assertEqual(NS.SkinIgnoresFonts, nil, "the addon's own Ignore fonts seam is gone")
   local el, cfg = probe("castbar")
   Element.Reskin(el, cfg, cfg, true)
   assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "following: the skin's face")
   local ok, err = pcall(function()
     Skin:SetIgnore(OWNER, nil, true)
     settle()
-    assertEqual(NS.SkinIgnoresFonts(), true, "the seam reads the applied exception")
-    -- red under: Element.MediaKeys resolving hud.font whatever the owner's ignoreFonts says.
+    -- red under: S.Resolve ignoring the owner's ignoreFonts for hud.font.
     assertTrue(Element.Reskin(el, cfg, cfg), "toggling Ignore fonts moves the memo")
     assertEqual(lastKey(fetched, "font"), "Friz Quadrata TT", "ignoring fonts: the stored face")
     assertEqual(lastKey(fetched, "statusbar"), NS.Skin.Token("bar.texture"), "the texture still follows")
@@ -160,7 +161,9 @@ test("skin hud: Ignore fonts gives the HUD the player's own face back, live", wi
   Skin:SetIgnore(OWNER, nil, false)
   settle()
   if not ok then error(err, 0) end
-  assertEqual(NS.SkinIgnoresFonts(), false, "the exception off again")
+  assertEqual(select(2, Skin:GetIgnore(OWNER)), false, "the exception off again")
+  Element.Reskin(el, cfg, cfg)
+  assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "the skin's face back, live")
 end))
 
 test("skin hud: the HUD colors stay the player's under every skin (X4)", withFetches(function()

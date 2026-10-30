@@ -48,8 +48,8 @@ L["Ignore settings panel"] = "Ignore settings panel"
 L["Keep this addon's settings panel in the game's own look. Its bars and text still wear the skin."] =
     "Keep this addon's settings panel in the game's own look. Its bars and text still wear the skin."
 L["Ignore fonts"] = "Ignore fonts"
-L["Keep every font in this addon as the game draws it. The skin still colors the text."] =
-    "Keep every font in this addon as the game draws it. The skin still colors the text."
+L["Keep every font in this addon as the game draws it; the HUD keeps each section's own Font. The skin still colors the text."] =
+    "Keep every font in this addon as the game draws it; the HUD keeps each section's own Font. The skin still colors the text."
 L["Texture"] = "Texture"
 L["The font this addon's text uses, over the skin's own. Empty keeps the skin's."] =
     "The font this addon's text uses, over the skin's own. Empty keeps the skin's."

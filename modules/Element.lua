@@ -108,15 +108,15 @@ local function resolved(token, pick, fromSkin)
 end
 
 --- The three media keys `cfg` draws with now: bar texture, border style, font face. The Scope's
---- *Ignore fonts* keeps the player's own face whatever the font companion says (the library's
---- P.font does the same for its strings; S.Resolve does not ask). The exception fires
---- OnLooksChanged, and the face it answers is in the signature, so a toggle restyles.
+--- *Ignore fonts* keeps the player's own face whatever the font companion says, and the library
+--- decides it: while the owner ignores fonts, S.Resolve("hud.font", pick, true) answers the stored
+--- pick (LibKa0s v1.81.0, Skin minor 8), and a nil answer falls back to the pick in resolved(). The
+--- exception fires OnLooksChanged, and the face it answers is in the signature, so a toggle
+--- restyles.
 function Element.MediaKeys(cfg)
-    local fontFromSkin = cfg.fontFromSkin
-    if NS.SkinIgnoresFonts and NS.SkinIgnoresFonts() then fontFromSkin = false end
     return resolved("bar.texture", cfg.barTexture, cfg.barTextureFromSkin),
         resolved("bar.borderStyle", cfg.borderStyle, cfg.borderStyleFromSkin),
-        resolved("hud.font", cfg.font, fontFromSkin)
+        resolved("hud.font", cfg.font, cfg.fontFromSkin)
 end
 
 -- The status bar between the insets, and the background behind it in the same texture.

@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 25 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD, Show border under Ka0s Default |
+| SKIN-1 – 25 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -55,14 +55,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
-  line names (v1.80.0: Core 13, Item 3, Media 9, MediaIcons 1, Widgets 16, WidgetsDragHandle 6, WidgetsAutocomplete 4, WidgetsCopyWindow 1, DebugLog 22, DebugLogDiagnostics 5, DebugLogWindow 1, Options 34, OptionsIds 4, OptionsIdList 6, OptionsTabs 10, OptionsCombat 3, OptionsCompose 13, OptionsDrawer 2, OptionsKeybinds 5, OptionsAppearance 3, OptionsSkinPicker 1, Perf 15, PerfPanel 10, Glow 1, Sim 2, SimTimeline 3, SimPanel 7, Skin 7, SkinDefs 15, SkinPaint 11, SkinPaintExtras 5, SkinPaintControls 9, SkinEUI 2, SkinAce 4, Toast 1), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  line names (v1.81.0: Core 14, Item 3, Media 9, MediaIcons 1, Widgets 17, WidgetsDragHandle 7, WidgetsAutocomplete 5, WidgetsCopyWindow 2, DebugLog 22, DebugLogDiagnostics 5, DebugLogWindow 2, Options 34, OptionsIds 5, OptionsIdList 7, OptionsTabs 11, OptionsCombat 3, OptionsCompose 13, OptionsDrawer 3, OptionsKeybinds 6, OptionsAppearance 3, OptionsSkinPicker 2, Perf 15, PerfPanel 11, Glow 1, Sim 2, SimTimeline 3, SimPanel 8, Skin 8, SkinDefs 16, SkinPaint 12, SkinPaintExtras 6, SkinPaintControls 10, SkinEUI 2, SkinAce 4, Toast 1), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
   about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
   `LibKa0s icons:` line declares (clear, close, copy, eye, settings; the last two are the skin picker's): `/pfe debug on`, open the console → its Copy
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result:
+  art, the path still resolves, and no headless gate sees it. Result: pass (owner-marked 2026-10-30)
 
 ## Slash commands
 
@@ -98,14 +98,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   placeholder content and that this is the addon's test mode, then that unlocking is refused in combat
   and combat locks it again. *Failure:* a box labeled *Test mode* is the duplicate-switch finding
   (options-ui-§15 exempts this addon; anti-pattern #80). (Amended by PF-05 of the 2026-10-29 skinning
-  rollout: the third tab, **Skin**.) Result:
+  rollout: the third tab, **Skin**.) Result: pass (owner-marked 2026-10-30)
 - **PANEL-3. General → All elements.** The **All elements** tab → a *Party frames* heading over
   *Frame system* (Automatic / Blizzard / EllesmereUI) · *Include my own row* / *Fade with party frames*
   · *Frame strata*, then a *Health updates* heading over *Update health* · *Target health refresh
   (seconds)*. Note every value, `/reload`, reopen → every value is as it was, and `/pfe list` shows the
   same `general.*` paths as before the layout change. *Failure:* a tab other than Master controls,
   All elements and Skin, a row missing, or a value that moved. (Amended by PF-05 of the 2026-10-29
-  skinning rollout: Skin is the third tab.) Result:
+  skinning rollout: Skin is the third tab.) Result: pass (owner-marked 2026-10-30)
 - **PANEL-4. The Defaults button.** It renders in the dark/gold options style, not as a red stone
   button (it is built on first show, after any UI skin loaded). Result: pass (owner-marked 2026-10-10)
 - **PANEL-5. Page Defaults.** `/pfe debug on`. Change *Master scale* and *Frame system*, then press
@@ -135,7 +135,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   and *Match party frame width* → each tooltip says when it is dimmed. Change one row on each tab,
   `/reload` → every value kept; the page's **Defaults** still resets the border rows. *Failure:* a row
   missing or duplicated, or a value that moved. (Amended by PF-05 of the 2026-10-29 skinning rollout:
-  the three *Use the skin's …* companions, PF-03.) Result:
+  the three *Use the skin's …* companions, PF-03.) Result: pass (owner-marked 2026-10-30)
 - **PANEL-9. Target Frames layout.** Target Frames → five tabs: General, Size and position, Bar, Text,
   Marker. Bar: *Fill*, *Reaction colors*, *Background*, *Border*; hover *Hostile color* → the tooltip
   ends *Needs Color NPCs by reaction.* Text: *Shown text* (*Show name* · *Show health percent*) above
@@ -143,12 +143,12 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   elements).* Fill, Border and Font each carry their *Use the skin's …* box, as on Cast Bars (PANEL-8).
   Marker: *Show raid marker* / *Bar anchor point* / *X offset* · *Y offset*. Change one row
   on each tab, `/reload` → every value kept. *Failure:* a row missing, or a value that moved.
-  (Amended by PF-05 of the 2026-10-29 skinning rollout: the companions.) Result:
+  (Amended by PF-05 of the 2026-10-29 skinning rollout: the companions.) Result: pass (owner-marked 2026-10-30)
 - **PANEL-10. Pet Frames layout.** Pet Frames → the same five tabs as Target Frames. Bar: *Fill*,
   *Background*, *Border*. Text and Marker as on Target Frames, with the same *Show health percent*
   tooltip and *Bar anchor point*, and the three *Use the skin's …* boxes. Change one row on each tab,
   `/reload` → every value kept. *Failure:* a row missing, or a value that moved. (Amended by PF-05 of
-  the 2026-10-29 skinning rollout: the companions.) Result:
+  the 2026-10-29 skinning rollout: the companions.) Result: pass (owner-marked 2026-10-30)
 
 ## Profiles
 
@@ -639,12 +639,12 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   castbar.barTextureFromSkin` and `/pfe get castbar.fontFromSkin` print `true`; `/pfe get
   target.borderStyleFromSkin` prints `false`, `/pfe get castbar.borderStyleFromSkin` `true`. After a
   logout the SavedVariables file has `["schemaVersion"] = 2`. *Failure:* the old texture or face, a
-  changed color or size, or the target frames' border gone. Result:
+  changed color or size, or the target frames' border gone. Result: pass (owner-marked 2026-10-30)
 - **SKIN-2. The reset runs once (PF-03; O2).** On Cast Bars → Bar, untick *Use the skin's texture* and
   pick *Blizzard*; on Text, untick *Use the skin's font* and pick *Friz Quadrata TT*. `/reload`, then
   log out and back in → the cast bars keep Blizzard's texture and Friz Quadrata; the target and pet
   frames still follow the skin. *Failure:* either pick reset to the skin's after the reload or the
-  relog. Result:
+  relog. Result: pass (owner-marked 2026-10-30)
 - **SKIN-3. The Skin tab (PF-01).** Settings → General → **Skin**, the last of the three tabs → **Skin
   source** (Ka0s skins, EllesmereUI), the nine skins with their swatches under a **Look** heading
   (Ka0s Default selected in a new profile), **Font and texture** (**Font** and **Texture**, both
@@ -652,22 +652,24 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   **Ignore fonts**, not), **Copy to every Ka0s addon…** and the library's note that a skin changes
   every visual element and that HUD style options follow the skin unless you set them. General's
   **Defaults** puts every one of them back. *Failure:* a missing control, the tab anywhere but last,
-  or Defaults leaving the skin as it was. Result:
+  or Defaults leaving the skin as it was. Result: pass (owner-marked 2026-10-30)
 - **SKIN-4. Every skin, live, on the HUD (PF-03).** With the HUD showing and the three *Use the skin's
   …* boxes ticked on every page, pick each of the nine skins in turn, then Ka0s Default again → with
   **no reload**, each time, every cast bar, target frame and pet frame redraws in that skin's bar
-  texture and face (Ka0s Default Oxanium, Obsidian Inter, Azeroth Vollkorn, Glass Nunito, High
-  Contrast Atkinson Hyperlegible, Ember Bitter, WoW Default Friz Quadrata, WoW Midnight Philosopher,
-  WoW Forever Fira Sans), and, on a page with *Show border* on, the skin's border style. The bar colors (cast states,
+  texture and its own HUD face (LibKa0s v1.81.0: Ka0s Default Oxanium SemiBold, Obsidian Inter
+  SemiBold, Azeroth Vollkorn Bold, Glass Nunito SemiBold, High Contrast Atkinson Hyperlegible Bold,
+  Ember Bitter Bold, WoW Default Friz Quadrata, WoW Midnight Philosopher Bold, WoW Forever Fira Sans
+  SemiBold; on a default profile only WoW Default draws the same face as an unticked box), and, on a page with *Show border* on, the skin's border style. The bar colors (cast states,
   reaction, class, the pet green), the background, the text color, sizes, outline, the spark, the
   shield, the raid marker and the cast icon never change. *Failure:* an element still in the last
-  skin until `/reload`, a changed color or size, or text clipped in a wider face. Result:
+  skin until `/reload`, a changed color or size, Friz Quadrata under any skin but WoW Default, or text
+  clipped in a wider face (watch the cast bar's spell name and timer). Result: pass (owner-marked 2026-10-30)
 - **SKIN-5. A companion off keeps your own pick (PF-03; X4).** On Target Frames, untick *Use the
   skin's font* → *Font* un-grays and the target frames draw the face it names; pick another skin → the
   target frames keep that face while the cast bars and pet frames change. Tick it again → the target
   frames follow the skin again. Repeat with *Use the skin's texture* and *Use the skin's border* (with
   *Show border* on). *Failure:* a ticked box whose picker is not grayed, or an unticked one that still
-  follows the skin. Result:
+  follows the skin. Result: pass (owner-marked 2026-10-30)
 - **SKIN-6. The free-placement holders, every skin (PF-02).** Set all three features to *Free
   placement*, `/pfe unlock` → under **Ka0s Default** each stack's plate is the same translucent blue as
   before this run and its caption (*Cast bars*, *Target frames*, *Pet frames*) the same gold, now in
@@ -675,66 +677,74 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   where the skin has none) and each caption the skin's accent color and face; under **High Contrast**
   the plate is a translucent yellow, never a solid black block. Back to Ka0s Default →
   exactly the blue and gold again. *Failure:* a plate left in the last skin's color, or a Ka0s Default
-  plate a different blue, or an opaque plate under High Contrast. Result:
+  plate a different blue, or an opaque plate under High Contrast. Result: pass (owner-marked 2026-10-30)
 - **SKIN-7. The settings pages, every skin (PF-01, PF-04).** On the Skin tab untick **Ignore settings
   panel**, then pick each skin and walk General's three tabs, Cast Bars, Target Frames, Pet Frames
   (their composer rows: the dropdowns, the color swatches, the check boxes, the sliders) and
   **Profiles** (AceConfigDialog's tree: its buttons, dropdowns and edit box) → each page takes the
   skin, redrawing when the skin changes. Open another Ka0s addon's settings and another AceGUI addon's,
   flip back and forth a few times → theirs stay as they were (the AceGUI pool leak check). Tick
-  **Ignore settings panel** again → every page here is stock, while the HUD and holders keep the skin.
+  **Ignore settings panel** again → every page here is stock, while the HUD, the holders, the tool
+  windows and the first-run picker keep the skin (the switch covers the settings panel only).
   *Failure:* a page or the Profiles tree left stock with the box unticked, or another addon's page
-  skinned. Result:
+  skinned. Result: pass (owner-marked 2026-10-30)
 - **SKIN-8. The tool windows, every skin (PF-01).** Under a non-default skin (Azeroth reads clearest),
   open the debug console (`/pfe debug`), its **Copy** window and the perf panel (`/pfe perf`) → each
   wears the skin: the window edge and title, the log lines, the scroll bar, the close, copy and clear
-  marks. Back to **Ka0s Default** with the console open → it recolors with no reload and looks as it did
-  before this run. *Failure:* a window or its lines in the old colors. Result:
+  marks, the console's title-bar words (the logging toggle, the Diagnostics link) and the perf panel's
+  step and command columns in the skin's face, and the resize grip tinted. Back to **Ka0s Default**
+  with the console open → it recolors with no reload; since LibKa0s v1.81.0 those title-bar words and
+  columns are Oxanium where they were Friz Quadrata, and the grip is the client's own art. Tick
+  **Ignore fonts** → those words go back to the client's face, live; tick **Ignore settings panel**
+  instead → the windows keep the skin. *Failure:* a window or its lines in the old colors, a label left
+  in the skin's face with Ignore fonts ticked, or a window unskinned by Ignore settings panel. Result: pass (owner-marked 2026-10-30)
 - **SKIN-9. The Font and texture overrides (PF-01, PF-03).** On the Skin tab pick a **Font** (any
   installed one) and a **Texture** → with no reload the HUD takes both wherever its *Use the skin's
   font* and *texture* boxes are ticked, and the holders' captions take the font; a section with a box
   unticked keeps its own pick. Pick another skin → the overrides stay. Set both back to *Skin's own* →
   the skin's face and texture return. *Failure:* an override that misses a ticked element, or reaches
-  an unticked one. Result:
+  an unticked one. Result: pass (owner-marked 2026-10-30)
 - **SKIN-10. What stays unskinned (PF-02; E-PF-3, E-PF-5, X7).** Under **Azeroth** and **High
   Contrast**: solo, `/pfe unlock` → the stand-in party frame still looks like the frame system it
   imitates (Blizzard's or EllesmereUI's), not the skin; General → *Reset all settings* → the
   confirmation is the stock popup (cancel it); `/pfe status` and `/pfe debug on` → the cyan `[PFE]`
   prefix and the green `ON` are the same as ever; hover the minimap button → the tooltip frame is
-  Blizzard's. *Failure:* any of them recolored by the skin. Result:
+  Blizzard's. *Failure:* any of them recolored by the skin. Result: pass (owner-marked 2026-10-30)
 - **SKIN-11. EllesmereUI on (PF-01; skinning-§5).** With EllesmereUI loaded, its third-party skinning on
   and Party Frame Enhanced on in its Third-Party list → Skin → **Skin source** offers **EllesmereUI**;
   choose it → with no reload the holders, the HUD's border and face (where the boxes are ticked), the
   tool windows and (with Ignore settings panel off) the settings pages take EllesmereUI's accent,
   panel color and font. *Failure:* EllesmereUI disabled although every condition holds, or no repaint.
-  Result:
+  Result: pass (owner-marked 2026-10-30)
 - **SKIN-12. EllesmereUI off (PF-01; skinning-§5).** With the source on EllesmereUI, turn Party Frame
   Enhanced off in EllesmereUI's Third-Party list (or disable EllesmereUI) and `/reload` → the
   EllesmereUI choice is disabled, the failing condition and its fix are listed on the Skin tab, and
-  the addon wears its Ka0s skin. *Failure:* EllesmereUI's look still worn, or no condition named. Result:
+  the addon wears its Ka0s skin. *Failure:* EllesmereUI's look still worn, or no condition named. Result: pass (owner-marked 2026-10-30)
 - **SKIN-13. Back from EllesmereUI needs a reload (PF-01; skinning-§5).** With EllesmereUI as the
   source, pick **Ka0s skins** → one reload is offered; after the reload the Ka0s skin shows. Without
   EllesmereUI installed at all → the source offers it disabled, with the conditions listed, and
-  nothing else changes. Result:
+  nothing else changes. Result: pass (owner-marked 2026-10-30)
 - **SKIN-14. Copy to every Ka0s addon (PF-01).** With Party Frame Enhanced the only Ka0s addon that uses
   skins → the button is disabled with *No other loaded Ka0s addon uses skins yet.* With another one
   loaded (Loot History, or the Ka0s Skin Tester) → the button confirms, naming it; accept → both wear
-  this addon's skin with no reload, and each one's Skin tab shows it; `/reload` → still. Result:
+  this addon's skin with no reload, and each one's Skin tab shows it; `/reload` → still. Result: pass (owner-marked 2026-10-30)
 - **SKIN-15. Profiles (PF-01).** Give two profiles different skins, switch between them on the
   Profiles page and with `/pfe profile <name>` → the skin, the HUD and the holders follow the profile
-  each time, with no reload. Reset one → it is back on Ka0s Default. Result:
+  each time, with no reload. Reset one → it is back on Ka0s Default. Result: pass (owner-marked 2026-10-30)
 - **SKIN-16. Combat (PF-03).** In a party, change the skin in combat (on a target dummy) with target and
   pet frames shown → no Lua error and no taint warning; the cast bars restyle at once, and the target
   and pet frames by the end of combat at the latest. `/console taintLog 1` before, then check
-  `Logs/taint.log` → nothing blames PartyFrameEnhanced. Result:
+  `Logs/taint.log` → nothing blames PartyFrameEnhanced. Result: pass (owner-marked 2026-10-30)
 - **SKIN-17. The first-run skin picker at login (PF-04; O3).** On a character that never ran this
   build (or after Profiles → *Reset Profile*), log in → about two seconds after the world loads a small
-  window titled **Choose a skin for Ka0s Party Frame Enhanced** opens about three quarters of the way
-  up the screen: a dropdown showing the skin worn now, an eye and a gear beside it, **Apply** under
+  window titled **Choose a skin** opens about three quarters of the way up the screen, with **Ka0s
+  Party Frame Enhanced** on its own line above the dropdown, whole (LibKa0s v1.81.0): a dropdown
+  showing the skin worn now, an eye and a gear beside it, **Apply** under
   it, and a close mark. A zone change or a dungeon entry does not bring it back. With the addon
   disabled (`/pfe disable`, `/reload`) it never opens; enabled again and `/reload` → it opens.
   Entering the world in combat → it waits until combat ends. *Failure:* no window on a fresh profile,
-  one on a profile that already closed it, one on a zone change, or one while the addon is off. Result:
+  one on a profile that already closed it, one on a zone change, one while the addon is off, or a title
+  or addon name that is cut off. Result: pass (owner-marked 2026-10-30)
 - **SKIN-18. The picker previews, Apply saves, a close puts it back (PF-04).** Open the dropdown → every
   skin listed with three swatches, each name in its own face. Pick **Obsidian** → with no reload the
   HUD, the holders and the picker repaint; the picker stays open; `/pfe get skin.skin` still prints
@@ -742,47 +752,50 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   `/reload` does not bring the picker back. On a fresh profile preview a skin and close with the close
   mark → the old skin comes back and `/pfe get skin.pickerSeen` prints `true`; on another, the same
   with **Escape**. *Failure:* a pick saved before Apply, the preview left on after a close, or the
-  picker back after any close. Result:
+  picker back after any close. Result: pass (owner-marked 2026-10-30)
 - **SKIN-19. The picker's eye unlocks (PF-04; D6).** On a fresh profile, out of combat, preview
   **Azeroth** and press the eye → the addon unlocks (the same as `/pfe unlock`): in a party the
   placeholders on the real party frames, out of one the stand-in, all in the previewed skin; the
   picker stays open above them. Hover the eye → the library's tooltip (*Preview: open test mode*;
   unlocking is this addon's test mode). After closing the picker the addon is still unlocked until you
   lock it. In combat, press the eye → the unlock's own refusal line, and nothing unlocks. *Failure:*
-  nothing unlocks out of combat, the picker hidden behind the HUD, or an unlock in combat. Result:
+  nothing unlocks out of combat, the picker hidden behind the HUD, or an unlock in combat. Result: pass (owner-marked 2026-10-30)
 - **SKIN-20. The picker's gear (PF-04).** On a fresh profile preview **Obsidian** and press the gear →
   the settings panel opens on **General** with its **Skin** tab selected, showing Obsidian, and the
   picker closes; `/reload` → still Obsidian, no picker. In combat the gear says the panel cannot open
-  and the picker stays up. *Failure:* the landing page or another tab, or the pick not saved. Result:
+  and the picker stays up. *Failure:* the landing page or another tab, or the pick not saved. Result: pass (owner-marked 2026-10-30)
 - **SKIN-21. The picker and profiles (PF-04; O3).** Close the picker on one profile, then on the
   Profiles page create a new profile → the picker opens again (a new profile starts unseen). Give a
   second profile **Azeroth** and close its picker there; on a fresh profile preview **Obsidian**, then
   switch to the Azeroth profile → the picker closes and the addon wears **Azeroth**; switch back → Ka0s
   Default, and the picker opens there again. Copy a profile that closed it into a fresh one → no
   picker. *Failure:* the previewed skin worn after the switch, or a picker on a profile that closed
-  it. Result:
+  it. Result: pass (owner-marked 2026-10-30)
 - **SKIN-22. The picker and the addon switched off (PF-04).** With the picker open and **Obsidian**
   previewed, `/pfe disable` → the picker closes, the addon goes back to its stored skin, and nothing is
   saved (`/pfe get skin.pickerSeen` prints `false`). `/pfe enable`, `/reload` → the picker opens again.
-  Result:
+  Result: pass (owner-marked 2026-10-30)
 - **SKIN-23. One picker across Ka0s addons, and Apply to all (PF-04).** With another Ka0s addon that
   uses skins on a fresh profile too, `/reload` → only **one** picker opens; close it → the other opens,
-  titled for its addon. Reset both profiles, `/reload`, and press **Apply to all Ka0s addons** on the
+  naming its addon on the line above the dropdown (the title stays *Choose a skin*). Reset both profiles, `/reload`, and press **Apply to all Ka0s addons** on the
   first → both addons wear the pick, no second picker opens, and `/reload` brings neither back; the
   other addon keeps its own Font, Texture and Scope. *Failure:* two pickers at once, or one after Apply
-  to all. Result:
-- **SKIN-24. Ignore fonts reaches the HUD (PF-03; review fix).** Under **Ka0s Default**, with the HUD
+  to all. Result: pass (owner-marked 2026-10-30)
+- **SKIN-24. Ignore fonts reaches the HUD (PF-03; review fix; the library's since LibKa0s v1.81.0).** Under **Ka0s Default**, with the HUD
   showing and every *Use the skin's font* box ticked (the text in Oxanium), tick **Ignore fonts** on the
   Skin tab → with no reload the cast bar, target and pet text goes back to each section's own *Font*
   (Friz Quadrata on a default profile), as do the holders' captions; the bar textures stay the skin's.
-  Untick it → Oxanium again. Repeat under **Obsidian** with a section's *Font* set to something other
-  than Friz. *Failure:* HUD text that keeps the skin's face with the box ticked. Result:
+  Untick it → Oxanium again. Repeat under **Obsidian** (its HUD face is Inter SemiBold, so on a default
+  profile the text visibly goes back to Friz), then with a section's *Font* set to something other than
+  Friz → that face. With **Ignore fonts** ticked, open a section's composer → its grayed *Font* picker
+  shows the section's own face, not the skin's. *Failure:* HUD text that keeps the skin's face with the
+  box ticked. Result: pass (owner-marked 2026-10-30)
 - **SKIN-25. Show border under Ka0s Default needs your own style (PF-03; X5, D2).** On a **new**
   profile under **Ka0s Default**, Cast Bars → Bar, tick **Show border** → no border appears, because
   *Use the skin's border* is ticked and Ka0s Default's border is *None*. Untick *Use the skin's border*
   and pick a **Border style** → the border draws. Pick **Obsidian** with the box ticked again → the
   skin's own border draws. *Failure:* no border with the box unticked and a style picked, or the
-  README's troubleshooting row missing. Result:
+  README's troubleshooting row missing. Result: pass (owner-marked 2026-10-30)
 
 ## Non-English client
 
@@ -837,13 +850,8 @@ layering run passed (the LibKa0s v1.77.0 re-vendor's INSTALL-4, the settings lay
 PANEL-8 to PANEL-10 and CAST-7, and the frame layering's LAYER-1 to LAYER-4), recorded on each
 `Result:` line as `pass (owner, 2026-10-24)`. None is owed.
 
-After the LibKa0s v1.80.0 re-vendor (PF-RV of the 2026-10-29 skinning rollout): INSTALL-4 (rewritten:
-the v1.80.0 minors and the two picker icons).
-
-After the 2026-10-29 skinning rollout (PF-01 to PF-05): PANEL-2 and PANEL-3 (amended: General's third
-tab, **Skin**), PANEL-8 to PANEL-10 (amended: the *Use the skin's …* companions), and SKIN-1 to SKIN-23
-(new: the one-time HUD reset's visible change under Ka0s Default, X5, and that it runs once; the Skin
-tab; every skin on the HUD, the holders, the settings pages, the Profiles tree and the tool windows;
-the overrides; what stays unskinned; EllesmereUI on and off; the copy; profiles; combat; and the
-first-run skin picker), and SKIN-24 and SKIN-25 (new in the review fixes: Ignore fonts on the HUD, and the extra step
-Show border takes under Ka0s Default).
+On 2026-10-30 the owner reported that every check of the skinning rollout, skin overrides and skin
+library follow-ups passed (the LibKa0s v1.80.0 and v1.81.0 re-vendors' INSTALL-4, the skinning rollout's
+PANEL-2, PANEL-3, PANEL-8 to PANEL-10 and SKIN-1 to SKIN-25, and the skin library follow-ups' rewritten
+SKIN-4, SKIN-7, SKIN-8, SKIN-17, SKIN-23 and SKIN-24), recorded on each `Result:` line as
+`pass (owner-marked 2026-10-30)`. None is owed.

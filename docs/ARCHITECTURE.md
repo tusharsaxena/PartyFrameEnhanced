@@ -420,13 +420,16 @@ collection's first adopter; only the paths, the brand and the preview are this a
   Each of `castbar`, `target` and `pet` has `barTextureFromSkin`, `borderStyleFromSkin` and
   `fontFromSkin`, the composers' *Use the skin's …* companions, default true (X3). `modules/Element.lua`
   resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
-  companion)` at restyle time only, never on the hot path, and falls back to the player's pick where a
-  skin leaves the token alone. Colors, sizes, the outline, the shadow, the spark, the shield, the raid
+  companion)` at restyle time only, never on the hot path, and falls back to the player's pick where
+  the facade answers nothing (since LibKa0s v1.81.0 every Ka0s skin names its own `hud.font`, so
+  for the face that is the degraded facade). Colors, sizes, the outline, the shadow, the spark, the
+  shield, the raid
   marker and the cast-state, reaction and class colors stay the player's or the client's under every
   skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
-  whatever its font companion says: `S.Resolve` does not consult the exception, so `Element.MediaKeys`
-  asks `NS.SkinIgnoresFonts` (`Skin:GetIgnore`) and composes it on this side. Under Ka0s Default
+  whatever its font companion says, and the library decides it: while the owner ignores fonts,
+  `S.Resolve("hud.font", pick, true)` answers the stored pick (LibKa0s v1.81.0, Skin minor 8), so
+  `Element.MediaKeys` composes nothing of its own. Under Ka0s Default
   the skin's border is *None*, so *Show border* draws nothing until the player unticks *Use the skin's
   border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so).
 - **Cast icon edge (DECISIONS PartyFrameEnhanced D4) not adopted.** The cast icon is a Texture, and
@@ -453,12 +456,17 @@ collection's first adopter; only the paths, the brand and the preview are this a
   takes it down unmarked. Its gear opens General on the Skin tab. **Its eye unlocks** through the
   write seam (`locked = false`), because unlocking is this addon's preview (options-ui-§15; DECISIONS
   D6): the placeholders on the real party frames, or the stand-in out of a party. It leaves the
-  addon unlocked, and is refused where the unlock is (combat, a perf suspend).
+  addon unlocked, and is refused where the unlock is (combat, a perf suspend). Since LibKa0s v1.81.0
+  (OptionsSkinPicker minor 2) the window is titled *Choose a skin* and the brand, *Ka0s Party Frame
+  Enhanced*, has its own line above the dropdown (`frame.ownerLabel`), the window widening to fit it.
 - **The library draws the rest.** The settings pages (the Options descriptor's `addonName` is the
   owner), the debug console and its copy window, and the perf panel are the library's and carry the
   owner already. The Profiles page's AceConfigDialog tree is painted after every Open
   (`NS.SkinPaintAceTree`, `settings/Profiles.lua`); nothing is painted while *Ignore settings panel*
-  is on.
+  is on. That switch covers the settings panel only: the tool windows, the first-run picker, the
+  holders and the HUD keep the skin whatever it says. *Ignore fonts* reaches every string the library
+  paints, the tool windows' labels and the HUD included (LibKa0s v1.81.0). This addon places no
+  library widget on a settings page of its own, so it passes no `panel` flag.
 - **The EllesmereUI provider** is the library's (`SkinEUI.lua`). With source `eui` and its gate
   holding, the owner wears EllesmereUI's look (Ka0s Default with EllesmereUI's accent, panel color
   and font over it); otherwise the Ka0s skin, and the Skin tab names the failing condition. `ka0s` to

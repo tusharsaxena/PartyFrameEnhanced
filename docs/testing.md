@@ -44,7 +44,9 @@ schema and its write seam, the slash table, the lifecycle and the secure-write q
 the anchor engine, the three features, preview mode, the diagnostics report's sections
 (`tests/test_diagnostics.lua`), perf-bucket coverage, and the skin seam: the owner and its rows
 (`tests/test_skinsetup.lua`), the holders' paint (`tests/test_skin_holders.lua`), the HUD's media
-and the v2 reset (`tests/test_skin_hud.lua`), the first-run picker and the Profiles tree
+and the v2 reset (`tests/test_skin_hud.lua`), the HUD's Font flags and sizes under LibKa0s v1.82.0 and
+the v3 migration (`tests/test_skin_fonts.lua`), the Font outline (`tests/test_skin_outline.lua`), the
+`/pfe skin` verb (`tests/test_skin_verb.lua`), the first-run picker and the Profiles tree
 (`tests/test_skin_picker.lua`), and the color literal gate (`tests/test_skin_literals.lua`). The library's own
 internals are tested in the LibKa0s repo and not again here (testing-§8).
 

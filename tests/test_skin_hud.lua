@@ -4,8 +4,8 @@
 -- The cast bars, target frames and pet frames draw three media picks: the bar texture, the border
 -- style and the text face. Each composer group takes its `fromSkin` companion ("Use the skin's
 -- texture / border / font"), defaulting to true (X3), and modules/Element.lua resolves the pick
--- through S.Resolve while it is on. Only those three follow the skin: colors, sizes, flags and
--- the shadow stay the player's (X4). A skin switch restyles every element live, and the v2
+-- through S.Resolve while it is on. The colors and the shadow stay the player's (X4); the size and
+-- the flags' From skin are LibKa0s v1.82.0's (tests/test_skin_fonts.lua). A skin switch restyles every element live, and the v2
 -- migration step sets the companions once on every stored profile (O2), the border only where no
 -- border is drawn (D2), and never again after the player changes one.
 
@@ -219,7 +219,7 @@ test("skin hud: v2 sets every stored profile's HUD companions to follow the skin
   }
   fromV1({ Old = old }, function()
     NS:RunMigrations()
-    assertEqual(NS.db.global.schemaVersion, 2)
+    assertEqual(NS.db.global.schemaVersion, NS.SCHEMA_VERSION, "past v2, to the ladder's top")
     assertEqual(old.castbar.barTextureFromSkin, true, "texture follows")
     assertEqual(old.castbar.fontFromSkin, true, "font follows")
     assertEqual(old.castbar.borderStyleFromSkin, true, "no border drawn: the style follows")

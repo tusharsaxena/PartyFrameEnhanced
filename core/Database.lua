@@ -70,8 +70,22 @@ local function hudFollowsSkin(p)
     end
 end
 
+--- v2 -> v3: the HUD Font flags onto From skin (LibKa0s v1.82.0, ruling D-07; Addendum 01 of the
+--- 2026-10-30 skin fonts run). A stored flag equal to the previous default, OUTLINE, becomes "@skin",
+--- which draws OUTLINE under the default Font outline (All text) and follows the Skin tab from then
+--- on. Any other stored flag is a pick the player made and stays. A section or flag never stored
+--- already reads the new default. Idempotent; the stamp keeps it to one run, so an OUTLINE the
+--- player picks afterwards is theirs.
+local function flagsFromSkin(p)
+    for _, key in ipairs(HUD_SECTIONS) do
+        local sec = p[key]
+        if type(sec) == "table" and sec.fontFlags == "OUTLINE" then sec.fontFlags = "@skin" end
+    end
+end
+
 local SCHEMA_STEPS = {
     { to = 2, scope = "profile", apply = hudFollowsSkin },
+    { to = 3, scope = "profile", apply = flagsFromSkin },
 }
 NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
 

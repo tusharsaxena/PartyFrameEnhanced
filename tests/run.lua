@@ -108,6 +108,7 @@ Kit.run{
     "test_skinsetup",
     "test_skin_holders",
     "test_skin_hud",
+    "test_skin_fonts",
     "test_skin_literals",
     "test_skin_picker",
     "test_skin_outline",

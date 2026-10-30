@@ -61,7 +61,7 @@ castbar.bgColor = {0, 0, 0, 0.6}  castbar.useClassColorBg = false
 castbar.borderShow = false  borderStyle = "Blizzard Tooltip"  borderStyleFromSkin = true  borderSize = 8
 castbar.borderColor = {0, 0, 0, 1}  castbar.useClassColorBorder = false
 castbar.font = "Friz Quadrata TT"  fontFromSkin = true  fontSize = 11  fontColor = {1, 1, 1, 1}
-castbar.useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
+castbar.useClassColorFont = false  fontFlags = "@skin"  fontShadow = false
 castbar.showName = true  showTime = true  showIcon = true  iconSide = "LEFT"
 castbar.showShield = true  showSpark = true
 ```
@@ -74,7 +74,7 @@ target.barTexture = "Blizzard"  barTextureFromSkin = true  barAlpha = 1.0  barCo
 target.colorReaction = true  hostileColor / neutralColor / friendlyColor   (palette, no companion)
 target.bgColor = {0, 0, 0, 0.6}  useClassColorBg = false
 target.borderShow = false  borderStyle  borderStyleFromSkin = true  borderSize = 8  borderColor  useClassColorBorder = false
-target.font  fontFromSkin = true  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "OUTLINE"  fontShadow = false
+target.font  fontFromSkin = true  fontSize = 10  fontColor  useClassColorFont = false  fontFlags = "@skin"  fontShadow = false
 target.showName = true  showPercent = true  showMarker = true
 target.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 
@@ -92,8 +92,10 @@ pet.markerPoint = "TOP"  markerOffsetX = 0  markerOffsetY = 0
 companions (`fromSkin = true` in `settings/ElementRows.lua`), default **true**. While one is on its
 picker is dimmed and `modules/Element.lua` draws the skin's `bar.texture`, `bar.borderStyle` or
 `hud.font` through `S.Resolve`; the stored pick beside it is kept and comes back when it is turned off.
-Only those three follow the skin: every color, the sizes, the outline and the shadow stay the
-player's. A skin switch restyles every element (each feature's `OnLooksChanged` listener runs its
+Every color and the shadow stay the player's. Since LibKa0s v1.82.0 the size scales with the skin
+while the face follows it (`S.HudFontSize`; the stored `fontSize` is never rewritten), and
+`fontFlags` defaults to `"@skin"`, *From skin* (`flagsFromSkin = true`), drawn through the Skin tab's
+Font outline (`S.FontFlags`); a picked flag wins. A skin switch restyles every element (each feature's `OnLooksChanged` listener runs its
 reskin, the target and pet frames' through `NS.RunSecure`).
 
 The Master controls tab carries **one** `sessionOnly` row, which does not reach the profile.
@@ -115,7 +117,7 @@ now the `locked` row's validate.
 ## Global
 
 ```text
-global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (2)
+global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (3)
 global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
@@ -183,7 +185,7 @@ The rules the runner keeps (savedvariables-§1):
 - **The default is 0, and the runner owns the stamp.** `defaults/Profile.lua` declares
   `global.schemaVersion = 0`, never the current version: AceDB strips a value equal to its default at
   logout, so a current-version default would never persist, and AceDB backfills a declared default onto
-  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (2) after the walk, and that value
+  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (3) after the walk, and that value
   persists because it differs from the default.
 - **A profile step runs over every stored profile**, not just the active one: `apply` is called with
   each table in AceDB's raw `profiles` (the active one included), or with the one profile on the
@@ -197,3 +199,4 @@ The rules the runner keeps (savedvariables-§1):
 |---|---|---|
 | 1 | initial shape | — |
 | 2 | the HUD style follows the skin (skinning-§6, ruling R3; O2 of the 2026-10-29 skinning rollout): the one-time reset | `profile`: on each stored `castbar`, `target` and `pet` section, `barTextureFromSkin` and `fontFromSkin` become true, and `borderStyleFromSkin` becomes true unless the section draws a border (`borderShow = true`), where it is written false so the player's border survives Ka0s Default's `None` style. The picks are not touched, and a section never stored keeps the defaults, which already follow. Written directly, never through `Skin.ResetToSkin`, which on a raw profile without the companion would put the `@skin` sentinel into the pick. Runs once: the stamp holds a later choice. |
+| 3 | the HUD Font flags follow the skin's Font outline (LibKa0s v1.82.0, ruling D-07; Addendum 01 of the 2026-10-30 skin fonts run) | `profile`: on each stored `castbar`, `target` and `pet` section, a `fontFlags` of `"OUTLINE"`, the previous default, becomes `"@skin"` (*From skin*), which draws OUTLINE under the default Font outline and follows the Skin tab from then on. Any other stored flag is the player's pick and stays; a flag never stored reads the new default. Runs once: an OUTLINE picked afterwards is kept. |

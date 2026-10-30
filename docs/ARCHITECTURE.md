@@ -423,8 +423,14 @@ collection's first adopter; only the paths, the brand and the preview are this a
   resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
   companion)` at restyle time only, never on the hot path, and falls back to the player's pick where
   the facade answers nothing (since LibKa0s v1.81.0 every Ka0s skin names its own `hud.font`, so
-  for the face that is the degraded facade). Colors, sizes, the outline, the shadow, the spark, the
-  shield, the raid
+  for the face that is the degraded facade). Since LibKa0s v1.82.0 two more follow it, through
+  `Element.FontStyle` at restyle time, both in the structure signature: the **size**, while the face
+  follows the skin (`S.HudFontSize(stored, fontFromSkin)`: the stored size times the skin's HUD size
+  over Ka0s Default's 12, so the text is as wide in every skin; the stored value is never
+  rewritten; its own face or *Ignore fonts* draws the stored size), and the **Font flags**' default,
+  *From skin* (`"@skin"`, `S.FontFlags`), which follows the Skin tab's *Font outline* (OUTLINE under
+  All text and HUD text only, none under Off); a flag the player picked wins. Colors, the shadow,
+  the spark, the shield, the raid
   marker and the cast-state, reaction and class colors stay the player's or the client's under every
   skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face

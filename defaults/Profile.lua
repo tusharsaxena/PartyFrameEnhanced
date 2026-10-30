@@ -78,7 +78,9 @@ NS.defaults.profile = {
         -- Text
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 11,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        -- Font flags: "@skin", From skin (LibKa0s v1.82.0, ruling D-07): the Skin tab's Font
+        -- outline decides; a picked flag wins. v3 (core/Database.lua) moved a stored OUTLINE here.
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showTime = true,
 
         -- Icon and marks
@@ -111,7 +113,7 @@ NS.defaults.profile = {
 
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 10,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showPercent = true,
 
         -- The marker's center sits on this point of the bar, nudged by the offsets (before Master
@@ -139,7 +141,7 @@ NS.defaults.profile = {
 
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 9,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showPercent = false,
 
         -- As the target frame's: the marker's center on this point of the bar, nudged by the offsets.

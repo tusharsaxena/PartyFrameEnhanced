@@ -586,6 +586,20 @@ Total.
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
+### test_skin_fonts.lua (11)
+
+- skin fonts: every HUD section's Font flags default to From skin
+- skin fonts: every HUD Font block is the minimum set, class color included
+- skin fonts: /pfe set takes From skin and every picked flag
+- skin fonts: From skin draws through the Font outline
+- skin fonts: a flag the player picked wins over the Font outline
+- skin fonts: a Font outline change restyles the live elements
+- skin fonts: on the skin's face the HUD size scales with the skin; its own face keeps it
+- skin fonts: Ka0s Default keeps the stored size, and Master scale still multiplies
+- skin fonts: a skin switch moves the drawn size on the live elements
+- skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile
+- skin fonts: v3 runs once; an OUTLINE the player picks after it is kept
+
 ### test_skin_literals.lua (3)
 
 - skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
@@ -743,6 +757,7 @@ Total.
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 12 |
+| test_skin_fonts.lua | 11 |
 | test_skin_literals.lua | 3 |
 | test_skin_picker.lua | 17 |
 | test_skin_outline.lua | 8 |
@@ -754,4 +769,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **552** |
+| **Total** | **563** |

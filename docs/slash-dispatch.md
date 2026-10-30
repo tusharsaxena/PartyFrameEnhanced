@@ -86,8 +86,9 @@ the library's default, so the thirteen are spelled out beside them. Widening is 
 would not be.
 
 `tests/test_slash.lua` and `tests/test_disabled.lua` pin all of it: the bare `/pfe` opens the panel
-while disabled, every reserved verb answers normally, the three feature verbs answer on exactly one
-line matching the library's own, and the seam is never entered.
+while disabled, every reserved verb but `skin` answers normally, the four refused verbs (`skin`,
+`resetposition`, `lock`, `unlock`) answer on exactly one line matching the library's own, and the seam
+is never entered.
 
 ## Output
 

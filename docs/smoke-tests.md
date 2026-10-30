@@ -641,13 +641,13 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   text) and tick *Show border* on Target Frames only. Update, log in → under **Ka0s Default** the HUD
   looks **different, on purpose**: every bar wears the **Ka0s Default** bar texture (dim at the top, a
   highlight low on the bar and a short lip) in place of Blizzard's, and every bar text reads in
-  **Oxanium SemiBold** (a squared, technical face) in place of Friz Quadrata. Every color, size,
+  **Prototype** (LibKa0s v1.82.0; it was Oxanium SemiBold through v1.81.0) in place of Friz Quadrata. Every color, size,
   outline and shadow is as it was; the target frames keep their border in the style you had (Blizzard
   Tooltip by default), and the cast bars and pet frames still draw none. `/pfe get
   castbar.barTextureFromSkin` and `/pfe get castbar.fontFromSkin` print `true`; `/pfe get
   target.borderStyleFromSkin` prints `false`, `/pfe get castbar.borderStyleFromSkin` `true`. After a
-  logout the SavedVariables file has `["schemaVersion"] = 2`. *Failure:* the old texture or face, a
-  changed color or size, or the target frames' border gone. Result: pass (owner-marked 2026-10-30)
+  logout the SavedVariables file has `["schemaVersion"] = 3`. *Failure:* the old texture or face, a
+  changed color or size, or the target frames' border gone. Result:
 - **SKIN-2. The reset runs once (PF-03; O2).** On Cast Bars → Bar, untick *Use the skin's texture* and
   pick *Blizzard*; on Text, untick *Use the skin's font* and pick *Friz Quadrata TT*. `/reload`, then
   log out and back in → the cast bars keep Blizzard's texture and Friz Quadrata; the target and pet
@@ -908,4 +908,4 @@ SKIN-4, SKIN-7, SKIN-8, SKIN-17, SKIN-23 and SKIN-24), recorded on each `Result:
 `pass (owner-marked 2026-10-30)`. None is owed.
 
 Owed for the 2026-10-30 skin fonts and feedback run (LibKa0s v1.82.0, PF-01): INSTALL-4, SLASH-1,
-SLASH-7, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9, SKIN-24 and SKIN-26 to SKIN-29.
+SLASH-7, SKIN-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9, SKIN-24 and SKIN-26 to SKIN-29.

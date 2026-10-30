@@ -647,7 +647,7 @@ Total.
 - skin verb: refused while the addon is disabled, and no picker shows
 - skin verb: without LibKa0s the verb prints the library-absent line
 
-### test_surface_parity.lua (17)
+### test_surface_parity.lua (18)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
@@ -666,6 +666,7 @@ Total.
 - parity: the degraded Skin facade answers every name the live facade carries
 - parity: the Skin seam publishes the same NS members on both paths
 - parity: each host-copy skin token is the live library's Ka0s Default value
+- parity: the degraded Skin facade's FontFlags and HudFontSize never answer nil
 
 ### test_diagnostics_contract.lua (9)
 
@@ -763,11 +764,11 @@ Total.
 | test_skin_picker.lua | 17 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
-| test_surface_parity.lua | 17 |
+| test_surface_parity.lua | 18 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **564** |
+| **Total** | **565** |

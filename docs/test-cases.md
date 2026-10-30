@@ -612,6 +612,17 @@ Total.
 - Profiles page: the tree AceConfigDialog drew is painted for this owner, after the Open
 - Profiles page: the seam binds the owner and degrades to nothing painted
 
+### test_skin_outline.lua (8)
+
+- outline: a fresh profile stores All text, the library's default
+- outline: the schema row is the Skin tab's, with the library's three modes in its order
+- outline: the write seam stores media.outline, and leaves it alone when it is nil
+- outline: another addon's copy reaches the store through WriteChoice
+- outline: /pfe set applies the mode live, and refuses one the library does not know
+- outline: applying the stored profile carries its Font outline
+- outline: a profile switch applies the incoming profile's mode, and back
+- outline: without the skin engine the apply is a quiet no-op
+
 ### test_surface_parity.lua (17)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
@@ -725,6 +736,7 @@ Total.
 | test_skin_hud.lua | 12 |
 | test_skin_literals.lua | 3 |
 | test_skin_picker.lua | 17 |
+| test_skin_outline.lua | 8 |
 | test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -732,4 +744,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **538** |
+| **Total** | **546** |

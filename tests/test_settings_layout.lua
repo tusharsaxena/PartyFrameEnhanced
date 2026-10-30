@@ -135,6 +135,7 @@ local PINNED = {
   ["skin.font"] = "general|string||nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["skin.ignoreFonts"] = "general|bool|false|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["skin.ignorePanel"] = "general|bool|true|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
+  ["skin.outline"] = "general|string|all|nil|nil|nil|all,hud,off|false|onChange=true|dim=false|shown=nil",
   ["skin.pickerSeen"] = "general|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["skin.skin"] = "general|string|ka0s|nil|nil|nil|azeroth,contrast,ember,forever,glass,ka0s,midnight,obsidian,wow|false|onChange=true|dim=false|shown=nil",
   ["skin.source"] = "general|string|ka0s|nil|nil|nil|eui,ka0s|false|onChange=true|dim=false|shown=nil",
@@ -197,7 +198,7 @@ test("layout: every stored path, its page, default, range, values and wiring are
     end
   end
   for path in pairs(PINNED) do assertTrue(seen[path], path .. " is still a setting") end
-  assertEqual(count, 142, "the set of settings")
+  assertEqual(count, 143, "the set of settings")
 end)
 
 -- ── the layout ───────────────────────────────────────────────────────────────────────────────

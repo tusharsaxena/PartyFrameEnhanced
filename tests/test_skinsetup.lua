@@ -15,7 +15,7 @@ local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
 local OWNER = "PartyFrameEnhanced"
 local PATHS = { "skin.source", "skin.skin", "skin.ignorePanel", "skin.ignoreFonts", "skin.font",
-  "skin.texture", "skin.pickerSeen" }
+  "skin.texture", "skin.outline", "skin.pickerSeen" }
 
 -- ONE listener for the whole file: the library keeps a listener for the session, so each case
 -- resets the counter instead of registering again.

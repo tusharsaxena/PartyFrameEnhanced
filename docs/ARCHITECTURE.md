@@ -91,7 +91,7 @@ other row-less path is refused. On a full load the composed row takes the write 
 `tests/test_surface_parity.lua` pins it against the live instance and the library.
 
 - **The skin rows:** `skin.source`, `skin.skin`, `skin.ignorePanel`, `skin.ignoreFonts`,
-  `skin.font`, `skin.texture` and `skin.pickerSeen`, General's Skin tab (key `Appearance`). They
+  `skin.font`, `skin.texture`, `skin.outline` and `skin.pickerSeen`, General's Skin tab (key `Appearance`). They
   are schema rows like any other, written only through `NS.SetByPath`, but `skipRender`: the
   library's tab draws them ([§ Skins](#skins)).
 - **Structural registries:** none. The player creates and deletes nothing.

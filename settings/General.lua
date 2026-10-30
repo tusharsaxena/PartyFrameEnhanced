@@ -334,6 +334,21 @@ NS.RegisterSchemaRows({
         default    = D.skin.texture,
         onChange   = function(v) NS.ApplySkinOverride(nil, v) end,
     },
+    -- The Font outline (LibKa0s-Skin-1.0 minor 9, ruling D-06), the Skin tab's "Font outline"
+    -- dropdown: where the skin outlines this addon's text. The library's three modes, in its order.
+    {
+        path       = "skin.outline",
+        page       = PAGE,
+        group      = APPEARANCE,
+        skipRender = true,
+        type       = "string",
+        label      = L["Font outline"],
+        desc       = L["Where the skin outlines this addon's text: all of it, its HUD text only, or nowhere."],
+        default    = D.skin.outline,
+        values     = NS.SKIN_OUTLINE_VALUES,
+        sorting    = NS.SKIN_OUTLINE_SORTING,
+        onChange   = function(v) NS.ApplySkinOutline(v) end,
+    },
     -- The first-run skin picker's memory: set when the picker closes, so it shows once per
     -- profile. Drawn by nothing; a reset puts it back to false.
     {

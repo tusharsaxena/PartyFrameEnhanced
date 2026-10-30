@@ -110,6 +110,7 @@ Kit.run{
     "test_skin_hud",
     "test_skin_literals",
     "test_skin_picker",
+    "test_skin_outline",
     "test_surface_parity",
     { name = "test_diagnostics_contract", dir = "tests/_kit/" },
     "test_vendor_sync",

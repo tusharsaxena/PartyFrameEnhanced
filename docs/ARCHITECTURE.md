@@ -144,9 +144,10 @@ Limitations).
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, eighteen verbs in `NS.COMMANDS` — the thirteen reserved ones
+`/pfe` and `/partyframeenhanced`, nineteen verbs in `NS.COMMANDS` — the thirteen reserved ones
 (`enable` and `disable` among them, aliases for the `enabled` row and never a second switch, and
-`diagnostics`, which writes the report [debug.md](debug.md) describes) plus
+`diagnostics`, which writes the report [debug.md](debug.md) describes), the reserved `skin` (the
+skin picker on demand, LibKa0s v1.82.0's `O.SkinVerb`) plus
 `resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
 `OnInitialize` in either state, so `/pfe` answers while the addon is disabled and the pair is never
 one-way (slash-commands-§2). What it answers then is the **whole reserved set, behaving normally** —
@@ -154,8 +155,8 @@ and the bare `/pfe` opens the settings panel, which is the case that settled the
 reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/Slash.lua` hands it an
 `isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the standard's thirteen reserved verbs plus this
 addon's `status` and `profile`, so the report runs while the addon is disabled), and the library refuses everything else on one line it owns the
-wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
-are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
+wording of. `skin` and the three verbs that drive what this addon draws — `resetposition`, `lock`,
+`unlock` — are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
 `profile use <name>`) through the library's `cli:CliProfile` / `cli:ProfileSwitch` (Slash minor 17),
 given the store through the descriptor's `profiles` field, so an unknown name is refused and never
 created. Table and behavior: [slash-dispatch.md](slash-dispatch.md).

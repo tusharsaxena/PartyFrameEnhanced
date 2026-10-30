@@ -43,6 +43,8 @@ local addonName, NS = ...
 --                           held through combat. NS.ScheduleSkinPicker() lights its login fuse,
 --   NS.HideSkinPicker()     takes a shown picker down (or out of the queue) unmarked, and
 --   NS.SkinPickerSpec()     is the spec MaybeShowSkinPicker hands O.SkinPicker.
+--   NS.RunSkinVerb()        the reserved `/pfe skin` verb's act (LibKa0s v1.82.0, O.SkinVerb, D-16):
+--                           the same picker on demand, whatever `skin.pickerSeen` says.
 --   NS.SKIN_SOURCE_VALUES   the source row's values and order, and the skin row's (every
 --   NS.SKIN_SOURCE_SORTING  registered skin, in the library's order); settings/General.lua reads
 --   NS.SKIN_VALUES          all four at file load.
@@ -222,6 +224,28 @@ function NS.SkinPickerSpec()
         page = "general", tab = "Appearance",
         onPreview = previewSkin, onClose = pickerClosed,
     }
+end
+
+--- `/pfe skin` (settings/Slash.lua's `skin` row; the dispatcher refuses it while disabled):
+--- O.SkinVerb with the first-run spec, so it shows the picker a new profile shows whatever
+--- skin.pickerSeen says. The library prints its own lines (combat on every call, queued,
+--- unavailable); without LibKa0s the Options stub answers nil, "absent" and this prints the
+--- library-absent line. Answers the picker's frame, or nil and the reason.
+function NS.RunSkinVerb()
+    local O = NS.Helpers
+    local win, why
+    if O and type(O.SkinVerb) == "function" then
+        win, why = O.SkinVerb(NS.SkinPickerSpec())
+    else
+        why = "absent"
+    end
+    if win == nil and why == "absent" and NS.Print then
+        local L = NS.L
+        local line = L and L["%s is unavailable: the LibKa0s library did not load."]
+            or "%s is unavailable: the LibKa0s library did not load."
+        NS.Print(line:format("/pfe skin"))
+    end
+    return win, why
 end
 
 local function dropPickerDeferral()

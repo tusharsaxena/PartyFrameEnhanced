@@ -416,7 +416,7 @@ Total.
 - slash: `unlock` and `lock` write `locked` through the seam
 - slash: `set` parses and stores a schema value, `reset` puts it back
 - slash: `perf` prints what the harness returns
-- slash: NS.COMMANDS holds the eighteen verbs in their documented order
+- slash: NS.COMMANDS holds the nineteen verbs in their documented order
 - slash: bare `profile` lists the profiles, current marked, then the sub-verb help
 - slash: an unknown verb says so and prints help
 - slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
@@ -623,6 +623,15 @@ Total.
 - outline: a profile switch applies the incoming profile's mode, and back
 - outline: without the skin engine the apply is a quiet no-op
 
+### test_skin_verb.lua (6)
+
+- skin verb: the row sits right after config, with the library's help words
+- skin verb: /pfe skin shows the picker on a profile that has closed it
+- skin verb: NS.RunSkinVerb hands O.SkinVerb this addon's first-run spec
+- skin verb: in combat every call prints the library's gray line and shows nothing
+- skin verb: refused while the addon is disabled, and no picker shows
+- skin verb: without LibKa0s the verb prints the library-absent line
+
 ### test_surface_parity.lua (17)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
@@ -737,6 +746,7 @@ Total.
 | test_skin_literals.lua | 3 |
 | test_skin_picker.lua | 17 |
 | test_skin_outline.lua | 8 |
+| test_skin_verb.lua | 6 |
 | test_surface_parity.lua | 17 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
@@ -744,4 +754,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **546** |
+| **Total** | **552** |

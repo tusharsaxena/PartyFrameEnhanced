@@ -95,13 +95,13 @@ test("slash: `perf` prints what the harness returns", function()
   assertTrue(#slash("perf") > 0)
 end)
 
-test("slash: NS.COMMANDS holds the eighteen verbs in their documented order", function()
+test("slash: NS.COMMANDS holds the nineteen verbs in their documented order", function()
   -- red under: a verb added, dropped or moved without docs/ARCHITECTURE.md's Slash Commands table,
   -- docs/slash-dispatch.md and the help index moving with it. `profile` keeps its one row: the
-  -- `profile <name>` form is a word of that verb, not a nineteenth.
+  -- `profile <name>` form is a word of that verb, not a twentieth.
   local names = {}
   for _, e in ipairs(NS.COMMANDS) do names[#names + 1] = e[1] end
-  assertEqual(table.concat(names, ","), "help,config,enable,disable,list,get,set,reset,resetall,"
+  assertEqual(table.concat(names, ","), "help,config,skin,enable,disable,list,get,set,reset,resetall,"
     .. "resetposition,lock,unlock,status,debug,diagnostics,perf,version,profile")
 end)
 
@@ -262,8 +262,8 @@ test("slash: the gate is DENY BY DEFAULT -- every verb outside the live set refu
   NS.SetByPath("enabled", true)
 
   -- The inventory, so a verb quietly changing sides is a failure rather than a silent policy change.
-  assertEqual(table.concat(refused, ","), "resetposition,lock,unlock",
-    "the three verbs that drive what this addon draws, and only those")
+  assertEqual(table.concat(refused, ","), "skin,resetposition,lock,unlock",
+    "the skin picker and the three verbs that drive what this addon draws, and only those")
 end)
 
 test("slash: the live set still ANSWERS and still ACTS while the addon is off", function()

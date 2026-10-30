@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 25 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD, Show border under Ka0s Default |
+| SKIN-1 – 25 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -656,12 +656,14 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
 - **SKIN-4. Every skin, live, on the HUD (PF-03).** With the HUD showing and the three *Use the skin's
   …* boxes ticked on every page, pick each of the nine skins in turn, then Ka0s Default again → with
   **no reload**, each time, every cast bar, target frame and pet frame redraws in that skin's bar
-  texture and face (Ka0s Default Oxanium, Obsidian Inter, Azeroth Vollkorn, Glass Nunito, High
-  Contrast Atkinson Hyperlegible, Ember Bitter, WoW Default Friz Quadrata, WoW Midnight Philosopher,
-  WoW Forever Fira Sans), and, on a page with *Show border* on, the skin's border style. The bar colors (cast states,
+  texture and its own HUD face (LibKa0s v1.81.0: Ka0s Default Oxanium SemiBold, Obsidian Inter
+  SemiBold, Azeroth Vollkorn Bold, Glass Nunito SemiBold, High Contrast Atkinson Hyperlegible Bold,
+  Ember Bitter Bold, WoW Default Friz Quadrata, WoW Midnight Philosopher Bold, WoW Forever Fira Sans
+  SemiBold; on a default profile only WoW Default draws the same face as an unticked box), and, on a page with *Show border* on, the skin's border style. The bar colors (cast states,
   reaction, class, the pet green), the background, the text color, sizes, outline, the spark, the
   shield, the raid marker and the cast icon never change. *Failure:* an element still in the last
-  skin until `/reload`, a changed color or size, or text clipped in a wider face. Result:
+  skin until `/reload`, a changed color or size, Friz Quadrata under any skin but WoW Default, or text
+  clipped in a wider face (watch the cast bar's spell name and timer). Result:
 - **SKIN-5. A companion off keeps your own pick (PF-03; X4).** On Target Frames, untick *Use the
   skin's font* → *Font* un-grays and the target frames draw the face it names; pick another skin → the
   target frames keep that face while the cast bars and pet frames change. Tick it again → the target
@@ -682,14 +684,20 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   **Profiles** (AceConfigDialog's tree: its buttons, dropdowns and edit box) → each page takes the
   skin, redrawing when the skin changes. Open another Ka0s addon's settings and another AceGUI addon's,
   flip back and forth a few times → theirs stay as they were (the AceGUI pool leak check). Tick
-  **Ignore settings panel** again → every page here is stock, while the HUD and holders keep the skin.
+  **Ignore settings panel** again → every page here is stock, while the HUD, the holders, the tool
+  windows and the first-run picker keep the skin (the switch covers the settings panel only).
   *Failure:* a page or the Profiles tree left stock with the box unticked, or another addon's page
   skinned. Result:
 - **SKIN-8. The tool windows, every skin (PF-01).** Under a non-default skin (Azeroth reads clearest),
   open the debug console (`/pfe debug`), its **Copy** window and the perf panel (`/pfe perf`) → each
   wears the skin: the window edge and title, the log lines, the scroll bar, the close, copy and clear
-  marks. Back to **Ka0s Default** with the console open → it recolors with no reload and looks as it did
-  before this run. *Failure:* a window or its lines in the old colors. Result:
+  marks, the console's title-bar words (the logging toggle, the Diagnostics link) and the perf panel's
+  step and command columns in the skin's face, and the resize grip tinted. Back to **Ka0s Default**
+  with the console open → it recolors with no reload; since LibKa0s v1.81.0 those title-bar words and
+  columns are Oxanium where they were Friz Quadrata, and the grip is the client's own art. Tick
+  **Ignore fonts** → those words go back to the client's face, live; tick **Ignore settings panel**
+  instead → the windows keep the skin. *Failure:* a window or its lines in the old colors, a label left
+  in the skin's face with Ignore fonts ticked, or a window unskinned by Ignore settings panel. Result:
 - **SKIN-9. The Font and texture overrides (PF-01, PF-03).** On the Skin tab pick a **Font** (any
   installed one) and a **Texture** → with no reload the HUD takes both wherever its *Use the skin's
   font* and *texture* boxes are ticked, and the holders' captions take the font; a section with a box
@@ -729,12 +737,14 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   `Logs/taint.log` → nothing blames PartyFrameEnhanced. Result:
 - **SKIN-17. The first-run skin picker at login (PF-04; O3).** On a character that never ran this
   build (or after Profiles → *Reset Profile*), log in → about two seconds after the world loads a small
-  window titled **Choose a skin for Ka0s Party Frame Enhanced** opens about three quarters of the way
-  up the screen: a dropdown showing the skin worn now, an eye and a gear beside it, **Apply** under
+  window titled **Choose a skin** opens about three quarters of the way up the screen, with **Ka0s
+  Party Frame Enhanced** on its own line above the dropdown, whole (LibKa0s v1.81.0): a dropdown
+  showing the skin worn now, an eye and a gear beside it, **Apply** under
   it, and a close mark. A zone change or a dungeon entry does not bring it back. With the addon
   disabled (`/pfe disable`, `/reload`) it never opens; enabled again and `/reload` → it opens.
   Entering the world in combat → it waits until combat ends. *Failure:* no window on a fresh profile,
-  one on a profile that already closed it, one on a zone change, or one while the addon is off. Result:
+  one on a profile that already closed it, one on a zone change, one while the addon is off, or a title
+  or addon name that is cut off. Result:
 - **SKIN-18. The picker previews, Apply saves, a close puts it back (PF-04).** Open the dropdown → every
   skin listed with three swatches, each name in its own face. Pick **Obsidian** → with no reload the
   HUD, the holders and the picker repaint; the picker stays open; `/pfe get skin.skin` still prints
@@ -767,16 +777,19 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   Result:
 - **SKIN-23. One picker across Ka0s addons, and Apply to all (PF-04).** With another Ka0s addon that
   uses skins on a fresh profile too, `/reload` → only **one** picker opens; close it → the other opens,
-  titled for its addon. Reset both profiles, `/reload`, and press **Apply to all Ka0s addons** on the
+  naming its addon on the line above the dropdown (the title stays *Choose a skin*). Reset both profiles, `/reload`, and press **Apply to all Ka0s addons** on the
   first → both addons wear the pick, no second picker opens, and `/reload` brings neither back; the
   other addon keeps its own Font, Texture and Scope. *Failure:* two pickers at once, or one after Apply
   to all. Result:
-- **SKIN-24. Ignore fonts reaches the HUD (PF-03; review fix).** Under **Ka0s Default**, with the HUD
+- **SKIN-24. Ignore fonts reaches the HUD (PF-03; review fix; the library's since LibKa0s v1.81.0).** Under **Ka0s Default**, with the HUD
   showing and every *Use the skin's font* box ticked (the text in Oxanium), tick **Ignore fonts** on the
   Skin tab → with no reload the cast bar, target and pet text goes back to each section's own *Font*
   (Friz Quadrata on a default profile), as do the holders' captions; the bar textures stay the skin's.
-  Untick it → Oxanium again. Repeat under **Obsidian** with a section's *Font* set to something other
-  than Friz. *Failure:* HUD text that keeps the skin's face with the box ticked. Result:
+  Untick it → Oxanium again. Repeat under **Obsidian** (its HUD face is Inter SemiBold, so on a default
+  profile the text visibly goes back to Friz), then with a section's *Font* set to something other than
+  Friz → that face. With **Ignore fonts** ticked, open a section's composer → its grayed *Font* picker
+  shows the section's own face, not the skin's. *Failure:* HUD text that keeps the skin's face with the
+  box ticked. Result:
 - **SKIN-25. Show border under Ka0s Default needs your own style (PF-03; X5, D2).** On a **new**
   profile under **Ka0s Default**, Cast Bars → Bar, tick **Show border** → no border appears, because
   *Use the skin's border* is ticked and Ka0s Default's border is *None*. Untick *Use the skin's border*
@@ -850,3 +863,9 @@ Show border takes under Ka0s Default).
 
 After the LibKa0s v1.81.0 re-vendor (PF-RV of the 2026-10-30 skin library follow-ups): INSTALL-4 (rewritten:
 the v1.81.0 minors).
+
+After the 2026-10-30 skin library follow-ups (PF-01, PF-02): SKIN-4 (rewritten: each skin's own HUD
+face), SKIN-7 (amended: what Ignore settings panel leaves skinned), SKIN-8 (rewritten: the tool
+windows' labels in the skin's face, Ignore fonts on them, the resize grip), SKIN-17 and SKIN-23
+(amended: the picker titled *Choose a skin*, the addon's name above the dropdown) and SKIN-24
+(amended: the library's Ignore fonts, Obsidian's own face, the composer's picker).

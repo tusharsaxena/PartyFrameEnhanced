@@ -1,0 +1,29 @@
+Independent review (skin-library-followups M2, PartyFrameEnhanced): I found no blocking or major problems. The branch is ready to finalize. I checked every item in the brief:
+
+- **Vendor:** `libs/LibKa0s` and `tests/_kit` match `git archive v1.81.0` exactly (`diff -rq --strip-trailing-cr`), apart from the icon prune, which kept the declared clear, close, copy, eye and settings icons plus the license.
+- **Gate:** green at head 0cac3c4. The tests give 538 passed, 0 failed, 1 skipped (539 total), and `ka0s-bounded luacheck .` gives 0 warnings / 0 errors in 87 files.
+- **Commit subjects:** they carry PF-RV, PF-01 and PF-02 as required.
+
+**Workarounds.** The inventory names one workaround, `NS.SkinIgnoresFonts` and its patch in `Element.MediaKeys`. It is deleted from both arms of `core/SkinSetup.lua`, and its header line is gone too. I checked the library at the tag to be sure nothing was removed before the library covers it. `lib:Resolve` (`Skin.lua` around line 897) returns the stored value for `hud.font` and `hud.outline` while the owner ignores fonts, whatever the companion says. `Element`'s `resolved()` therefore gets the pick back, and a nil answer still falls back to the pick. So Ignore fonts reaches the HUD through the library.
+
+PF has no site for the other workaround classes: no stockDefault, no Scope guard, no ResetToSkin call, no DrawsKey, no tint, no `gtip.*`/`q.*` and no Reorder. The v1→v2 migration keeps its direct companion writes, which is correct under D-19; only its comment changed.
+
+**Scope (D-01..D-03).** The holders' caption is an unflagged `S.Text` on the HUD and stays skinned under the default Ignore settings panel. The `test_skin_holders` tests pass. PF places no library widget on a settings page and paints no settings-page surface of its own, so it needs no panel flag and no `GetIgnore` gate.
+
+**Ka0s Default.** Nothing in PF opts into a stock look, so Ka0s Default under this addon is the Ka0s look.
+
+**ResetToSkin.** No call exists, so the opt-in rule is not engaged.
+
+**Tests.** I mutated the library gate (`hudFontIgnored`) in a scratch copy. "skin hud: Ignore fonts gives the HUD the player's own face back, live" goes red, so the rewritten test pins the behaviour for real. The other failures in that run come from git-dependent tests in a non-git copy.
+
+**Smoke checks.** I verified them against the tag:
+- SKIN-4's HUD faces match SkinDefs `HUD_FACE`.
+- SKIN-8 matches the changelog: tool-window labels in the skin's face and Oxanium under Ka0s Default; the grip is `icon.grip`, false under Ka0s Default; the windows keep the skin under Ignore settings panel.
+- SKIN-17 and SKIN-23 match the picker: title "Choose a skin" and `frame.ownerLabel` above the dropdown.
+- SKIN-24's composer claim holds, because the composer's `skinValue` calls `Resolve(token, nil, true)`, which gives nil under Ignore fonts, so the row shows the stored value.
+- The INSTALL-4 minors match the vendored files.
+- Every changed check has an empty `Result:` line and is listed under Pending sign-off. None is marked passed.
+
+What remains are three small documentation inaccuracies.
+Findings: [minor] PF-02 settings/General.lua:309 (Ignore fonts row tooltip): The tooltip the player reads still says "Keep every font in this addon as the game draws it". Since v1.81.0, Ignore fonts makes the HUD use each section's own Font setting rather than the game's face. schema.md and settings-panel.md were updated to say this; the tooltip was not, so in-game text and the docs now disagree. The implementer flagged this and left it, and no ruling requires the change. | [nit] PF-02 docs/ARCHITECTURE.md ("The library draws the rest" bullet, around lines 466-469): The new sentence "*Ignore fonts* reaches every string the library paints, the tool windows' labels and the HUD included" claims more than the library does. Under D-15, the first-run picker's rows keep showing each skin's own face while Ignore fonts is on, and that picker is one of this addon's surfaces. | [nit] PF-RV docs/smoke-tests.md:58 (INSTALL-4 minor list): The v1.81.0 list leaves out five files whose minors moved in this release: WidgetsReorder 3, WidgetsLineChart 5, OptionsWidgets 36, OptionsScroll 9 and OptionsNav 4. The v1.80.0 list was a selected subset too, so this follows existing practice, but the line reads as a full statement of what the tag ships.
+Fix round: I checked the one finding (PF-02, minor) against the code and it was real. The tooltip at settings/General.lua:309 and its locale key in locales/enUS.lua:51-52 still said only "Keep every font in this addon as the game draws it", but docs/schema.md:32 and docs/settings-panel.md:91 say the HUD keeps each section's own Font. I changed the tooltip string and its enUS key/value together to: "Keep every font in this addon as the game draws it; the HUD keeps each section's own Font. The skin still colors the text." No other locale file and no test uses the old string. Both files are still CRLF; the edit was an in-line sed substitution, so the line endings were not touched. The commit stages only those two named files, and the message file is /tmp/claude-1000/pf-02-ignore-fonts-tooltip.txt. I stayed on feat/2026-10-30-skin-library-followups and did not push, tag, merge, bump a version or touch any other repo. The working tree is clean.

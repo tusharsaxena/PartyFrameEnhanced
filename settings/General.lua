@@ -306,7 +306,7 @@ NS.RegisterSchemaRows({
         skipRender = true,
         type       = "bool",
         label      = L["Ignore fonts"],
-        desc       = L["Keep every font in this addon as the game draws it. The skin still colors the text."],
+        desc       = L["Keep every font in this addon as the game draws it; the HUD keeps each section's own Font. The skin still colors the text."],
         default    = D.skin.ignoreFonts,
         onChange   = function(v) NS.ApplySkinIgnore(nil, v) end,
     },

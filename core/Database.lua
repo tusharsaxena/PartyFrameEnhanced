@@ -54,7 +54,9 @@ local HUD_SECTIONS = { "castbar", "target", "pet" }
 --- who turned Show border on would lose it; their companion is written FALSE instead, because the
 --- default (true) would otherwise apply (D2). The companions are written directly, never through
 --- Skin.ResetToSkin: on a raw stored profile the companion is absent (it is new), and ResetToSkin
---- would then write the "@skin" sentinel into the LSM key (Risks R3). The picks themselves are left
+--- before LibKa0s v1.81.0 (Skin minor 8) wrote the "@skin" sentinel there (Risks R3). The step has
+--- shipped, so it keeps its direct writes and never depends on what a given library minor does with
+--- an absent companion: a profile that migrates late gets the same result. The picks themselves are left
 --- alone, so a player who turns a companion off gets their old pick back. A section the profile never
 --- stored keeps the defaults, which already follow the skin. Idempotent.
 local function hudFollowsSkin(p)

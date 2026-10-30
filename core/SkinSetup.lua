@@ -21,8 +21,6 @@ local addonName, NS = ...
 --                           the Scope's `{ panel, fonts }`, writes the two exceptions, and `m`, the
 --                           Font and texture section's `{ font, texture }`, the two overrides ("" for
 --                           false, the skin's own). A nil half is not written.
---   NS.SkinIgnoresFonts()   true while the APPLIED Ignore fonts exception is on; the HUD's face
---                           asks it (modules/Element.lua). False without the library.
 --   NS.SkinOverride()       the stored overrides: font, texture, each an LSM key or false for the
 --                           skin's own.
 --   NS.ApplySkinChoice(s,k) moves the applied skin: `Skin:SetChoice`, which resolves, repaints every
@@ -334,8 +332,6 @@ if not Skin then
     S.BarStyle = function() return {} end
 
     NS.Skin = S
-    -- No skin, no exception: the HUD draws the player's own face already (S.Resolve above).
-    function NS.SkinIgnoresFonts() return false end
     function NS.ApplySkinChoice() return false, false end
     function NS.ApplySkinIgnore() return false, false end
     function NS.ApplySkinOverride() return false end
@@ -364,15 +360,6 @@ local function reloadLine()
     local L = NS.L
     return L and L["Reload your interface (/reload) to finish changing the skin."]
         or "Reload your interface (/reload) to finish changing the skin."
-end
-
---- True while the owner's APPLIED Ignore fonts exception is on (Skin:GetIgnore, the state the
---- library's own P.font asks). S.Resolve("hud.font") does not consult it, so modules/Element.lua
---- asks here and keeps the player's own face (composed on this side, gap policy rung 1). False on a
---- copy without GetIgnore.
-function NS.SkinIgnoresFonts()
-    if type(Skin.GetIgnore) ~= "function" then return false end
-    return select(2, Skin:GetIgnore(addonName)) == true
 end
 
 --- Paint an AceGUI container and every child for this owner; a copy whose SkinAce secondary did

@@ -600,11 +600,12 @@ Total.
 - skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile
 - skin fonts: v3 runs once; an OUTLINE the player picks after it is kept
 
-### test_skin_literals.lua (3)
+### test_skin_literals.lua (4)
 
 - skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
 - skin literals: every allow-list entry carries its reason
 - skin literals: the gate is falsifiable, a planted literal of each shape is reported
+- glyphs: no displayed string carries a character a shipped skin face cannot draw
 
 ### test_skin_picker.lua (17)
 
@@ -758,7 +759,7 @@ Total.
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 12 |
 | test_skin_fonts.lua | 11 |
-| test_skin_literals.lua | 3 |
+| test_skin_literals.lua | 4 |
 | test_skin_picker.lua | 17 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
@@ -769,4 +770,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **563** |
+| **Total** | **564** |

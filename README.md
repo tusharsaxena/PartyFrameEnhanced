@@ -4,7 +4,7 @@
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-563%2F563_passing-green)
+![Tests](https://img.shields.io/badge/Tests-564%2F564_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -98,7 +98,7 @@ Enhanced is built around that, so a pull can't break it.
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | On EllesmereUI and Blizzard's raid-style party frames they should move with their party member straight away; if they fade instead, send `/pfe diagnostics` with a bug report. On Blizzard's classic party frames they come back when combat ends, because the game doesn't let addons move clickable frames in combat. |
 | Cast bars or target frames draw over other windows, or hide behind something | By default they sit on the same layer as your party frames, so a window that covers your party frames covers them too. To change that, pick another layer under **Frame strata** on the **General** page. |
-| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border style and font follow the skin unless you untick **Use the skin's texture**, **border** or **font** on a page's **Bar** and **Text** tabs and pick your own. Your colors and sizes are never changed. |
+| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border style and font follow the skin unless you untick **Use the skin's texture**, **border** or **font** on a page's **Bar** and **Text** tabs and pick your own. Your colors are never changed, and your font sizes stay as you set them: while the font follows the skin, a skin with a wider or narrower face draws the text a little smaller or larger so it takes the same room. **Font flags** start on **From skin**, which follows the Skin tab's **Font outline** (all text, HUD text only, or off); pick a flag to keep your own. `/pfe skin` opens the skin window again whenever you want it. |
 | I ticked **Show border** and no border appears | Under the **Ka0s Default** skin the skin's border is *None*, and **Use the skin's border** is ticked by default. Untick it on the same **Bar** tab and pick a **Border style** to draw your own. |
 | The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
 | Something looks wrong and I want to report it | Follow [Reporting a bug](#reporting-a-bug) below. |
@@ -132,18 +132,25 @@ you file there gets seen.
 The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), licensed under the SIL
 Open Font License 1.1.
 
-Ka0s Default, the skin every profile starts on, draws [Oxanium](https://github.com/sevmeyer/oxanium)
-by The Oxanium Project Authors, also SIL Open Font License 1.1.
+Ka0s Default, the skin every profile starts on, draws [Prototype](https://www.dafont.com/prototype.font)
+v2.0 (2001). It is not under the OFL: it is "free for personal use, freely distributed with
+Prototype.txt", so the author's `Prototype.txt` ships beside it unchanged, on the owner's ruling of
+2026-10-30.
 
-The other skins draw on seven more SIL Open Font License 1.1 faces, one family per skin:
-[Inter](https://github.com/rsms/inter) by The Inter Project Authors,
+Obsidian draws [Expressway](https://www.dafont.com/expressway.font) Rg Bold 2.100 (2005) by Ray
+Larabie, Typodermic. It is not under the OFL either, and ships against its terms on the owner's
+ruling of 2026-10-30, with the Typodermic EULA (`Expressway-EULA.pdf`) and its quick guide
+(`Expressway-EULA-Guide.html`) beside it as the record of the terms that ruling overrode.
+Expressway is a trademark of Typodermic.
+
+The other skins draw on six more SIL Open Font License 1.1 faces, one family per skin:
 [Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
 [Vollkorn](https://github.com/FAlthausen/Vollkorn-Typeface) by The Vollkorn Project Authors,
 [Bitter](https://github.com/solmatas/BitterPro) by The Bitter Project Authors,
 [Philosopher](https://github.com/alexeiva/philosopher) by The Philosopher Project Authors,
-[Fira Sans](https://github.com/mozilla/Fira) by The Mozilla Foundation and Telefonica S.A., and
-[Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) by the Braille Institute of
-America. Inter, Nunito, Vollkorn, Bitter and Oxanium are static weights cut from upstream's
+[Fira Sans](https://github.com/mozilla/Fira) (Medium and SemiBold) by The Mozilla Foundation and
+Telefonica S.A., and [Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) by the
+Braille Institute of America. Nunito, Vollkorn and Bitter are static weights cut from upstream's
 variable fonts.
 
 The close, copy and clear marks on the debug console and the perf panel, and the skin picker's

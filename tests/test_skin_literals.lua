@@ -184,3 +184,10 @@ test("skin literals: the gate is falsifiable, a planted literal of each shape is
   assertEqual(table.concat(lines, ","), "2,3,5,6,7,11,12",
     "the literal lines and only those (a token call, an alpha literal and a comment pass)")
 end)
+
+-- The display-glyph guard (kit revision 45, LibKa0s v1.82.0; ruling D-19): no string this addon
+-- paints carries a character a shipped skin face cannot draw. adoptProfile's arguments are debug
+-- lines (core/PartyFrameEnhanced.lua: NS.Debug under its own tag), drawn by the console's mono face.
+test("glyphs: no displayed string carries a character a shipped skin face cannot draw", function()
+  T.assertDisplayGlyphs{ label = "PartyFrameEnhanced", debugNames = { "adoptProfile" } }
+end)

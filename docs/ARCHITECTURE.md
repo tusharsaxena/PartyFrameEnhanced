@@ -450,8 +450,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
   (DECISIONS PartyFrameEnhanced D2; [schema.md](schema.md#migrations)). **So under Ka0s Default the
   HUD looks different after this run** (X5, D11): the bars draw the Ka0s Default bar instead of
-  Blizzard's and their text Oxanium SemiBold instead of Friz Quadrata. That is the rulings' intended
-  change, not a regression.
+  Blizzard's and their text Ka0s Default's HUD face (Oxanium SemiBold then, Prototype since LibKa0s
+  v1.82.0) instead of Friz Quadrata. That is the rulings' intended change, not a regression.
 - **The free-placement holders** (`modules/Anchor.lua`) are the one surface outside the HUD this addon
   draws: the plate reads `pf.mover`, and the caption takes `S.Text`'s accent role (gold under Ka0s
   Default, as before, in the skin's body face).

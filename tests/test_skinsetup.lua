@@ -152,16 +152,16 @@ test("Skin seam: the write seam lands every half through NS.SetByPath", clean(fu
   local set = NS.SetByPath
   NS.SetByPath = function(path, v, ...) seen[#seen + 1] = path; return set(path, v, ...) end
   local ok, err = pcall(NS.WriteSkinChoice, "ka0s", "ember", { panel = false, fonts = true },
-    { font = "Ka0s Oxanium SemiBold", texture = false })
+    { font = "Ka0s Expressway", texture = false })
   NS.SetByPath = set
   if not ok then error(err, 0) end
   assertEqual(table.concat(seen, ","), "skin.source,skin.skin,skin.ignorePanel,skin.ignoreFonts,skin.font,skin.texture")
   assertEqual(NS.GetSetting("skin.ignorePanel"), false)
   assertEqual(NS.GetSetting("skin.ignoreFonts"), true)
-  assertEqual(NS.GetSetting("skin.font"), "Ka0s Oxanium SemiBold")
+  assertEqual(NS.GetSetting("skin.font"), "Ka0s Expressway")
   assertEqual(NS.GetSetting("skin.texture"), "", "false is stored as \"\", the skin's own")
   local font, texture = NS.SkinOverride()
-  assertEqual(font, "Ka0s Oxanium SemiBold")
+  assertEqual(font, "Ka0s Expressway")
   assertEqual(texture, false)
 end))
 
@@ -192,13 +192,13 @@ test("Skin seam: applying the stored profile carries its exceptions and override
   -- NS:InitDB and the profile events call NS.ApplySkinChoice() with no argument.
   -- red under: applying the stored pair and not the Scope or the overrides.
   local p = NS.db.profile.skin
-  p.skin, p.ignorePanel, p.ignoreFonts, p.font = "glass", false, true, "Ka0s Oxanium SemiBold"
+  p.skin, p.ignorePanel, p.ignoreFonts, p.font = "glass", false, true, "Ka0s Expressway"
   NS.ApplySkinChoice()
   assertEqual(select(2, Skin:GetChoice(OWNER)), "glass", "the stored skin")
   local panel, fonts = Skin:GetIgnore(OWNER)
   assertEqual(panel, false, "the stored panel exception")
   assertEqual(fonts, true, "the stored fonts exception")
-  assertEqual((Skin:GetOverride(OWNER)), "Ka0s Oxanium SemiBold", "the stored font override")
+  assertEqual((Skin:GetOverride(OWNER)), "Ka0s Expressway", "the stored font override")
 end))
 
 test("Skin seam: a profile switch applies the new profile's skin before anything is published", clean(function()

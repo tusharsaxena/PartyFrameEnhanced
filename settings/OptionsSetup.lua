@@ -156,6 +156,9 @@ if not lib then
     Helpers.KEYBINDS_UNCHANGED = ""
     -- The Reset all tooltip (LibKa0s v1.77.0, compose minor 11); inert, so an empty string.
     Helpers.ResetAllTooltip    = function() return "" end
+    -- The reserved `skin` verb's act (LibKa0s v1.82.0, OptionsSkinPicker minor 3's O.SkinVerb):
+    -- no picker without the library, so it answers why and NS.RunSkinVerb prints the absent line.
+    Helpers.SkinVerb = function() return nil, "absent" end
     Helpers.__panels   = function() return {} end
     Helpers.__panelFor = function() return nil end
 

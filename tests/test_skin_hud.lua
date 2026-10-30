@@ -96,7 +96,7 @@ test("skin hud: following the skin, an element draws Ka0s Default's bar, border 
     assertEqual(lastKey(fetched, "statusbar"), NS.Skin.Token("bar.texture"), "the bar texture")
     assertEqual(lastKey(fetched, "border"), NS.Skin.Token("bar.borderStyle"), "the border style")
     assertEqual(lastKey(fetched, "font"), NS.Skin.Token("hud.font"), "the HUD face")
-    assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "Ka0s Default's face (X5)")
+    assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "Ka0s Default's face (X5)")
   end))
 
 test("skin hud: a companion turned off draws the player's own pick again", withFetches(function(fetched)
@@ -129,22 +129,22 @@ test("skin hud: the structure memo holds the RESOLVED keys, so a skin switch res
   assertTrue(not Element.Reskin(el, cfg, nil), "nothing moved: the structural half is skipped")
   choose("obsidian")
   -- red under: the signature built from the stored picks, which a skin switch never moves.
-  assertTrue(NS.Skin.Token("hud.font") ~= "Ka0s Oxanium SemiBold", "Obsidian has its own HUD face")
+  assertTrue(NS.Skin.Token("hud.font") ~= "Ka0s Prototype", "Obsidian has its own HUD face")
   assertTrue(Element.Reskin(el, cfg, nil), "a new skin's keys move the memo")
   choose("ka0s")
   assertTrue(Element.Reskin(el, cfg, nil), "and back")
-  cfg.fontFromSkin = false   -- Friz, the stored pick, against Ka0s Default's Oxanium
+  cfg.fontFromSkin = false   -- Friz, the stored pick, against Ka0s Default's Prototype
   assertTrue(Element.Reskin(el, cfg, nil), "a companion toggle moves the memo")
 end))
 
 test("skin hud: Ignore fonts gives the HUD the player's own face back, live", withFetches(function(fetched)
-  -- Ka0s Default, whose HUD face (Oxanium) differs from the stored pick (Friz). The library's own
+  -- Ka0s Default, whose HUD face (Prototype) differs from the stored pick (Friz). The library's own
   -- S.Resolve answers the stored pick for hud.font while the owner ignores fonts (LibKa0s v1.81.0,
   -- Skin minor 8), so the addon composes nothing on its side: no seam of its own is left.
   assertEqual(NS.SkinIgnoresFonts, nil, "the addon's own Ignore fonts seam is gone")
   local el, cfg = probe("castbar")
   Element.Reskin(el, cfg, cfg, true)
-  assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "following: the skin's face")
+  assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "following: the skin's face")
   local ok, err = pcall(function()
     Skin:SetIgnore(OWNER, nil, true)
     settle()
@@ -163,7 +163,7 @@ test("skin hud: Ignore fonts gives the HUD the player's own face back, live", wi
   if not ok then error(err, 0) end
   assertEqual(select(2, Skin:GetIgnore(OWNER)), false, "the exception off again")
   Element.Reskin(el, cfg, cfg)
-  assertEqual(lastKey(fetched, "font"), "Ka0s Oxanium SemiBold", "the skin's face back, live")
+  assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "the skin's face back, live")
 end))
 
 test("skin hud: the HUD colors stay the player's under every skin (X4)", withFetches(function()

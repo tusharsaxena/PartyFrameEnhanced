@@ -10,7 +10,7 @@ local _, NS = ...
 -- panel (LibKa0s-Options-1.0), the CLI (LibKa0s-Slash-1.0: list/get/set/reset) and the reset paths
 -- all walk NS.Schema, so a new option is one row.
 --
--- Row fields this addon reads, beyond the libraries' own (docs/api Options "Row fields", Schema
+-- Row fields this addon reads, beyond the libraries' own (LibKa0s docs/api Options "Row fields", Schema
 -- "Row fields this major reads"):
 --   section  the CONFIG payload for the row: "master", "general", "castbar", "target", "pet".
 --            Derived from the path's first segment when absent; flat paths are "master".
@@ -309,7 +309,7 @@ NS.SetByPath     = inst.Set
 NS.ApplyDefault  = inst.ApplyDefault
 NS.Bulk = { Begin = inst.BulkBegin, End = inst.BulkEnd, Run = inst.BulkRun }
 
--- Allocation-free on a warm path: tests/perf.lua's resolveUnchanged is pinned at 0 bytes/iter.
+-- Allocation-free on a warm path: tests/perf.lua's resolveUnchanged measures 0 bytes/iter, under a 24-byte ceiling.
 NS.ResolvePath = SchemaLib.Read
 NS.SetPath     = SchemaLib.Write
 
@@ -326,9 +326,6 @@ end
 -- `[Set] reset profile '<name>' to defaults (N rows)` counts the rows the reset CHANGED, which only
 -- a caller running before the reset can know. Every reset this addon drives goes through
 -- NS.ResetProfileCounted; a reset it did not drive (an AceDBOptions button) logs no count.
-
--- How many profile rows sit off their default. No production caller; published for the headless suite.
-function NS.ProfileRowsOffDefault() return inst.CountOffDefault(profilePred) end
 
 function NS.ResetProfileCounted(db)
     inst.ResetCounted(function() db:ResetProfile() end, profilePred)

@@ -12,7 +12,7 @@ What to install is [`../DEPENDENCIES.md`](../DEPENDENCIES.md); this page is how 
 | Check | Command | Expected |
 |---|---|---|
 | Unit tests | `lua tests/run.lua` | every suite green (non-zero exit on any failure) |
-| Lint | `luacheck .` | `0 warnings / 0 errors` |
+| Lint | `~/.claude/dev-copilot/bin/ka0s-bounded luacheck .` | `0 warnings / 0 errors` |
 | Syntax-check one file | `luac5.1 -p <path/to/file.lua>` | no output |
 | In-game smoke tests | manual | [smoke-tests.md](./smoke-tests.md) |
 
@@ -92,7 +92,7 @@ There are **two checkpoints**, and a suite's answer differs between them:
 
 | Suite | Command | Run + commit | Release tag |
 |---|---|---|---|
-| `lint` | `luacheck .` | **gates** | **gates** |
+| `lint` | `~/.claude/dev-copilot/bin/ka0s-bounded luacheck .` | **gates** | **gates** |
 | `tests` | `lua tests/run.lua` | **gates** | **gates** |
 | `perf` | `lua tests/perf.lua` | no — recorded | **gates** — `pass` required |
 | `complexity` | `bash tests/_kit/run-automated-tests.sh --suite complexity` (sighted: the vendored kit measures a sanitized shadow, with parity) | no — recorded | **gates** — `pass`, zero functions above CCN 15 |

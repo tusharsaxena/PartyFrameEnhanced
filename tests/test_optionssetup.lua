@@ -257,7 +257,7 @@ end)
 test("optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn", function()
   -- LibKa0s#42: OptionsIdList draws an IdList help mark from Media.Icon(d.addonName, "info"). The
   -- descriptor must carry the folder name (vararg 1), not a title or a frame name. Since LibKa0s
-  -- v1.75.0 media/icons/ ships only what CLAUDE.md's `LibKa0s icons:` line declares (LibKa0s#57),
+  -- v1.75.0 libs/LibKa0s/media/icons/ ships only what CLAUDE.md's `LibKa0s icons:` line declares (LibKa0s#57),
   -- so `info` is owed only while a settings file draws an IdList; the kit's own parser reads the
   -- line, and tests/test_vendor_sync.lua gates declared == shipped. red under: `local _, NS = ...`,
   -- a dropped `addonName = addonName,` row, or an IdList added without declaring `info`.

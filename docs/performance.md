@@ -88,12 +88,14 @@ filtering brought them down. The scenarios below pin the same properties here fr
 | `followSyncUnchanged` | the in-combat follow's header sync (`modules/SecureFollow.lua`, #3), nothing changed: every LAYOUT, CONFIG, PROFILE and VISIBILITY runs it | 0 (0 attribute writes) | 0 | 0 attribute writes; ≤ 24 bytes (set 2026-10-01) |
 | `castStartStop` | start + stop on all five cast bars, after one untimed warm-up cycle | 55 | 0 | ≤ 24 bytes |
 | `castTick` | five casting bars at the 0.1 s text refresh | 10 | 0 | ≤ 24 bytes |
-| `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0 | 0 API calls; ≤ 24 bytes |
+| `targetTickUnchanged` | a ticker pass, five targets, health unchanged | 0 | 0.1 | 0 API calls; ≤ 24 bytes |
 | `targetTickMoving` | a ticker pass, five targets, health changing | 15 | 0 | ≤ 24 bytes |
 | `settingsDrag` | one color-picker commit on the cast bars | 25 (0 `SetPoint`) | 925.9 | reported only |
 | `probeOverheadOff` / `On` | one cast cycle, capture off vs on | 11 / 11 | 0 / 0.5 | off: 0 bracket calls (`debugprofilestop` + `Perf.Note`), the stand-in for instrumentation absent; same API count; off ≤ 24 bytes |
 
-Figures from 2026-10-01 (Lua 5.1.5, WSL2), runs of `tests/perf.lua` that agreed to the last digit.
+Figures from 2026-10-01 (Lua 5.1.5, WSL2), runs of `tests/perf.lua` that agreed to the last digit,
+re-measured on 2026-10-31 over three runs at LibKa0s v1.83.0. Every API and bytes figure held except
+`targetTickUnchanged`, which has read 0.1 bytes/iter since run `20261009-191745`, under its ceiling.
 Every ceiling is the figure measured plus 24 bytes — less than the 64 bytes one extra table costs, so
 the smallest allocation added to a hot path fails the run. Each was set on 2026-09-15 (`followSyncUnchanged`'s on 2026-10-01, when the scenario was added); `castStartStop`'s
 was re-derived on 2026-10-01 from 41 (16.6 + 24) to 24 (0 + 24), for the reason below.

@@ -80,7 +80,7 @@ end)
 -- Left-click opens the settings panel; right-click opens the client's context menu, which the
 -- library builds from the descriptor's accessor-and-toggle pairs. This addon has an enable switch
 -- and a lock and nothing else (no test mode: unlocking IS its preview, options-ui-§15; no primary
--- window), so the menu is *Enabled* and *Locked*, matching ADDONS.md's row. Every case below drives
+-- window), so the menu is *Enabled* and *Locked*, matching WowAddonStandards standards/ADDONS.md's row. Every case below drives
 -- the one object as the client does and reads the menu through tests/mock_menu.lua.
 
 local menu = mocks.__menu

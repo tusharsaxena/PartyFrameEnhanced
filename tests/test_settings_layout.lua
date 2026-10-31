@@ -351,3 +351,18 @@ test("layout: dependants say what they need, and the marker's point names the ba
     assertTrue(endsWith(tip(rows["target." .. key]), "Needs Color NPCs by reaction."), key)
   end
 end)
+
+test("layout: every media row is a Ka0sMedia picker, font and border among them", function()
+  local seen = {}
+  for _, page in ipairs({ "castbar", "target", "pet" }) do
+    for path, row in pairs(byPath(page)) do
+      local control = row.dialogControl
+      if control then
+        assertTrue(control:find("^Ka0sMedia_") ~= nil, path .. " draws " .. tostring(control))
+        seen[control] = true
+      end
+    end
+  end
+  assertTrue(seen.Ka0sMedia_Font, "a font row")
+  assertTrue(seen.Ka0sMedia_Border, "a border row")
+end)

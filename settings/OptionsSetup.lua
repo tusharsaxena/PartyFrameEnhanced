@@ -143,9 +143,6 @@ if not lib then
         "SetChromeHeight", "TabStrip", "PageHeader", "RenderTabbedSchema",
         "SelectTab", "ChoiceGrid", "IdInput", "IdList", "NavRail",
         "StrataTooltip", "KeybindingsTab", "KeybindRows",
-        -- The Position block (LibKa0s v1.84.0, compose minor 15): a page file would call it at load,
-        -- and none does here, so the no-op is the honest answer.
-        "PositionBlock",
         -- The Skin tab (LibKa0s v1.78.0) and the first-run skin picker (v1.79.0): AppearanceTab is
         -- called at render in the live arm only, and the picker needs the panel, so nil is honest.
         "AppearanceTab", "AppearanceRows", "SkinPicker", "HideSkinPicker",

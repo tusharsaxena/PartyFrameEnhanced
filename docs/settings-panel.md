@@ -93,7 +93,9 @@ so General's **Defaults**, *Reset all settings* and `/pfe set` all reach them.
 | Copy to every Ka0s addon… | — (button) | the library's: confirms, naming the loaded Ka0s addons that use skins, then writes this choice into each through its own write seam; disabled, with a hint, while no other loaded addon has adopted |
 
 `skin.pickerSeen`, the first-run skin picker's memory, is a row in the same group that nothing draws
-([schema.md](schema.md)). The picker's gear opens this tab.
+([schema.md](schema.md)). The picker's gear opens this tab, and since LibKa0s v1.83.0 the picker
+carries this tab's Font, Texture, Font outline and Scope rows too. The Font and Texture rows here and
+there are the library's `Ka0sMedia_*` pickers: each entry draws in its own face or beside its swatch.
 
 ## Cast Bars
 
@@ -134,11 +136,13 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 | Subgroup | Controls → path |
 |---|---|
 | Shown text | Show spell name → `showName` · Show time left → `showTime` |
-| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Use the skin's font → `fontFromSkin` |
+| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` |
 
 The three *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the picker
 it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture, border
-style or HUD font. Colors, sizes, flags and the shadow never follow the skin.
+style or HUD font. Colors and the shadow never follow the skin. While the font follows it, the drawn
+size scales with the skin's HUD size and the stored size is kept; Font flags on *From skin* follow the
+Skin tab's Font outline, and a picked flag wins.
 
 ### Icon
 

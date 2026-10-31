@@ -32,6 +32,7 @@ archaeology, for the same reason a skip is never a pass (`automated-tests-§4`).
 
 | Run | Commit | Tree | Version | Lint w/e | Files | Tests | Perf | NLOC | Funcs | Avg NLOC | Avg CCN | Max CCN | CCN warn | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [`20261101-001136`](20261101-001136/) | `b75dc68` | clean | 1.2.0 | 0/0 | 90 | 565/1/566 | pass | 14279 | 1997 | 6.4 | 2.1 | 15 | 0 | **green** |
 | [`20261031-211517`](20261031-211517/) | `f942fe1` | clean | 1.2.0 | 0/0 | 90 | 565/1/566 | pass | 14279 | 1997 | 6.4 | 2.1 | 15 | 0 | **green** |
 | [`20261031-202100`](20261031-202100/) | `531f3bc` | clean | 1.2.0 | 0/0 | 90 | 565/1/566 | pass | 14275 | 1996 | 6.4 | 2.1 | 15 | 0 | **green** |
 | [`20261009-191745`](20261009-191745/) | `5ef0164` | clean | 1.1.0 → 1.2.0 | 0/0 | 79 | 463/1/464 | pass | 11581 | 1639 | 6.4 | 2.1 | 14 | 0 | **green** |
@@ -52,10 +53,11 @@ archaeology, for the same reason a skip is never a pass (`automated-tests-§4`).
 ## Test suite
 
 **566 cases** — 565 passed, 0 failed, 1 skipped. The generated inventory
-[`20261031-211517/test-cases.md`](20261031-211517/test-cases.md) is the authority on which cases existed at this run;
+[`20261101-001136/test-cases.md`](20261101-001136/test-cases.md) is the authority on which cases existed at this run;
 `docs/test-cases.md` is that same list at HEAD.
 
-Unchanged from the previous run at 566 cases.
+The count has been **flat at 566 across the last 3 runs**. A suite that stopped growing while
+the addon did is a coverage gap, and it is the one thing the table above cannot show.
 
 **1 case(s) reported a `skip`.** A skip is counted in the total and never in `passed`, and at
 the release gate it is NOT EVALUATED rather than passed (`automated-tests-§3`).
@@ -72,27 +74,27 @@ to whoever thinks to open `.luacheckrc`.
 ## Perf
 
 **10 scenarios** from `tests/perf.lua`; the measurements are in
-[`20261031-211517/perf.json`](20261031-211517/perf.json).
+[`20261101-001136/perf.json`](20261101-001136/perf.json).
 
 | `scenario` | `iters` | `ms/iter` | `api/iter` | `bytes/iter` |
 |---|---|---|---|---|
-| `resolveUnchanged` | 1000 | 0.00873 | 0.0 | 0.0 |
-| `anchorUnchanged` | 1000 | 0.00542 | 0.0 | 0.0 |
-| `followSyncUnchanged` | 1000 | 0.00274 | 0.0 | 0.0 |
-| `castStartStop` | 1000 | 0.03558 | 55.0 | 0.0 |
-| `castTick` | 1000 | 0.00470 | 10.0 | 0.0 |
-| `targetTickUnchanged` | 1000 | 0.00342 | 0.0 | 0.1 |
-| `targetTickMoving` | 1000 | 0.00597 | 15.0 | 0.0 |
-| `settingsDrag` | 200 | 0.16438 | 25.0 | 925.9 |
-| `probeOverheadOff` | 1000 | 0.00665 | 11.0 | 0.0 |
-| `probeOverheadOn` | 1000 | 0.00734 | 11.0 | 0.5 |
+| `resolveUnchanged` | 1000 | 0.01301 | 0.0 | 0.0 |
+| `anchorUnchanged` | 1000 | 0.00530 | 0.0 | 0.0 |
+| `followSyncUnchanged` | 1000 | 0.00279 | 0.0 | 0.0 |
+| `castStartStop` | 1000 | 0.03011 | 55.0 | 0.0 |
+| `castTick` | 1000 | 0.00366 | 10.0 | 0.0 |
+| `targetTickUnchanged` | 1000 | 0.00281 | 0.0 | 0.1 |
+| `targetTickMoving` | 1000 | 0.00633 | 15.0 | 0.0 |
+| `settingsDrag` | 200 | 0.19990 | 25.0 | 925.9 |
+| `probeOverheadOff` | 1000 | 0.00668 | 11.0 | 0.0 |
+| `probeOverheadOn` | 1000 | 0.00843 | 11.0 | 0.5 |
 
 `perf` never fails a run and never blocks a commit — it is recorded, read and compared, not
 thresholded (`performance-§9`). It does gate the **tag** (`automated-tests-§3`).
 
 ## Complexity watch list
 
-Current as of [`20261031-211517`](20261031-211517/) — **this run's measurement, not its diff.** Max CCN **15** across 1997
+Current as of [`20261101-001136`](20261101-001136/) — **this run's measurement, not its diff.** Max CCN **15** across 1997
 functions, **0** of them warned on; 0 file(s) in the 1000–1500 band and 0 over the 1500 cap
 (`layout-§1`).
 

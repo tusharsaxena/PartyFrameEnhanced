@@ -264,8 +264,8 @@ test("disabled: the whole reserved surface still answers, and only feature verbs
   end
   NS.OpenOptionsPanel = savedOpen
 
-  assertEqual(table.concat(refused, ","), "resetposition,lock,unlock",
-    "the three verbs that drive what this addon draws, and only those")
+  assertEqual(table.concat(refused, ","), "skin,resetposition,lock,unlock",
+    "the skin picker and the three verbs that drive what this addon draws, and only those")
   assertEqual(NS.GetSetting("enabled"), false, "and none of that turned the addon back on")
 end)
 

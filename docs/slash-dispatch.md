@@ -11,6 +11,7 @@ The landing page renders the same table.
 |---|---|---|
 | `help` | the command list | yes |
 | `config` (alias `options`) | opens the settings panel on its landing page (bare `/pfe` does the same); refused in combat with a gray notice | yes |
+| `skin` | the skin picker a new profile shows, on demand, whatever `skin.pickerSeen` says (LibKa0s v1.82.0's `O.SkinVerb`, through `NS.RunSkinVerb` with `NS.SkinPickerSpec()`). In combat a gray line on every call and nothing shown; queued behind another Ka0s addon's picker, the library's line; without LibKa0s, `/pfe skin is unavailable: the LibKa0s library did not load.` **Refuses while the addon is disabled** | yes |
 | `enable` / `disable` | the addon-wide switch. **Aliases for the Master-controls *Enable Party Frame Enhanced* row** (slash-commands-§2), never a second switch: both write `enabled` through `NS.SetByPath`, run its `onChange` (`NS.PublishVisibility`) and hold no state of their own. On a load without LibKa0s the row is absent and the write lands through the schema's `writeThrough` list, without the `onChange`. The echo is the shared `path = value` formatter, read back from the store after the write | yes |
 | `list` | every setting and its value, grouped by page | yes |
 | `get <path>` | one setting's value | yes |
@@ -54,10 +55,11 @@ empty data.
 > surface a player uses to switch it back on by hand. This addon tracks the reversal (LibKa0s
 > v1.41.0, `LibKa0s-Slash-1.0` minor 13).
 
-**Only a verb that drives the features refuses.** With `enabled` false, `resetposition`, `lock` and
-`unlock` answer on **one** tagged line and do nothing else — no partial work, no side effect, no
-second line. All three drive what the addon draws, and unlocking *is* this addon's preview switch
-(options-ui-§15). Acting would be wrong twice over: the player asked for something the addon is
+**Only a verb that drives the features refuses.** With `enabled` false, `skin`, `resetposition`,
+`lock` and `unlock` answer on **one** tagged line and do nothing else — no partial work, no side
+effect, no second line. The last three drive what the addon draws, and unlocking *is* this addon's
+preview switch (options-ui-§15); `skin` opens the picker, whose eye unlocks, and the reserved verb is
+refused while disabled (ruling D-16 of the 2026-10-30 skin fonts run). Acting would be wrong twice over: the player asked for something the addon is
 standing down from, and a silent no-op leaves them with no clue why nothing happened.
 
 **The gate is the library's.** `settings/Slash.lua` hands `LibKa0s-Slash-1.0` an `isEnabled` reader
@@ -84,8 +86,9 @@ the library's default, so the thirteen are spelled out beside them. Widening is 
 would not be.
 
 `tests/test_slash.lua` and `tests/test_disabled.lua` pin all of it: the bare `/pfe` opens the panel
-while disabled, every reserved verb answers normally, the three feature verbs answer on exactly one
-line matching the library's own, and the seam is never entered.
+while disabled, every reserved verb but `skin` answers normally, the four refused verbs (`skin`,
+`resetposition`, `lock`, `unlock`) answer on exactly one line matching the library's own, and the seam
+is never entered.
 
 ## Output
 

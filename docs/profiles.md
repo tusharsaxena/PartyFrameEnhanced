@@ -27,7 +27,7 @@ The switch's one debug line is the handler's below, not the verb's.
 Everything in `defaults/Profile.lua`: Master controls, the frame-system choice, and every feature's
 settings — including each feature's free-placement position, so switching profile moves the stacks
 too. The skin is in the profile too (`skin.*`: the source, the skin, the Scope, the Font and
-texture overrides and whether the first-run skin picker was closed), so a switch changes the look. Session state (the debug flag, preview mode, the combat flag) is never in a profile.
+texture overrides, the Font outline and whether the first-run skin picker was closed), so a switch changes the look. Session state (the debug flag, preview mode, the combat flag) is never in a profile.
 
 The perf capture ring (`PartyFrameEnhancedPerfDB`) is deliberately **outside** the profile tree, so a
 copy, reset or switch never touches it.

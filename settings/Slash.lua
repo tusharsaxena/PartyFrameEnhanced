@@ -24,6 +24,10 @@ NS.COMMANDS = {
         function() cli:PrintHelp() end},
     {"config",   L["Open the settings panel"],
         function() NS.OpenOptionsPanel() end},
+    -- The reserved `skin` verb (LibKa0s v1.82.0's O.SkinVerb, ruling D-16): the skin picker on
+    -- demand. Not on the live set below, so it is refused while disabled.
+    {"skin",     L["Choose a skin: open the skin picker"],
+        function() NS.RunSkinVerb() end},
     {"enable",   L["Turn the addon on"],
         function() runEnabled(true) end},
     {"disable",  L["Turn the addon off without unloading it"],
@@ -89,9 +93,10 @@ NS.COMMANDS = {
 -- spelled out here too. Widening is conformant and owes no deviation row; what a host must never do
 -- is REFUSE something on the standard's live set, and nothing is missing from the list below.
 --
--- WHAT IS LEFT, AND IT IS THE REFUSAL §2 ASKS FOR: `resetposition`, `lock` and `unlock`. All three
--- drive the display — unlocking IS this addon's preview switch (options-ui-§15) — so a disabled
--- addon answers them on the one line and does nothing else.
+-- WHAT IS LEFT, AND IT IS THE REFUSAL §2 ASKS FOR: `resetposition`, `lock`, `unlock` and `skin`.
+-- The first three drive the display — unlocking IS this addon's preview switch (options-ui-§15) —
+-- and `skin` opens the picker, whose eye unlocks (ruling D-16 refuses it while disabled), so a
+-- disabled addon answers them on the one line and does nothing else.
 local LIVE_WHILE_DISABLED = {
     "help", "config", "version", "enable", "disable", "debug", "perf",
     "get", "set", "list", "reset", "resetall", "diagnostics",

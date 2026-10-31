@@ -19,11 +19,13 @@ NS.defaults.profile = {
     -- tab on the General page (core/SkinSetup.lua). Ka0s Default, the look before skins. The Scope:
     -- the settings panel left the client's, the fonts skinned (the owner's call for LootHistory,
     -- 2026-10-27). The Font and texture overrides: an LSM key each, "" for the skin's own.
+    -- `outline`, the Font outline (LibKa0s v1.82.0, ruling D-06): "all" text, "hud" text only (the
+    -- default since v1.83.0, D-10), "off".
     -- `pickerSeen`: the first-run skin picker was closed on this profile, so every profile, old or
     -- new, shows it once (ruling O3 of the 2026-10-29 rollout).
     skin = {
         source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
-        font = "", texture = "", pickerSeen = false,
+        font = "", texture = "", outline = "hud", pickerSeen = false,
     },
 
     general = {
@@ -77,7 +79,9 @@ NS.defaults.profile = {
         -- Text
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 11,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        -- Font flags: "@skin", From skin (LibKa0s v1.82.0, ruling D-07): the Skin tab's Font
+        -- outline decides; a picked flag wins. v3 (core/Database.lua) moved a stored OUTLINE here.
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showTime = true,
 
         -- Icon and marks
@@ -110,7 +114,7 @@ NS.defaults.profile = {
 
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 10,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showPercent = true,
 
         -- The marker's center sits on this point of the bar, nudged by the offsets (before Master
@@ -138,7 +142,7 @@ NS.defaults.profile = {
 
         font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 9,
         fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "OUTLINE", fontShadow = false,
+        fontFlags = "@skin", fontShadow = false,
         showName = true, showPercent = false,
 
         -- As the target frame's: the marker's center on this point of the bar, nudged by the offsets.

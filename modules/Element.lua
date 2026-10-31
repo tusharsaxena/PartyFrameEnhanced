@@ -22,6 +22,21 @@ local MARKER_TEXTURE = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
 -- A composer flag value meaning "no outline" is SetFont's empty string.
 local FONT_FLAGS = { NONE = "" }
 
+--- The flags and the size `cfg`'s text draws with now (LibKa0s v1.82.0, SkinPaintExtras minor 7;
+--- rulings D-07 and D-09). Flags: a picked one as stored; From skin ("@skin", the default) through
+--- the Skin tab's Font outline, S.FontFlags. Size: on the skin's face (the font companion on) the
+--- stored size scaled by the skin's HUD size over Ka0s Default's, S.HudFontSize, so the text is as
+--- wide in every skin; on the player's own face, or while the owner ignores fonts, as stored. The
+--- stored values are never rewritten. Both resolve at RESKIN time and enter the structure signature,
+--- so an outline or skin change restyles.
+function Element.FontStyle(cfg)
+    local stored = cfg.fontFlags
+    if stored ~= nil and FONT_FLAGS[stored] then stored = FONT_FLAGS[stored] end
+    local flags = NS.Skin.FontFlags(stored)
+    local size = NS.Skin.HudFontSize(cfg.fontSize or 11, cfg.fontFromSkin == true)
+    return flags, size
+end
+
 --- Add the shared regions to `root`. opts = { icon, spark, shield, marker }.
 function Element.Build(root, opts)
     opts = opts or {}
@@ -94,8 +109,9 @@ end
 --
 -- Three media picks follow the skin while their composer companion (`<key>FromSkin`, default true:
 -- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border style
--- (`bar.borderStyle`) and the text face (`hud.font`). Only those three: the HUD COLORS, sizes, flags
--- and shadow stay the player's (X4). Each resolves through the facade at RESKIN time, never on the
+-- (`bar.borderStyle`) and the text face (`hud.font`). The HUD COLORS and shadow stay the player's
+-- (X4); since LibKa0s v1.82.0 the size scales with the skin while the face does and the flags'
+-- From skin follows the Font outline (Element.FontStyle, rulings D-07 and D-09). Each resolves through the facade at RESKIN time, never on the
 -- hot path (the cast OnUpdate, the target ticker, applyFill), and the resolved LSM key, not the
 -- stored pick, enters the structure signature, so a skin switch moves the memo. A skin that leaves a
 -- token alone falls back to the player's own pick. Never S.BarTexture: that records the bar and
@@ -188,10 +204,10 @@ local function applyFont(fs, font, size, flags, shadow)
 end
 
 -- Both text lines in the configured face: the name on the left, clipped by the right-hand one.
-local function applyFonts(el, cfg, fontKey, scale)
+-- `flags` and `size` are Element.FontStyle's, resolved once per restyle.
+local function applyFonts(el, cfg, fontKey, scale, flags, size)
     local font = NS.FetchMedia("font", fontKey, C.FALLBACK_FONT)
-    local size = (cfg.fontSize or 11) * scale
-    local flags = FONT_FLAGS[cfg.fontFlags] or cfg.fontFlags or ""
+    size = size * scale
     applyFont(el.text, font, size, flags, cfg.fontShadow)
     applyFont(el.text2, font, size, flags, cfg.fontShadow)
     el.text2:ClearAllPoints()
@@ -207,14 +223,15 @@ end
 -- same finding KickCD recorded as F-015). IF YOU ADD A CONFIG READ TO THE STRUCTURAL HALF, ADD THE
 -- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
 -- The three media keys are the RESOLVED ones (Element.MediaKeys): a companion toggle, a skin switch
--- or a font or texture override moves them, and the memo with them.
-local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey)
+-- or a font or texture override moves them, and the memo with them. So are the font flags and size
+-- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them.
+local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size)
     return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
         tostring(textureKey), tostring(cfg.borderShow), tostring(styleKey),
-        tostring(cfg.borderSize), tostring(fontKey), tostring(cfg.fontSize),
-        tostring(cfg.fontFlags), tostring(cfg.fontShadow), tostring(cfg.markerPoint),
+        tostring(cfg.borderSize), tostring(fontKey), tostring(size),
+        tostring(flags), tostring(cfg.fontShadow), tostring(cfg.markerPoint),
         tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY))
 end
 
@@ -232,7 +249,8 @@ function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
     look = look or {}
     local textureKey, styleKey, fontKey = Element.MediaKeys(cfg)
-    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey)
+    local flags, size = Element.FontStyle(cfg)
+    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size)
     if force or el.__structure ~= sig then
         el.__structure = sig
         local h = (cfg.height or 16) * scale
@@ -242,7 +260,7 @@ function Element.Reskin(el, cfg, look, force)
         applyBar(el, textureKey, applyIcon(el, h, look))
         applyMarks(el, h, cfg, scale)
         applyBorder(el, cfg, styleKey)
-        applyFonts(el, cfg, fontKey, scale)
+        applyFonts(el, cfg, fontKey, scale, flags, size)
         applyMasterAlpha(el)
         return true
     end

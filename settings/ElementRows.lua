@@ -107,7 +107,9 @@ end
 function ElementRows.Font(page, prefix, D)
     return H.FontGroup({
         prefix = prefix, page = page, group = L["Text"], subgroup = L["Font"], order = 30,
-        classColor = UNIT_CLASS, fromSkin = true,
+        -- flagsFromSkin (OptionsCompose minor 14, ruling D-07): Font flags lead with From skin,
+        -- the default, drawn through S.FontFlags (modules/Element.lua's Element.FontStyle).
+        classColor = UNIT_CLASS, fromSkin = true, flagsFromSkin = true,
         defaults = {
             font = D.font, fontFromSkin = D.fontFromSkin, fontSize = D.fontSize, fontColor = D.fontColor,
             useClassColorFont = D.useClassColorFont, fontFlags = D.fontFlags,

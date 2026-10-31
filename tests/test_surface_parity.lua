@@ -325,3 +325,28 @@ test("parity: each host-copy skin token is the live library's Ka0s Default value
   end
   assertTrue(n > 0, "the host copy is empty, so this case asserts nothing")
 end)
+
+test("parity: the degraded Skin facade's FontFlags and HudFontSize never answer nil", function()
+  -- Without the library a restyle still runs Element.FontStyle, which hands SetFont the flags and
+  -- multiplies the size by Master scale; a nil from either raises on every restyle.
+  -- red under: either override removed, so the generic no-op answers nil.
+  local NS2 = skinNS()
+  local S2 = NS2.Skin
+  local function eq(label, got, want)
+    assertTrue(got == want, ("%s: got %s, want %s"):format(label, tostring(got), tostring(want)))
+  end
+  eq("FontFlags(\"@skin\")", S2.FontFlags("@skin"), "OUTLINE")
+  eq("FontFlags(nil)", S2.FontFlags(nil), "OUTLINE")
+  eq("FontFlags(\"\")", S2.FontFlags(""), "")
+  eq("FontFlags(\"THICKOUTLINE\")", S2.FontFlags("THICKOUTLINE"), "THICKOUTLINE")
+  eq("HudFontSize(10)", S2.HudFontSize(10), 10)
+  eq("HudFontSize(nil)", S2.HudFontSize(nil), 12)
+  eq("HudFontSize(0)", S2.HudFontSize(0), 12)
+  -- End to end through the library-absent load's own Element: what a restyle would draw.
+  local flags, size = NS2.Element.FontStyle({ fontFlags = "@skin", fontSize = 14, fontFromSkin = true })
+  eq("degraded Element.FontStyle flags", flags, "OUTLINE")
+  eq("degraded Element.FontStyle size", size, 14)
+  flags, size = NS2.Element.FontStyle({ fontFlags = "NONE" })
+  eq("degraded Element.FontStyle NONE flags", flags, "")
+  eq("degraded Element.FontStyle default size", size, 11)
+end)

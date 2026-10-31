@@ -19,7 +19,8 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 ([the design](superpowers/specs/2026-09-15-test-mode-design.md)).
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
-for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for media pickers,
+for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for the HUD rows' media pickers (the Skin tab and
+the skin picker draw LibKa0s's own, `Ka0sMedia_*`, since v1.83.0),
 and **LibKa0s** vendored whole at the tag `CLAUDE.md`'s provenance line names, except `media/icons/`, which is pruned to the `LibKa0s icons:` line under it (library-stack-§7), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes thirteen LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Skin
@@ -91,7 +92,7 @@ other row-less path is refused. On a full load the composed row takes the write 
 `tests/test_surface_parity.lua` pins it against the live instance and the library.
 
 - **The skin rows:** `skin.source`, `skin.skin`, `skin.ignorePanel`, `skin.ignoreFonts`,
-  `skin.font`, `skin.texture` and `skin.pickerSeen`, General's Skin tab (key `Appearance`). They
+  `skin.font`, `skin.texture`, `skin.outline` and `skin.pickerSeen`, General's Skin tab (key `Appearance`). They
   are schema rows like any other, written only through `NS.SetByPath`, but `skipRender`: the
   library's tab draws them ([§ Skins](#skins)).
 - **Structural registries:** none. The player creates and deletes nothing.
@@ -144,9 +145,10 @@ Limitations).
 
 ## Slash Commands
 
-`/pfe` and `/partyframeenhanced`, eighteen verbs in `NS.COMMANDS` — the thirteen reserved ones
+`/pfe` and `/partyframeenhanced`, nineteen verbs in `NS.COMMANDS` — the thirteen reserved ones
 (`enable` and `disable` among them, aliases for the `enabled` row and never a second switch, and
-`diagnostics`, which writes the report [debug.md](debug.md) describes) plus
+`diagnostics`, which writes the report [debug.md](debug.md) describes), the reserved `skin` (the
+skin picker on demand, LibKa0s v1.82.0's `O.SkinVerb`) plus
 `resetposition`, `lock`, `unlock`, `status` and `profile`. The dispatcher is registered in
 `OnInitialize` in either state, so `/pfe` answers while the addon is disabled and the pair is never
 one-way (slash-commands-§2). What it answers then is the **whole reserved set, behaving normally** —
@@ -154,8 +156,8 @@ and the bare `/pfe` opens the settings panel, which is the case that settled the
 reversal of an earlier narrowing. The gate is `LibKa0s-Slash-1.0`'s: `settings/Slash.lua` hands it an
 `isEnabled` reader, a `brandName` and the live set (`LIVE_WHILE_DISABLED`, the standard's thirteen reserved verbs plus this
 addon's `status` and `profile`, so the report runs while the addon is disabled), and the library refuses everything else on one line it owns the
-wording of. The three verbs that drive what this addon draws — `resetposition`, `lock`, `unlock` —
-are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
+wording of. `skin` and the three verbs that drive what this addon draws — `resetposition`, `lock`,
+`unlock` — are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
 `profile use <name>`) through the library's `cli:CliProfile` / `cli:ProfileSwitch` (Slash minor 17),
 given the store through the descriptor's `profiles` field, so an unknown name is refused and never
 created. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
@@ -397,14 +399,15 @@ collection's first adopter; only the paths, the brand and the preview are this a
   plate's wash: Ka0s Default's exact `0, 0.6, 1, 0.25`, every other skin its `list.sel`, except High Contrast, whose `list.sel` is opaque black, so
   its plate is its yellow focus color at 0.25; gap PF-G1).
   It publishes `NS.Skin`, the owner's facade, which every surface this addon draws reads, and
-  `NS.ApplySkinChoice`, `NS.ApplySkinIgnore`, `NS.ApplySkinOverride`, `NS.SkinPaintAceTree` and the
-  picker's three functions ([module-map.md](module-map.md)). Without the library a degraded facade
+  `NS.ApplySkinChoice`, `NS.ApplySkinIgnore`, `NS.ApplySkinOverride`, `NS.ApplySkinOutline`,
+  `NS.SkinPaintAceTree`, the picker's four functions and `NS.RunSkinVerb`
+  ([module-map.md](module-map.md)). Without the library a degraded facade
   answers every vocabulary name, `Token` and `Color` from `NS.SKIN_FALLBACK` and the owner token's
   default, and `Resolve` answers the player's own pick, so the addon draws what it drew before skins.
   `tests/test_surface_parity.lua` holds the degraded facade and the fallback copy to the live library.
-- **The choice is per profile.** Seven rows under `skin.` ([schema.md](schema.md)): the source and the
+- **The choice is per profile.** Eight rows under `skin.` ([schema.md](schema.md)): the source and the
   skin, the Scope's two exceptions (*Ignore settings panel*, on in a new profile, and *Ignore fonts*),
-  the Font and texture overrides (`""` for the skin's own) and `pickerSeen`. All but `pickerSeen` are
+  the Font and texture overrides (`""` for the skin's own), the Font outline and `pickerSeen`. All but `pickerSeen` are
   drawn by the library's Skin tab (`O.AppearanceTab`, key `Appearance`), General's last tab, since the
   page has no Keybindings tab ([settings-panel.md](settings-panel.md#skin)). Each row's `onChange`
   applies only its own half, so a tab pick or another addon's *Copy to every Ka0s addon* is one
@@ -422,8 +425,14 @@ collection's first adopter; only the paths, the brand and the preview are this a
   resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
   companion)` at restyle time only, never on the hot path, and falls back to the player's pick where
   the facade answers nothing (since LibKa0s v1.81.0 every Ka0s skin names its own `hud.font`, so
-  for the face that is the degraded facade). Colors, sizes, the outline, the shadow, the spark, the
-  shield, the raid
+  for the face that is the degraded facade). Since LibKa0s v1.82.0 two more follow it, through
+  `Element.FontStyle` at restyle time, both in the structure signature: the **size**, while the face
+  follows the skin (`S.HudFontSize(stored, fontFromSkin)`: the stored size times the skin's HUD size
+  over Ka0s Default's 12, so the text is as wide in every skin; the stored value is never
+  rewritten; its own face or *Ignore fonts* draws the stored size), and the **Font flags**' default,
+  *From skin* (`"@skin"`, `S.FontFlags`), which follows the Skin tab's *Font outline* (OUTLINE under
+  All text and HUD text only, none under Off); a flag the player picked wins. Colors, the shadow,
+  the spark, the shield, the raid
   marker and the cast-state, reaction and class colors stay the player's or the client's under every
   skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
@@ -443,8 +452,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
   (DECISIONS PartyFrameEnhanced D2; [schema.md](schema.md#migrations)). **So under Ka0s Default the
   HUD looks different after this run** (X5, D11): the bars draw the Ka0s Default bar instead of
-  Blizzard's and their text Oxanium SemiBold instead of Friz Quadrata. That is the rulings' intended
-  change, not a regression.
+  Blizzard's and their text Ka0s Default's HUD face (Oxanium SemiBold then, Prototype since LibKa0s
+  v1.82.0) instead of Friz Quadrata. That is the rulings' intended change, not a regression.
 - **The free-placement holders** (`modules/Anchor.lua`) are the one surface outside the HUD this addon
   draws: the plate reads `pf.mover`, and the caption takes `S.Text`'s accent role (gold under Ka0s
   Default, as before, in the skin's body face).
@@ -458,7 +467,10 @@ collection's first adopter; only the paths, the brand and the preview are this a
   D6): the placeholders on the real party frames, or the stand-in out of a party. It leaves the
   addon unlocked, and is refused where the unlock is (combat, a perf suspend). Since LibKa0s v1.81.0
   (OptionsSkinPicker minor 2) the window is titled *Choose a skin* and the brand, *Ka0s Party Frame
-  Enhanced*, has its own line above the dropdown (`frame.ownerLabel`), the window widening to fit it.
+  Enhanced*, has its own line above the dropdown (`frame.ownerLabel`), the window widening to fit it. Since
+  LibKa0s v1.83.0 it also carries the Skin tab's rows: Font and Texture as media pickers, Font outline
+  and the Scope. They preview like a skin pick, and Apply saves them through `NS.WriteSkinChoice`.
+  `/pfe skin` (`NS.RunSkinVerb`, `O.SkinVerb`) shows the same window on demand.
 - **The library draws the rest.** The settings pages (the Options descriptor's `addonName` is the
   owner), the debug console and its copy window, and the perf panel are the library's and carry the
   owner already. The Profiles page's AceConfigDialog tree is painted after every Open
@@ -543,7 +555,7 @@ It is parked as an enhancement with the collection-wide WoW:F support work, LibK
 | Doc | Status | Trigger |
 |---|---|---|
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
-| `slash-dispatch.md` | Present | 18 commands in `NS.COMMANDS` (trigger: eight or more) |
+| `slash-dispatch.md` | Present | 19 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 14 shims (the standard's grep over `core/Compat.lua`, `grep -cE '^\s*function\s+[A-Za-z_][A-Za-z0-9_]*\.' core/Compat.lua`), plus `IsSecret` routed from `LibKa0s-Compat-1.0`, which is the library's and is not counted (trigger: three or more) |

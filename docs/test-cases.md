@@ -416,7 +416,7 @@ Total.
 - slash: `unlock` and `lock` write `locked` through the seam
 - slash: `set` parses and stores a schema value, `reset` puts it back
 - slash: `perf` prints what the harness returns
-- slash: NS.COMMANDS holds the eighteen verbs in their documented order
+- slash: NS.COMMANDS holds the nineteen verbs in their documented order
 - slash: bare `profile` lists the profiles, current marked, then the sub-verb help
 - slash: an unknown verb says so and prints help
 - slash: `enable` and `disable` are ALIASES for the Enable row -- no state of their own
@@ -586,11 +586,26 @@ Total.
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
-### test_skin_literals.lua (3)
+### test_skin_fonts.lua (11)
+
+- skin fonts: every HUD section's Font flags default to From skin
+- skin fonts: every HUD Font block is the minimum set, class color included
+- skin fonts: /pfe set takes From skin and every picked flag
+- skin fonts: From skin draws through the Font outline
+- skin fonts: a flag the player picked wins over the Font outline
+- skin fonts: a Font outline change restyles the live elements
+- skin fonts: on the skin's face the HUD size scales with the skin; its own face keeps it
+- skin fonts: Ka0s Default keeps the stored size, and Master scale still multiplies
+- skin fonts: a skin switch moves the drawn size on the live elements
+- skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile
+- skin fonts: v3 runs once; an OUTLINE the player picks after it is kept
+
+### test_skin_literals.lua (4)
 
 - skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
 - skin literals: every allow-list entry carries its reason
 - skin literals: the gate is falsifiable, a planted literal of each shape is reported
+- glyphs: no displayed string carries a character a shipped skin face cannot draw
 
 ### test_skin_picker.lua (17)
 
@@ -612,7 +627,27 @@ Total.
 - Profiles page: the tree AceConfigDialog drew is painted for this owner, after the Open
 - Profiles page: the seam binds the owner and degrades to nothing painted
 
-### test_surface_parity.lua (17)
+### test_skin_outline.lua (8)
+
+- outline: a fresh profile stores HUD text only, the library's default
+- outline: the schema row is the Skin tab's, with the library's three modes in its order
+- outline: the write seam stores media.outline, and leaves it alone when it is nil
+- outline: another addon's copy reaches the store through WriteChoice
+- outline: /pfe set applies the mode live, and refuses one the library does not know
+- outline: applying the stored profile carries its Font outline
+- outline: a profile switch applies the incoming profile's mode, and back
+- outline: without the skin engine the apply is a quiet no-op
+
+### test_skin_verb.lua (6)
+
+- skin verb: the row sits right after config, with the library's help words
+- skin verb: /pfe skin shows the picker on a profile that has closed it
+- skin verb: NS.RunSkinVerb hands O.SkinVerb this addon's first-run spec
+- skin verb: in combat every call prints the library's gray line and shows nothing
+- skin verb: refused while the addon is disabled, and no picker shows
+- skin verb: without LibKa0s the verb prints the library-absent line
+
+### test_surface_parity.lua (18)
 
 - parity: the Core stub publishes everything core/CoreSetup.lua publishes live
 - parity: the Core stub's SafeRegister* pcall a raising target, answer false and append once
@@ -631,6 +666,7 @@ Total.
 - parity: the degraded Skin facade answers every name the live facade carries
 - parity: the Skin seam publishes the same NS members on both paths
 - parity: each host-copy skin token is the live library's Ka0s Default value
+- parity: the degraded Skin facade's FontFlags and HudFontSize never answer nil
 
 ### test_diagnostics_contract.lua (9)
 
@@ -723,13 +759,16 @@ Total.
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 12 |
-| test_skin_literals.lua | 3 |
+| test_skin_fonts.lua | 11 |
+| test_skin_literals.lua | 4 |
 | test_skin_picker.lua | 17 |
-| test_surface_parity.lua | 17 |
+| test_skin_outline.lua | 8 |
+| test_skin_verb.lua | 6 |
+| test_surface_parity.lua | 18 |
 | test_diagnostics_contract.lua | 8 |
 | test_vendor_sync.lua | 3 |
 | test_eol.lua | 2 |
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **538** |
+| **Total** | **565** |

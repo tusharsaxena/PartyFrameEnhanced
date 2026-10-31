@@ -87,12 +87,15 @@ so General's **Defaults**, *Reset all settings* and `/pfe set` all reach them.
 |---|---|---|
 | Skin source | `skin.source` | Ka0s skins / EllesmereUI. EllesmereUI is disabled while the library's gate is closed (skinning-§5), with each condition and its fix listed. Ka0s to EllesmereUI applies live; back offers one reload |
 | Skin (under a **Look** heading) | `skin.skin` | the nine skins, each with its swatches, name and one line; a pick repaints this addon live: the HUD's bar texture, border style and font where a *Use the skin's …* companion is on, the free-placement holders, the settings pages (unless *Ignore settings panel*), the debug console and the perf panel |
-| Font · Texture (*Font and texture*) | `skin.font` · `skin.texture` | an override of the skin's face (`font.body`, `font.title`, `hud.font`) and bar texture (`bar.texture`); *Skin's own* is `""`. The HUD takes them wherever its companions are on |
+| Font · Texture (*Font and texture*) | `skin.font` · `skin.texture` | an override of the skin's face (`font.body`, `font.title`, `hud.font`) and bar texture (`bar.texture`); *Skin's default* is `""`. The HUD takes them wherever its companions are on |
+| Font outline (under the reset buttons) | `skin.outline` | All text / HUD text only (default) / Off: where the skin outlines this addon's text. Every HUD Font flags row on *From skin* follows it (OUTLINE under All and HUD, none under Off); a picked flag wins. Ignore fonts grays it out |
 | Ignore settings panel · Ignore fonts (the Scope) | `skin.ignorePanel` · `skin.ignoreFonts` | keep this addon's settings panel in the client's look (on in a new profile; the tool windows, the picker, the holders and the HUD keep the skin); keep every font as the client draws it, the HUD keeping each section's own *Font* |
 | Copy to every Ka0s addon… | — (button) | the library's: confirms, naming the loaded Ka0s addons that use skins, then writes this choice into each through its own write seam; disabled, with a hint, while no other loaded addon has adopted |
 
 `skin.pickerSeen`, the first-run skin picker's memory, is a row in the same group that nothing draws
-([schema.md](schema.md)). The picker's gear opens this tab.
+([schema.md](schema.md)). The picker's gear opens this tab, and since LibKa0s v1.83.0 the picker
+carries this tab's Font, Texture, Font outline and Scope rows too. The Font and Texture rows here and
+there are the library's `Ka0sMedia_*` pickers: each entry draws in its own face or beside its swatch.
 
 ## Cast Bars
 
@@ -133,11 +136,13 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 | Subgroup | Controls → path |
 |---|---|
 | Shown text | Show spell name → `showName` · Show time left → `showTime` |
-| Font | Font · Font size · Font color · Use class color · Font flags · Font shadow · Use the skin's font → `fontFromSkin` |
+| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` |
 
 The three *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the picker
 it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture, border
-style or HUD font. Colors, sizes, flags and the shadow never follow the skin.
+style or HUD font. Colors and the shadow never follow the skin. While the font follows it, the drawn
+size scales with the skin's HUD size and the stored size is kept; Font flags on *From skin* follow the
+Skin tab's Font outline, and a picked flag wins.
 
 ### Icon
 

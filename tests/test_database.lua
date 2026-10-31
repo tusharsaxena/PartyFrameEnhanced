@@ -20,7 +20,7 @@ test("database: InitDB stamps NS.SCHEMA_VERSION over a default of 0", function()
   -- current-version default would never persist (savedvariables-§1, WS-03).
   assertEqual(NS.defaults.global.schemaVersion, 0)
   assertEqual(NS.db.global.schemaVersion, NS.SCHEMA_VERSION)
-  assertEqual(NS.SCHEMA_VERSION, 2, "v2: the HUD style follows the skin (tests/test_skin_hud.lua)")
+  assertEqual(NS.SCHEMA_VERSION, 3, "v3: the HUD Font flags follow the skin (tests/test_skin_fonts.lua)")
   assertEqual(NS.GetSetting("general.provider"), "auto")
   assertEqual(NS.GetSetting("locked"), true, "a first login starts locked, out of preview mode")
 end)

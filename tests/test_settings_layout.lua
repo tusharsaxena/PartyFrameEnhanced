@@ -61,7 +61,7 @@ local PINNED = {
   ["castbar.font"] = "castbar|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
   ["castbar.fontFromSkin"] = "castbar|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontColor"] = "castbar|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["castbar.fontFlags"] = "castbar|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
+  ["castbar.fontFlags"] = "castbar|string|@skin|nil|nil|nil|,@skin,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontShadow"] = "castbar|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.fontSize"] = "castbar|number|11|6|32|1|nil|false|onChange=false|dim=false|shown=nil",
   ["castbar.growth"] = "castbar|string|DOWN|nil|nil|nil|DOWN,LEFT,RIGHT,UP|false|onChange=false|dim=false|shown={equals=free,path=castbar.anchorMode}",
@@ -109,7 +109,7 @@ local PINNED = {
   ["pet.font"] = "pet|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
   ["pet.fontFromSkin"] = "pet|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.fontColor"] = "pet|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["pet.fontFlags"] = "pet|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
+  ["pet.fontFlags"] = "pet|string|@skin|nil|nil|nil|,@skin,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["pet.fontShadow"] = "pet|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.fontSize"] = "pet|number|9|6|32|1|nil|false|onChange=false|dim=false|shown=nil",
   ["pet.growth"] = "pet|string|DOWN|nil|nil|nil|DOWN,LEFT,RIGHT,UP|false|onChange=false|dim=false|shown={equals=free,path=pet.anchorMode}",
@@ -135,6 +135,7 @@ local PINNED = {
   ["skin.font"] = "general|string||nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["skin.ignoreFonts"] = "general|bool|false|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["skin.ignorePanel"] = "general|bool|true|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
+  ["skin.outline"] = "general|string|hud|nil|nil|nil|all,hud,off|false|onChange=true|dim=false|shown=nil",
   ["skin.pickerSeen"] = "general|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["skin.skin"] = "general|string|ka0s|nil|nil|nil|azeroth,contrast,ember,forever,glass,ka0s,midnight,obsidian,wow|false|onChange=true|dim=false|shown=nil",
   ["skin.source"] = "general|string|ka0s|nil|nil|nil|eui,ka0s|false|onChange=true|dim=false|shown=nil",
@@ -157,7 +158,7 @@ local PINNED = {
   ["target.font"] = "target|string|Friz Quadrata TT|nil|nil|nil|fn|false|onChange=false|dim=true|shown=nil",
   ["target.fontFromSkin"] = "target|bool|true|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.fontColor"] = "target|color|{a=1,b=1,g=1,r=1}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["target.fontFlags"] = "target|string|OUTLINE|nil|nil|nil|,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
+  ["target.fontFlags"] = "target|string|@skin|nil|nil|nil|,@skin,MONOCHROME,OUTLINE,OUTLINE, MONOCHROME,THICKOUTLINE|false|onChange=false|dim=false|shown=nil",
   ["target.fontShadow"] = "target|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
   ["target.fontSize"] = "target|number|10|6|32|1|nil|false|onChange=false|dim=false|shown=nil",
   ["target.friendlyColor"] = "target|color|{a=1,b=0.25,g=0.75,r=0.25}|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
@@ -197,7 +198,7 @@ test("layout: every stored path, its page, default, range, values and wiring are
     end
   end
   for path in pairs(PINNED) do assertTrue(seen[path], path .. " is still a setting") end
-  assertEqual(count, 142, "the set of settings")
+  assertEqual(count, 143, "the set of settings")
 end)
 
 -- ── the layout ───────────────────────────────────────────────────────────────────────────────

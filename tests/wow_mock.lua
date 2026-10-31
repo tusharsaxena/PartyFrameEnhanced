@@ -34,6 +34,12 @@ return function()
     rawset(r, "SetFormattedText", function(self, fmt, ...) self.__text = fmt:format(...) end)
     rawset(r, "SetTexture", function(self, t) self.__texture = t end)
     rawset(r, "SetAlpha", function(self, a) self.__alpha = a end)
+    -- The face, size and flags a text line was last drawn with, as fields (no table per call:
+    -- tests/perf.lua measures the restyle's garbage). tests/test_skin_fonts.lua reads them.
+    rawset(r, "SetFont", function(self, path, size, flags)
+      self.__fontPath, self.__fontSize, self.__fontFlags = path, size, flags
+    end)
+    rawset(r, "GetFont", function(self) return self.__fontPath, self.__fontSize, self.__fontFlags end)
     return r
   end
   M.CreateFrame = function(frameType, name, parent, template)

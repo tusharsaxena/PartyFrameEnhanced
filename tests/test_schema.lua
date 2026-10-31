@@ -227,11 +227,17 @@ test("schema: a bracket that raises still closes, says so, and re-raises the sam
 end)
 
 test("schema: the counted profile reset counts rows off default, and never the global minimap row", function()
-  local base = NS.ProfileRowsOffDefault()
+  -- A stand-in db: its ResetProfile resets nothing and only reads the count the host handler would.
+  local function countedRows()
+    local n
+    NS.ResetProfileCounted({ ResetProfile = function() n = NS.ConsumeResetCount() end })
+    return n
+  end
+  local base = countedRows()
   NS.SetByPath("global.minimap.shown", false)
-  assertEqual(NS.ProfileRowsOffDefault(), base, "a hidden minimap button is not a profile row")
+  assertEqual(countedRows(), base, "a hidden minimap button is not a profile row")
   NS.SetByPath("general.provider", "blizzard")
-  assertEqual(NS.ProfileRowsOffDefault(), base + 1, "one profile row moved")
+  assertEqual(countedRows(), base + 1, "one profile row moved")
   NS.SetByPath("general.provider", "auto")
   NS.SetByPath("global.minimap.shown", true)
 end)

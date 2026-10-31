@@ -171,10 +171,6 @@ end
 
 -- ── the live wiring ───────────────────────────────────────────────────────────────────────────
 
--- The process-global LSM30_Border widget fixup, published once by the library and idempotent across
--- every vendored copy. Libraries load before this file, so AceGUI-SharedMediaWidgets is registered.
-lib.__PatchLSM30Border()
-
 -- NS.Helpers IS the library instance, decorated in place, never a copy-across (options-ui-§1).
 NS.Helpers = lib:New(descriptor)
 local Helpers = NS.Helpers

@@ -19,8 +19,7 @@ it anyway, on the real party frames in a party and on a stand-in party frame out
 ([the design](superpowers/specs/2026-09-15-test-mode-design.md)).
 
 Substrate: Ace3 (AceAddon, AceEvent, AceTimer, AceConsole, AceDB, AceGUI, AceConfig + AceDBOptions
-for the Profiles page only), LibSharedMedia-3.0 and AceGUI-3.0-SharedMediaWidgets for the HUD rows' media pickers (the Skin tab and
-the skin picker draw LibKa0s's own, `Ka0sMedia_*`, since v1.83.0),
+for the Profiles page only), LibSharedMedia-3.0 for the media lists (every media picker is LibKa0s's own, `Ka0sMedia_*`),
 and **LibKa0s** vendored whole at the tag `CLAUDE.md`'s provenance line names, except `media/icons/`, which is pruned to the `LibKa0s icons:` line under it (library-stack-§7), plus **LibDataBroker-1.1** and **LibDBIcon-1.0** for the
 launcher. The addon consumes thirteen LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Skin

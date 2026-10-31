@@ -14,7 +14,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 |---|---|---|
 | INSTALL-1 – 4 | Install and load | fresh install, `/reload`, the AddOn-list logo, a clean load on the vendored LibKa0s |
 | SLASH-1 – 7 | Slash commands | help, the long alias, unknown verbs, version, list, set and reset, `/pfe skin` |
-| PANEL-1 – 10 | Settings panel | the landing page, the General tabs, the Defaults button, Size and position, every page after the descriptor names the addon, the 2026-10-24 layout of the Cast Bars, Target Frames and Pet Frames pages |
+| PANEL-1 – 11 | Settings panel | the landing page, the General tabs, the Defaults button, Size and position, every page after the descriptor names the addon, the 2026-10-24 layout of the Cast Bars, Target Frames and Pet Frames pages |
 | PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
 | STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
 | PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
@@ -157,6 +157,12 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   tooltip and *Bar anchor point*, and the three *Use the skin's …* boxes. Change one row on each tab,
   `/reload` → every value kept. *Failure:* a row missing, or a value that moved. (Amended by PF-05 of
   the 2026-10-29 skinning rollout: the companions.) Result: pass (owner-marked 2026-10-30)
+- **PANEL-11. The one media picker (LibKa0s#73).** Cast Bars → **Text** → open **Font** → the skinned
+  `Ka0sMedia_Font` pullout: rows in their own faces, wearing the current skin, and a pick lands on the
+  bar. Cast Bars → **Bar** → open the **Border** style → each row beside its swatch, sitting level with
+  the rows around it, and a pick lands on the bar. Switch skins with a pullout open, then reopen it →
+  it wears the new skin. *Failure:* a stock SharedMedia pullout, a blank list, or a Lua error at login
+  now that AceGUI-3.0-SharedMediaWidgets is gone. Result:
 
 ## Profiles
 
@@ -934,3 +940,5 @@ SKIN-3, SKIN-4, SKIN-6 to SKIN-9, SKIN-24 and SKIN-26 to SKIN-31), recorded on e
 
 The LibKa0s v1.84.0 re-vendor (2026-10-31) reopens INSTALL-4, and its Result is empty until the owner
 runs it. The re-vendor changes nothing else a player sees in this addon.
+
+The re-cut v1.84.0 (2026-11-01) adds PANEL-11, and its Result is empty until the owner runs it.

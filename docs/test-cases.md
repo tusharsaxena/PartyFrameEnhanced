@@ -536,7 +536,7 @@ Total.
 - optionssetup: without the library, opening the panel prints one honest line
 - optionssetup: the Options descriptor names the addon folder, and an IdList's help-mark art is declared when one is drawn
 
-### test_settings_layout.lua (8)
+### test_settings_layout.lua (9)
 
 - layout: every stored path, its page, default, range, values and wiring are unchanged
 - layout: General has three tabs; All elements holds Party frames, then Health updates
@@ -546,6 +546,7 @@ Total.
 - layout: Size and position keeps Size first, and its tooltips say why a row is dimmed
 - layout: the Cast Bars words, and Show spark rides the Fill block
 - layout: dependants say what they need, and the marker's point names the bar
+- layout: every media row is a Ka0sMedia picker, font and border among them
 
 ### test_skinsetup.lua (13)
 
@@ -755,7 +756,7 @@ Total.
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
 | test_optionssetup.lua | 11 |
-| test_settings_layout.lua | 8 |
+| test_settings_layout.lua | 9 |
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 12 |
@@ -771,4 +772,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **565** |
+| **Total** | **566** |

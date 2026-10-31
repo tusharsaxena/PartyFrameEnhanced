@@ -129,32 +129,8 @@ you file there gets seen.
 
 ## Credits
 
-The debug console uses [JetBrains Mono](https://www.jetbrains.com/lp/mono/), licensed under the SIL
-Open Font License 1.1.
-
-Ka0s Default, the skin every profile starts on, draws [Prototype](https://www.dafont.com/prototype.font)
-v2.0 (2001). It is not under the OFL: it is "free for personal use, freely distributed with
-Prototype.txt", so the author's `Prototype.txt` ships beside it unchanged, on the owner's ruling of
-2026-10-30.
-
-Obsidian draws [Expressway](https://www.dafont.com/expressway.font) Rg Bold 2.100 (2005) by Ray
-Larabie, Typodermic. It is not under the OFL either, and ships against its terms on the owner's
-ruling of 2026-10-30, with the Typodermic EULA (`Expressway-EULA.pdf`) and its quick guide
-(`Expressway-EULA-Guide.html`) beside it as the record of the terms that ruling overrode.
-Expressway is a trademark of Typodermic.
-
-The other skins draw on six more SIL Open Font License 1.1 faces, one family per skin:
-[Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
-[Vollkorn](https://github.com/FAlthausen/Vollkorn-Typeface) by The Vollkorn Project Authors,
-[Bitter](https://github.com/solmatas/BitterPro) by The Bitter Project Authors,
-[Philosopher](https://github.com/alexeiva/philosopher) by The Philosopher Project Authors,
-[Fira Sans](https://github.com/mozilla/Fira) (Medium and SemiBold) by The Mozilla Foundation and
-Telefonica S.A., and [Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) by the
-Braille Institute of America. Nunito, Vollkorn and Bitter are static weights cut from upstream's
-variable fonts.
-
 The close, copy and clear marks on the debug console and the perf panel, and the skin picker's
 settings and preview marks, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
-under the MIT license. Only the icons the addon draws are shipped. The fonts and the icons are
-bundled inside the LibKa0s payload, with their license text beside them
+under the MIT license. Only the icons the addon draws are shipped. The icons are bundled inside
+the LibKa0s payload, with their license text beside them
 (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

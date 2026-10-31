@@ -72,7 +72,7 @@ end
 
 --- v2 -> v3: the HUD Font flags onto From skin (LibKa0s v1.82.0, ruling D-07; Addendum 01 of the
 --- 2026-10-30 skin fonts run). A stored flag equal to the previous default, OUTLINE, becomes "@skin",
---- which draws OUTLINE under the default Font outline (All text) and follows the Skin tab from then
+--- which draws OUTLINE under the default Font outline (HUD text only since v1.83.0) and follows the Skin tab from then
 --- on. Any other stored flag is a pick the player made and stays. A section or flag never stored
 --- already reads the new default. Idempotent; the stamp keeps it to one run, so an OUTLINE the
 --- player picks afterwards is theirs.

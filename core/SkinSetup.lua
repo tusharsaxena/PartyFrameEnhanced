@@ -370,7 +370,7 @@ if not Skin then
     S.BarStyle = function() return {} end
     -- LibKa0s v1.82.0 (SkinPaintExtras minor 7): never nil, since SetFont reads nil as no flags and
     -- refuses a nil size. A picked flag as stored; From skin ("@skin", or nothing stored) is the
-    -- library's All text default, OUTLINE. A HUD size as stored: no skin to scale it by.
+    -- library's HUD text only default, OUTLINE. A HUD size as stored: no skin to scale it by.
     S.FontFlags = function(v)
         if type(v) == "string" and v ~= S.FROM_SKIN then return v end
         return "OUTLINE"
@@ -435,7 +435,7 @@ function NS.ApplySkinOverride(font, texture)
     return Skin:SetOverride(addonName, font, texture)
 end
 
---- No argument applies the stored Font outline; the library reads a mode it does not know as "all".
+--- No argument applies the stored Font outline; the library reads a mode it does not know as "hud".
 --- A copy without SetOutline (a Skin major before minor 9) moves nothing.
 function NS.ApplySkinOutline(mode)
     if type(Skin.SetOutline) ~= "function" then return false end

@@ -32,7 +32,7 @@ skin.ignorePanel = true     the Scope: keep the settings panel in the client's o
 skin.ignoreFonts = false    the Scope: keep every font as the client draws it (the skin still colors the text); the HUD keeps each section's own Font
 skin.font        = ""       the Font override: an LSM font key, "" for the skin's own
 skin.texture     = ""       the Texture override: an LSM statusbar key, "" for the skin's own
-skin.outline     = "all"    the Font outline (LibKa0s v1.82.0): "all" text | "hud" text only | "off"
+skin.outline     = "hud"    the Font outline (LibKa0s v1.82.0): "all" text | "hud" text only (the default since v1.83.0) | "off"
 skin.pickerSeen  = false    the first-run skin picker was closed on this profile (drawn by nothing)
 ```
 

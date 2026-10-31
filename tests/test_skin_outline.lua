@@ -1,6 +1,7 @@
 -- tests/test_skin_outline.lua — the Font outline (LibKa0s v1.82.0, Skin minor 9; PF-01 of
 -- Ka0sAddonsCommonTasks docs/2026-10-30-SKIN_FONTS_AND_FEEDBACK, ruling D-06): stored as skin.outline
--- ("all", the default, "hud", "off"), written only through the skin write seam (NS.WriteSkinChoice's
+-- ("all", "hud", the default since LibKa0s v1.83.0, ruling D-10 of the font pickers and skin faces
+-- run, "off"), written only through the skin write seam (NS.WriteSkinChoice's
 -- `media.outline`), and applied with Skin:SetOutline at load, on every profile event and on the row's
 -- own write. The shape is LibKa0sSkinTester's tests/test_skin_outline.lua.
 
@@ -16,22 +17,22 @@ local function settle()
   while mocks.__fireTimers() > 0 do end
 end
 
---- Run `fn` with the outline back on All text before and after, whatever `fn` raised.
+--- Run `fn` with the outline back on the default, HUD text only, before and after, whatever `fn` raised.
 local function clean(fn)
   return function()
-    NS.SetByPath("skin.outline", "all")
+    NS.SetByPath("skin.outline", "hud")
     settle()
     local ok, err = pcall(fn)
-    NS.SetByPath("skin.outline", "all")
+    NS.SetByPath("skin.outline", "hud")
     settle()
     if not ok then error(err, 0) end
   end
 end
 
-test("outline: a fresh profile stores All text, the library's default", function()
-  assertEqual(NS.defaults.profile.skin.outline, "all")
+test("outline: a fresh profile stores HUD text only, the library's default", function()
+  assertEqual(NS.defaults.profile.skin.outline, "hud")
   assertEqual(NS.defaults.profile.skin.outline, Skin.OUTLINE_DEFAULT)
-  assertEqual(Skin:GetOutline(OWNER), "all")
+  assertEqual(Skin:GetOutline(OWNER), "hud")
 end)
 
 test("outline: the schema row is the Skin tab's, with the library's three modes in its order", function()
@@ -63,6 +64,8 @@ test("outline: another addon's copy reaches the store through WriteChoice", clea
 end))
 
 test("outline: /pfe set applies the mode live, and refuses one the library does not know", clean(function()
+  NS.SetByPath("skin.outline", "all")
+  settle()
   NS.Slash:OnSlash("set skin.outline hud")
   settle()
   assertEqual(Skin:GetOutline(OWNER), "hud")
@@ -87,13 +90,13 @@ test("outline: a profile switch applies the incoming profile's mode, and back", 
   local db = NS.db
   local start = db:GetCurrentProfile()
   local ok, err = pcall(function()
-    NS.SetByPath("skin.outline", "hud")
+    NS.SetByPath("skin.outline", "off")
     db:SetProfile("PFE-OutlineProbe")
     settle()
-    assertEqual(Skin:GetOutline(OWNER), "all", "the new profile keeps the default")
+    assertEqual(Skin:GetOutline(OWNER), "hud", "the new profile keeps the default")
     db:SetProfile(start)
     settle()
-    assertEqual(Skin:GetOutline(OWNER), "hud", "the start profile's is back")
+    assertEqual(Skin:GetOutline(OWNER), "off", "the start profile's is back")
   end)
   if db:GetCurrentProfile() ~= start then db:SetProfile(start) end
   pcall(db.DeleteProfile, db, "PFE-OutlineProbe", true)

@@ -19,12 +19,13 @@ NS.defaults.profile = {
     -- tab on the General page (core/SkinSetup.lua). Ka0s Default, the look before skins. The Scope:
     -- the settings panel left the client's, the fonts skinned (the owner's call for LootHistory,
     -- 2026-10-27). The Font and texture overrides: an LSM key each, "" for the skin's own.
-    -- `outline`, the Font outline (LibKa0s v1.82.0, ruling D-06): "all" text, "hud" text only, "off".
+    -- `outline`, the Font outline (LibKa0s v1.82.0, ruling D-06): "all" text, "hud" text only (the
+    -- default since v1.83.0, D-10), "off".
     -- `pickerSeen`: the first-run skin picker was closed on this profile, so every profile, old or
     -- new, shows it once (ruling O3 of the 2026-10-29 rollout).
     skin = {
         source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
-        font = "", texture = "", outline = "all", pickerSeen = false,
+        font = "", texture = "", outline = "hud", pickerSeen = false,
     },
 
     general = {

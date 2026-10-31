@@ -629,7 +629,7 @@ Total.
 
 ### test_skin_outline.lua (8)
 
-- outline: a fresh profile stores All text, the library's default
+- outline: a fresh profile stores HUD text only, the library's default
 - outline: the schema row is the Skin tab's, with the library's three modes in its order
 - outline: the write seam stores media.outline, and leaves it alone when it is nil
 - outline: another addon's copy reaches the store through WriteChoice

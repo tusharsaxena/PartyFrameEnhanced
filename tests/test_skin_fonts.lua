@@ -26,12 +26,12 @@ local function settle()
   while mocks.__fireTimers() > 0 do end
 end
 
---- Run `fn` on Ka0s Default with the outline on All text, fonts not ignored, and the same after,
+--- Run `fn` on Ka0s Default with the outline on the default, HUD text only, fonts not ignored, and the same after,
 --- whatever `fn` raised.
 local function clean(fn)
   local function home()
     Skin:SetChoice(OWNER, "ka0s", "ka0s")
-    Skin:SetOutline(OWNER, "all")
+    Skin:SetOutline(OWNER, "hud")
     Skin:SetIgnore(OWNER, nil, false)
     settle()
   end
@@ -91,6 +91,7 @@ end)
 test("skin fonts: From skin draws through the Font outline", clean(function()
   -- red under: the stored value handed to SetFont as is ("@skin" is no flag the client knows).
   local el, cfg = probe("castbar")
+  Skin:SetOutline(OWNER, "all")
   Element.Reskin(el, cfg, cfg, true)
   assertEqual(select(2, drawn(el)), "OUTLINE", "All text: outlined")
   Skin:SetOutline(OWNER, "hud")

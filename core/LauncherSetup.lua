@@ -15,7 +15,7 @@ local addonName, NS = ...
 --
 -- THE BUTTONS. Left-click opens the settings panel, in either state. Right-click opens the client's
 -- context menu with one checkbox per pair below, in the library's order: *Enabled* and *Locked*
--- (ADDONS.md's row for this addon). There is no *Test mode* entry -- this addon's PREVIEW SWITCH is
+-- (WowAddonStandards standards/ADDONS.md's row for this addon). There is no *Test mode* entry -- this addon's PREVIEW SWITCH is
 -- the lock: unlocking raises the stand-in party frame and paints the placeholders
 -- (modules/Preview.lua), which is why options-ui-§15 exempts it from a Test mode row -- and no *Show
 -- window* entry, because it has no primary window. Each toggle is the SAME function its slash verb

@@ -55,14 +55,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   did not load; it draws nothing and raises nothing, so nothing else will tell you (anti-pattern #82).
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
-  line names (v1.83.0: Core 14, Item 3, Media 11, MediaIcons 1, Widgets 17, WidgetsDragHandle 8, WidgetsAutocomplete 5, WidgetsCopyWindow 2, DebugLog 22, DebugLogDiagnostics 5, DebugLogWindow 2, Options 34, OptionsIds 5, OptionsIdList 7, OptionsTabs 11, OptionsCombat 3, OptionsCompose 14, OptionsDrawer 3, OptionsKeybinds 6, OptionsAppearance 5, OptionsSkinPicker 4, OptionsSwitch 1, OptionsMedia 1, Perf 15, PerfPanel 11, Glow 1, Sim 2, SimTimeline 3, SimPanel 8, Skin 10, SkinDefs 18, SkinPaint 13, SkinPaintExtras 7, SkinPaintControls 11, SkinEUI 2, SkinAce 4, Toast 1), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
+  line names (v1.84.0: Core 14, Item 3, Media 11, MediaIcons 1, Schema 3, Slash 21, Widgets 17, WidgetsDragHandle 10, WidgetsAutocomplete 5, WidgetsCopyWindow 2, DebugLog 22, DebugLogDiagnostics 6, DebugLogWindow 2, Options 35, OptionsWidgets 40, OptionsFlow 2, OptionsIds 6, OptionsIdSuggest 1, OptionsIdList 7, OptionsTabs 13, OptionsTabbed 2, OptionsCombat 3, OptionsCompose 15, OptionsDrawer 3, OptionsKeybinds 6, OptionsAppearance 5, OptionsSkinPicker 5, OptionsSkinPickerRows 1, OptionsSwitch 1, OptionsMedia 1, Perf 15, PerfPanel 11, Glow 1, Sim 2, SimTimeline 3, SimPanel 9, SimPanelRender 1, Skin 11, SkinOwnerTokens 1, SkinDefs 19, SkinDefsOthers 1, SkinPaint 13, SkinPaintExtras 7, SkinPaintControls 11, SkinEUI 2, SkinAce 5, Charts 1, ChartsRender 1, Toast 1), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
   about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
   `LibKa0s icons:` line declares (clear, close, copy, eye, settings; the last two are the skin picker's): `/pfe debug on`, open the console → its Copy
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result: Owner reported pass, 2026-10-31
+  art, the path still resolves, and no headless gate sees it. Result:
 
 ## Slash commands
 
@@ -931,3 +931,6 @@ On 2026-10-31 the owner reported that every check of the skin fonts and feedback
 pickers and skin faces run passed (LibKa0s v1.82.0 and v1.83.0: INSTALL-4, SLASH-1, SLASH-7, SKIN-1,
 SKIN-3, SKIN-4, SKIN-6 to SKIN-9, SKIN-24 and SKIN-26 to SKIN-31), recorded on each `Result:` line as
 `Owner reported pass, 2026-10-31`. None is owed.
+
+The LibKa0s v1.84.0 re-vendor (2026-10-31) reopens INSTALL-4, and its Result is empty until the owner
+runs it. The re-vendor changes nothing else a player sees in this addon.

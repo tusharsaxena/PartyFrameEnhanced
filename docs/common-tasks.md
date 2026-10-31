@@ -1,7 +1,7 @@
 # Common tasks
 
 Recipes for the changes this addon actually gets. Each ends at the green gate: `lua tests/run.lua`
-and `luacheck .`.
+and `~/.claude/dev-copilot/bin/ka0s-bounded luacheck .`.
 
 ## Add a setting
 

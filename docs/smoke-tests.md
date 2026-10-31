@@ -2,7 +2,7 @@
 
 These are the in-client checks the headless suite cannot make: what the live client draws, the secure
 and secret-value paths, and the three frame systems the addon attaches to. The headless gate
-(`lua tests/run.lua`, `luacheck .`) covers the pure logic. Run a pass on a live **Retail (Midnight
+(`lua tests/run.lua`, `~/.claude/dev-copilot/bin/ka0s-bounded luacheck .`) covers the pure logic. Run a pass on a live **Retail (Midnight
 12.1.5 / Interface 120105)** client, starting from a clean `/reload`, theme by theme; turn logging on
 (`/pfe debug on`) only where a check says so. Record each check on its `Result:` line: the date and
 PASS, or FAIL and what you saw. A new pass overwrites the old results, and git keeps them. IDs are
@@ -62,7 +62,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
   window's close x draws too; `/pfe perf` → the step panel's close x draws as an icon, matching the
   console's. *Failure:* a blank square is a name missing from the declaration: the prune removed its
-  art, the path still resolves, and no headless gate sees it. Result:
+  art, the path still resolves, and no headless gate sees it. Result: Owner reported pass, 2026-10-31
 
 ## Slash commands
 
@@ -70,7 +70,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   landing page (in combat it refuses; see COMBAT-1). `/pfe help` → the help block: a version line and
   nineteen verbs (help, config, skin, enable, disable, list, get, set, reset, resetall, resetposition,
   lock, unlock, status, debug, diagnostics, perf, version, profile), each a gold `/pfe <verb>`, an em
-  dash and a white description; `skin` reads *Choose a skin: open the skin picker*. Result:
+  dash and a white description; `skin` reads *Choose a skin: open the skin picker*. Result: Owner reported pass, 2026-10-31
 - **SLASH-2. The long alias.** `/partyframeenhanced` and `/partyframeenhanced help` → the same as
   `/pfe` and `/pfe help`. Result: pass (owner-marked 2026-10-10)
 - **SLASH-3. Unknown verb.** `/pfe wibble` → `unknown command 'wibble'`, then the help block. Result: pass (owner-marked 2026-10-10)
@@ -89,7 +89,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   again. In combat (a target dummy) → a gray *cannot open the skin picker during combat* line on
   every try, and no window. `/pfe disable`, then `/pfe skin` → the one *is disabled — enable it with
   /pfe enable* line and no window; `/pfe enable`. *Failure:* `unknown command 'skin'`, no window on a
-  seen profile, a window in combat or while disabled. Result:
+  seen profile, a window in combat or while disabled. Result: Owner reported pass, 2026-10-31
 
 ## Settings panel
 
@@ -647,7 +647,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   castbar.barTextureFromSkin` and `/pfe get castbar.fontFromSkin` print `true`; `/pfe get
   target.borderStyleFromSkin` prints `false`, `/pfe get castbar.borderStyleFromSkin` `true`. After a
   logout the SavedVariables file has `["schemaVersion"] = 3`. *Failure:* the old texture or face, a
-  changed color or size, or the target frames' border gone. Result:
+  changed color or size, or the target frames' border gone. Result: Owner reported pass, 2026-10-31
 - **SKIN-2. The reset runs once (PF-03; O2).** On Cast Bars → Bar, untick *Use the skin's texture* and
   pick *Blizzard*; on Text, untick *Use the skin's font* and pick *Friz Quadrata TT*. `/reload`, then
   log out and back in → the cast bars keep Blizzard's texture and Friz Quadrata; the target and pet
@@ -663,7 +663,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   ticked in a new profile, and **Ignore fonts**, not, each half width and lined up with the
   dropdowns), and **Copy to every Ka0s addon…** under its own **Other Ka0s addons** heading (LibKa0s
   v1.82.0). General's **Defaults** puts every one of them back. *Failure:* a missing control, the tab
-  anywhere but last, or Defaults leaving the skin as it was. Result:
+  anywhere but last, or Defaults leaving the skin as it was. Result: Owner reported pass, 2026-10-31
 - **SKIN-4. Every skin, live, on the HUD (PF-03).** With the HUD showing and the three *Use the skin's
   …* boxes ticked on every page, pick each of the nine skins in turn, then Ka0s Default again → with
   **no reload**, each time, every cast bar, target frame and pet frame redraws in that skin's bar
@@ -676,7 +676,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   shield, the raid marker and the cast icon never change; the text size moves a little with the
   face, so the text keeps Ka0s Default's width (SKIN-28). *Failure:* an element still in the last
   skin until `/reload`, a changed color, Friz Quadrata under any skin but WoW Default, or text
-  clipped in a wider face (watch the cast bar's spell name and timer). Result:
+  clipped in a wider face (watch the cast bar's spell name and timer). Result: Owner reported pass, 2026-10-31
 - **SKIN-5. A companion off keeps your own pick (PF-03; X4).** On Target Frames, untick *Use the
   skin's font* → *Font* un-grays and the target frames draw the face it names; pick another skin → the
   target frames keep that face while the cast bars and pet frames change. Tick it again → the target
@@ -690,7 +690,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   where the skin has none) and each caption the skin's accent color and face; under **High Contrast**
   the plate is a translucent yellow, never a solid black block. Back to Ka0s Default →
   exactly the blue and gold again. *Failure:* a plate left in the last skin's color, or a Ka0s Default
-  plate a different blue, or an opaque plate under High Contrast. Result:
+  plate a different blue, or an opaque plate under High Contrast. Result: Owner reported pass, 2026-10-31
 - **SKIN-7. The settings pages, every skin (PF-01, PF-04).** On the Skin tab untick **Ignore settings
   panel**, then pick each skin and walk General's three tabs, Cast Bars, Target Frames, Pet Frames
   (their composer rows: the dropdowns, the color swatches, the check boxes, the sliders) and
@@ -700,7 +700,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   **Ignore settings panel** again → every page here is stock, while the HUD, the holders, the tool
   windows and the first-run picker keep the skin (the switch covers the settings panel only).
   *Failure:* a page or the Profiles tree left stock with the box unticked, or another addon's page
-  skinned. Result:
+  skinned. Result: Owner reported pass, 2026-10-31
 - **SKIN-8. The tool windows, every skin (PF-01).** Under a non-default skin (Azeroth reads clearest),
   open the debug console (`/pfe debug`), its **Copy** window and the perf panel (`/pfe perf`) → each
   wears the skin: the window edge and title, the log lines, the scroll bar, the close, copy and clear
@@ -710,14 +710,14 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   columns are Prototype (LibKa0s v1.82.0) where they were Friz Quadrata, and the grip is the client's own art. Tick
   **Ignore fonts** → those words go back to the client's face, live; tick **Ignore settings panel**
   instead → the windows keep the skin. *Failure:* a window or its lines in the old colors, a label left
-  in the skin's face with Ignore fonts ticked, or a window unskinned by Ignore settings panel. Result:
+  in the skin's face with Ignore fonts ticked, or a window unskinned by Ignore settings panel. Result: Owner reported pass, 2026-10-31
 - **SKIN-9. The Font and texture overrides (PF-01, PF-03).** On the Skin tab pick a **Font** (any
   installed one) and a **Texture** → with no reload the HUD takes both wherever its *Use the skin's
   font* and *texture* boxes are ticked, and the holders' captions take the font; a section with a box
   unticked keeps its own pick. Press **Reset font** → the skin's face returns and the button grays;
   pick a Font again, then pick another skin → both overrides go back to *Skin's default* (LibKa0s v1.82.0:
   a skin change resets them), and so does the picker's Apply of another skin. *Failure:* an override
-  that misses a ticked element, reaches an unticked one, or survives a skin change. Result:
+  that misses a ticked element, reaches an unticked one, or survives a skin change. Result: Owner reported pass, 2026-10-31
 - **SKIN-10. What stays unskinned (PF-02; E-PF-3, E-PF-5, X7).** Under **Azeroth** and **High
   Contrast**: solo, `/pfe unlock` → the stand-in party frame still looks like the frame system it
   imitates (Blizzard's or EllesmereUI's), not the skin; General → *Reset all settings* → the
@@ -804,7 +804,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   Friz → that face. With **Ignore fonts** ticked, open a section's composer → its grayed *Font* picker
   shows the section's own face, not the skin's; the HUD text is drawn at each section's stored *Font
   size* and the Skin tab's **Font outline** is grayed. *Failure:* HUD text that keeps the skin's face
-  with the box ticked. Result:
+  with the box ticked. Result: Owner reported pass, 2026-10-31
 - **SKIN-25. Show border under Ka0s Default needs your own style (PF-03; X5, D2).** On a **new**
   profile under **Ka0s Default**, Cast Bars → Bar, tick **Show border** → no border appears, because
   *Use the skin's border* is ticked and Ka0s Default's border is *None*. Untick *Use the skin's border*
@@ -825,7 +825,7 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   the HUD text loses it too. `/pfe get skin.outline` prints `off`; `/reload` → still Off; switch
   profiles → each profile keeps its own. **Copy to every Ka0s addon** → the other addon takes the
   outline too. *Failure:* an outline that stays after Off, a change that needs a reload, or the
-  choice lost on `/reload`. Result:
+  choice lost on `/reload`. Result: Owner reported pass, 2026-10-31
 - **SKIN-27. Font flags From skin (D-07).** On a new profile, Cast Bars → Text → **Font flags** reads
   **From skin**, first in its list, and the block carries Font, Font size, Font color, Use class color,
   Font flags, Font shadow and Use the skin's font. With the Skin tab's **Font outline** on *Off* the
@@ -835,7 +835,7 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   in → each reads **From skin**, drawn outlined as before; a section you had set to *None* or
   *Monochrome* keeps it. After a logout the SavedVariables file has `["schemaVersion"] = 3`.
   *Failure:* any section not on From skin by default, a picked flag overridden by the Font outline,
-  or a changed flag lost. Result:
+  or a changed flag lost. Result: Owner reported pass, 2026-10-31
 - **SKIN-28. The HUD's width in every skin (D-08, D-09).** With the HUD showing and every *Use the
   skin's font* box ticked, note how far a party member's name reaches across the target frame under
   **Ka0s Default**; pick each other skin → the name takes about the same width in each (Obsidian draws
@@ -843,13 +843,13 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   prints the size you set. Untick *Use the skin's font* on Target Frames → the target frames draw at
   the stored size in your own face under every skin. Tick **Ignore fonts** → every section draws its
   stored size. *Failure:* a stored size rewritten, text clipped or visibly wider in one skin, or a
-  size that does not move back when the box is unticked. Result:
+  size that does not move back when the box is unticked. Result: Owner reported pass, 2026-10-31
 - **SKIN-29. The windows' width in every skin (D-08).** With **Ignore settings panel** unticked, open
   the settings pages, the debug console (`/pfe debug`) and the perf panel (`/pfe perf`) under **Ka0s
   Default**, then under each other skin → each window's text takes about the same width as under Ka0s
   Default: no label, tab, step or column title cut off or wrapped in one skin only, with the Font
   outline on **All text**, its widest case, as well as the default. *Failure:* a label that fits under Ka0s Default and is cut off under another skin.
-  Result:
+  Result: Owner reported pass, 2026-10-31
 
 The 2026-10-31 font pickers and skin faces run's checks (Ka0sAddonsCommonTasks
 `docs/2026-10-31-FONT_PICKERS_AND_SKIN_FACES/`, item PF-F01; LibKa0s v1.83.0). The re-opened SKIN-7
@@ -861,12 +861,12 @@ default; SKIN-3, SKIN-4, SKIN-9, SKIN-26 and SKIN-29 stay open and now state v1.
   chosen one. Open **Texture** → each row shows its bar. On Cast Bars, Target Frames and Pet Frames, the
   Bar tab's texture and border pickers and the Text tab's **Font** preview each entry the same way.
   *Failure:* a plain list of names, a row blank until scrolled or reopened, or a choice that does not
-  store. Result:
+  store. Result: Owner reported pass, 2026-10-31
 - **SKIN-31. The new faces (D-01, D-06).** With every *Use the skin's font* box ticked, switch between
   **Ka0s Default** and **WoW Default** → the text visibly changes face, on a client whose own Friz file
   has been replaced as well. Pick each of Azeroth, Glass, High Contrast, Ember and WoW Midnight → the
   HUD's cast names, health text and timers draw with no missing glyphs and none clipped. *Failure:* two
-  skins that look the same, a square where a character should be, or clipped text. Result:
+  skins that look the same, a square where a character should be, or clipped text. Result: Owner reported pass, 2026-10-31
 
 ## Non-English client
 
@@ -927,5 +927,7 @@ PANEL-2, PANEL-3, PANEL-8 to PANEL-10 and SKIN-1 to SKIN-25, and the skin librar
 SKIN-4, SKIN-7, SKIN-8, SKIN-17, SKIN-23 and SKIN-24), recorded on each `Result:` line as
 `pass (owner-marked 2026-10-30)`. None is owed.
 
-Owed for the 2026-10-30 skin fonts and feedback run (LibKa0s v1.82.0, PF-01): INSTALL-4, SLASH-1,
-SLASH-7, SKIN-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9, SKIN-24 and SKIN-26 to SKIN-29.
+On 2026-10-31 the owner reported that every check of the skin fonts and feedback run and the font
+pickers and skin faces run passed (LibKa0s v1.82.0 and v1.83.0: INSTALL-4, SLASH-1, SLASH-7, SKIN-1,
+SKIN-3, SKIN-4, SKIN-6 to SKIN-9, SKIN-24 and SKIN-26 to SKIN-31), recorded on each `Result:` line as
+`Owner reported pass, 2026-10-31`. None is owed.

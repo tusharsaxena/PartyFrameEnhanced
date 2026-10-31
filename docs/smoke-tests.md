@@ -854,7 +854,7 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
 The 2026-10-31 font pickers and skin faces run's checks (Ka0sAddonsCommonTasks
 `docs/2026-10-31-FONT_PICKERS_AND_SKIN_FACES/`, item PF-F01; LibKa0s v1.83.0). The re-opened SKIN-7
 belongs to it too, since every skin's faces and sizes moved and window text is no longer outlined by
-default; SKIN-3, SKIN-4, SKIN-9, SKIN-26 and SKIN-29 stay open and now state v1.83.0.
+default; SKIN-3, SKIN-4, SKIN-9, SKIN-26 and SKIN-29 were re-checked at v1.83.0.
 
 - **SKIN-30. Every media picker previews (LK-F03, D-08).** Skin tab → open **Font** → the first row
   reads *Skin's default (the face)*, every row is drawn in its own face, and the closed row wears the

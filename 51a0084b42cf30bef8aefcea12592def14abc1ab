@@ -1,0 +1,7 @@
+PF-F01/PF-F02 review, 2026-10-31 (font pickers and skin faces run).
+
+Independent review returned no findings, so there was nothing to verify, fix or reject and no PF-F02 review-fix commit was made.
+
+Rechecked at this head: tests 565 passed, 0 failed, 1 skipped (the diagnostics opt-out case, n/a to this addon); luacheck 0/0 in 90 files; largest Lua file 611 lines; complexity suite pass, 0 functions above CCN 15. Grep confirms the PF-F02 claim: no LSM:List, HashTable, UIDropDownMenu, EasyMenu or MenuUtil media choice in the addon; LSMValues appears only in the OptionsSetup stub and comments.
+
+The complexity run's bundle was discarded uncommitted, as a check only. No smoke check was marked passed.

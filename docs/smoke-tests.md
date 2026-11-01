@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 37 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin |
+| SKIN-1 – 38 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -136,14 +136,14 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   (no Border tab). General: *Enable cast bars* / *Fade out when a cast ends*. Bar: a *Fill* heading
   over *Bar texture* · *Bar opacity* / *Normal cast color* · *Use class color* / *Use the skin's
   texture* · *Use the skin's color* · *Show spark*, then *Cast state colors* (Channel · Empowered / Can't be interrupted ·
-  Interrupted), *Background* (with its own *Use the skin's color*), and *Border* last (*Show border*, ticked, then style, thickness, color, *Use the
+  Interrupted), *Background* (with its own *Use the skin's color*), and *Border* last (*Show border*, unticked, then style, thickness, color, *Use the
   skin's border*, *Use the skin's color*). Text: *Shown text* (*Show spell name* · *Show time left*) above *Font*, whose block
   ends with *Use the skin's font*, *Use the skin's color* and *Use the skin's shadow*. In a new profile every *Use the skin's …* box is ticked and
-  *Bar texture*, *Border style*, *Border thickness* and *Font* are grayed, while no color swatch is. Icon: *Show spell icon* · *Icon side* / *Show shield*. Hover *Width*
+  *Bar texture* and *Font* are grayed, while no color swatch is; *Border style* and *Border thickness* are grayed while Show border is off, and go live when it is ticked under a skin whose border is None. Icon: *Show spell icon* · *Icon side* / *Show shield*. Hover *Width*
   and *Match party frame width* → each tooltip says when it is dimmed. Change one row on each tab,
   `/reload` → every value kept; the page's **Defaults** still resets the border rows. *Failure:* a row
   missing or duplicated, or a value that moved. (Amended by PF-05 of the 2026-10-29 skinning rollout:
-  the three *Use the skin's …* companions, PF-03; and by FS-PF-FLIP: the color and shadow companions.) Result:
+  the three *Use the skin's …* companions, PF-03; by FS-PF-FLIP: the color and shadow companions; and by FS-PF-GATE: Show border off by default, the None rows live.) Result:
 - **PANEL-9. Target Frames layout.** Target Frames → five tabs: General, Size and position, Bar, Text,
   Marker. Bar: *Fill*, *Reaction colors*, *Background*, *Border*; hover *Hostile color* → the tooltip
   ends *Needs Color NPCs by reaction.* Text: *Shown text* (*Show name* · *Show health percent*) above
@@ -347,9 +347,9 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   end; drag *X offset* and *Y offset* → it follows, live. Untick *Show raid marker* → the skull goes
   and the three placement controls gray out. Repeat on Pet Frames → Marker. *Failure:* the skull stays
   put until `/reload`. Result: pass (owner-marked 2026-10-10)
-- **UNIT-9. Marker over the border.** Target Frames → Bar → Border: keep *Show border* ticked, untick *Use the skin's border* and pick a style (Ka0s Default's is None), and mark a member's
+- **UNIT-9. Marker over the border.** Target Frames → Bar → Border: tick *Show border* and pick a style (under Ka0s Default, whose border is None, your style draws), and mark a member's
   target → the skull draws on top of the border's edge. Repeat on Pet Frames. *Failure:* the border's
-  line cuts across the skull. Result: pass (owner-marked 2026-10-10)
+  line cuts across the skull. Result:
 - **UNIT-10. Health updates off.** General → All elements → Health updates: untick *Update health* →
   *Target health refresh* grays out, and so does Text → *Show health percent* on both Target Frames and Pet Frames.
   With a member targeting a mob, its bar sits full with no percent while the mob takes damage, and a
@@ -400,11 +400,11 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   the bars, a stack that will not drag, or a click on a target frame that does nothing while
   unlocked. Result: pass (owner, 2026-10-24)
 - **LAYER-2. Texts and marks over the border.** On the Bar tab's Border section of Cast Bars, Target Frames and Pet Frames
-  untick *Use the skin's border*, pick a style and raise its size to 12 → the name and time texts, the cast bar's spark and shield
+  tick *Show border*, pick a style and raise its size to 12 → the name and time texts, the cast bar's spark and shield
   (an uninterruptible cast), and the raid marker on a target or pet frame all draw *over* the border's
   edge, none cut by it. Untick *Show border* → the border goes and every text, spark and marker still
   shows. *Failure:* a border edge drawn across a text, the spark or the shield, or text that vanishes
-  with the border off. Result: pass (owner, 2026-10-24)
+  with the border off. Result:
 - **LAYER-3. The stand-in's strata.** Solo, `/pfe unlock` on each frame system (EllesmereUI, Blizzard
   raid-style, Blizzard classic), then `/dump PartyFrameEnhancedStandIn:GetFrameStrata()` → the same
   strata as the imitated frame system's party frames (`/fstack` over a real party frame in a party), LOW
@@ -647,11 +647,11 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   only. Update, log in → under **Ka0s Default** every bar wears the **Ka0s Default** bar texture and
   every bar text reads in **Prototype**. The default fills, background and white text look as they did,
   and no text shadow shows, but a color, a Font shadow or a border style you had set **no longer draws**:
-  the owner's ruling of 2026-11-01 moves existing profiles onto the skin, so the target frames' border
-  goes with the rest under Ka0s Default's *None*. Every size is as it was. `/pfe get
+  the owner's ruling of 2026-11-01 moves existing profiles onto the skin. A border style you had picked
+  still draws under Ka0s Default's *None*, which defers to it (SKIN-38). Every size is as it was. `/pfe get
   castbar.barTextureFromSkin`, `/pfe get castbar.barColorFromSkin` and `/pfe get
   target.borderStyleFromSkin` print `true`. Untick a companion → your own color or pick is back, as it
-  was. After a logout the SavedVariables file has `["schemaVersion"] = 4`. *Failure:* the old texture
+  was. After a logout the SavedVariables file has `["schemaVersion"] = 5`. *Failure:* the old texture
   or face, a changed size, or a stored color or pick lost. Result:
 - **SKIN-2. The reset runs once (PF-03; O2).** On Cast Bars → Bar, untick *Use the skin's texture* and
   pick *Blizzard*; on Text, untick *Use the skin's font* and pick *Friz Quadrata TT*. `/reload`, then
@@ -677,7 +677,7 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   Ember Emblem, WoW Default Ka0s Friz Quadrata TT, WoW Midnight Segoe UI Semibold, WoW Forever Fira Sans
   SemiBold, as of LibKa0s v1.83.0; on a default profile only WoW Default looks like an unticked box, whose
   key is the client's Friz Quadrata TT, and only while the client's own font file is the real Friz). The plain fills, the text color, the shadow
-  and the icon edge follow too (SKIN-32 to SKIN-36). The cast-state, reaction and class colors, the
+  and the icon edge follow too (SKIN-32 to SKIN-36), and Azeroth, High Contrast, WoW Default and WoW Midnight draw a border of their own (SKIN-25). The cast-state, reaction and class colors, the
   outline, the spark, the shield and the raid marker never change; the text size moves a little with the
   face, so the text keeps Ka0s Default's width (SKIN-28). *Failure:* an element still in the last
   skin until `/reload`, a changed meaning color, Friz Quadrata under any skin but WoW Default, or text
@@ -685,9 +685,10 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
 - **SKIN-5. A companion off keeps your own pick (PF-03; X4).** On Target Frames, untick *Use the
   skin's font* → *Font* un-grays and the target frames draw the face it names; pick another skin → the
   target frames keep that face while the cast bars and pet frames change. Tick it again → the target
-  frames follow the skin again. Repeat with *Use the skin's texture* and *Use the skin's border* (with
-  *Show border* on). *Failure:* a ticked box whose picker is not grayed, or an unticked one that still
-  follows the skin. Result: pass (owner-marked 2026-10-30)
+  frames follow the skin again. Repeat with *Use the skin's texture*, and with *Use the skin's border*
+  under Azeroth (with *Show border* on): under a None skin that box changes nothing, the rows staying
+  live. *Failure:* a ticked box whose picker is not grayed under a skin with a value of its own, or an
+  unticked one that still follows the skin. Result:
 - **SKIN-6. The free-placement holders, every skin (PF-02).** Set all three features to *Free
   placement*, `/pfe unlock` → under **Ka0s Default** each stack's plate is the same translucent blue as
   before this run and its caption (*Cast bars*, *Target frames*, *Pet frames*) the same gold, now in
@@ -810,16 +811,18 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   shows the section's own face, not the skin's; the HUD text is drawn at each section's stored *Font
   size* and the Skin tab's **Font outline** is grayed. *Failure:* HUD text that keeps the skin's face
   with the box ticked. Result:
-- **SKIN-25. Show border under Ka0s Default needs your own style (PF-03; X5, D2; FS-PF-FLIP).** On a **new**
-  profile under **Ka0s Default**, Cast Bars → Bar: **Show border** is ticked and no border appears, because
-  *Use the skin's border* is ticked and Ka0s Default's border is *None*, as is every shipped skin's. Untick *Use the skin's border*
-  and pick a **Border style** → the border draws at the stored thickness. *Failure:* no border with the box unticked and a style picked,
-  a border under a shipped skin with the box ticked, or the
-  README's troubleshooting row missing. Result:
+- **SKIN-25. Show border, a skin's None and a real style (PF-03; X5, D2; FS-PF-GATE).** On a **new**
+  profile under **Ka0s Default**, Cast Bars → Bar: **Show border** is unticked and no border appears.
+  Tick it → the stored style draws at the stored thickness, *Use the skin's border* ticked, because
+  Ka0s Default's border is *None*; so too under Obsidian, Glass, Ember and WoW Forever. Pick **Azeroth**,
+  **High Contrast**, **WoW Default** or **WoW Midnight** → that skin's border draws, Show border on or off,
+  and Show border, style and thickness gray out. Untick *Use the skin's border* → Show border is yours
+  again. AuraMaster behaves alike. *Failure:* a border under a None skin with Show border off, none under
+  those four, or the README's troubleshooting row missing. Result:
 
 The 2026-11-01 full skinning run's checks (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/`,
-items FS-PF-FLIP and FS-PF-FIX; LibKa0s v1.85.0). `bar.bg` and `bar.border` are the same in every
-shipped skin, so a background moves only by Ka0s Default's own 0.6 against the 0.5 of the rest.
+items FS-PF-FLIP, FS-PF-FIX and FS-PF-GATE; LibKa0s v1.85.0). Every skin has its own `bar.bg`,
+`bar.border`, `icon.border`, `glow.color` and `cover.dim`; Ka0s Default's did not move.
 
 - **SKIN-32. Ka0s Default keeps its pixels (FS-PF-FLIP).** On a new profile on **Ka0s Default**, with the
   HUD showing → the cast bar's orange fill, the target's green, the pet's lighter green, the black
@@ -851,7 +854,11 @@ shipped skin, so a background moves only by Ka0s Default's own 0.6 against the 0
 The 2026-10-30 skin fonts and feedback run's checks (Ka0sAddonsCommonTasks
 `docs/2026-10-30-SKIN_FONTS_AND_FEEDBACK/`, item PF-01; LibKa0s v1.82.0). SLASH-7 and the re-opened
 INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to it too.
-
+- **SKIN-38. A picked border survives Show border's new default (v5).** Before updating, on Target Frames
+  leave *Show border* as shipped and pick a **Border style**. Update, log in under **Ka0s Default** → that
+  border draws and *Show border* is ticked; the cast bars and pet frames, left alone, draw none and theirs
+  is unticked. Untick it, `/reload` → it stays off. *Failure:* the picked border gone, a border on an
+  untouched section, or Show border coming back after the reload. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -869,7 +876,7 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   Font outline choice; back to **From skin** → it follows the Skin tab again. Repeat on Target Frames
   and Pet Frames. On a character from before this run whose sections never changed Font flags, log
   in → each reads **From skin**, drawn outlined as before; a section you had set to *None* or
-  *Monochrome* is moved to From skin too since FS-PF-FLIP. After a logout the SavedVariables file has `["schemaVersion"] = 4`.
+  *Monochrome* is moved to From skin too since FS-PF-FLIP. After a logout the SavedVariables file has `["schemaVersion"] = 5`.
   *Failure:* any section not on From skin by default, or a picked flag overridden by the Font outline.
   Result:
 - **SKIN-28. The HUD's width in every skin (D-08, D-09).** With the HUD showing and every *Use the
@@ -973,4 +980,4 @@ runs it. The re-vendor changes nothing else a player sees in this addon.
 
 The re-cut v1.84.0 (2026-11-01) adds PANEL-11, and its Result is empty until the owner runs it.
 
-Owed: SKIN-1, SKIN-4, SKIN-24, SKIN-25, SKIN-27, PANEL-8 and SKIN-32 to SKIN-37 (FS-PF-FLIP, FS-PF-FIX, 2026-11-01). The LibKa0s v1.85.0 re-vendor also reopens INSTALL-4.
+Owed: SKIN-1, SKIN-4, SKIN-5, SKIN-24, SKIN-25, SKIN-27, PANEL-8, UNIT-9, LAYER-2 and SKIN-32 to SKIN-38 (FS-PF-FLIP, FS-PF-FIX, 2026-11-01). The LibKa0s v1.85.0 re-vendor also reopens INSTALL-4.

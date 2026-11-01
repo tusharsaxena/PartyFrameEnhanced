@@ -421,8 +421,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
 - **The HUD follows the skin's bar texture, border style and font** (skinning-§6).
   Each of `castbar`, `target` and `pet` has `barTextureFromSkin`, `borderStyleFromSkin` and
   `fontFromSkin`, the composers' *Use the skin's …* companions, default true (X3). `modules/Element.lua`
-  resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
-  companion)` at restyle time only, never on the hot path, and falls back to the player's pick where
+  resolves the picks through `S.Resolve("bar.texture" | "hud.font", pick, companion)` and the border
+  through `S.BarBorder` at restyle time only, never on the hot path, and falls back to the player's pick where
   the facade answers nothing (since LibKa0s v1.81.0 every Ka0s skin names its own `hud.font`, so
   for the face that is the degraded facade). Since LibKa0s v1.82.0 two more follow it, through
   `Element.FontStyle` at restyle time, both in the structure signature: the **size**, while the face
@@ -444,13 +444,16 @@ collection's first adopter; only the paths, the brand and the preview are this a
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
   whatever its font companion says, and the library decides it: while the owner ignores fonts,
   `S.Resolve("hud.font", pick, true)` answers the stored pick (LibKa0s v1.81.0, Skin minor 8), so
-  `Element.MediaKeys` composes nothing of its own. Under Ka0s Default
-  the skin's border is *None*, so *Show border*, on by default, draws nothing until the player unticks
-  *Use the skin's border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so). A
+  `Element.MediaKeys` composes nothing of its own. The border is `S.BarBorder`'s answer, as in
+  AuraMaster: a skin's real style wins, Show border included, at the skin's thickness; a skin's *None*
+  is no border of its own, so the stored Show border, style and thickness stand with the companion on
+  or off (the owner's ruling of 2026-11-01; the README's troubleshooting table and smoke check SKIN-25
+  say so). Show border therefore ships off: on, it would draw the shipped Blizzard Tooltip on every
+  untouched profile. Schema v5 keeps it on for a profile that picked a border. A
   `None` style clears the backdrop as Show border off does, so no border color is set on it.
-- **Cast icon edge (cause A1).** The cast icon is a Texture and `S.IconBorder` takes a frame, so
-  `el.iconEdge`, a small mouse-off frame over the icon, carries the skin's icon border family (Solid
-  2 px black under Ka0s Default). It has no setting, and it shows and hides with the icon.
+- **Cast icon edge (cause A1).** `S.IconBorder` takes the icon Texture itself: the library's holder, a
+  plain mouse-off child on the icon's bounds, carries the skin's icon border family (Solid 2 px black
+  under Ka0s Default). It has no setting, and it shows and hides with the icon.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
@@ -499,13 +502,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   StaticPopup (Blizzard's). Chat lines (`NS.PREFIX`, the `ON` / `OFF` marks, refusals) go to the
   chat frame, which is not a skinned surface (X7). The launcher's tooltip is GameTooltip, drawn by
   `LibKa0s-Launcher-1.0`.
-- **The color gate.** `tests/test_skin_literals.lua` (LootHistory's anti-pattern #107 gate) fails on
-  a numeric color literal in a paint call or a `|cff` escape in `core/`, `modules/` or `settings/`
-  outside `core/SkinSetup.lua` and a reasoned allow-list (the stand-in's look and its *(test)* mark,
-  the chat lines). An entry that matches nothing fails the gate, and a planted literal proves it can
-  fail. The HUD text's `SetShadowColor(0, 0, 0, 1)` is the client's stock shadow, drawn only when the
-  player turns *Font shadow* on, and stays, as a named allow-list entry (DECISIONS D5); the gate
-  scans `SetShadowColor` and `SetStatusBarColor` too.
+- **The two skin gates (kit revision 50, skinning-§1).** `test_skin_values` fails on a typed color or
+  texture no kit category takes and no row in `tests/skin_facts.lua` names: the rows are the stand-in's
+  look, art and *(test)* mark (A7) and the preview refusals' chat lines (L13). `test_skin_switch` takes
+  the painted surfaces the same file declares, each part of each element, the spell icon's edge and a
+  holder's plate and caption, and fails one that does not change under a probe skin.
 
 ## Known Limitations
 

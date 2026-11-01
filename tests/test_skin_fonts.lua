@@ -220,3 +220,10 @@ test("skin fonts: v3 runs once; an OUTLINE the player picks after it is kept", f
     assertEqual(p.castbar.fontFlags, "OUTLINE", "the player's pick survives a reload")
   end)
 end)
+
+-- The display-glyph guard (kit revision 45, LibKa0s v1.82.0; ruling D-19): no string this addon
+-- paints carries a character a shipped skin face cannot draw. adoptProfile's arguments are debug
+-- lines (core/PartyFrameEnhanced.lua: NS.Debug under its own tag), drawn by the console's mono face.
+_G.PFE_TEST.test("glyphs: no displayed string carries a character a shipped skin face cannot draw", function()
+  _G.PFE_TEST.assertDisplayGlyphs{ label = "PartyFrameEnhanced", debugNames = { "adoptProfile" } }
+end)

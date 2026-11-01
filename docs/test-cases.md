@@ -586,16 +586,18 @@ Total.
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
-### test_skin_flip.lua (35)
+### test_skin_flip.lua (37)
 
 - skin flip: every section's color and shadow companions are bool rows defaulting on, in both places
 - skin flip: no swatch carries disabledIf, and no class or meaning color has a companion
 - skin flip: the picks' defaults moved to the Ka0s picks, in both places
-- skin flip: the border is on, and its thickness is the skin's through the composer
+- skin flip: Show border ships off, and a bar row's thickness is the skin's through the composer
 - skin flip: Ka0s Default keeps this addon's pixels: fill, background, text, no edge, no shadow
-- skin flip: a shown border draws the skin's style, thickness and color
-- skin flip: a skin that moves only the border's thickness restyles
-- skin flip: Show border off still draws no edge under a skin that has one
+- skin flip: a skin's real style wins: its style, thickness and color, Show border off or not
+- skin flip: a skin's None defers to Show border and the stored style and thickness
+- skin flip: the memo signs the border that draws, so a switch onto a real style restyles
+- skin flip: v5 keeps Show border on for a picked border and leaves the rest alone
+- skin flip: every other skin answers the HUD values from its own palette, Ka0s Default's unmoved
 - skin flip: a skin switch changes what every element's fill, background and text draw
 - skin flip: a companion off draws the stored color
 - skin flip: a class color comes first, whatever the companion says
@@ -624,7 +626,7 @@ Total.
 - skin flip: the memo signs the texture's companion when the pick equals the skin's key
 - skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay
 
-### test_skin_fonts.lua (11)
+### test_skin_fonts.lua (12)
 
 - skin fonts: every HUD section's Font flags default to From skin
 - skin fonts: every HUD Font block is the minimum set, class color included
@@ -637,13 +639,47 @@ Total.
 - skin fonts: a skin switch moves the drawn size on the live elements
 - skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile
 - skin fonts: v3 runs once; an OUTLINE the player picks after it is kept
-
-### test_skin_literals.lua (4)
-
-- skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
-- skin literals: every allow-list entry carries its reason
-- skin literals: the gate is falsifiable, a planted literal of each shape is reported
 - glyphs: no displayed string carries a character a shipped skin face cannot draw
+
+### test_skin_values.lua (3)
+
+- skin values: every host row carries its file, substring, why and cause id
+- skin values: no typed value outside the kit's categories and the host's rows
+- skin values: the check is falsifiable, a planted value of each shape is reported
+
+### test_skin_switch.lua (31)
+
+- skin switch: the check is falsifiable, a surface that redraws a literal is reported
+- skin switch: the cast bar's fill changes
+- skin switch: the cast bar's bar texture changes
+- skin switch: the cast bar's background changes
+- skin switch: the cast bar's border style changes
+- skin switch: the cast bar's border color changes
+- skin switch: the cast bar's text color changes
+- skin switch: the cast bar's face changes
+- skin switch: the cast bar's text shadow changes
+- skin switch: the target frame's fill changes
+- skin switch: the target frame's bar texture changes
+- skin switch: the target frame's background changes
+- skin switch: the target frame's border style changes
+- skin switch: the target frame's border color changes
+- skin switch: the target frame's text color changes
+- skin switch: the target frame's face changes
+- skin switch: the target frame's text shadow changes
+- skin switch: the pet frame's fill changes
+- skin switch: the pet frame's bar texture changes
+- skin switch: the pet frame's background changes
+- skin switch: the pet frame's border style changes
+- skin switch: the pet frame's border color changes
+- skin switch: the pet frame's text color changes
+- skin switch: the pet frame's face changes
+- skin switch: the pet frame's text shadow changes
+- skin switch: the cast bar's spell icon edge changes
+- skin switch: the cast bar's spell icon edge changes with the Scope ignored
+- skin switch: a holder's plate changes
+- skin switch: a holder's plate changes with the Scope ignored
+- skin switch: a holder's caption changes
+- skin switch: a holder's caption changes with the Scope ignored
 
 ### test_skin_picker.lua (17)
 
@@ -797,9 +833,10 @@ Total.
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 11 |
-| test_skin_flip.lua | 35 |
-| test_skin_fonts.lua | 11 |
-| test_skin_literals.lua | 4 |
+| test_skin_flip.lua | 37 |
+| test_skin_fonts.lua | 12 |
+| test_skin_values.lua | 3 |
+| test_skin_switch.lua | 31 |
 | test_skin_picker.lua | 17 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
@@ -810,4 +847,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **600** |
+| **Total** | **633** |

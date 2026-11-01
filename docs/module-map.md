@@ -58,6 +58,6 @@ classes, distinct recording regions and status bars, scripted casts, unit data b
 included), secure attributes and state drivers, every frame's alpha calls, and the SecureHandler surface: the template-gated header, the wrap / unwrap recorder, `__changeAttribute` and the restricted environment the follow's snippets run in), `tests/degraded_env.lua` (library-absent load), `tests/launcher_env.lua` (a second whole-tree load against fake LibDataBroker-1.1 / LibDBIcon-1.0 majors, for `tests/test_launcher.lua`), `tests/mock_menu.lua` (the library's client-menu fake, copied verbatim), `tests/perf.lua`
 (offline scenarios, outside the gate), and one `tests/test_*.lua` per module, the skin seam's included
 (`test_skinsetup.lua`, `test_skin_holders.lua`, `test_skin_hud.lua`, `test_skin_fonts.lua`,
-`test_skin_outline.lua`, `test_skin_verb.lua`, `test_skin_picker.lua`, and
-`test_skin_literals.lua`, the color literal gate). `tests/_kit/` is
+`test_skin_outline.lua`, `test_skin_verb.lua`, `test_skin_picker.lua`), `tests/skin_facts.lua` (the
+allow rows and painted surfaces of the kit's `test_skin_values` and `test_skin_switch`). `tests/_kit/` is
 vendored and never edited.

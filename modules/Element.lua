@@ -26,7 +26,8 @@ local FONT_FLAGS = { NONE = "" }
 local NO_EDGE = "None"
 
 -- The spell icon's edge is the skin's whole family (cause A1): no setting offers one, Ka0s Default's
--- is Solid 2 px black, and the record replays it on a skin change.
+-- is Solid 2 px black, and the record replays it on a skin change. S.IconBorder takes the Texture
+-- itself (Skin's SkinPaintControls minor 15): its holder rides the icon's own show and hide.
 local ICON_EDGE = { fromSkin = true }
 
 --- The flags and the size `cfg`'s text draws with now (LibKa0s v1.82.0, SkinPaintExtras minor 7;
@@ -73,12 +74,7 @@ function Element.Build(root, opts)
     if opts.icon then
         root.icon = root:CreateTexture(nil, "ARTWORK")
         root.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-        -- S.IconBorder takes a frame and the icon is a Texture. Beside the bar, so it covers
-        -- nothing, and it rides the icon's own show and hide (applyIcon).
-        root.iconEdge = CreateFrame("Frame", nil, root)
-        root.iconEdge:SetAllPoints(root.icon)
-        root.iconEdge:EnableMouse(false)
-        NS.Skin.IconBorder(root.iconEdge, ICON_EDGE)
+        NS.Skin.IconBorder(root.icon, ICON_EDGE)
     end
     if opts.spark then
         root.spark = overlay:CreateTexture(nil, "OVERLAY")
@@ -105,11 +101,9 @@ local function applyIcon(el, h, look)
     if not el.icon then return 0, 0 end
     if not look.showIcon then
         el.icon:Hide()
-        el.iconEdge:Hide()
         return 0, 0
     end
     el.icon:Show()
-    el.iconEdge:Show()
     el.icon:SetSize(h, h)
     el.icon:ClearAllPoints()
     if look.iconSide == "RIGHT" then
@@ -123,8 +117,8 @@ end
 -- ── the HUD style the skin governs (skinning-§6) ─────────────────────────────────────────────────
 --
 -- Three media picks follow the skin while their composer companion (`<key>FromSkin`, default true:
--- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border style and
--- thickness (`bar.borderStyle`, `bar.borderSize`) and the text face (`hud.font`). Since LibKa0s
+-- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border (S.BarBorder,
+-- below) and the text face (`hud.font`). Since LibKa0s
 -- v1.82.0 the size scales with the skin while the face does and the flags' From skin follows the
 -- Font outline (Element.FontStyle, rulings D-07 and D-09). Each resolves through the facade at
 -- RESKIN time, never on the cast OnUpdate or the target ticker, and the resolved LSM key, not the
@@ -142,27 +136,22 @@ local function resolved(token, pick, fromSkin)
     return v
 end
 
---- The border's thickness: the skin's while the style's companion is on, the stored one otherwise,
---- or on a skin that leaves the token alone.
-function Element.BorderSize(cfg)
-    local size = cfg.borderSize or 1
-    if cfg.borderStyleFromSkin ~= true then return size end
-    local v = NS.Skin.Resolve("bar.borderSize", size, true)
-    return type(v) == "number" and v or size
-end
-
---- The three media keys `cfg` draws with now: bar texture, border style, font face, and the border's
---- thickness, which the style's companion governs too (OptionsCompose `fromSkin = "bar"`). The Scope's
+--- The media keys `cfg` draws with now: bar texture, border style, font face, then the border's
+--- thickness and whether it shows. The border is S.BarBorder's whole answer, the owner's ruling of
+--- 2026-11-01 and AuraMaster's reading too: a real style in the skin wins, Show border included,
+--- at the skin's thickness; a skin's None is no border of its own, so the stored style, Show border
+--- and thickness stand, companion on or off. The style's companion governs the thickness as well
+--- (OptionsCompose `fromSkin = "bar"`). The Scope's
 --- *Ignore fonts* keeps the player's own face whatever the font companion says, and the library
 --- decides it: while the owner ignores fonts, S.Resolve("hud.font", pick, true) answers the stored
 --- pick (LibKa0s v1.81.0, Skin minor 8), and a nil answer falls back to the pick in resolved(). The
 --- exception fires OnLooksChanged, and the face it answers is in the signature, so a toggle
 --- restyles.
 function Element.MediaKeys(cfg)
-    return resolved("bar.texture", cfg.barTexture, cfg.barTextureFromSkin),
-        resolved("bar.borderStyle", cfg.borderStyle, cfg.borderStyleFromSkin),
-        resolved("hud.font", cfg.font, cfg.fontFromSkin),
-        Element.BorderSize(cfg)
+    local style, show, size = NS.Skin.BarBorder(cfg.borderStyle, cfg.borderShow, cfg.borderSize or 1,
+        cfg.borderStyleFromSkin == true)
+    return resolved("bar.texture", cfg.barTexture, cfg.barTextureFromSkin), style,
+        resolved("hud.font", cfg.font, cfg.fontFromSkin), size, show == true
 end
 
 -- The status bar between the insets, and the background behind it in the same texture. The skin's
@@ -205,12 +194,12 @@ local function applyMarks(el, h, cfg, scale)
     end
 end
 
--- The border frame is never hidden: the overlay frame is its child (Element.Build). Off, or on a
--- style that is no edge (Ka0s Default's `bar.borderStyle`), its edge is cleared and it lies over the
--- element's own rect. `el.__edge` says an edge is up, for Element.ApplyColors.
-local function applyBorder(el, cfg, styleKey, size)
+-- The border frame is never hidden: the overlay frame is its child (Element.Build). Not shown, or on
+-- a style that is no edge, its edge is cleared and it lies over the element's own rect. `el.__edge`
+-- says an edge is up, for Element.ApplyColors.
+local function applyBorder(el, show, styleKey, size)
     local b = el.border
-    el.__edge = cfg.borderShow == true and styleKey ~= NO_EDGE
+    el.__edge = show and styleKey ~= NO_EDGE
     if not el.__edge then
         b:ClearBackdrop()
         b:ClearAllPoints()
@@ -261,8 +250,8 @@ end
 -- or a font or texture override moves them, and the memo with them. So are the font flags and size
 -- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them. The texture's
 -- companion goes in beside its key: the gloss reads it, and a pick equal to the skin's leaves the key
--- where it was. The thickness is
--- the resolved one, and the shadow the RESOLVED one beside its companion and stored row (LibKa0s
+-- where it was. The thickness and Show border are
+-- the resolved ones, and the shadow the RESOLVED one beside its companion and stored row (LibKa0s
 -- Options doc, Moving to, section 5): two skins with one face and different shadows must restyle.
 local function shadowSign(cfg)
     local x, y, r, g, b, a = NS.Skin.HudShadow()
@@ -270,11 +259,12 @@ local function shadowSign(cfg)
         tostring(b), tostring(a), tostring(cfg.fontShadowFromSkin), tostring(cfg.fontShadow))
 end
 
-local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize)
+local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize,
+                                  edgeShown)
     return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
-        tostring(textureKey), tostring(cfg.borderShow), tostring(styleKey),
+        tostring(textureKey), tostring(edgeShown), tostring(styleKey),
         tostring(edgeSize), tostring(fontKey), tostring(size),
         tostring(flags), shadowSign(cfg), tostring(cfg.markerPoint),
         tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY), tostring(cfg.barTextureFromSkin))
@@ -293,9 +283,10 @@ end
 function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
     look = look or {}
-    local textureKey, styleKey, fontKey, edgeSize = Element.MediaKeys(cfg)
+    local textureKey, styleKey, fontKey, edgeSize, edgeShown = Element.MediaKeys(cfg)
     local flags, size = Element.FontStyle(cfg)
-    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize)
+    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize,
+        edgeShown)
     if force or el.__structure ~= sig then
         el.__structure = sig
         local h = (cfg.height or 16) * scale
@@ -304,7 +295,7 @@ function Element.Reskin(el, cfg, look, force)
         if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
         applyBar(el, textureKey, cfg.barTextureFromSkin == true, applyIcon(el, h, look))
         applyMarks(el, h, cfg, scale)
-        applyBorder(el, cfg, styleKey, edgeSize)
+        applyBorder(el, edgeShown, styleKey, edgeSize)
         applyFonts(el, cfg, fontKey, scale, flags, size)
         applyMasterAlpha(el)
         return true

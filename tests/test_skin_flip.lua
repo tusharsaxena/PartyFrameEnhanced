@@ -79,16 +79,11 @@ local function probe(section)
   return el, cfg, drawn
 end
 
---- `fn` with the skin answering a real border: no shipped skin does (SkinDefs bar.borderStyle None).
+--- `fn` under Azeroth, a skin with a real style: Solid at 1 px.
 local function withSkinBorder(fn)
-  local orig = NS.Skin.Resolve
-  NS.Skin.Resolve = function(kind, value, fromSkin)
-    if fromSkin and kind == "bar.borderStyle" then return "Blizzard Dialog" end
-    if fromSkin and kind == "bar.borderSize" then return 3 end
-    return orig(kind, value, fromSkin)
-  end
+  choose("azeroth")
   local ok, err = pcall(fn)
-  NS.Skin.Resolve = orig
+  choose("ka0s")
   if not ok then error(err, 0) end
 end
 
@@ -143,12 +138,17 @@ test("skin flip: the picks' defaults moved to the Ka0s picks, in both places", f
   end
 end)
 
-test("skin flip: the border is on, and its thickness is the skin's through the composer", function()
+test("skin flip: Show border ships off, and a bar row's thickness is the skin's through the composer", function()
+  -- red under: true, which under a skin's None draws the shipped Blizzard Tooltip on every untouched
+  -- profile, so Ka0s Default's look moves.
   for _, section in ipairs(SECTIONS) do
-    assertEqual(NS.defaults.profile[section].borderShow, true, section)
+    assertEqual(NS.defaults.profile[section].borderShow, false, section)
     local size = NS.FindSchemaRow(section .. ".borderSize")
-    assertEqual(size.disabledIf, section .. ".borderStyleFromSkin", section)
-    assertEqual(size.skinValue(size), S.Token("bar.borderSize"), section)
+    assertEqual(type(size.disabledIf), "function", section .. ": a predicate on the bar family")
+    assertEqual(size.skinValue(size), nil, section .. ": a skin's None shows the stored thickness")
+    withSkinBorder(function()
+      assertEqual(size.skinValue(size), S.Token("bar.borderSize"), section .. ": a real style shows its own")
+    end)
   end
 end)
 
@@ -170,52 +170,91 @@ test("skin flip: Ka0s Default keeps this addon's pixels: fill, background, text,
   end
 end)
 
-test("skin flip: a shown border draws the skin's style, thickness and color", function()
+test("skin flip: a skin's real style wins: its style, thickness and color, Show border off or not", function()
   withSkinBorder(function()
     local el, cfg, drawn = probe("target")
+    cfg.borderShow = false
     Element.Reskin(el, cfg, nil, true)
     Element.ApplyColors(el, cfg, Element.ClassResolver(nil))
-    assertTrue(type(drawn.backdrop) == "table", "the edge is drawn")
-    assertEqual(drawn.backdrop.edgeSize, 3, "bar.borderSize, not the stored 8")
+    assertTrue(type(drawn.backdrop) == "table", "the skin's edge is drawn over Show border off")
+    assertEqual(drawn.backdrop.edgeSize, S.Token("bar.borderSize"), "bar.borderSize, not the stored 8")
     assertEqual(drawn.border, rgba(S.Color("bar.border")), "bar.border")
     cfg.borderStyleFromSkin, cfg.borderColorFromSkin = false, false
     cfg.borderColor = { r = 1, g = 0, b = 0, a = 1 }
     Element.Reskin(el, cfg, nil)
     Element.ApplyColors(el, cfg, Element.ClassResolver(nil))
-    assertEqual(drawn.backdrop.edgeSize, cfg.borderSize, "companion off: the stored thickness")
+    assertEqual(drawn.backdrop, false, "companion off: Show border is the player's again")
+    cfg.borderShow = true
+    Element.Reskin(el, cfg, nil)
+    Element.ApplyColors(el, cfg, Element.ClassResolver(nil))
+    assertEqual(drawn.backdrop.edgeSize, cfg.borderSize, "and the stored thickness")
     assertEqual(drawn.border, rgba(1, 0, 0, 1), "and the stored color")
   end)
 end)
 
-test("skin flip: a skin that moves only the border's thickness restyles", function()
-  -- red under: the signature signing the stored cfg.borderSize, which a skin never moves.
+test("skin flip: a skin's None defers to Show border and the stored style and thickness", function()
+  for _, skin in ipairs({ "ka0s", "obsidian" }) do
+    onSkin(skin, function()
+      assertEqual(S.Token("bar.borderStyle"), "None", skin)
+      local el, cfg, drawn = probe("target")
+      Element.Reskin(el, cfg, nil, true)
+      assertEqual(drawn.backdrop, false, skin .. ": Show border off draws no edge")
+      cfg.borderShow = true
+      Element.Reskin(el, cfg, nil)
+      assertTrue(type(drawn.backdrop) == "table", skin .. ": on, the stored style draws, companion on")
+      assertEqual(drawn.backdrop.edgeSize, cfg.borderSize, skin .. ": at the stored thickness")
+    end)()
+  end
+end)
+
+test("skin flip: the memo signs the border that draws, so a switch onto a real style restyles", function()
+  -- red under: the signature signing the stored cfg.borderShow, which a skin never moves.
+  local el, cfg, drawn = probe("target")
+  cfg.borderStyle = "Solid"
+  cfg.borderSize = 1
+  Element.Reskin(el, cfg, nil, true)
+  assertEqual(drawn.backdrop, false)
   withSkinBorder(function()
-    local el, cfg, drawn = probe("target")
-    Element.Reskin(el, cfg, nil, true)
-    assertEqual(drawn.backdrop.edgeSize, 3)
-    local three = NS.Skin.Resolve
-    NS.Skin.Resolve = function(kind, value, fromSkin)
-      if fromSkin and kind == "bar.borderSize" then return 5 end
-      return three(kind, value, fromSkin)
-    end
-    local ok, err = pcall(function()
-      assertTrue(Element.Reskin(el, cfg, nil), "the resolved thickness moved the memo")
-      assertEqual(drawn.backdrop.edgeSize, 5, "and the edge took it")
-    end)
-    NS.Skin.Resolve = three
-    if not ok then error(err, 0) end
+    assertEqual(S.Token("bar.borderStyle"), "Solid", "the stored style and thickness are the skin's too")
+    assertEqual(S.Token("bar.borderSize"), 1)
+    assertTrue(Element.Reskin(el, cfg, nil), "only Show border's answer moved")
+    assertTrue(type(drawn.backdrop) == "table", "the edge is up")
   end)
 end)
 
-test("skin flip: Show border off still draws no edge under a skin that has one", function()
-  withSkinBorder(function()
-    local el, cfg, drawn = probe("pet")
-    cfg.borderShow = false
-    Element.Reskin(el, cfg, nil, true)
-    Element.ApplyColors(el, cfg, Element.ClassResolver(nil))
-    assertEqual(drawn.backdrop, false)
-    assertEqual(drawn.border, nil)
-  end)
+test("skin flip: v5 keeps Show border on for a picked border and leaves the rest alone", function()
+  local step
+  for _, s in ipairs(NS.__schemaSteps) do if s.to == 5 then step = s end end
+  local p = {
+    castbar = { borderStyle = "My Border" },
+    target = { borderStyleFromSkin = false },
+    pet = { borderStyle = "None", borderSize = 4 },
+  }
+  step.apply(p)
+  assertEqual(p.castbar.borderShow, true, "a stored style is a pick")
+  assertEqual(p.target.borderShow, true, "a style companion stored off drew the stored border")
+  assertEqual(p.pet.borderShow, nil, "None is no pick of a border, nor is a thickness alone")
+  local off = { castbar = { borderStyle = "My Border", borderShow = false }, pet = {} }
+  step.apply(off)
+  assertEqual(off.castbar.borderShow, false, "a stored off stays off")
+  assertEqual(off.pet.borderShow, nil, "an untouched section takes the new default")
+  assertEqual(off.target, nil, "a section never stored is not created")
+end)
+
+test("skin flip: every other skin answers the HUD values from its own palette, Ka0s Default's unmoved", function()
+  -- red under: a pin of one value per token. Sem colors stay out of it: no read here touches one.
+  local home = rgba(S.Color("pf.barBg"))
+  for _, token in ipairs({ "bar.bg", "bar.border", "icon.border", "glow.color", "cover.dim" }) do
+    local seen, count = {}, 0
+    for _, skin in ipairs({ "obsidian", "azeroth", "glass", "contrast", "ember" }) do
+      choose(skin)
+      local key = rgba(S.Color(token))
+      if not seen[key] then seen[key] = true; count = count + 1 end
+    end
+    choose("ka0s")
+    assertTrue(count > 1, token .. " differs between skins")
+  end
+  assertEqual(rgba(S.Color("pf.barBg")), home, "Ka0s Default's pixels")
 end)
 
 test("skin flip: a skin switch changes what every element's fill, background and text draw", function()
@@ -802,20 +841,19 @@ end)
 test("skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay", function()
   local el, cfg = probe("castbar")
   cfg.showIcon = true
-  local edge = el.iconEdge
-  assertTrue(edge ~= nil, "a frame to carry it: the icon is a Texture")
-  local rec = Skin.painted[edge]
-  assertTrue(rec ~= nil, "S.IconBorder recorded it, so a skin change replays it")
-  local top = rec.regions.edgeTop
-  assertTrue(top ~= nil, "Ka0s Default's Solid 2 px edge")
+  local rec = Skin.painted[el.icon]
+  assertTrue(rec ~= nil, "S.IconBorder took the Texture, so a skin change replays it")
+  local edge = rec.regions.holder
+  assertTrue(edge ~= nil, "the library's holder, on the icon's parent")
+  assertEqual(el.iconEdge, nil, "no holder of the addon's own")
+  assertTrue(rec.regions.edgeTop ~= nil, "Ka0s Default's Solid 2 px edge")
+  -- The holder follows the Texture through hooks the base mock does not run (the library's suite
+  -- pins them), so this pins the half that is ours: the icon itself shows and hides, and nothing else.
   Element.Reskin(el, cfg, cfg, true)
-  assertTrue(edge:IsShown(), "shown with the icon")
+  assertTrue(el.icon:IsShown(), "shown")
   cfg.showIcon = false
   Element.Reskin(el, cfg, cfg)
-  assertTrue(not edge:IsShown(), "hidden with the icon")
-  cfg.showIcon = true
-  Element.Reskin(el, cfg, cfg)
-  assertTrue(edge:IsShown(), "back with the icon")
-  assertEqual(probe("target").iconEdge, nil, "no icon, no edge")
-  Skin:Untrack(edge)
+  assertTrue(not el.icon:IsShown(), "hidden")
+  assertEqual(probe("target").icon, nil, "a frame with no icon has no edge to wear")
+  Skin:Untrack(el.icon)
 end)

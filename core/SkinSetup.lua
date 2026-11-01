@@ -349,9 +349,9 @@ if not Skin then
         "Tooltip", "Strip", "Cover", "Text", "ChartStyle", "BarStyle", "IconBorder", "GlowColor",
         "BarTexture", "FontFlags", "HudFontSize", "Mark",
         -- LibKa0s v1.85.0: nil is each getter's degraded answer. The three colors answer nothing, so
-        -- the stored color draws; HudShadow's nil is "the stored fontShadow stands". BarGloss draws
-        -- nothing: no skin, no gloss.
-        "HudTextColor", "HudLabelColor", "BarFillColor", "HudShadow", "BarGloss",
+        -- the stored color draws; HudShadow's nil is "the stored fontShadow stands". BarGloss and
+        -- HoverArt draw nothing: no skin, no gloss, and the client's own hover art.
+        "HudTextColor", "HudLabelColor", "BarFillColor", "HudShadow", "BarGloss", "HoverArt",
     }) do S[name] = noop end
 
     S.Token = function(name)
@@ -362,6 +362,8 @@ if not Skin then
     S.Color = color
     -- A HUD style value that follows the skin has no skin to follow without the library: the
     -- player's stored pick stands, and a caller's own fallback covers the sentinel.
+    -- No skin to win: the player's stored three stand (Skin doc, What a consumer owes).
+    S.BarBorder = function(style, show, size) return style, show, size end
     S.Resolve = function(kind, value, fromSkin)
         if fromSkin or value == S.FROM_SKIN then
             local t = S.Token(kind)

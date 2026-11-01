@@ -129,7 +129,7 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 | Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Use the skin's color → `barColorFromSkin` · Show spark → `showSpark` (the bar block's `extra` rows: the spark rides the fill) |
 | Cast state colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
 | Background | Background color → `bgColor` · Use class color → `useClassColorBg` · Use the skin's color → `bgColorFromSkin` |
-| Border | Show border (on by default) · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` · Use the skin's color → `borderColorFromSkin` (order 140, after Background) |
+| Border | Show border (off by default; a skin's real style draws regardless) · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` · Use the skin's color → `borderColorFromSkin` (order 140, after Background) |
 
 ### Text
 

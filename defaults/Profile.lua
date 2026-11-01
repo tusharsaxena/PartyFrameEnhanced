@@ -80,9 +80,11 @@ NS.defaults.profile = {
         failedColor          = { r = 0.9, g = 0.2, b = 0.2, a = 1.0 },
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
-        -- Border: on, so a skin's edge shows; Ka0s Default's style is None, so a 16 px bar still reads
-        -- on its background alone there. The stored style and thickness wait for the companion.
-        borderShow = true, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
+        -- Border: off, as AuraMaster's, because a skin's None defers to Show border and the stored
+        -- style and thickness (S.BarBorder), so true would draw them on every untouched profile and
+        -- move Ka0s Default's look. A skin with a real style draws it whatever this says. v5
+        -- (core/Database.lua) keeps Show border on for a profile that picked a border.
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
         -- Text
@@ -118,7 +120,7 @@ NS.defaults.profile = {
         friendlyColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 },
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
-        borderShow = true, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
         font = "Ka0s Prototype", fontFromSkin = true, fontSize = 10,
@@ -146,7 +148,7 @@ NS.defaults.profile = {
         barColor = { r = 0.35, g = 0.70, b = 0.35, a = 1.0 }, useClassColorBar = false, barColorFromSkin = true,
         bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
-        borderShow = true, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
+        borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
         font = "Ka0s Prototype", fontFromSkin = true, fontSize = 9,

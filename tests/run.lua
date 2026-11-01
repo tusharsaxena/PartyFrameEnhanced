@@ -68,6 +68,10 @@ Kit.diagnostics = {
   end,
 }
 
+-- The typed-value gate and the skin-switch test (kit revision 50, skinning-§1): the rows and the
+-- painted surfaces are tests/skin_facts.lua's.
+Kit.skinValues, Kit.skinSwitch = dofile("tests/skin_facts.lua")(NS, mocks)
+
 Kit.run{
   dir = "tests/",
   suites = {
@@ -110,7 +114,8 @@ Kit.run{
     "test_skin_hud",
     "test_skin_flip",
     "test_skin_fonts",
-    "test_skin_literals",
+    { name = "test_skin_values", dir = "tests/_kit/" },
+    { name = "test_skin_switch", dir = "tests/_kit/" },
     "test_skin_picker",
     "test_skin_outline",
     "test_skin_verb",

@@ -129,8 +129,8 @@ you file there gets seen.
 
 ## Credits
 
-The close, copy and clear marks on the debug console and the perf panel, and the skin picker's
-settings and preview marks, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
+The close, copy and clear marks on the debug console and the perf panel, the skin picker's settings
+and preview marks, and the small marks LibKa0s draws beside skinned controls, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
 under the MIT license. Only the icons the addon draws are shipped. The icons are bundled inside
 the LibKa0s payload, with their license text beside them
 (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

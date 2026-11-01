@@ -159,6 +159,9 @@ if not lib then
     -- The reserved `skin` verb's act (LibKa0s v1.82.0, OptionsSkinPicker minor 3's O.SkinVerb):
     -- no picker without the library, so it answers why and NS.RunSkinVerb prints the absent line.
     Helpers.SkinVerb = function() return nil, "absent" end
+    -- A label's font (LibKa0s v1.85.0, OptionsWidgets minor 43), owed by every Options stub. No
+    -- library, no widget to set it on.
+    Helpers.LabelFont = function() end
     Helpers.__panels   = function() return {} end
     Helpers.__panelFor = function() return nil end
 

@@ -8,7 +8,7 @@ local _, NS = ...
 --     Size and position  settings/ElementRows.lua's Size and position rows
 --     Bar   -- Fill --              the canonical bar block (Normal cast color), then Show spark
 --           -- Cast state colors -- Channel · Empowered / Can't be interrupted · Interrupted
---           -- Background --        the background swatch and its class-color companion
+--           -- Background --        the background swatch, its class-color and skin companions
 --           -- Border --            the canonical border block
 --     Text  -- Shown text --        Show spell name · Show time left
 --           -- Font --              the canonical font block
@@ -56,10 +56,10 @@ for i, spec in ipairs({
     { "failedColor", L["Interrupted color"], L["Fill color while an interrupted or failed cast is held."] },
 }) do
     rows[#rows + 1] = row{ path = spec[1], group = L["Bar"], subgroup = L["Cast state colors"],
-                           order = 50 + i * 10, type = "color", hasAlpha = true,
+                           order = 60 + i * 10, type = "color", hasAlpha = true,
                            label = spec[2], desc = spec[3], default = D[spec[1]] }
 end
-ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 100))
+ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 110))
 
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
 

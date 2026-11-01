@@ -22,6 +22,9 @@ local MARKER_TEXTURE = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
 -- A composer flag value meaning "no outline" is SetFont's empty string.
 local FONT_FLAGS = { NONE = "" }
 
+-- The border style that is no edge at all: LibSharedMedia's key, Ka0s Default's `bar.borderStyle`.
+local NO_EDGE = "None"
+
 --- The flags and the size `cfg`'s text draws with now (LibKa0s v1.82.0, SkinPaintExtras minor 7;
 --- rulings D-07 and D-09). Flags: a picked one as stored; From skin ("@skin", the default) through
 --- the Skin tab's Font outline, S.FontFlags. Size: on the skin's face (the font companion on) the
@@ -108,14 +111,18 @@ end
 -- ── the HUD style the skin governs (skinning-§6) ─────────────────────────────────────────────────
 --
 -- Three media picks follow the skin while their composer companion (`<key>FromSkin`, default true:
--- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border style
--- (`bar.borderStyle`) and the text face (`hud.font`). The HUD COLORS and shadow stay the player's
--- (X4); since LibKa0s v1.82.0 the size scales with the skin while the face does and the flags'
--- From skin follows the Font outline (Element.FontStyle, rulings D-07 and D-09). Each resolves through the facade at RESKIN time, never on the
--- hot path (the cast OnUpdate, the target ticker, applyFill), and the resolved LSM key, not the
+-- X3 of the 2026-10-29 rollout) is on: the bar texture (`bar.texture`), the border style and
+-- thickness (`bar.borderStyle`, `bar.borderSize`) and the text face (`hud.font`). Since LibKa0s
+-- v1.82.0 the size scales with the skin while the face does and the flags' From skin follows the
+-- Font outline (Element.FontStyle, rulings D-07 and D-09). Each resolves through the facade at
+-- RESKIN time, never on the cast OnUpdate or the target ticker, and the resolved LSM key, not the
 -- stored pick, enters the structure signature, so a skin switch moves the memo. A skin that leaves a
 -- token alone falls back to the player's own pick. Never S.BarTexture: that records the bar and
 -- would repaint it over the player's own pick once the companion is turned off (Risks R4).
+--
+-- The HUD's colors and shadow follow it too (FS-PF-FLIP, the owner's ruling of 2026-11-01, causes
+-- D2, D3, D4 and D6), each with a companion of its own: Element.Drawn and applyFont below. A class
+-- color and every meaning color come first and have no companion.
 local function resolved(token, pick, fromSkin)
     if fromSkin ~= true then return pick end
     local v = NS.Skin.Resolve(token, pick, true)
@@ -123,7 +130,17 @@ local function resolved(token, pick, fromSkin)
     return v
 end
 
---- The three media keys `cfg` draws with now: bar texture, border style, font face. The Scope's
+--- The border's thickness: the skin's while the style's companion is on, the stored one otherwise,
+--- or on a skin that leaves the token alone.
+function Element.BorderSize(cfg)
+    local size = cfg.borderSize or 1
+    if cfg.borderStyleFromSkin ~= true then return size end
+    local v = NS.Skin.Resolve("bar.borderSize", size, true)
+    return type(v) == "number" and v or size
+end
+
+--- The three media keys `cfg` draws with now: bar texture, border style, font face, and the border's
+--- thickness, which the style's companion governs too (OptionsCompose `fromSkin = "bar"`). The Scope's
 --- *Ignore fonts* keeps the player's own face whatever the font companion says, and the library
 --- decides it: while the owner ignores fonts, S.Resolve("hud.font", pick, true) answers the stored
 --- pick (LibKa0s v1.81.0, Skin minor 8), and a nil answer falls back to the pick in resolved(). The
@@ -132,7 +149,8 @@ end
 function Element.MediaKeys(cfg)
     return resolved("bar.texture", cfg.barTexture, cfg.barTextureFromSkin),
         resolved("bar.borderStyle", cfg.borderStyle, cfg.borderStyleFromSkin),
-        resolved("hud.font", cfg.font, cfg.fontFromSkin)
+        resolved("hud.font", cfg.font, cfg.fontFromSkin),
+        Element.BorderSize(cfg)
 end
 
 -- The status bar between the insets, and the background behind it in the same texture.
@@ -172,17 +190,18 @@ local function applyMarks(el, h, cfg, scale)
     end
 end
 
--- The border frame is never hidden: the overlay frame is its child (Element.Build). Off, its edge is
--- cleared and it lies over the element's own rect.
-local function applyBorder(el, cfg, styleKey)
+-- The border frame is never hidden: the overlay frame is its child (Element.Build). Off, or on a
+-- style that is no edge (Ka0s Default's `bar.borderStyle`), its edge is cleared and it lies over the
+-- element's own rect. `el.__edge` says an edge is up, for Element.ApplyColors.
+local function applyBorder(el, cfg, styleKey, size)
     local b = el.border
-    if not cfg.borderShow then
+    el.__edge = cfg.borderShow == true and styleKey ~= NO_EDGE
+    if not el.__edge then
         b:ClearBackdrop()
         b:ClearAllPoints()
         b:SetAllPoints(el)
         return
     end
-    local size = cfg.borderSize or 1
     local out = math.floor(size / 2 + 0.5)
     b:ClearAllPoints()
     b:SetPoint("TOPLEFT", el, "TOPLEFT", -out, out)
@@ -191,16 +210,17 @@ local function applyBorder(el, cfg, styleKey)
                     edgeSize = size })
 end
 
--- The shadow, when the player turns it on, is the client's stock text shadow (1, -1, black: the
--- same the library's own P.font draws), not chrome the skin owns (D5).
-local function applyFont(fs, font, size, flags, shadow)
-    fs:SetFont(font, size, flags)
-    if shadow then
-        fs:SetShadowOffset(1, -1)
-        fs:SetShadowColor(0, 0, 0, 1)
-    else
-        fs:SetShadowOffset(0, 0)
-    end
+-- One string's face, size, flags and shadow through the library's one call (S.HudFont): a 12.0.7
+-- client draws only a font object's shadow, so the string wears one of its own. The stored row and
+-- its companion go in as they are, and the library applies S.HudShadow's answers. Unrecorded, so a
+-- skin change reaches it through the restyle, and structureSignature signs the resolved shadow.
+-- One table, refilled: the library reads it and keeps nothing.
+local fontOpts = {}
+
+local function applyFont(fs, font, size, flags, cfg)
+    fontOpts.face, fontOpts.size, fontOpts.flags = font, size, flags
+    fontOpts.shadow, fontOpts.shadowFromSkin = cfg.fontShadow, cfg.fontShadowFromSkin == true
+    NS.Skin.HudFont(fs, fontOpts)
 end
 
 -- Both text lines in the configured face: the name on the left, clipped by the right-hand one.
@@ -208,8 +228,8 @@ end
 local function applyFonts(el, cfg, fontKey, scale, flags, size)
     local font = NS.FetchMedia("font", fontKey, C.FALLBACK_FONT)
     size = size * scale
-    applyFont(el.text, font, size, flags, cfg.fontShadow)
-    applyFont(el.text2, font, size, flags, cfg.fontShadow)
+    applyFont(el.text, font, size, flags, cfg)
+    applyFont(el.text2, font, size, flags, cfg)
     el.text2:ClearAllPoints()
     el.text2:SetPoint("RIGHT", el.bar, "RIGHT", -3, 0)
     el.text:ClearAllPoints()
@@ -224,14 +244,22 @@ end
 -- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
 -- The three media keys are the RESOLVED ones (Element.MediaKeys): a companion toggle, a skin switch
 -- or a font or texture override moves them, and the memo with them. So are the font flags and size
--- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them.
-local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size)
+-- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them. The thickness is
+-- the resolved one, and the shadow the RESOLVED one beside its companion and stored row (LibKa0s
+-- Options doc, Moving to, section 5): two skins with one face and different shadows must restyle.
+local function shadowSign(cfg)
+    local x, y, r, g, b, a = NS.Skin.HudShadow()
+    return ("%s,%s,%s,%s,%s,%s,%s,%s"):format(tostring(x), tostring(y), tostring(r), tostring(g),
+        tostring(b), tostring(a), tostring(cfg.fontShadowFromSkin), tostring(cfg.fontShadow))
+end
+
+local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize)
     return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
         tostring(textureKey), tostring(cfg.borderShow), tostring(styleKey),
-        tostring(cfg.borderSize), tostring(fontKey), tostring(size),
-        tostring(flags), tostring(cfg.fontShadow), tostring(cfg.markerPoint),
+        tostring(edgeSize), tostring(fontKey), tostring(size),
+        tostring(flags), shadowSign(cfg), tostring(cfg.markerPoint),
         tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY))
 end
 
@@ -248,9 +276,9 @@ end
 function Element.Reskin(el, cfg, look, force)
     local scale = NS.GetSetting("scale") or 1
     look = look or {}
-    local textureKey, styleKey, fontKey = Element.MediaKeys(cfg)
+    local textureKey, styleKey, fontKey, edgeSize = Element.MediaKeys(cfg)
     local flags, size = Element.FontStyle(cfg)
-    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size)
+    local sig = structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize)
     if force or el.__structure ~= sig then
         el.__structure = sig
         local h = (cfg.height or 16) * scale
@@ -259,7 +287,7 @@ function Element.Reskin(el, cfg, look, force)
         if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
         applyBar(el, textureKey, applyIcon(el, h, look))
         applyMarks(el, h, cfg, scale)
-        applyBorder(el, cfg, styleKey)
+        applyBorder(el, cfg, styleKey, edgeSize)
         applyFonts(el, cfg, fontKey, scale, flags, size)
         applyMasterAlpha(el)
         return true
@@ -268,17 +296,42 @@ function Element.Reskin(el, cfg, look, force)
     return false
 end
 
+--- One color as it draws: the class color first, whatever the companion says; then the skin's while
+--- the companion is on, `read` being a facade member and `token` its argument where it takes one;
+--- then the stored swatch. With no library the stored swatch stands, though the degraded S.Color
+--- answers a token's default: there is no skin to follow (S.IsEnabled).
+function Element.Drawn(resolve, stored, classOn, companion, read, token)
+    local S = NS.Skin
+    if companion == true and not classOn and S.IsEnabled() then
+        local r, g, b, a = S[read](token)
+        if r then return r, g, b, a end
+    end
+    return resolve(stored, classOn)
+end
+
+--- The plain bar fill, the one fill color a skin reaches; a feature's meaning colors come before it
+--- and never reach this. `token` is the owner token that keeps the feature's pixels under Ka0s
+--- Default and follows `bar.fill` everywhere else (core/SkinSetup.lua).
+function Element.FillColor(cfg, resolve, token)
+    return Element.Drawn(resolve, cfg.barColor, cfg.useClassColorBar, cfg.barColorFromSkin, "Color", token)
+end
+
 --- The colors that can follow a unit's class: background, border and text. `resolve(stored, on)`
 --- answers r, g, b, a for one swatch and its "Use class color" companion, for the unit the element
 --- describes (options-ui-§17: classColorSource = "unit"); an unresolvable class falls through to the
 --- stored swatch. Passed in rather than chosen here, because a target frame's unit can have a secret
---- class that must never reach a table lookup (Element.ClassResolver).
+--- class that must never reach a table lookup (Element.ClassResolver). Each also follows the skin
+--- through its own companion (Element.Drawn). The text color goes on after S.HudFont, so every
+--- restyle that ran its structural half is followed by a pass through here.
 function Element.ApplyColors(el, cfg, resolve)
-    el.bg:SetVertexColor(resolve(cfg.bgColor, cfg.useClassColorBg))
-    if cfg.borderShow then
-        el.border:SetBackdropBorderColor(resolve(cfg.borderColor, cfg.useClassColorBorder))
+    el.bg:SetVertexColor(Element.Drawn(resolve, cfg.bgColor, cfg.useClassColorBg, cfg.bgColorFromSkin,
+        "Color", "pf.barBg"))
+    if el.__edge then
+        el.border:SetBackdropBorderColor(Element.Drawn(resolve, cfg.borderColor, cfg.useClassColorBorder,
+            cfg.borderColorFromSkin, "Color", "bar.border"))
     end
-    local r, g, b, a = resolve(cfg.fontColor, cfg.useClassColorFont)
+    local r, g, b, a = Element.Drawn(resolve, cfg.fontColor, cfg.useClassColorFont, cfg.fontColorFromSkin,
+        "HudTextColor")
     el.text:SetTextColor(r, g, b, a)
     el.text2:SetTextColor(r, g, b, a)
 end

@@ -87,6 +87,14 @@ NS.SKIN_TOKENS = {
     -- its plate is its yellow focus color (#FFE600) at the same 0.25.
     ["pf.mover"] = { default = { 0, 0.6, 1, 0.25 }, follow = "list.sel",
                      skins = { contrast = { 1, 0.9, 0, 0.25 } } },
+    -- The HUD's plain fills and background (FS-PF-FLIP, causes D3 and D4). Ka0s Default keeps what
+    -- each feature drew, which is not that skin's `bar.fill` or `bar.bg`; every other skin answers
+    -- the library token. The fills are data-free: cast states and reactions are meaning colors and
+    -- never read these.
+    ["pf.castFill"]   = { default = { 1.0, 0.7, 0.0, 1 }, follow = "bar.fill" },
+    ["pf.targetFill"] = { default = { 0.25, 0.75, 0.25, 1 }, follow = "bar.fill" },
+    ["pf.petFill"]    = { default = { 0.35, 0.70, 0.35, 1 }, follow = "bar.fill" },
+    ["pf.barBg"]      = { default = { 0, 0, 0, 0.6 }, follow = "bar.bg" },
 }
 
 -- The Ka0s Default library tokens the DEGRADED facade answers, copied from the library and limited
@@ -95,6 +103,7 @@ NS.SKIN_TOKENS = {
 -- surface converted to a token adds the token here in the same change.
 NS.SKIN_FALLBACK = {
     ["text.accent"] = { 1, 0.82, 0, 1 },
+    ["bar.border"]  = { 0, 0, 0, 1 },
 }
 
 -- The source row's values and order.

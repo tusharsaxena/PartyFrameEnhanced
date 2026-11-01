@@ -83,9 +83,59 @@ local function flagsFromSkin(p)
     end
 end
 
+-- Every key the one step onto the skin moves on each section: the companions by name, then the one
+-- pick it may write, `fontFlags`, whose reader is on S.FontFlags (Element.FontStyle). Never a color, a
+-- pick, a size, a class toggle or a meaning color. The suite reads the paths.
+local SKIN_RESET_KEYS = {
+    "barTextureFromSkin", "borderStyleFromSkin", "fontFromSkin",
+    "barColorFromSkin", "bgColorFromSkin", "borderColorFromSkin", "fontColorFromSkin", "fontShadowFromSkin",
+    "fontFlags",
+}
+
+-- The same list as Skin.FollowOnce takes it, one call per profile: dotted from the profile's root.
+NS.SKIN_RESET_PATHS = {}
+for _, section in ipairs(HUD_SECTIONS) do
+    for _, key in ipairs(SKIN_RESET_KEYS) do
+        NS.SKIN_RESET_PATHS[#NS.SKIN_RESET_PATHS + 1] = section .. "." .. key
+    end
+end
+
+--- The one step onto the skin (FS-PF-FLIP; the owner's rulings of 2026-11-01): existing profiles
+--- follow the skin, colors and shadow included, a border the v2 step kept the player's among them.
+--- Per profile, recorded per profile in `skin.fullSkinReset`, because the account-wide stamp cannot
+--- say which profiles have been through it and following the skin leaves no shape to read: run from
+--- the ladder's v4, at every init and on every profile event (core/PartyFrameEnhanced.lua), so a
+--- companion a player turns off afterwards stays off. A reset profile runs it again against defaults,
+--- which changes nothing a player sees.
+---
+--- It names companions and the From skin flags, never a stored color or pick, so turning a companion
+--- off brings the player's own back. The record's gate is the library's, Skin.FollowOnce, and without
+--- the library the same write by hand: a section the profile never stored is skipped, and the
+--- record's own table is the one table it may create. Answers true when it ran.
+function NS.ResetProfileToSkin(p)
+    if type(p) ~= "table" then return false end
+    local Skin = LibStub and LibStub("LibKa0s-Skin-1.0", true)
+    if Skin and type(Skin.FollowOnce) == "function" then
+        return Skin.FollowOnce(p, NS.SKIN_RESET_PATHS)
+    end
+    if type(p.skin) == "table" and p.skin.fullSkinReset == true then return false end
+    for _, section in ipairs(HUD_SECTIONS) do
+        local sec = p[section]
+        if type(sec) == "table" then
+            for _, key in ipairs(SKIN_RESET_KEYS) do
+                sec[key] = key == "fontFlags" and "@skin" or true
+            end
+        end
+    end
+    if type(p.skin) ~= "table" then p.skin = {} end
+    p.skin.fullSkinReset = true
+    return true
+end
+
 local SCHEMA_STEPS = {
     { to = 2, scope = "profile", apply = hudFollowsSkin },
     { to = 3, scope = "profile", apply = flagsFromSkin },
+    { to = 4, scope = "profile", apply = function(p) NS.ResetProfileToSkin(p) end },
 }
 NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
 
@@ -139,4 +189,7 @@ function NS:RunMigrations()
         end
     end
     if stamp < NS.SCHEMA_VERSION then g.schemaVersion = NS.SCHEMA_VERSION end
+    -- Past the ladder the v4 step's own gate still answers for the active profile, one that arrived
+    -- with no record: restored from a backup, or new since the stamp moved.
+    NS.ResetProfileToSkin(db.profile)
 end

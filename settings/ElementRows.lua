@@ -5,7 +5,10 @@ local _, NS = ...
 -- way. The Bar tab holds Fill, the page's palette (Cast Bars and Target Frames), Background, then Border.
 -- The three composers take `fromSkin = true` (skinning-§6): each adds its "Use the skin's texture /
 -- border / font" companion after its rows, defaulting to the profile's true (X3), and disables the
--- picker it governs while it is on. modules/Element.lua draws through S.Resolve.
+-- picker it governs while it is on. modules/Element.lua draws through S.Resolve. The fill, background,
+-- border and text colors and the Font shadow have no composer row, so each block carries its own
+-- "Use the skin's color" or "Use the skin's shadow" as an extra (LibKa0s Options doc, Moving to,
+-- section 3); no swatch beside one is dimmed (options-ui-§17).
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
 
 local L = NS.L
@@ -88,12 +91,21 @@ function ElementRows.Position(page, prefix, D)
     }
 end
 
+--- A companion of a color or of the shadow, for a block's `extra`. Its tooltip is `desc`, which names
+--- the row it governs and says that row is not read while this is on. The composer places it.
+local function fromSkinRow(path, label, desc)
+    return { path = path, type = "bool", label = label, desc = desc, default = true }
+end
+
 --- The canonical border block (options-ui-§16), with its Show border toggle: the last subsection of
---- the Bar tab, at order 120, after Background (100/110 on Cast Bars and Target Frames, 50/60 on Pet).
+--- the Bar tab, at order 140, after Background (110 to 130 on Cast Bars and Target Frames, 60 to 80
+--- on Pet). `fromSkin = "bar"` puts the thickness on the skin with the style.
 function ElementRows.Border(page, prefix, D)
     return H.BorderGroup({
-        prefix = prefix, page = page, group = L["Bar"], subgroup = L["Border"], order = 120, show = true,
-        classColor = UNIT_CLASS, fromSkin = true,
+        prefix = prefix, page = page, group = L["Bar"], subgroup = L["Border"], order = 140, show = true,
+        classColor = UNIT_CLASS, fromSkin = "bar",
+        extra = { fromSkinRow(prefix .. "borderColorFromSkin", L["Use the skin's color"],
+            L["Draw the border in the skin's color. Border color is not read while this is on."]) },
         defaults = {
             borderShow = D.borderShow, borderStyle = D.borderStyle, borderStyleFromSkin = D.borderStyleFromSkin,
             borderSize = D.borderSize,
@@ -110,8 +122,14 @@ function ElementRows.Font(page, prefix, D)
         -- flagsFromSkin (OptionsCompose minor 14, ruling D-07): Font flags lead with From skin,
         -- the default, drawn through S.FontFlags (modules/Element.lua's Element.FontStyle).
         classColor = UNIT_CLASS, fromSkin = true, flagsFromSkin = true,
+        extra = {
+            fromSkinRow(prefix .. "fontColorFromSkin", L["Use the skin's color"],
+                L["Draw the text in the skin's color. Font color is not read while this is on."]),
+            fromSkinRow(prefix .. "fontShadowFromSkin", L["Use the skin's shadow"],
+                L["Draw the skin's text shadow. Font shadow is not read while this is on."]),
+        },
         defaults = {
-            font = D.font, fontFromSkin = D.fontFromSkin, fontSize = D.fontSize, fontColor = D.fontColor,
+            fontFromSkin = D.fontFromSkin, fontSize = D.fontSize, fontColor = D.fontColor,
             useClassColorFont = D.useClassColorFont, fontFlags = D.fontFlags,
             fontShadow = D.fontShadow,
         },
@@ -120,14 +138,17 @@ end
 
 --- The canonical bar block (options-ui-§16) under a Fill subgroup of the Bar tab. `extra` (optional)
 --- is the page's own fill rows, appended after the block by the composer (Cast Bars' Show spark).
---- From order 0: with its Use the skin's texture companion the block is five rows (0-40), so Show
---- spark (50) still closes it before the page's own rows from 50/60.
+--- From order 0: with its two skin companions the block is six rows (0-50), so Show spark (60) still
+--- closes it before the page's own rows from 60/70.
 function ElementRows.Bar(page, prefix, D, labels, extra)
+    local rows = { fromSkinRow(prefix .. "barColorFromSkin", L["Use the skin's color"],
+        L["Draw the fill in the skin's color. The bar color is not read while this is on."]) }
+    for _, row in ipairs(extra or {}) do rows[#rows + 1] = row end
     return H.BarGroup({
         prefix = prefix, page = page, group = L["Bar"], subgroup = L["Fill"], order = 0,
-        classColor = UNIT_CLASS, labels = labels, extra = extra, fromSkin = true,
+        classColor = UNIT_CLASS, labels = labels, extra = rows, fromSkin = true,
         defaults = {
-            barTexture = D.barTexture, barTextureFromSkin = D.barTextureFromSkin, barAlpha = D.barAlpha, barColor = D.barColor,
+            barTextureFromSkin = D.barTextureFromSkin, barAlpha = D.barAlpha, barColor = D.barColor,
             useClassColorBar = D.useClassColorBar,
         },
     })
@@ -139,6 +160,8 @@ function ElementRows.Background(page, prefix, D, order)
         prefix = prefix, page = page, group = L["Bar"], subgroup = L["Background"], order = order,
         key = "bgColor", companionKey = "useClassColorBg", label = L["Background color"],
         classColor = UNIT_CLASS,
+        extra = { fromSkinRow(prefix .. "bgColorFromSkin", L["Use the skin's color"],
+            L["Draw the background in the skin's color. Background color is not read while this is on."]) },
         defaults = { bgColor = D.bgColor, useClassColorBg = D.useClassColorBg },
     })
 end

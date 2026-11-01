@@ -43,8 +43,6 @@ local COLOR_ARGS = {
 
 local STANDIN = "the preview stand-in imitates the Blizzard / EllesmereUI party frame it stands in for, "
   .. "so offsets tuned against it match a real party (exception E-PF-3)"
-local SHADOW = "the HUD text's shadow, drawn only with Font shadow on, is the client's stock text shadow "
-  .. "(1, -1, black), the same the library's own P.font draws; not chrome (DECISIONS D5)"
 local CHAT = "chat output: the Blizzard chat frame is not a skinned surface (exceptions E-PF-8, X7)"
 
 local ALLOW = {
@@ -52,7 +50,6 @@ local ALLOW = {
   { file = "modules/StandIn.lua", find = "SetBackdropBorderColor(0, 0, 0, 1)", why = STANDIN },
   { file = "modules/StandIn.lua", find = "SetColorTexture(0, 0, 0, 0.5)", why = STANDIN },
   { file = "modules/StandIn.lua", find = "|cff999999", why = STANDIN .. ": its (test) mark" },
-  { file = "modules/Element.lua", find = "SetShadowColor(0, 0, 0, 1)", why = SHADOW },
   { file = "core/Namespace.lua", find = "NS.PREFIX", why = CHAT .. ", the [PFE] tag" },
   { file = "core/DebugLogSetup.lua", find = "|cff40ff40", why = CHAT .. ", the debug ON/OFF line" },
   { file = "modules/Preview.lua", find = "|cff808080", why = CHAT .. ", the preview refusals" },

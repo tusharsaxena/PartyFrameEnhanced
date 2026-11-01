@@ -12,6 +12,16 @@ local _, NS = ...
 local L = setmetatable(NS.L or {}, { __index = function(_, k) return k end })
 NS.L = L
 
+-- The skin companions of the HUD's colors and shadow (settings/ElementRows.lua)
+for _, s in ipairs({
+    "Use the skin's color", "Use the skin's shadow",
+    "Draw the fill in the skin's color. The bar color is not read while this is on.",
+    "Draw the background in the skin's color. Background color is not read while this is on.",
+    "Draw the border in the skin's color. Border color is not read while this is on.",
+    "Draw the text in the skin's color. Font color is not read while this is on.",
+    "Draw the skin's text shadow. Font shadow is not read while this is on.",
+}) do L[s] = s end
+
 -- General page
 L["All elements"] = "All elements"
 L["Party frames"] = "Party frames"

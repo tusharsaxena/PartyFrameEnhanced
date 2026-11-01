@@ -100,7 +100,8 @@ end
 
 -- ── painting ──────────────────────────────────────────────────────────────────────────────────
 
--- The fill: the kind's color, or the uninterruptible color, chosen by a flag that may be secret.
+-- The fill: the kind's color, or the uninterruptible color, chosen by a flag that may be secret. The
+-- plain cast's follows the skin (Element.FillColor); the cast states are meaning colors and do not.
 -- Every channel is computed from plain inputs first (a secret cannot be multiplied), then chosen.
 local function applyFill(el)
     local r, g, b, a
@@ -111,7 +112,7 @@ local function applyFill(el)
         local c = cfg.empowerColor
         r, g, b, a = c.r, c.g, c.b, c.a or 1
     else
-        r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, el.unit)
+        r, g, b, a = Element.FillColor(cfg, Element.UnitResolver(el, el.unit), "pf.castFill")
     end
     local u, fill = cfg.uninterruptibleColor, cfg.barAlpha or 1
     local flag = el.notInterruptible

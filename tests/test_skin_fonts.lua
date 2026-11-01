@@ -194,11 +194,13 @@ local function fromV2(profiles, fn)
 end
 
 test("skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile", function()
-  local a = { castbar = { fontFlags = "OUTLINE" }, target = { fontFlags = "THICKOUTLINE" } }
-  local b = { pet = { fontFlags = "OUTLINE" }, target = { fontFlags = "" } }
+  -- The records seeded: the v4 step (FS-PF-FLIP) moves every flag on a profile that has not met it.
+  local record = { fullSkinReset = true }
+  local a = { skin = record, castbar = { fontFlags = "OUTLINE" }, target = { fontFlags = "THICKOUTLINE" } }
+  local b = { skin = record, pet = { fontFlags = "OUTLINE" }, target = { fontFlags = "" } }
   fromV2({ A = a, B = b }, function()
     NS:RunMigrations()
-    assertEqual(NS.db.global.schemaVersion, 3)
+    assertEqual(NS.db.global.schemaVersion, NS.SCHEMA_VERSION)
     assertEqual(a.castbar.fontFlags, FROM_SKIN, "the old default follows the skin")
     assertEqual(a.target.fontFlags, "THICKOUTLINE", "a picked flag stays")
     assertEqual(b.pet.fontFlags, FROM_SKIN, "every profile")

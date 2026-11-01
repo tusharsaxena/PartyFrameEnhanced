@@ -523,3 +523,75 @@ test("skin flip: past the stamp the runner still moves an active profile with no
   assertEqual(p.castbar.bgColorFromSkin, true, "a profile restored from a backup, say")
   p.castbar.bgColorFromSkin = off
 end)
+
+-- ── gloss and the icon's edge (FS-PF-FIX, causes A3 and A1) ─────────────────────────────────────
+
+--- `body(el, cfg, gloss)` on a fresh element on the kit's paint recorder: the base mock's bars are no
+--- StatusBar, and the library leaves those alone. `gloss()` is the layer.
+local function withGlossBar(body)
+  local restorePaint = dofile("tests/_kit/mock_paint.lua")(mocks)
+  local savedCreate = rawget(_G, "CreateFrame")
+  rawset(_G, "CreateFrame", mocks.CreateFrame)
+  local el = Element.Build(mocks.CreateFrame("Frame", nil, mocks.UIParent), {})
+  rawset(_G, "CreateFrame", savedCreate)
+  local cfg = deep(NS.defaults.profile.pet)
+  local ok, err = pcall(body, el, cfg, function()
+    local rec = Skin.painted[el.bar]
+    return rec and rec.regions.gloss
+  end)
+  Skin:SetChoice(OWNER, "ka0s", "ka0s")
+  Skin:Untrack(el.bar)
+  restorePaint()
+  if not ok then error(err, 0) end
+end
+
+test("skin flip: a glossy skin glosses the fill; Ka0s Default and the player's own texture do not", function()
+  -- red under: a bar that never reads bar.gloss, or a gloss left on after the skin moved on.
+  withGlossBar(function(el, cfg, gloss)
+    Element.Reskin(el, cfg, nil, true)
+    assertEqual(gloss(), nil, "Ka0s Default has none")
+    Skin:SetChoice(OWNER, "ka0s", "glass")
+    Element.Reskin(el, cfg, nil)
+    assertTrue(gloss() ~= nil, "Glass has it")
+    assertEqual(gloss():IsShown(), true, "the layer shows")
+    cfg.barTextureFromSkin = false
+    assertTrue(Element.Reskin(el, cfg, nil), "the companion moves the memo")
+    assertEqual(gloss():IsShown(), false, "the player's own texture stays plain")
+    -- red under: a call that omits the companion, which a replay would shine again.
+    Skin:SetChoice(OWNER, "ka0s", "obsidian")
+    Skin:SetChoice(OWNER, "ka0s", "glass")
+    assertEqual(gloss():IsShown(), false, "and through a skin switch's replay")
+    cfg.barTextureFromSkin = true
+    Element.Reskin(el, cfg, nil)
+    assertEqual(gloss():IsShown(), true, "the companion back on")
+    Skin:SetChoice(OWNER, "ka0s", "ka0s")
+    assertEqual(gloss():IsShown(), false, "a switch away takes it off")
+  end)
+end)
+
+test("skin flip: the memo signs the texture's companion when the pick equals the skin's key", function()
+  -- The resolved key does not move here, so the gloss would keep the companion it last saw.
+  local el, cfg = probe("pet")
+  cfg.barTexture = NS.Skin.Token("bar.texture")
+  Element.Reskin(el, cfg, nil, true)
+  cfg.barTextureFromSkin = false
+  assertTrue(Element.Reskin(el, cfg, nil), "a companion toggle restyles")
+end)
+
+test("skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay", function()
+  local el, cfg = probe("castbar")
+  cfg.showIcon = true
+  local edge = el.iconEdge
+  assertTrue(edge ~= nil, "a frame to carry it: the icon is a Texture")
+  local rec = Skin.painted[edge]
+  assertTrue(rec ~= nil, "S.IconBorder recorded it, so a skin change replays it")
+  local top = rec.regions.edgeTop
+  assertTrue(top ~= nil, "Ka0s Default's Solid 2 px edge")
+  Element.Reskin(el, cfg, cfg, true)
+  assertTrue(edge:IsShown(), "shown with the icon")
+  cfg.showIcon = false
+  Element.Reskin(el, cfg, cfg)
+  assertTrue(not edge:IsShown(), "hidden with the icon")
+  assertEqual(probe("target").iconEdge, nil, "no icon, no edge")
+  Skin:Untrack(edge)
+end)

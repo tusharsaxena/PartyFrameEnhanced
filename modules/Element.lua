@@ -25,6 +25,10 @@ local FONT_FLAGS = { NONE = "" }
 -- The border style that is no edge at all: LibSharedMedia's key, Ka0s Default's `bar.borderStyle`.
 local NO_EDGE = "None"
 
+-- The spell icon's edge is the skin's whole family (cause A1): no setting offers one, Ka0s Default's
+-- is Solid 2 px black, and the record replays it on a skin change.
+local ICON_EDGE = { fromSkin = true }
+
 --- The flags and the size `cfg`'s text draws with now (LibKa0s v1.82.0, SkinPaintExtras minor 7;
 --- rulings D-07 and D-09). Flags: a picked one as stored; From skin ("@skin", the default) through
 --- the Skin tab's Font outline, S.FontFlags. Size: on the skin's face (the font companion on) the
@@ -69,6 +73,12 @@ function Element.Build(root, opts)
     if opts.icon then
         root.icon = root:CreateTexture(nil, "ARTWORK")
         root.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+        -- S.IconBorder takes a frame and the icon is a Texture. Beside the bar, so it covers
+        -- nothing, and it rides the icon's own show and hide (applyIcon).
+        root.iconEdge = CreateFrame("Frame", nil, root)
+        root.iconEdge:SetAllPoints(root.icon)
+        root.iconEdge:EnableMouse(false)
+        NS.Skin.IconBorder(root.iconEdge, ICON_EDGE)
     end
     if opts.spark then
         root.spark = overlay:CreateTexture(nil, "OVERLAY")
@@ -95,9 +105,11 @@ local function applyIcon(el, h, look)
     if not el.icon then return 0, 0 end
     if not look.showIcon then
         el.icon:Hide()
+        el.iconEdge:Hide()
         return 0, 0
     end
     el.icon:Show()
+    el.iconEdge:Show()
     el.icon:SetSize(h, h)
     el.icon:ClearAllPoints()
     if look.iconSide == "RIGHT" then
@@ -153,8 +165,10 @@ function Element.MediaKeys(cfg)
         Element.BorderSize(cfg)
 end
 
--- The status bar between the insets, and the background behind it in the same texture.
-local function applyBar(el, textureKey, left, right)
+-- The status bar between the insets, and the background behind it in the same texture. The skin's
+-- gloss goes on once the bar has its texture (cause A3): it belongs to the skin's texture, so a
+-- player's own stays plain, and the record follows a skin change with no call from here.
+local function applyBar(el, textureKey, fromSkin, left, right)
     local bar = el.bar
     bar:ClearAllPoints()
     bar:SetPoint("TOPLEFT", el, "TOPLEFT", left, 0)
@@ -164,6 +178,7 @@ local function applyBar(el, textureKey, left, right)
     el.bg:ClearAllPoints()
     el.bg:SetAllPoints(bar)
     el.bg:SetTexture(texture)
+    NS.Skin.BarGloss(bar, fromSkin)
 end
 
 -- The spark, the shield and the raid marker, each anchored ONCE. The spark rides the fill texture's
@@ -244,7 +259,9 @@ end
 -- FIELD HERE, or the new setting silently does nothing until some other structural field moves.
 -- The three media keys are the RESOLVED ones (Element.MediaKeys): a companion toggle, a skin switch
 -- or a font or texture override moves them, and the memo with them. So are the font flags and size
--- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them. The thickness is
+-- (Element.FontStyle): the Skin tab's Font outline and a skin's HUD size move them. The texture's
+-- companion goes in beside its key: the gloss reads it, and a pick equal to the skin's leaves the key
+-- where it was. The thickness is
 -- the resolved one, and the shadow the RESOLVED one beside its companion and stored row (LibKa0s
 -- Options doc, Moving to, section 5): two skins with one face and different shadows must restyle.
 local function shadowSign(cfg)
@@ -254,13 +271,13 @@ local function shadowSign(cfg)
 end
 
 local function structureSignature(cfg, look, scale, textureKey, styleKey, fontKey, flags, size, edgeSize)
-    return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
+    return ("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"):format(
         tostring(scale), tostring(cfg.width), tostring(cfg.height), tostring(cfg.anchorMode),
         tostring(cfg.matchWidth), tostring(look.showIcon), tostring(look.iconSide),
         tostring(textureKey), tostring(cfg.borderShow), tostring(styleKey),
         tostring(edgeSize), tostring(fontKey), tostring(size),
         tostring(flags), shadowSign(cfg), tostring(cfg.markerPoint),
-        tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY))
+        tostring(cfg.markerOffsetX), tostring(cfg.markerOffsetY), tostring(cfg.barTextureFromSkin))
 end
 
 local function applyMasterAlpha(el)
@@ -285,7 +302,7 @@ function Element.Reskin(el, cfg, look, force)
         el:SetHeight(h)
         -- Attached and matching the party frame's width, the two edge anchors set the width.
         if cfg.anchorMode == "free" or not cfg.matchWidth then el:SetWidth((cfg.width or 100) * scale) end
-        applyBar(el, textureKey, applyIcon(el, h, look))
+        applyBar(el, textureKey, cfg.barTextureFromSkin == true, applyIcon(el, h, look))
         applyMarks(el, h, cfg, scale)
         applyBorder(el, cfg, styleKey, edgeSize)
         applyFonts(el, cfg, fontKey, scale, flags, size)

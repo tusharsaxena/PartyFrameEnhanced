@@ -126,21 +126,23 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Show spark → `showSpark` (the bar block's one `extra`: the spark rides the fill) |
+| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Use the skin's color → `barColorFromSkin` · Show spark → `showSpark` (the bar block's `extra` rows: the spark rides the fill) |
 | Cast state colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
-| Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
-| Border | Show border · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` (order 120, after Background) |
+| Background | Background color → `bgColor` · Use class color → `useClassColorBg` · Use the skin's color → `bgColorFromSkin` |
+| Border | Show border (on by default) · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` · Use the skin's color → `borderColorFromSkin` (order 140, after Background) |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
 | Shown text | Show spell name → `showName` · Show time left → `showTime` |
-| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` |
+| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` · Use the skin's color → `fontColorFromSkin` · Use the skin's shadow → `fontShadowFromSkin` |
 
-The three *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the picker
-it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture, border
-style or HUD font. Colors and the shadow never follow the skin. While the font follows it, the drawn
+The three media *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the
+picker it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture,
+border style and thickness, or HUD font. The color and shadow companions are on by default too, but
+their swatch is never dimmed (options-ui-§17): it stays live, is not read while the companion is on,
+and comes back when it goes off. A class color and the cast-state colors come first. While the font follows it, the drawn
 size scales with the skin's HUD size and the stored size is kept; Font flags on *From skin* follow the
 Skin tab's Font outline, and a picked flag wins.
 

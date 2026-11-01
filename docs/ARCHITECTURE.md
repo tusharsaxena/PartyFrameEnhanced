@@ -418,7 +418,7 @@ collection's first adopter; only the paths, the brand and the preview are this a
   owner and then fires `NS.Skin.OnLooksChanged`, on which the free-placement holders, the cast bars,
   the target frames and the pet frames each restyle (the target and pet frames' secure restyle
   through `NS.RunSecure`, deferred to combat's end under lockdown).
-- **The HUD follows the skin's bar texture, border style and font** (skinning-§6; DECISIONS X4).
+- **The HUD follows the skin's bar texture, border style and font** (skinning-§6).
   Each of `castbar`, `target` and `pet` has `barTextureFromSkin`, `borderStyleFromSkin` and
   `fontFromSkin`, the composers' *Use the skin's …* companions, default true (X3). `modules/Element.lua`
   resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
@@ -430,22 +430,26 @@ collection's first adopter; only the paths, the brand and the preview are this a
   over Ka0s Default's 12, so the text is as wide in every skin; the stored value is never
   rewritten; its own face or *Ignore fonts* draws the stored size), and the **Font flags**' default,
   *From skin* (`"@skin"`, `S.FontFlags`), which follows the Skin tab's *Font outline* (OUTLINE under
-  All text and HUD text only, none under Off); a flag the player picked wins. Colors, the shadow,
-  the spark, the shield, the raid
-  marker and the cast-state, reaction and class colors stay the player's or the client's under every
-  skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
+  All text and HUD text only, none under Off); a flag the player picked wins. **The colors and the
+  shadow follow it too** (FS-PF-FLIP, the owner's rulings of 2026-11-01, reversing X4): five
+  companions per section, drawn by `Element.Drawn` after the class color and on no meaning color. Ka0s
+  Default keeps its pixels through the owner tokens `pf.castFill`, `pf.targetFill`, `pf.petFill` and
+  `pf.barBg`. The shadow goes through `S.HudFont`, which puts a font object on each string, so the
+  structure signature signs the resolved `S.HudShadow()`, and a restyle that ran is followed by the
+  colors. A skin switch recolors the target and pet frames at once, whatever the media keys did.
+  The spark, the shield, the raid marker and the cast-state, reaction and class colors stay the
+  client's or the player's under every skin. The skin's gloss (`S.BarGloss`, cause A3) sits on the
+  fill while the bar's texture is the skin's. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
   whatever its font companion says, and the library decides it: while the owner ignores fonts,
   `S.Resolve("hud.font", pick, true)` answers the stored pick (LibKa0s v1.81.0, Skin minor 8), so
   `Element.MediaKeys` composes nothing of its own. Under Ka0s Default
-  the skin's border is *None*, so *Show border* draws nothing until the player unticks *Use the skin's
-  border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so).
-- **Cast icon edge (DECISIONS PartyFrameEnhanced D4) not adopted.** The cast icon is a Texture, and
-  `S.IconBorder` takes a frame, so a skin's icon edge would need a new holder frame around `el.icon` in
-  `modules/Element.lua`, with its own layout on both icon sides. Ka0s Default draws no icon edge, so
-  nothing is lost there; under other skins the cast icon keeps its plain trimmed square. Skipped as the
-  inventory allows (low priority). Re-check trigger: a player asks for skinned icon edges, or the
-  library's `S.IconBorder` takes a Texture.
+  the skin's border is *None*, so *Show border*, on by default, draws nothing until the player unticks
+  *Use the skin's border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so). A
+  `None` style clears the backdrop as Show border off does, so no border color is set on it.
+- **Cast icon edge (cause A1).** The cast icon is a Texture and `S.IconBorder` takes a frame, so
+  `el.iconEdge`, a small mouse-off frame over the icon, carries the skin's icon border family (Solid
+  2 px black under Ka0s Default). It has no setting, and it shows and hides with the icon.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
@@ -453,6 +457,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   HUD looks different after this run** (X5, D11): the bars draw the Ka0s Default bar instead of
   Blizzard's and their text Ka0s Default's HUD face (Oxanium SemiBold then, Prototype since LibKa0s
   v1.82.0) instead of Friz Quadrata. That is the rulings' intended change, not a regression.
+- **The one step onto the skin (FS-PF-FLIP).** Schema v4, `NS.ResetProfileToSkin`, moves existing
+  profiles too, by the owner's ruling, including the border v2 kept: `Skin.FollowOnce` over the listed
+  companions and `fontFlags`, gated per profile by `skin.fullSkinReset`, which has no schema row. It
+  also runs after every `RunMigrations` and first in every profile adopt. Stored colors and picks
+  stay for a player who turns a companion off ([schema.md](schema.md#migrations)).
 - **The free-placement holders** (`modules/Anchor.lua`) are the one surface outside the HUD this addon
   draws: the plate reads `pf.mover`, and the caption takes `S.Text`'s accent role (gold under Ka0s
   Default, as before, in the skin's body face).

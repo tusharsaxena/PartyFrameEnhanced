@@ -572,7 +572,7 @@ Total.
 - skin holders: under High Contrast the plate is a translucent yellow wash, never opaque black
 - skin holders: a skin whose wash is none leaves the plate clear, never stale
 
-### test_skin_hud.lua (12)
+### test_skin_hud.lua (11)
 
 - skin hud: every HUD section's three companions default to true (X3)
 - skin hud: each companion is a composed bool row defaulting to true, written through the seam
@@ -581,11 +581,41 @@ Total.
 - skin hud: a skin that leaves a token alone falls back to the player's pick
 - skin hud: the structure memo holds the RESOLVED keys, so a skin switch restyles
 - skin hud: Ignore fonts gives the HUD the player's own face back, live
-- skin hud: the HUD colors stay the player's under every skin (X4)
 - skin hud: a skin switch restyles the live cast bars, target and pet frames
 - skin hud: v2 sets every stored profile's HUD companions to follow the skin
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
+
+### test_skin_flip.lua (28)
+
+- skin flip: every section's color and shadow companions are bool rows defaulting on, in both places
+- skin flip: no swatch carries disabledIf, and no class or meaning color has a companion
+- skin flip: the picks' defaults moved to the Ka0s picks, in both places
+- skin flip: the border is on, and its thickness is the skin's through the composer
+- skin flip: Ka0s Default keeps this addon's pixels: fill, background, text, no edge, no shadow
+- skin flip: a shown border draws the skin's style, thickness and color
+- skin flip: Show border off still draws no edge under a skin that has one
+- skin flip: a skin switch changes what every element's fill, background and text draw
+- skin flip: a companion off draws the stored color
+- skin flip: a class color comes first, whatever the companion says
+- skin flip: every meaning color stays under a skin
+- skin flip: without the library the stored color draws, not a token's default
+- skin flip: a skin's shadow draws, and a skin that says none draws none over a stored shadow
+- skin flip: two skins alike but for the shadow still redraw a string that has drawn
+- skin flip: the companion off draws the stored shadow under every skin
+- skin flip: Ignore fonts leaves the stored shadow standing
+- skin flip: the shadow lands on a font object where the client has CreateFont
+- skin flip: the step moves every listed key and leaves every pick and color byte-identical
+- skin flip: the list names no size, class toggle, meaning color, Scope key, pick or swatch
+- skin flip: a second run writes nothing, and a companion turned off afterwards stays off
+- skin flip: the step creates the record's table on a raw profile with none
+- skin flip: the step is the same write with the library absent
+- skin flip: the record outlives every Defaults button, so a turned-off companion stays off
+- skin flip: the ladder walks every stored profile, and a profile event runs the step
+- skin flip: past the stamp the runner still moves an active profile with no record
+- skin flip: a glossy skin glosses the fill; Ka0s Default and the player's own texture do not
+- skin flip: the memo signs the texture's companion when the pick equals the skin's key
+- skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay
 
 ### test_skin_fonts.lua (11)
 
@@ -759,7 +789,8 @@ Total.
 | test_settings_layout.lua | 9 |
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
-| test_skin_hud.lua | 12 |
+| test_skin_hud.lua | 11 |
+| test_skin_flip.lua | 28 |
 | test_skin_fonts.lua | 11 |
 | test_skin_literals.lua | 4 |
 | test_skin_picker.lua | 17 |
@@ -772,4 +803,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **566** |
+| **Total** | **593** |

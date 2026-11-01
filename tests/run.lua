@@ -107,6 +107,7 @@ Kit.run{
     "test_disabled",
     "test_diagnostics",
     "test_launcher",
+    "test_launcher_skin_entry",
     "test_optionssetup",
     "test_settings_layout",
     "test_skinsetup",

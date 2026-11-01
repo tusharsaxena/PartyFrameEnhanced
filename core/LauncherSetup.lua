@@ -78,6 +78,7 @@ NS.Launcher = Launcher:New({
     -- THE PAIRS (launcher-§2, Launcher minor 4). Each accessor is asked on every hover and every
     -- menu open, never cached; each toggle is the slash verb's handler. `setEnabled` is handed the
     -- state the addon moves TO. `locked` absent reads as locked, as modules/Preview.lua reads it.
+    openSkinPicker = function() if NS.RunSkinVerb then NS.RunSkinVerb() end end,
     isEnabled    = function() return NS.GetSetting("enabled") == true end,
     setEnabled   = function(on) NS.SetEnabled(on) end,
     isLocked     = function() return NS.GetSetting("locked") ~= false end,

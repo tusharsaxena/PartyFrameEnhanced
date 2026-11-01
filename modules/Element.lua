@@ -313,17 +313,21 @@ function Element.Reskin(el, cfg, look, force)
     return false
 end
 
---- One color as it draws: the class color first, whatever the companion says; then the skin's while
---- the companion is on, `read` being a facade member and `token` its argument where it takes one;
---- then the stored swatch. With no library the stored swatch stands, though the degraded S.Color
---- answers a token's default: there is no skin to follow (S.IsEnabled).
+--- One color as it draws: a class color that RESOLVED first, whatever the companion says (the
+--- resolver's fifth return says it did); then the skin's while the companion is on, `read` being a
+--- facade member and `token` its argument where it takes one; then the stored swatch. So a class
+--- toggle with no class to show, an NPC or a unit not yet known, follows the skin like a bar with the
+--- toggle off. With no library the stored swatch stands, though the degraded S.Color answers a
+--- token's default: there is no skin to follow (S.IsEnabled).
 function Element.Drawn(resolve, stored, classOn, companion, read, token)
+    local r, g, b, a, classed = resolve(stored, classOn)
+    if classed or companion ~= true then return r, g, b, a end
     local S = NS.Skin
-    if companion == true and not classOn and S.IsEnabled() then
-        local r, g, b, a = S[read](token)
-        if r then return r, g, b, a end
+    if S.IsEnabled() then
+        local sr, sg, sb, sa = S[read](token)
+        if sr then return sr, sg, sb, sa end
     end
-    return resolve(stored, classOn)
+    return r, g, b, a
 end
 
 --- The plain bar fill, the one fill color a skin reaches; a feature's meaning colors come before it
@@ -335,11 +339,12 @@ end
 
 --- The colors that can follow a unit's class: background, border and text. `resolve(stored, on)`
 --- answers r, g, b, a for one swatch and its "Use class color" companion, for the unit the element
---- describes (options-ui-§17: classColorSource = "unit"); an unresolvable class falls through to the
---- stored swatch. Passed in rather than chosen here, because a target frame's unit can have a secret
---- class that must never reach a table lookup (Element.ClassResolver). Each also follows the skin
---- through its own companion (Element.Drawn). The text color goes on after S.HudFont, so every
---- restyle that ran its structural half is followed by a pass through here.
+--- describes (options-ui-§17: classColorSource = "unit"), then true as a fifth return when that is
+--- the class color; an unresolvable class answers the stored swatch and no fifth return. Passed in
+--- rather than chosen here, because a target frame's unit can have a secret class that must never
+--- reach a table lookup (Element.ClassResolver). Each also follows the skin through its own companion
+--- (Element.Drawn), which an unresolved class falls through to. The text color goes on after
+--- S.HudFont, so every restyle that ran its structural half is followed by a pass through here.
 function Element.ApplyColors(el, cfg, resolve)
     el.bg:SetVertexColor(Element.Drawn(resolve, cfg.bgColor, cfg.useClassColorBg, cfg.bgColorFromSkin,
         "Color", "pf.barBg"))
@@ -365,7 +370,8 @@ local classResolvers = {}
 local NO_CLASS = "\0none"
 
 --- A resolver for a class token already known to be plain (or nil): the class color with the
---- stored alpha when the companion is on and the class resolves, the stored swatch otherwise.
+--- stored alpha and a fifth return of true when the companion is on and the class resolves, the
+--- stored swatch otherwise.
 function Element.ClassResolver(classToken)
     local key = classToken or NO_CLASS
     local resolver = classResolvers[key]
@@ -373,18 +379,22 @@ function Element.ClassResolver(classToken)
     local c = classToken and type(RAID_CLASS_COLORS) == "table" and RAID_CLASS_COLORS[classToken]
     resolver = function(stored, on)
         local r, g, b, a = Element.Stored(stored)
-        if on and type(c) == "table" and type(c.r) == "number" then return c.r, c.g, c.b, a end
+        if on and type(c) == "table" and type(c.r) == "number" then return c.r, c.g, c.b, a, true end
         return r, g, b, a
     end
     classResolvers[key] = resolver
     return resolver
 end
 
---- A resolver for a party member's own class (never secret), cached on the element.
+--- A resolver for a party member's own class (never secret), cached on the element, with the same
+--- five returns.
 function Element.UnitResolver(el, unit)
     local resolver = el.__unitResolver
     if not resolver then
-        resolver = function(stored, on) return NS.ResolveColor(stored, on, unit) end
+        resolver = function(stored, on)
+            local r, g, b, a = NS.ResolveColor(stored, on, unit)
+            return r, g, b, a, on and NS.ClassColor(unit) ~= nil
+        end
         el.__unitResolver = resolver
     end
     return resolver

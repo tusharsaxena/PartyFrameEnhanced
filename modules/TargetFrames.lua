@@ -24,9 +24,9 @@ local _, NS = ...
 -- tokens -- so such a button is marked pending and the ticker repaints it whole until it resolves.
 --
 -- COLOR: a player target in its class color when "Use class color" is on; an NPC by its reaction
--- when "Color NPCs by reaction" is on; the stored bar color otherwise. The target's class, player-ness
--- and reaction can each be secret: an unknown class falls through to the stored swatch, an unknown
--- reaction reads as hostile.
+-- when "Color NPCs by reaction" is on; the bar color as it draws otherwise (Element.FillColor). The
+-- target's class, player-ness and reaction can each be secret: an unknown class falls through to that
+-- bar color, an unknown reaction reads as hostile.
 
 local Perf        = NS.Perf
 local Compat      = NS.Compat

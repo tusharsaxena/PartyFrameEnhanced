@@ -586,7 +586,7 @@ Total.
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
-### test_skin_flip.lua (28)
+### test_skin_flip.lua (35)
 
 - skin flip: every section's color and shadow companions are bool rows defaulting on, in both places
 - skin flip: no swatch carries disabledIf, and no class or meaning color has a companion
@@ -594,12 +594,19 @@ Total.
 - skin flip: the border is on, and its thickness is the skin's through the composer
 - skin flip: Ka0s Default keeps this addon's pixels: fill, background, text, no edge, no shadow
 - skin flip: a shown border draws the skin's style, thickness and color
+- skin flip: a skin that moves only the border's thickness restyles
 - skin flip: Show border off still draws no edge under a skin that has one
 - skin flip: a skin switch changes what every element's fill, background and text draw
 - skin flip: a companion off draws the stored color
 - skin flip: a class color comes first, whatever the companion says
+- skin flip: a class toggle with no class to show follows the skin, not the stored swatch
+- skin flip: a party member's class still comes first through the unit resolver
+- skin flip: the live target's plain fill follows the skin, for a player and an NPC
+- skin flip: two skins with one set of media still recolor the target and pet frames
+- skin flip: the text color lands after S.HudFont, on a switch and past combat
 - skin flip: every meaning color stays under a skin
 - skin flip: without the library the stored color draws, not a token's default
+- skin flip: the degraded HudFont writes both shadow arms, so turning the row off clears it
 - skin flip: a skin's shadow draws, and a skin that says none draws none over a stored shadow
 - skin flip: two skins alike but for the shadow still redraw a string that has drawn
 - skin flip: the companion off draws the stored shadow under every skin
@@ -790,7 +797,7 @@ Total.
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 11 |
-| test_skin_flip.lua | 28 |
+| test_skin_flip.lua | 35 |
 | test_skin_fonts.lua | 11 |
 | test_skin_literals.lua | 4 |
 | test_skin_picker.lua | 17 |
@@ -803,4 +810,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **593** |
+| **Total** | **600** |

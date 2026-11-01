@@ -432,7 +432,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   *From skin* (`"@skin"`, `S.FontFlags`), which follows the Skin tab's *Font outline* (OUTLINE under
   All text and HUD text only, none under Off); a flag the player picked wins. **The colors and the
   shadow follow it too** (FS-PF-FLIP, the owner's rulings of 2026-11-01, reversing X4): five
-  companions per section, drawn by `Element.Drawn` after the class color and on no meaning color. Ka0s
+  companions per section, drawn by `Element.Drawn` after a class color that resolved (a class toggle
+  with no class to show, an NPC say, follows the skin) and on no meaning color. Ka0s
   Default keeps its pixels through the owner tokens `pf.castFill`, `pf.targetFill`, `pf.petFill` and
   `pf.barBg`. The shadow goes through `S.HudFont`, which puts a font object on each string, so the
   structure signature signs the resolved `S.HudShadow()`, and a restyle that ran is followed by the

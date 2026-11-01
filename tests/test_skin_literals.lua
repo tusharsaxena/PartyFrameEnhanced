@@ -17,8 +17,8 @@
 --
 -- core/SkinSetup.lua is out of scope: it IS the seam, and its host copy of the Ka0s Default tokens
 -- (NS.SKIN_FALLBACK) and its own tokens' defaults (NS.SKIN_TOKENS) are the literals every other
--- file reads through. The HUD's colors are the player's stored swatches (defaults/Profile.lua, not
--- scanned), drawn through variables, so they pass without an entry.
+-- file reads through. The HUD draws through S.Color, S.HudTextColor and the stored swatches
+-- (defaults/Profile.lua, not scanned), all held in variables, so no literal reaches a scanned file.
 --
 -- THE ALLOW-LIST. Each entry names one file, a plain substring the offending line carries, and the
 -- reason it is not chrome (the rollout inventory's exceptions E-PF-3 and E-PF-8). An entry that

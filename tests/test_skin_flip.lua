@@ -187,6 +187,26 @@ test("skin flip: a shown border draws the skin's style, thickness and color", fu
   end)
 end)
 
+test("skin flip: a skin that moves only the border's thickness restyles", function()
+  -- red under: the signature signing the stored cfg.borderSize, which a skin never moves.
+  withSkinBorder(function()
+    local el, cfg, drawn = probe("target")
+    Element.Reskin(el, cfg, nil, true)
+    assertEqual(drawn.backdrop.edgeSize, 3)
+    local three = NS.Skin.Resolve
+    NS.Skin.Resolve = function(kind, value, fromSkin)
+      if fromSkin and kind == "bar.borderSize" then return 5 end
+      return three(kind, value, fromSkin)
+    end
+    local ok, err = pcall(function()
+      assertTrue(Element.Reskin(el, cfg, nil), "the resolved thickness moved the memo")
+      assertEqual(drawn.backdrop.edgeSize, 5, "and the edge took it")
+    end)
+    NS.Skin.Resolve = three
+    if not ok then error(err, 0) end
+  end)
+end)
+
 test("skin flip: Show border off still draws no edge under a skin that has one", function()
   withSkinBorder(function()
     local el, cfg, drawn = probe("pet")
@@ -270,6 +290,192 @@ test("skin flip: a class color comes first, whatever the companion says", onSkin
   assertEqual(drawn.text, rgba(c.r, c.g, c.b, cfg.fontColor.a), "the text")
 end))
 
+test("skin flip: a class toggle with no class to show follows the skin, not the stored swatch", onSkin("obsidian", function()
+  -- red under: Drawn skipping the skin on the toggle alone. An NPC, a secret class or a unit not yet
+  -- known; the row's tooltip says the swatch is not read while the companion is on.
+  local units = { Element.ClassResolver(nil) }
+  units[2] = Element.UnitResolver(probe("target"), "no-such-unit")
+  mocks.__units["no-such-unit"] = { name = "Nobody", class = "NOT_A_CLASS" }
+  local ok, err = pcall(function()
+    for _, resolve in ipairs(units) do
+      local el, cfg, drawn = probe("target")
+      cfg.barColor = { r = 0.1, g = 0.2, b = 0.3, a = 1 }
+      cfg.bgColor, cfg.fontColor, cfg.borderColor = cfg.barColor, cfg.barColor, cfg.barColor
+      cfg.useClassColorBar, cfg.useClassColorBg, cfg.useClassColorFont, cfg.useClassColorBorder = true, true, true, true
+      el.__edge = true
+      assertEqual(rgba(Element.FillColor(cfg, resolve, "pf.targetFill")), rgba(S.Color("pf.targetFill")), "the fill")
+      Element.ApplyColors(el, cfg, resolve)
+      assertEqual(drawn.bg, rgba(S.Color("pf.barBg")), "the background")
+      assertEqual(drawn.border, rgba(S.Color("bar.border")), "the border")
+      assertEqual(drawn.text, rgba(S.HudTextColor()), "the text")
+      cfg.barColorFromSkin, cfg.bgColorFromSkin, cfg.fontColorFromSkin = false, false, false
+      assertEqual(rgba(Element.FillColor(cfg, resolve, "pf.targetFill")), swatch(cfg.barColor), "companion off: the swatch")
+      Element.ApplyColors(el, cfg, resolve)
+      assertEqual(drawn.bg, swatch(cfg.bgColor), "the background's swatch")
+      assertEqual(drawn.text, swatch(cfg.fontColor), "the text's swatch")
+    end
+  end)
+  mocks.__units["no-such-unit"] = nil
+  if not ok then error(err, 0) end
+end))
+
+test("skin flip: a party member's class still comes first through the unit resolver", onSkin("obsidian", function()
+  -- red under: a unit resolver that never says the class resolved, which the skin would paint over.
+  local c = mocks.RAID_CLASS_COLORS.MAGE
+  mocks.__units.party2 = { name = "Jaina", class = "MAGE" }
+  local ok, err = pcall(function()
+    local el, cfg, drawn = probe("pet")
+    local resolve = Element.UnitResolver(el, "party2")
+    cfg.useClassColorBar, cfg.useClassColorBg = true, true
+    local r, g, b = Element.FillColor(cfg, resolve, "pf.petFill")
+    assertEqual(rgba(r, g, b), rgba(c.r, c.g, c.b), "the fill")
+    Element.ApplyColors(el, cfg, resolve)
+    assertEqual(drawn.bg, rgba(c.r, c.g, c.b, cfg.bgColor.a), "the background")
+    cfg.useClassColorBar = false
+    assertEqual(rgba(Element.FillColor(cfg, resolve, "pf.petFill")), rgba(S.Color("pf.petFill")), "the toggle off: the skin")
+  end)
+  mocks.__units.party2 = nil
+  if not ok then error(err, 0) end
+end))
+
+test("skin flip: the live target's plain fill follows the skin, for a player and an NPC", function()
+  -- red under: the live branch of paintColors drawing the stored swatch; the switch's case above
+  -- drives only the preview's. A real unit behind the token, repainted by its own event.
+  local p = NS.db.profile
+  local el = NS.TargetFrames.__buttons.party1
+  local filled
+  local reaction = p.target.colorReaction
+  p.target.colorReaction, p.target.enabled, p.target.anchorMode, p.enabled, p.visibility = false, true, "free", true, "always"
+  NS.PublishVisibility()
+  el.bar.SetStatusBarColor = function(_, ...) filled = rgba(...) end
+  local ok, err = pcall(function()
+    for _, unit in ipairs({ { name = "Jaina", isPlayer = true, class = "MAGE" },
+      { name = "Boar", reaction = 2 } }) do
+      mocks.__units.party1target = unit
+      choose("obsidian")
+      el:__fire("OnEvent", "UNIT_TARGET", "party1")
+      assertEqual(filled, rgba(S.BarFillColor()), unit.name .. " under a skin")
+      choose("ka0s")
+      el:__fire("OnEvent", "UNIT_TARGET", "party1")
+      assertEqual(filled, swatch(p.target.barColor), unit.name .. " under Ka0s Default")
+    end
+  end)
+  el.bar.SetStatusBarColor = nil
+  mocks.__units.party1target = nil
+  p.target.colorReaction = reaction
+  choose("ka0s")
+  if not ok then error(err, 0) end
+end)
+
+--- `body(live)` with the three live elements of party1 drawing, on Ka0s Default before and after.
+local function withLive(body)
+  local p = NS.db.profile
+  local reaction = p.target.colorReaction
+  p.target.colorReaction, p.target.enabled, p.pet.enabled, p.castbar.enabled = false, true, true, true
+  p.target.anchorMode, p.pet.anchorMode, p.castbar.anchorMode = "free", "free", "free"
+  p.enabled, p.visibility = true, "always"
+  NS.PublishVisibility()
+  NS.Slash:OnSlash("unlock")
+  local ok, err = pcall(body, { castbar = NS.CastBars.__bars.party1, target = NS.TargetFrames.__buttons.party1,
+    pet = NS.PetFrames.__buttons.party1 })
+  NS.Slash:OnSlash("lock")
+  p.target.colorReaction = reaction
+  choose("ka0s")
+  if not ok then error(err, 0) end
+end
+
+test("skin flip: two skins with one set of media still recolor the target and pet frames", function()
+  -- red under: OnLooksChanged recoloring only through a Reskin that ran. Every media key is pinned, so
+  -- the structural half has nothing to do and the switch is colors alone.
+  withLive(function(live)
+    local names = { "Resolve", "FontFlags", "HudFontSize", "HudShadow" }
+    local saved, reskin = {}, Element.Reskin
+    for _, name in ipairs(names) do saved[name] = S[name] end
+    S.Resolve = function(kind, value, fromSkin) return saved.Resolve(kind, value, fromSkin and false) end
+    S.FontFlags = function() return "OUTLINE" end
+    S.HudFontSize = function(size) return size end
+    S.HudShadow = function() return false end
+    local ran, drawn = false, {}
+    local ok, err = pcall(function()
+      -- Every element, each with the look its feature passes: `ran` hears them all.
+      local prof = NS.db.profile
+      for _, unit in ipairs(NS.Units.LIST) do
+        Element.Reskin(NS.CastBars.__bars[unit], prof.castbar, prof.castbar)
+        Element.Reskin(NS.TargetFrames.__buttons[unit], prof.target, nil)
+        Element.Reskin(NS.PetFrames.__buttons[unit], prof.pet, nil)
+      end
+      for _, section in ipairs({ "target", "pet" }) do
+        local d = {}
+        drawn[section] = d
+        live[section].bar.SetStatusBarColor = function(_, ...) d.fill = rgba(...) end
+        live[section].bg.SetVertexColor = function(_, ...) d.bg = rgba(...) end
+        live[section].text.SetTextColor = function(_, ...) d.text = rgba(...) end
+      end
+      Element.Reskin = function(...)
+        local did = reskin(...)
+        ran = ran or did
+        return did
+      end
+      choose("obsidian")
+      assertEqual(ran, false, "no media key moved")
+      for section, d in pairs(drawn) do
+        assertEqual(d.fill, rgba(S.BarFillColor()), section .. " fill")
+        assertEqual(d.bg, rgba(S.Color("bar.bg")), section .. " background")
+        assertEqual(d.text, rgba(S.HudTextColor()), section .. " text")
+      end
+    end)
+    Element.Reskin = reskin
+    for _, name in ipairs(names) do S[name] = saved[name] end
+    for section in pairs(drawn) do
+      live[section].bar.SetStatusBarColor, live[section].bg.SetVertexColor = nil, nil
+      live[section].text.SetTextColor = nil
+    end
+    if not ok then error(err, 0) end
+  end)
+end)
+
+test("skin flip: the text color lands after S.HudFont, on a switch and past combat", function()
+  -- red under: ApplyColors before Element.Reskin on the cast bar, or no recolor after the target and
+  -- pet frames' Reskin. That one is deferred under lockdown, so OnLooksChanged's own recolor runs
+  -- first and S.HudFont's font object lands on top of it (LibKa0s Options doc, Moving to, step 3).
+  withLive(function(live)
+    local hudFont, seen = S.HudFont, {}
+    S.HudFont = function(fs, opts)
+      local log = seen[fs]
+      if log then log[#log + 1] = "font" end
+      return hudFont(fs, opts)
+    end
+    local lockdown = mocks.InCombatLockdown
+    for _, el in pairs(live) do
+      local log = {}
+      seen[el.text] = log
+      el.text.SetTextColor = function() log[#log + 1] = "color" end
+    end
+    local ok, err = pcall(function()
+      mocks.InCombatLockdown = function() return true end
+      choose("obsidian")
+      mocks.InCombatLockdown = lockdown
+      assertEqual(table.concat(seen[live.target.text], " "), "color", "the target's restyle is held")
+      -- The flush alone: OnLeaveCombat's VISIBILITY repaints the shown frames after it, which would
+      -- hide a restyle that left its text uncolored.
+      local publish = NS.PublishVisibility
+      NS.PublishVisibility = function() end
+      local flushed, raised = pcall(NS.addon.OnLeaveCombat, NS.addon)
+      NS.PublishVisibility = publish
+      if not flushed then error(raised, 0) end
+      for section, el in pairs(live) do
+        local log = seen[el.text]
+        assertTrue(table.concat(log, " "):find("font", 1, true) ~= nil, section .. " took its font")
+        assertEqual(log[#log], "color", section .. ": the color goes on last: " .. table.concat(log, " "))
+      end
+    end)
+    mocks.InCombatLockdown = lockdown
+    S.HudFont = hudFont
+    for _, el in pairs(live) do el.text.SetTextColor = nil end
+    if not ok then error(err, 0) end
+  end)
+end)
+
 test("skin flip: every meaning color stays under a skin", onSkin("obsidian", function()
   local p = NS.db.profile
   local el = NS.TargetFrames.__buttons.party1
@@ -292,6 +498,21 @@ test("skin flip: without the library the stored color draws, not a token's defau
   local stored = { r = 0.1, g = 0.2, b = 0.3, a = 0.4 }
   local cfg = { barColor = stored, barColorFromSkin = true }
   assertEqual(rgba(NS2.Element.FillColor(cfg, NS2.Element.ClassResolver(nil), "pf.castFill")), swatch(stored))
+end)
+
+test("skin flip: the degraded HudFont writes both shadow arms, so turning the row off clears it", function()
+  -- LibKa0s Options doc, Moving to, section 7.
+  local NS2 = dofile("tests/degraded_env.lua")()
+  local offset, color
+  local fs = { SetFont = function() end,
+    SetShadowColor = function(_, ...) color = rgba(...) end,
+    SetShadowOffset = function(_, ...) offset = rgba(...) end }
+  NS2.Skin.HudFont(fs, { face = "F", size = 12, shadow = true })
+  assertEqual(offset, rgba(1, -1), "on: the stock offset")
+  assertEqual(color, rgba(0, 0, 0, 1), "in black")
+  NS2.Skin.HudFont(fs, { face = "F", size = 12, shadow = false })
+  assertEqual(offset, rgba(0, 0), "off: the offset cleared")
+  assertEqual(color, rgba(0, 0, 0, 0), "and the color")
 end)
 
 -- ── the shadow ──────────────────────────────────────────────────────────────────────────────────
@@ -592,6 +813,9 @@ test("skin flip: the cast bar's spell icon wears the skin's icon edge, recorded 
   cfg.showIcon = false
   Element.Reskin(el, cfg, cfg)
   assertTrue(not edge:IsShown(), "hidden with the icon")
+  cfg.showIcon = true
+  Element.Reskin(el, cfg, cfg)
+  assertTrue(edge:IsShown(), "back with the icon")
   assertEqual(probe("target").iconEdge, nil, "no icon, no edge")
   Skin:Untrack(edge)
 end)

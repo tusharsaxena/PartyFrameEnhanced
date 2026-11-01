@@ -448,8 +448,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
   AuraMaster: a skin's real style wins, Show border included, at the skin's thickness; a skin's *None*
   is no border of its own, so the stored Show border, style and thickness stand with the companion on
   or off (the owner's ruling of 2026-11-01; the README's troubleshooting table and smoke check SKIN-25
-  say so). Show border therefore ships off: on, it would draw the shipped Blizzard Tooltip on every
-  untouched profile. Schema v5 keeps it on for a profile that picked a border. A
+  say so). Show border therefore stays off by default: on, it would draw the shipped Blizzard Tooltip
+  on every untouched profile. No schema step writes it, so a stored Show border stands. A
   `None` style clears the backdrop as Show border off does, so no border color is set on it.
 - **Cast icon edge (cause A1).** `S.IconBorder` takes the icon Texture itself: the library's holder, a
   plain mouse-off child on the icon's bounds, carries the skin's icon border family (Solid 2 px black

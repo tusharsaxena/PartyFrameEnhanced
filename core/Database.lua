@@ -132,31 +132,19 @@ function NS.ResetProfileToSkin(p)
     return true
 end
 
---- v4 -> v5: Show border's default moves from true to false (FS-PF-GATE, the owner's ruling of
---- 2026-11-01). A skin's None now defers to the stored style and Show border (S.BarBorder), so a
---- shipped true would draw the shipped Blizzard Tooltip on every untouched profile and move Ka0s
---- Default's look. AceDB strips a value equal to its default, so an absent borderShow meant true, and
---- now reads false: right for a section that never chose a border, wrong for one that did. A stored
---- style, or a style companion stored off, is that choice, and its Show border is written true. A
---- stored borderShow is the player's and stays, and None is no choice of a border. Once, on the
---- stamp: a borderShow false the player sets afterwards is stripped the same way, and reads like
---- this step's own input. Never creates a section.
-local function keepPickedBorders(p)
-    for _, key in ipairs(HUD_SECTIONS) do
-        local sec = p[key]
-        if type(sec) == "table" and sec.borderShow == nil then
-            local style = sec.borderStyle
-            local picked = type(style) == "string" and style ~= "" and style ~= "None" and style ~= "@skin"
-            if picked or sec.borderStyleFromSkin == false then sec.borderShow = true end
-        end
-    end
-end
+--- v4 -> v5: spent, and writes nothing. An unreleased build of the full skinning run (FS-PF-GATE)
+--- wrote Show border true here on a section with a stored style, which turned it on for a player who
+--- had it off: Show border's default is false on master, so AceDB strips an off and a stored style
+--- with no borderShow means off. A stored Show border is the player's and no step writes it, as in
+--- AuraMaster (the owner's ruling of 2026-11-01). The number stays taken because that build stamped
+--- 5 on the clients that ran it, and a later step reusing it would be skipped there.
+local function spentStep() end
 
 local SCHEMA_STEPS = {
     { to = 2, scope = "profile", apply = hudFollowsSkin },
     { to = 3, scope = "profile", apply = flagsFromSkin },
     { to = 4, scope = "profile", apply = function(p) NS.ResetProfileToSkin(p) end },
-    { to = 5, scope = "profile", apply = keepPickedBorders },
+    { to = 5, scope = "profile", apply = spentStep },
 }
 NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
 

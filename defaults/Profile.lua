@@ -82,8 +82,7 @@ NS.defaults.profile = {
 
         -- Border: off, as AuraMaster's, because a skin's None defers to Show border and the stored
         -- style and thickness (S.BarBorder), so true would draw them on every untouched profile and
-        -- move Ka0s Default's look. A skin with a real style draws it whatever this says. v5
-        -- (core/Database.lua) keeps Show border on for a profile that picked a border.
+        -- move Ka0s Default's look. A skin with a real style draws it whatever this says.
         borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
         borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 

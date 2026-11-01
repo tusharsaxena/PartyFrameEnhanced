@@ -199,8 +199,7 @@ end))
 local function fromV1(profiles, fn)
   local g, stored = NS.db.global, NS.db.sv.profiles
   local stamp = g.schemaVersion
-  -- The active profile reads the defaulted Show border on, so v2 writes it the player's; its record
-  -- is set, so the v4 step does not put it back.
+  -- v2 writes the active profile's style companion too, so it goes back with the stamp.
   local follows = {}
   for _, section in ipairs(SECTIONS) do follows[section] = NS.db.profile[section].borderStyleFromSkin end
   for name, p in pairs(profiles) do stored[name] = p end

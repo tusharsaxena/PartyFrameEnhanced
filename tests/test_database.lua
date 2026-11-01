@@ -20,7 +20,7 @@ test("database: InitDB stamps NS.SCHEMA_VERSION over a default of 0", function()
   -- current-version default would never persist (savedvariables-§1, WS-03).
   assertEqual(NS.defaults.global.schemaVersion, 0)
   assertEqual(NS.db.global.schemaVersion, NS.SCHEMA_VERSION)
-  assertEqual(NS.SCHEMA_VERSION, 5, "v5: a picked border keeps Show border (tests/test_skin_flip.lua)")
+  assertEqual(NS.SCHEMA_VERSION, 5, "v5: spent, it writes nothing (tests/test_skin_flip.lua)")
   assertEqual(NS.GetSetting("general.provider"), "auto")
   assertEqual(NS.GetSetting("locked"), true, "a first login starts locked, out of preview mode")
 end)

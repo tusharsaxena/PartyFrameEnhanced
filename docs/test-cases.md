@@ -596,7 +596,7 @@ Total.
 - skin flip: a skin's real style wins: its style, thickness and color, Show border off or not
 - skin flip: a skin's None defers to Show border and the stored style and thickness
 - skin flip: the memo signs the border that draws, so a switch onto a real style restyles
-- skin flip: v5 keeps Show border on for a picked border and leaves the rest alone
+- skin flip: no step of the ladder moves a stored Show border
 - skin flip: every other skin answers the HUD values from its own palette, Ka0s Default's unmoved
 - skin flip: a skin switch changes what every element's fill, background and text draw
 - skin flip: a companion off draws the stored color

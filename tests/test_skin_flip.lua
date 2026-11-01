@@ -222,23 +222,37 @@ test("skin flip: the memo signs the border that draws, so a switch onto a real s
   end)
 end)
 
-test("skin flip: v5 keeps Show border on for a picked border and leaves the rest alone", function()
-  local step
-  for _, s in ipairs(NS.__schemaSteps) do if s.to == 5 then step = s end end
-  local p = {
-    castbar = { borderStyle = "My Border" },
-    target = { borderStyleFromSkin = false },
-    pet = { borderStyle = "None", borderSize = 4 },
-  }
-  step.apply(p)
-  assertEqual(p.castbar.borderShow, true, "a stored style is a pick")
-  assertEqual(p.target.borderShow, true, "a style companion stored off drew the stored border")
-  assertEqual(p.pet.borderShow, nil, "None is no pick of a border, nor is a thickness alone")
-  local off = { castbar = { borderStyle = "My Border", borderShow = false }, pet = {} }
-  step.apply(off)
-  assertEqual(off.castbar.borderShow, false, "a stored off stays off")
-  assertEqual(off.pet.borderShow, nil, "an untouched section takes the new default")
-  assertEqual(off.target, nil, "a section never stored is not created")
+test("skin flip: no step of the ladder moves a stored Show border", function()
+  -- red under: a v5 that wrote true on a section with a stored style and no Show border. master's
+  -- default is false, so AceDB's strip makes that section a player who had it OFF. AuraMaster's
+  -- ladder never writes borderShow either.
+  local g, stored = NS.db.global, NS.db.sv.profiles
+  local stamp = g.schemaVersion
+  local follows = {}
+  for _, section in ipairs(SECTIONS) do follows[section] = NS.db.profile[section].borderStyleFromSkin end
+  local ok, err = pcall(function()
+    for _, from in ipairs({ 1, 2, 3, 4 }) do
+      local p = {
+        castbar = { borderStyle = "My Border", borderShow = false },
+        target = { borderStyle = "My Border", borderShow = true },
+        pet = { borderStyle = "My Border" },
+      }
+      local kept = { pet = { borderStyleFromSkin = false } }
+      stored.Old, stored.Kept = p, kept
+      g.schemaVersion = from
+      NS:RunMigrations()
+      assertEqual(g.schemaVersion, NS.SCHEMA_VERSION)
+      assertEqual(p.castbar.borderShow, false, from .. ": a stored off stays off, a style or not")
+      assertEqual(p.target.borderShow, true, from .. ": a stored on stays on")
+      assertEqual(p.pet.borderShow, nil, from .. ": unstored is master's off, and stays unstored")
+      assertEqual(kept.pet.borderShow, nil, from .. ": nor does a style companion stored off write it")
+      assertEqual(p.pet.borderStyle, "My Border", from .. ": the stored style is kept")
+    end
+  end)
+  stored.Old, stored.Kept = nil, nil
+  for _, section in ipairs(SECTIONS) do NS.db.profile[section].borderStyleFromSkin = follows[section] end
+  g.schemaVersion = stamp
+  if not ok then error(err, 0) end
 end)
 
 test("skin flip: every other skin answers the HUD values from its own palette, Ka0s Default's unmoved", function()

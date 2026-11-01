@@ -648,7 +648,8 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   every bar text reads in **Prototype**. The default fills, background and white text look as they did,
   and no text shadow shows, but a color, a Font shadow or a border style you had set **no longer draws**:
   the owner's ruling of 2026-11-01 moves existing profiles onto the skin. A border style you had picked
-  still draws under Ka0s Default's *None*, which defers to it (SKIN-38). Every size is as it was. `/pfe get
+  still draws under Ka0s Default's *None* where *Show border* is on, which it defers to, and stays
+  stored and undrawn where it is off (SKIN-38). Every size is as it was. `/pfe get
   castbar.barTextureFromSkin`, `/pfe get castbar.barColorFromSkin` and `/pfe get
   target.borderStyleFromSkin` print `true`. Untick a companion → your own color or pick is back, as it
   was. After a logout the SavedVariables file has `["schemaVersion"] = 5`. *Failure:* the old texture
@@ -854,11 +855,13 @@ items FS-PF-FLIP, FS-PF-FIX and FS-PF-GATE; LibKa0s v1.85.0). Every skin has its
 The 2026-10-30 skin fonts and feedback run's checks (Ka0sAddonsCommonTasks
 `docs/2026-10-30-SKIN_FONTS_AND_FEEDBACK/`, item PF-01; LibKa0s v1.82.0). SLASH-7 and the re-opened
 INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to it too.
-- **SKIN-38. A picked border survives Show border's new default (v5).** Before updating, on Target Frames
-  leave *Show border* as shipped and pick a **Border style**. Update, log in under **Ka0s Default** → that
-  border draws and *Show border* is ticked; the cast bars and pet frames, left alone, draw none and theirs
-  is unticked. Untick it, `/reload` → it stays off. *Failure:* the picked border gone, a border on an
-  untouched section, or Show border coming back after the reload. Result:
+- **SKIN-38. A stored Show border survives the update, whatever the style.** Before updating, on Target
+  Frames leave *Show border* off and pick a **Border style**; on Cast Bars tick *Show border* and pick a
+  style. Update, log in under **Ka0s Default** → Target Frames' *Show border* is unticked and draws no
+  border, with your style still stored; Cast Bars' is ticked and your border draws; the pet frames, left
+  alone, draw none. Tick Target Frames' → your style draws. Untick it, `/reload` → it stays off.
+  (Expected result changed by FS-PF-GATE: Show border is never turned on for you.) *Failure:* a Show
+  border that moved, a border under a None skin with it off, or none with it on. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore

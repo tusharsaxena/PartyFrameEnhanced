@@ -113,7 +113,10 @@ return function(NS, mocks)
     build = function()
       raise("castbar")
       local rec = Skin.painted[SECTIONS[1].el().icon]
-      return rec.regions.holder
+      -- LibKa0s R3-L3: a flat 1 px outline in every skin, so the edge textures are what a switch
+      -- redraws (their color); the holder itself takes no backdrop any more.
+      local r = rec.regions
+      return r.holder, r.edgeTop, r.edgeBottom, r.edgeLeft, r.edgeRight
     end,
   }
 

@@ -20,7 +20,7 @@ test("database: InitDB stamps NS.SCHEMA_VERSION over a default of 0", function()
   -- current-version default would never persist (savedvariables-§1, WS-03).
   assertEqual(NS.defaults.global.schemaVersion, 0)
   assertEqual(NS.db.global.schemaVersion, NS.SCHEMA_VERSION)
-  assertEqual(NS.SCHEMA_VERSION, 5, "v5: spent, it writes nothing (tests/test_skin_flip.lua)")
+  assertEqual(NS.SCHEMA_VERSION, 6, "v6: a stored Ka0s Friz Quadrata TT moves to Ka0s Ubuntu (R3-FRIZ)")
   assertEqual(NS.GetSetting("general.provider"), "auto")
   assertEqual(NS.GetSetting("locked"), true, "a first login starts locked, out of preview mode")
 end)
@@ -97,4 +97,27 @@ test("database: a profile switch publishes PROFILE and VISIBILITY", function()
     assertEqual(received(NS.MSG.VISIBILITY, function() NS.OnProfileChanged() end), 1)
   end)
   assertEqual(profiles, 1)
+end)
+
+-- R3-FRIZ: LibKa0s v1.85.0 deleted Ka0s Friz Quadrata TT (R3-L7); v6 moves a stored pick of it to Ka0s
+-- Ubuntu in every stored profile, at any depth. red under: no v6 step, one that reaches only the
+-- active profile, or one that rewrites Blizzard's own "Friz Quadrata TT".
+test("database: v6 moves a stored Ka0s Friz Quadrata TT to Ka0s Ubuntu in every profile, Blizzard's Friz kept", function()
+  local g, stored = NS.db.global, NS.db.sv.profiles
+  local stamp, active = g.schemaVersion, stored.Default
+  local savedFont = active.castbar.font
+  stored.Second = { skin = { font = "Ka0s Friz Quadrata TT" }, castbar = { font = "Ka0s Friz Quadrata TT" } }
+  stored.Third = { castbar = { font = "Friz Quadrata TT" } }
+  active.castbar.font = "Ka0s Friz Quadrata TT"
+  g.schemaVersion = 5
+  local ok, err = pcall(function() NS:RunMigrations() end)
+  local version, second, third, mine = g.schemaVersion, stored.Second, stored.Third, active.castbar.font
+  stored.Second, stored.Third, g.schemaVersion, active.castbar.font = nil, nil, stamp, savedFont
+  if not ok then error(err, 0) end
+  assertEqual(version, 6)
+  assertEqual(mine, "Ka0s Ubuntu", "the active profile's pick")
+  assertEqual(second.castbar.font, "Ka0s Ubuntu", "a stored, inactive profile's pick")
+  assertEqual(second.skin.font, "Ka0s Ubuntu", "the skin override")
+  assertEqual(third.castbar.font, "Friz Quadrata TT", "Blizzard's own Friz stays")
+  assertEqual(NS.RetireFonts(second), 0, "a second pass moves nothing")
 end)

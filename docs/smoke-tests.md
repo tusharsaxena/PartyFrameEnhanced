@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 38 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin |
+| SKIN-1 – 39 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin, a stored pick of the deleted Friz |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -675,13 +675,13 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   **no reload**, each time, every cast bar, target frame and pet frame redraws in that skin's bar
   texture and its own HUD face (LibKa0s v1.82.0: Ka0s Default Prototype, Obsidian Expressway,
   Azeroth Open Sans Semibold, Glass Avant Garde, High Contrast Doris PP,
-  Ember Emblem, WoW Default Ka0s Friz Quadrata TT, WoW Midnight Segoe UI Semibold, WoW Forever Fira Sans
+  Ember Emblem, WoW Default Ka0s Ubuntu (R3-FRIZ; Ka0s Friz Quadrata TT before), WoW Midnight Segoe UI Semibold, WoW Forever Fira Sans
   SemiBold, as of LibKa0s v1.83.0; on a default profile only WoW Default looks like an unticked box, whose
   key is the client's Friz Quadrata TT, and only while the client's own font file is the real Friz). The plain fills, the text color, the shadow
   and the icon edge follow too (SKIN-32 to SKIN-36), and Azeroth, High Contrast, WoW Default and WoW Midnight draw a border of their own (SKIN-25). The cast-state, reaction and class colors, the
   outline, the spark, the shield and the raid marker never change; the text size moves a little with the
   face, so the text keeps Ka0s Default's width (SKIN-28). *Failure:* an element still in the last
-  skin until `/reload`, a changed meaning color, Friz Quadrata under any skin but WoW Default, or text
+  skin until `/reload`, a changed meaning color, Friz Quadrata under any skin with its box ticked, or text
   clipped in a wider face (watch the cast bar's spell name and timer). Result:
 - **SKIN-5. A companion off keeps your own pick (PF-03; X4).** On Target Frames, untick *Use the
   skin's font* → *Font* un-grays and the target frames draw the face it names; pick another skin → the
@@ -862,6 +862,12 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   alone, draw none. Tick Target Frames' → your style draws. Untick it, `/reload` → it stays off.
   (Expected result changed by FS-PF-GATE: Show border is never turned on for you.) *Failure:* a Show
   border that moved, a border under a None skin with it off, or none with it on. Result:
+- **SKIN-39. A stored pick of the deleted Friz lands on Ka0s Ubuntu (R3-FRIZ, v6).** Before updating,
+  untick *Use the skin's font* on Cast Bars and set *Font* (or the Skin tab's Font) to *Ka0s Friz
+  Quadrata TT* in two profiles; log out. Update and fully restart the client (a new font file) → the
+  cast bars draw in Ubuntu and *Font* reads *Ka0s Ubuntu*; switch to the other profile → the same. A
+  font set to Blizzard's own *Friz Quadrata TT* keeps it. *Failure:* the game's default face, or a row
+  still naming Ka0s Friz Quadrata TT. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -984,3 +990,5 @@ runs it. The re-vendor changes nothing else a player sees in this addon.
 The re-cut v1.84.0 (2026-11-01) adds PANEL-11, and its Result is empty until the owner runs it.
 
 Owed: SKIN-1, SKIN-4, SKIN-5, SKIN-24, SKIN-25, SKIN-27, PANEL-8, UNIT-9, LAYER-2 and SKIN-32 to SKIN-38 (FS-PF-FLIP, FS-PF-FIX, 2026-11-01). The LibKa0s v1.85.0 re-vendor also reopens INSTALL-4.
+
+Owed from the owner's third smoke round (R3-FRIZ, 2026-11-02): SKIN-39, new; SKIN-4 now names Ka0s Ubuntu for WoW Default and is still owed.

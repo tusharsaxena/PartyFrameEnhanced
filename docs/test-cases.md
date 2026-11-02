@@ -53,7 +53,7 @@ Total.
 - schema: without the library, /pfe unlock and /pfe lock still write the stored path
 - schema: without the library, a row-less path outside writeThrough is refused and not stored
 
-### test_database.lua (6)
+### test_database.lua (7)
 
 - database: InitDB stamps NS.SCHEMA_VERSION over a default of 0
 - database: RunMigrations is idempotent
@@ -61,6 +61,7 @@ Total.
 - database: a raising step leaves the stamp and prints one line; a rerun is a no-op
 - database: a counted profile reset restores defaults and publishes PROFILE once
 - database: a profile switch publishes PROFILE and VISIBILITY
+- database: v6 moves a stored Ka0s Friz Quadrata TT to Ka0s Ubuntu in every profile, Blizzard's Friz kept
 
 ### test_coresetup.lua (4)
 
@@ -522,6 +523,10 @@ Total.
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
+### test_launcher_skin_entry.lua (1)
+
+- launcher descriptor passes openSkinPicker, which runs the skin verb
+
 ### test_optionssetup.lua (11)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
@@ -798,7 +803,7 @@ Total.
 |-------|------:|
 | test_loadorder.lua | 18 |
 | test_schema.lua | 21 |
-| test_database.lua | 6 |
+| test_database.lua | 7 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 3 |
 | test_mediasetup.lua | 4 |
@@ -828,6 +833,7 @@ Total.
 | test_disabled.lua | 22 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
+| test_launcher_skin_entry.lua | 1 |
 | test_optionssetup.lua | 11 |
 | test_settings_layout.lua | 9 |
 | test_skinsetup.lua | 13 |
@@ -847,4 +853,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **633** |
+| **Total** | **635** |

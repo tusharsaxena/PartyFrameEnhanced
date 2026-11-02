@@ -140,11 +140,31 @@ end
 --- 5 on the clients that ran it, and a later step reusing it would be skipped there.
 local function spentStep() end
 
+-- v6 (R3-FRIZ): LibKa0s v1.85.0 deleted Ka0s Friz Quadrata TT (R3-L7) and WoW Default draws Ka0s
+-- Ubuntu in its place (R3-L6). Every stored string naming the deleted face, at any depth (a text
+-- block's font, the skin's Font override), moves to its successor. Blizzard's own "Friz Quadrata TT"
+-- is another key and stays.
+local RETIRED_FONTS = { ["Ka0s Friz Quadrata TT"] = "Ka0s Ubuntu" }
+
+--- Moves every string naming a retired face, at any depth of `t`, to its successor. Answers how many moved.
+function NS.RetireFonts(t)
+    local n = 0
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            n = n + NS.RetireFonts(v)
+        elseif RETIRED_FONTS[v] then
+            t[k], n = RETIRED_FONTS[v], n + 1
+        end
+    end
+    return n
+end
+
 local SCHEMA_STEPS = {
     { to = 2, scope = "profile", apply = hudFollowsSkin },
     { to = 3, scope = "profile", apply = flagsFromSkin },
     { to = 4, scope = "profile", apply = function(p) NS.ResetProfileToSkin(p) end },
     { to = 5, scope = "profile", apply = spentStep },
+    { to = 6, scope = "profile", apply = function(p) NS.RetireFonts(p) end },
 }
 NS.__schemaSteps = SCHEMA_STEPS   -- test seam only (tests/test_database.lua injects a step)
 

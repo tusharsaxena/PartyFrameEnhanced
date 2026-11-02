@@ -126,7 +126,7 @@ now the `locked` row's validate.
 ## Global
 
 ```text
-global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (5)
+global.schemaVersion = 0                       -- default; the runner stamps NS.SCHEMA_VERSION (6)
 global.minimap       = { hide = false }        -- LibDBIcon's own table
 ```
 
@@ -194,7 +194,7 @@ The rules the runner keeps (savedvariables-§1):
 - **The default is 0, and the runner owns the stamp.** `defaults/Profile.lua` declares
   `global.schemaVersion = 0`, never the current version: AceDB strips a value equal to its default at
   logout, so a current-version default would never persist, and AceDB backfills a declared default onto
-  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (5) after the walk, and that value
+  a store with no stamp. A first run stamps `NS.SCHEMA_VERSION` (6) after the walk, and that value
   persists because it differs from the default.
 - **A profile step runs over every stored profile**, not just the active one: `apply` is called with
   each table in AceDB's raw `profiles` (the active one included), or with the one profile on the
@@ -211,3 +211,4 @@ The rules the runner keeps (savedvariables-§1):
 | 3 | the HUD Font flags follow the skin's Font outline (LibKa0s v1.82.0, ruling D-07; Addendum 01 of the 2026-10-30 skin fonts run) | `profile`: on each stored `castbar`, `target` and `pet` section, a `fontFlags` of `"OUTLINE"`, the previous default, becomes `"@skin"` (*From skin*), which draws OUTLINE under the default Font outline and follows the Skin tab from then on. Any other stored flag is the player's pick and stays; a flag never stored reads the new default. Runs once: an OUTLINE picked afterwards is kept. |
 | 4 | every section's colors and shadow follow the skin (the owner's rulings of 2026-11-01, FS-PF-FLIP) | `profile`, through `NS.ResetProfileToSkin`: `Skin.FollowOnce` over `NS.SKIN_RESET_PATHS`, the eight companions of each stored section and its `fontFlags`, gated by the profile's own `skin.fullSkinReset`. It also runs at the end of every `RunMigrations` and on every profile event, so a companion turned off afterwards stays off. It moves a border v2 kept the player's. No stored color or pick is written. `skin.fullSkinReset` has no schema row, so no Defaults button can put it back; a profile reset does, and the step then runs against defaults. Without the library the same write by hand |
 | 5 | spent: writes nothing | `profile`: none. An unreleased build wrote `borderShow` here and turned Show border on for players who had it off; no step writes a stored `borderShow`, as in AuraMaster (the owner's ruling of 2026-11-01). The number stays taken because that build stamped it on the clients that ran it. |
+| 6 | the deleted Friz becomes Ka0s Ubuntu (R3-FRIZ): LibKa0s v1.85.0 deleted `Ka0s Friz Quadrata TT` (R3-L7) and WoW Default draws `Ka0s Ubuntu` in its place (R3-L6) | `profile`, through `NS.RetireFonts`: every stored string naming the deleted face, at any depth (a section's `font`, the skin's Font override), becomes `Ka0s Ubuntu`. Blizzard's own `Friz Quadrata TT` stays. Idempotent. |

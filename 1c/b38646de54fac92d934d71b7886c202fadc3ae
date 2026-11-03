@@ -1,0 +1,4 @@
+R6-RV2 review (2026-11-04, independent reviewer): PASS. libs/LibKa0s matches LibKa0s tag v1.85.0 (1b09320) byte for byte apart from the icon prune; the 12 vendored icons equal the CLAUDE.md declaration and match the tag's bytes. tests/_kit matches testkit/ at the tag. OptionsCompose is at compose minor 19; its Sim row is drawn only when the host passes isSimMode+toggleSim, and PFE passes neither (no sim mode), so Master controls is unchanged. Fresh gate: 647 passed, 0 failed, 1 skipped; luacheck 0/0 in 92 files.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JV4dmLSn8ys2xpPiPZV4gK

@@ -843,7 +843,7 @@ items FS-PF-FLIP, FS-PF-FIX and FS-PF-GATE; LibKa0s v1.85.0). Every skin has its
   every skin. *Failure:* no shadow under Azeroth, or a shadow left over from the last skin. Result: Passed (owner, 2026-11-02)
 - **SKIN-36. Gloss and the icon edge (A3, A1).** Pick **Glass** → every HUD bar shows a soft shine on its
   top half that ends where the fill ends; any other skin, and Glass with *Use the skin's texture*
-  unticked, none. The cast bar's spell icon has a 2 px edge in the skin's icon color under Ka0s Default
+  unticked, none. The cast bar's spell icon has a 1 px edge in the skin's icon color in every skin (R3-L3), its art zoomed so its own edge never shows,
   and follows a skin change; hiding the icon hides it; a click-to-target frame still clicks. *Failure:*
   a shine past the fill's end or on the player's own texture, or an edge left behind. Result: Failed (owner, 2026-11-02): re-opened as R3-L3
 - **SKIN-37. The one step on an existing profile, and it runs once (v4).** Before updating, give a

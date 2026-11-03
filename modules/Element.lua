@@ -25,8 +25,8 @@ local FONT_FLAGS = { NONE = "" }
 -- The border style that is no edge at all: LibSharedMedia's key, Ka0s Default's `bar.borderStyle`.
 local NO_EDGE = "None"
 
--- The spell icon's edge is the skin's whole family (cause A1): no setting offers one, Ka0s Default's
--- is Solid 2 px black, and the record replays it on a skin change. S.IconBorder takes the Texture
+-- The spell icon's edge is the skin's whole family (cause A1): no setting offers one, it is 1 px in
+-- every skin (LibKa0s R3-L3), black under Ka0s Default, and the record replays it on a skin change. S.IconBorder takes the Texture
 -- itself (Skin's SkinPaintControls minor 15): its holder rides the icon's own show and hide.
 local ICON_EDGE = { fromSkin = true }
 

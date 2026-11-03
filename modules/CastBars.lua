@@ -55,8 +55,19 @@ local PREVIEW_ICON = 135907
 
 local bars = {}          -- unit → element
 CastBars.__bars = bars
-local cfg                -- NS.db.profile.castbar, re-read on PROFILE
+local cfg                -- NS.db.profile.castbar, re-bound by rebind() (below)
 local suspended = false
+
+-- The section the `cfg` upvalue holds, re-bound to the LIVE profile at every bulk entry (refreshAll,
+-- reskinAll, syncEvents). Not only on PROFILE: AceDB's SetProfile strips the OUTGOING profile of every
+-- value equal to its default, in place, before the switch, and the bus runs PROFILE receivers in hash
+-- order. So Preview's PROFILE receiver (its VISIBILITY), adoptProfile's skin step (OnLooksChanged) or
+-- the enable latch's Resume can reach a bar first, and a preview cast filled from the stale table read
+-- nil for `uninterruptibleColor` (R6-PF1). Nil until OnEnable, which every entry's guard relies on.
+local function rebind()
+    if cfg then cfg = NS.db.profile.castbar end
+    return cfg
+end
 
 -- ── the show decision (design spec §6.7) ─────────────────────────────────────────────────────────────
 
@@ -310,12 +321,14 @@ local function refresh(el)
 end
 
 local function refreshAll()
+    rebind()
     for _, unit in ipairs(Units.LIST) do refresh(bars[unit]) end
 end
 
 -- ── configuration ─────────────────────────────────────────────────────────────────────────────
 
 local function reskinAll()
+    rebind()
     local t0 = Perf.on and debugprofilestop()
     for _, unit in ipairs(Units.LIST) do
         local el = bars[unit]
@@ -329,6 +342,7 @@ end
 
 -- Registered only while the feature is on and the unit included: a disabled unit costs no dispatch.
 local function syncEvents()
+    rebind()
     local on = not suspended and NS.GetSetting("enabled") == true and cfg.enabled and Units.InParty()
     local changed, listening = 0, 0
     for _, unit in ipairs(Units.LIST) do
@@ -414,7 +428,6 @@ ev:RegisterMessage(NS.MSG.CONFIG, function(_, section)
 end)
 ev:RegisterMessage(NS.MSG.PROFILE, function()
     if not cfg then return end
-    cfg = NS.db.profile.castbar
     reskinAll()
     syncEvents()
     refreshAll()

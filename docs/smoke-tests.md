@@ -18,7 +18,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
 | STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
 | PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
-| CAST-1 – 7 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings |
+| CAST-1 – 8 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings, a profile switch from preview |
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAYER-1 – 4 | Frame layering | the free-placement plate under its bars, texts and marks over the border, the stand-in's strata, the strata tooltip |
@@ -319,6 +319,13 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **CAST-7. Settings.** Cast Bars page → five tabs (General, Size and position, Bar, Text, Icon).
   Change *Normal cast color*, *Height* and *Font size* → live bars restyle at once. Turn *Enable cast bars*
   off → no bar appears on the next cast. Result: pass (owner, 2026-10-24)
+- **CAST-8. A profile switch from preview (R6-PF1).** `/console scriptErrors 1`. Make two profiles,
+  `A` on Ka0s Default and `B` on another skin (Glass), both past the first-run skin picker. On `A`,
+  `/pfe unlock` → the preview cast bars show. `/pfe profile B` → the bars repaint in B's skin and B's
+  lock with zero Lua errors. *Failure:* an error naming `CastBars.lua:120` (`attempt to index local
+  'u'`). Then `/pfe lock`, `/pfe profile A`, `/pfe unlock`, `/pfe profile B`, `/pfe unlock`, and
+  switch back and forth between the two unlocked profiles a few times → still zero Lua errors, and
+  the preview casts keep their fill color. Run it once solo and once in a party. Result:
 
 ## Target and pet frames
 
@@ -1037,5 +1044,7 @@ Owed from the owner's fourth smoke round (R4-HUD, 2026-11-03): SKIN-40, new; SKI
 Owed from the owner's fifth smoke round (R5-RV, 2026-11-03): SKIN-41 and SKIN-42, new. The re-vendor also reopens INSTALL-4.
 
 Owed from the owner's sixth smoke round (R6-RV, R6-PV, 2026-11-04): SKIN-43, new. The re-vendor also reopens INSTALL-4.
+
+Owed from the sixth round's follow-up (R6-PF1, 2026-11-04): CAST-8, new. INSTALL-4 stays owed: the R6-RV2 re-vendor moves only OptionsCompose, which draws nothing new in this addon.
 
 On 2026-11-02 the owner reported that every check on the smoke lists of the full skinning run and its smoke feedback batch (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/` and `docs/2026-11-01-SMOKE_FEEDBACK/`) passed, apart from DpsRace's clock font, the skinned look of the AceGUI Dropdown and the Ka0sMedia_Font and Ka0sMedia_Statusbar pickers, FadeNineSlice and IconBorder (`docs/2026-11-02-SMOKE_ROUND3/`, R3-SMOKE). Passed, recorded on each `Result:` line as `Passed (owner, 2026-11-02)`: INSTALL-4, LAYER-2, PANEL-8, SKIN-1, SKIN-5, SKIN-24, SKIN-25, SKIN-27, SKIN-32, SKIN-33, SKIN-34, SKIN-35, SKIN-37, SKIN-38 and UNIT-9. Failed, re-opened as R3-L3 (IconBorder's 1 px outline and zoom) and recorded as `Failed (owner, 2026-11-02): re-opened as R3-L3`: SKIN-36. Still owed: SKIN-4, whose expected result the third smoke round itself changed after the owner's run.

@@ -213,3 +213,88 @@ test("profile switch: copying a locked profile in combat changes nothing and say
   assertTrue(r.chat:find(COMBAT_LINE, 1, true) == nil, "no re-lock line: " .. r.chat)
   T.assertFalse(r.castPreview, "no cast-bar placeholder")
 end)
+
+-- ── a cast bar painted before its own PROFILE receiver re-binds (R6-PF1) ──────────────────────
+-- AceDB's SetProfile strips the OUTGOING profile of every value equal to its default before the
+-- switch (removeDefaults, modeled by the kit's AceDB fake), so a feature still holding the old
+-- `db.profile.castbar` reads nil for every color it never changed. Two paths reach the cast bars
+-- before CastBars' own PROFILE receiver re-binds: Preview's PROFILE receiver (hash order) entering
+-- preview and publishing VISIBILITY, and adoptProfile's skin step firing OnLooksChanged. Either one
+-- painting a preview cast from the stale table raised "attempt to index local 'u'" in applyFill.
+
+local STALE, GLASS = "PFE-Stale", "PFE-Glass"
+
+local function errorsSince(before)
+  local out = {}
+  for i = before + 1, #mocks.__handledErrors do out[#out + 1] = tostring(mocks.__handledErrors[i]) end
+  return table.concat(out, "\n")
+end
+
+-- `fn(start)` with the start profile unlocked into preview, every handled error counted, and the
+-- store put back on `start`, locked, with `names` deleted, whatever `fn` raised.
+local function fromPreview(names, fn)
+  local start = NS.db:GetCurrentProfile()
+  local seen = NS.GetSetting("skin.pickerSeen")
+  local before = #mocks.__handledErrors
+  local ok, err = pcall(function()
+    NS.SetByPath("locked", false)
+    settle()
+    assertTrue(NS.State.preview == true, "precondition: the start profile is in preview")
+    fn(start)
+  end)
+  NS.BusStandUp()
+  if NS.db:GetCurrentProfile() ~= start then NS.db:SetProfile(start) end
+  settle()
+  NS.HideSkinPicker()
+  NS.SetByPath("skin.pickerSeen", seen)
+  NS.SetByPath("locked", true)
+  settle()
+  for _, name in ipairs(names) do
+    if hasProfile(name) then NS.db:DeleteProfile(name, true) end
+  end
+  settle()
+  if not ok then error(err, 0) end
+  T.assertEqual(errorsSince(before), "", "no error reached the error handler")
+end
+
+test("profile switch: VISIBILITY heard before CastBars' PROFILE paints the preview cast from the new profile", function()
+  -- red under: the `cfg` upvalue read as it stands. With every receiver stood down nothing re-binds
+  -- it, so this VISIBILITY is exactly Preview's PROFILE receiver winning the hash-order race.
+  fromPreview({ STALE }, function()
+    NS.BusStandDown()
+    NS.db:SetProfile(STALE)
+    NS.BusStandUp()
+    assertTrue(NS.State.preview == true, "preview is still on, as Preview has not heard PROFILE")
+    local ok, err = pcall(NS.PublishVisibility)
+    NS.OnProfileChanged()
+    settle()
+    assertTrue(ok, "VISIBILITY ahead of PROFILE: " .. tostring(err))
+    assertTrue(NS.CastBars.__bars.party1.__previewing == true, "the preview cast was painted")
+  end)
+end)
+
+test("profile switch: leaving preview for a profile on another skin repaints the cast bars without an error", function()
+  -- red under: reskinAll reading the `cfg` upvalue. adoptProfile's skin step fires OnLooksChanged
+  -- before any PROFILE receiver runs, and the preview's casting bars refill from the stripped table.
+  fromPreview({ GLASS }, function(start)
+    NS.db:SetProfile(GLASS)
+    settle()
+    NS.HideSkinPicker()
+    NS.SetByPath("skin.pickerSeen", true)
+    NS.WriteSkinChoice("ka0s", "glass")
+    NS.SetByPath("locked", true)
+    settle()
+    NS.db:SetProfile(start)
+    settle()
+    NS.HideSkinPicker()
+    NS.SetByPath("skin.pickerSeen", true)
+    NS.SetByPath("locked", false)
+    settle()
+    assertTrue(NS.State.preview == true, "precondition: back in preview on the start profile")
+    assertTrue(NS.CastBars.__bars.party1.state == "casting", "precondition: the preview cast is up")
+    local before = #mocks.__handledErrors
+    NS.db:SetProfile(GLASS)
+    settle()
+    T.assertEqual(errorsSince(before), "", "the skin step's repaint raised nothing")
+  end)
+end)

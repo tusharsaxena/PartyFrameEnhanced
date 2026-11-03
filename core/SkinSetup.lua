@@ -397,6 +397,9 @@ if not Skin then
         -- the stored color draws; HudShadow's nil is "the stored fontShadow stands". BarGloss and
         -- HoverArt draw nothing: no skin, no gloss, and the client's own hover art.
         "HudTextColor", "HudLabelColor", "BarFillColor", "HudShadow", "BarGloss", "HoverArt",
+        -- Round 5: Band answers nil (no library, no band frame to anchor to) and Header, which lays
+        -- a window's header children on the band, does nothing.
+        "Band", "Header",
     }) do S[name] = noop end
 
     S.Token = function(name)

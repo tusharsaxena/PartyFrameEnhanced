@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 40 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin, a stored pick of the deleted Friz, the cast icon's black HUD edge |
+| SKIN-1 – 42 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin, a stored pick of the deleted Friz, the cast icon's black HUD edge, the skin list's outside-press close, the tool windows' header band |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -874,6 +874,20 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   Midnight** and **WoW Forever** in turn → the edge takes each skin's HUD icon color and follows the
   switch; back to Ka0s Default → black again. *Failure:* a gray edge under Ka0s Default, or an edge
   that keeps the last skin's color. Result:
+- **SKIN-41. The skin list closes on a press outside it (R5-RV, LibKa0s R5-L4).** `/pfe skin` → open
+  the skin list (the first dropdown), then press the picker window's body → the list closes. Open it
+  again and press the game world → it closes. Open it again and press the **Font** dropdown → the
+  list closes and the Font list opens. Repeat from the Skin tab's own picker in the settings pages.
+  Pressing a skin row still picks it, and pressing the dropdown itself still toggles the list.
+  *Failure:* a list that stays open after a press outside it, or a Font list that needs a second
+  press. Result:
+- **SKIN-42. The tool windows' header band (R5-RV, LibKa0s R5-L1 to R5-L3).** Under **Ka0s Default**,
+  open the debug console (`/pfe debug`), its **Copy** window, the perf panel (`/pfe perf`) and the
+  skin picker (`/pfe skin`) → each has one header band, darker than round 4, sitting flush inside the
+  window's edge with no strip of body color between the edge and the band, and its title and close
+  x are centered vertically on the band. Pick **Glass**, **WoW Midnight** and **WoW Default** → the
+  same in each. *Failure:* a dark strip above or beside the band, two bands, or a title or close x
+  sitting above or below the band's middle. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -1000,5 +1014,7 @@ Owed: SKIN-1, SKIN-4, SKIN-5, SKIN-24, SKIN-25, SKIN-27, PANEL-8, UNIT-9, LAYER-
 Owed from the owner's third smoke round (R3-FRIZ, 2026-11-02): SKIN-39, new; SKIN-4 now names Ka0s Ubuntu for WoW Default and is still owed.
 
 Owed from the owner's fourth smoke round (R4-HUD, 2026-11-03): SKIN-40, new; SKIN-36 now names the HUD's black `icon.border` edge under Ka0s Default.
+
+Owed from the owner's fifth smoke round (R5-RV, 2026-11-03): SKIN-41 and SKIN-42, new. The re-vendor also reopens INSTALL-4.
 
 On 2026-11-02 the owner reported that every check on the smoke lists of the full skinning run and its smoke feedback batch (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/` and `docs/2026-11-01-SMOKE_FEEDBACK/`) passed, apart from DpsRace's clock font, the skinned look of the AceGUI Dropdown and the Ka0sMedia_Font and Ka0sMedia_Statusbar pickers, FadeNineSlice and IconBorder (`docs/2026-11-02-SMOKE_ROUND3/`, R3-SMOKE). Passed, recorded on each `Result:` line as `Passed (owner, 2026-11-02)`: INSTALL-4, LAYER-2, PANEL-8, SKIN-1, SKIN-5, SKIN-24, SKIN-25, SKIN-27, SKIN-32, SKIN-33, SKIN-34, SKIN-35, SKIN-37, SKIN-38 and UNIT-9. Failed, re-opened as R3-L3 (IconBorder's 1 px outline and zoom) and recorded as `Failed (owner, 2026-11-02): re-opened as R3-L3`: SKIN-36. Still owed: SKIN-4, whose expected result the third smoke round itself changed after the owner's run.

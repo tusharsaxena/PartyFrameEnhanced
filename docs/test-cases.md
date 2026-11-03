@@ -687,7 +687,7 @@ Total.
 - skin switch: a holder's caption changes
 - skin switch: a holder's caption changes with the Scope ignored
 
-### test_skin_picker.lua (17)
+### test_skin_picker.lua (25)
 
 - Skin picker: the spec names this owner, its seams, the Skin tab and the eye
 - Skin picker: an unseen profile shows it; a seen one does not
@@ -700,8 +700,16 @@ Total.
 - Skin picker: the player's close marks it seen; this addon's own hide does not
 - Skin picker: a profile that has seen it takes a shown picker down, unmarked
 - Skin picker: a profile switch takes a shown picker down before the new skin
-- Skin picker: the eye unlocks through the write seam, this addon's preview
-- Skin picker: the eye in combat is the unlock's own refusal
+- Skin picker: shown with the elements locked, it unlocks them through the write seam
+- Skin picker: the eye toggles the lock, both ways
+- Skin picker: every close locks again what the picker unlocked
+- Skin picker: elements already unlocked are left alone, and the close keeps them unlocked
+- Skin picker: an eye pressed back to the opening state leaves nothing to undo
+- Skin picker: a profile switch under the picker's unlock leaves the profile it left stored locked
+- Skin picker: a profile switch leaves a profile the picker found unlocked as it was
+- Skin picker: a restore parked through combat is the player's unlock, not one a profile switch undoes
+- Skin picker: the preview's unlock in combat is the unlock's own refusal
+- Skin picker: the preview's enter and exit write the lock through the seam and redraw the panel
 - Skin picker: Apply with no pick saves nothing and marks the picker seen
 - Skin picker: the write seam a saved pick reaches stores both halves
 - Profiles page: the tree AceConfigDialog drew is painted for this owner, after the Open
@@ -844,7 +852,7 @@ Total.
 | test_skin_fonts.lua | 12 |
 | test_skin_values.lua | 3 |
 | test_skin_switch.lua | 31 |
-| test_skin_picker.lua | 17 |
+| test_skin_picker.lua | 25 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
 | test_surface_parity.lua | 18 |
@@ -854,4 +862,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **636** |
+| **Total** | **644** |

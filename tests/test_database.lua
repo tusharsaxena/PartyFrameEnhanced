@@ -90,12 +90,21 @@ test("database: a counted profile reset restores defaults and publishes PROFILE 
   assertEqual(NS.GetSetting("general.provider"), "auto", "the profile is back at its defaults")
   assertEqual(n, 1, "every module rebuilds off one PROFILE message")
   assertEqual(NS.ConsumeResetCount(), nil, "the count was consumed by the handler, not left pending")
+  -- The reset profile's first-run picker came up and unlocked the elements (spec.preview, R6-PV);
+  -- this addon's own hide takes it down and locks them again, so no later case starts unlocked.
+  NS.HideSkinPicker()
 end)
 
 test("database: a profile switch publishes PROFILE and VISIBILITY", function()
+  -- On a profile that has closed the picker: an unseen one shows it, and its preview's unlock
+  -- publishes VISIBILITY of its own (tests/test_skin_picker.lua pins that).
+  NS.SetByPath("skin.pickerSeen", true)
+  local inner
   local profiles = received(NS.MSG.PROFILE, function()
-    assertEqual(received(NS.MSG.VISIBILITY, function() NS.OnProfileChanged() end), 1)
+    inner = received(NS.MSG.VISIBILITY, function() NS.OnProfileChanged() end)
   end)
+  NS.SetByPath("skin.pickerSeen", false)
+  assertEqual(inner, 1)
   assertEqual(profiles, 1)
 end)
 

@@ -477,10 +477,18 @@ collection's first adopter; only the paths, the brand and the preview are this a
   after the login or reload entry, and after every profile event, because a new, copied or reset
   profile carries its own flag; a start in combat waits for `PLAYER_REGEN_ENABLED`. Only the player's
   close writes `pickerSeen`; `NS.HideSkinPicker` (the stand-down, and first in every profile adopt)
-  takes it down unmarked. Its gear opens General on the Skin tab. **Its eye unlocks** through the
-  write seam (`locked = false`), because unlocking is this addon's preview (options-ui-§15; DECISIONS
-  D6): the placeholders on the real party frames, or the stand-in out of a party. It leaves the
-  addon unlocked, and is refused where the unlock is (combat, a perf suspend). Since LibKa0s v1.81.0
+  takes it down unmarked. Its gear opens General on the Skin tab. **Its preview is unlock mode**
+  (`spec.preview`, mode `"unlock"`, LibKa0s OptionsSkinPicker minor 11; R6-PV), because unlocking
+  is this addon's preview (options-ui-§15): the placeholders on the real party frames, or the
+  stand-in out of a party. A picker shown with the elements locked unlocks them, the eye toggles
+  the lock (lit while unlocked), and every close puts the lock back as it was at open; an unlock the
+  player made before the picker opened is left alone. Enter and exit write `locked` through the
+  write seam and redraw the panel, the path `/pfe lock` and `/pfe unlock` take, so the refusals
+  (combat, a perf suspend, disabled) hold and the Lock frame box and the launcher stay in step. A
+  profile event closes the picker after AceDB switched, so the profile a showing's own unlock was
+  written to is put back to its stored default there (`owedProfile` in `core/SkinSetup.lua`). The
+  lock is stored, so a `/reload` while the picker is up leaves the elements unlocked until `/pfe
+  lock`. This replaces the enter-only eye of DECISIONS D6. Since LibKa0s v1.81.0
   (OptionsSkinPicker minor 2) the window is titled *Choose a skin* and the brand, *Ka0s Party Frame
   Enhanced*, has its own line above the dropdown (`frame.ownerLabel`), the window widening to fit it. Since
   LibKa0s v1.83.0 it also carries the Skin tab's rows: Font and Texture as media pickers, Font outline

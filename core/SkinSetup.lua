@@ -200,26 +200,74 @@ end
 -- reads `get` at the close). A profile event takes the picker down FIRST, before the new profile's
 -- skin is applied, so the new profile's whole pair is what stays worn.
 --
--- THE EYE. This addon has no window and no test mode: its unlocked view IS its preview
--- (options-ui-§15, modules/Preview.lua), the placeholders on every enabled element, or the stand-in
--- party frame out of a party. So the eye unlocks, through the write seam, the same path the Lock
--- row and `/pfe unlock` take, refusals included (combat, a perf suspend). It leaves the addon
--- unlocked until the player locks it again (2026-10-29 rollout DECISIONS, PartyFrameEnhanced D6).
+-- THE PREVIEW (LibKa0s OptionsSkinPicker minor 11, spec.preview, mode "unlock"; Ka0sAddonsCommonTasks
+-- docs/2026-11-03-SMOKE_ROUND6, R6-PV). This addon has no window and no test mode: its unlocked
+-- view IS its preview (options-ui-§15, modules/Preview.lua), the placeholders on every enabled
+-- element, or the stand-in party frame out of a party. So "the surface hidden" is "locked": a
+-- picker shown with the elements locked unlocks them, the eye toggles the lock, and every close
+-- (Apply, Apply to all, the gear, the close control, Escape, O.HideSkinPicker and this addon's own
+-- NS.HideSkinPicker) puts the lock back as it was at open; the library undoes only what moved.
+-- Enter and exit take `/pfe unlock` and `/pfe lock`'s path (settings/Slash.lua's runLock): the
+-- write seam, with the row's refusals (combat, a perf suspend, disabled) printed by NS.AcceptLock,
+-- then the panel refresh, so the Lock frame checkbox and the launcher's Locked entry stay in step.
+-- The verbs' "Elements unlocked" reply is left out: the eye's lit or dimmed state is the reply, and
+-- a picker that shows at login or on a new profile would otherwise print it unasked.
+-- This reverses the enter-only eye of 2026-10-29 (rollout DECISIONS, PartyFrameEnhanced D6). The
+-- lock is a stored setting: a /reload while the picker is up leaves the elements unlocked until
+-- `/pfe lock`.
+--
+-- A PROFILE EVENT closes the picker after AceDB has switched (adoptProfile's NS.HideSkinPicker), so
+-- the library's restore reads the NEW profile's lock and has nothing to undo, while the profile left
+-- behind still stores the picker's `locked = false`. So the profile a showing's own enter unlocked
+-- is remembered (`owedProfile`), and a quiet close that finds another profile active puts that
+-- one's stored lock back to its default, raw: it is not the active profile, so nothing publishes.
+-- An unlock the player made before the picker opened is never the picker's, and is left alone.
+-- The library also calls enter("picker") to put such an unlock BACK after the eye locked it, at the
+-- close or, after a close in combat, from its end-of-combat park. Both follow an eye press, so an
+-- enter("picker") after one (`eyeMoved`) is a restore, never the opening's own unlock. The flag
+-- clears when that restore unlocks, and at a close out of combat; a close in combat keeps it for
+-- the parked restore.
 
 local PICKER_PATH = "skin.pickerSeen"
 local PICKER_DELAY = 2
 local pickerTarget       -- the one-shot PLAYER_REGEN_ENABLED target, while a start is held
 local pickerTimer        -- the login fuse's AceTimer handle, while it is lit
 local quietClose = false -- true while NS.HideSkinPicker takes the picker down
+local owedProfile        -- the profile table this showing's own enter unlocked, while it is up
+local eyeMoved = false   -- the eye has moved the lock since the restore it would owe
 
---- The eye: unlocked, so the skin shows on this addon's own elements.
-local function previewSkin()
-    if NS.SetByPath then NS.SetByPath("locked", false) end
+--- The lock through the write seam, then the panel redrawn, as runLock does.
+local function setLocked(v)
+    if not NS.SetByPath then return end
+    NS.SetByPath("locked", v)
+    if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
 end
+
+local function unlocked() return NS.GetSetting ~= nil and NS.GetSetting("locked") == false end
+
+--- spec.preview: unlocked is the mode, and unlocked is what shows (there is no window to ask).
+local PREVIEW = {
+    mode = "unlock",
+    enter = function(why)
+        local profile, restore = NS.db and NS.db.profile, why == "picker" and eyeMoved
+        if why == "eye" then eyeMoved = true end
+        setLocked(false)
+        if not unlocked() then return end   -- refused: a restore stays owed for the park
+        if restore then eyeMoved = false elseif why == "picker" then owedProfile = profile end
+    end,
+    exit = function(why)
+        if why == "eye" then eyeMoved = true end
+        setLocked(true)
+    end,
+    isActive = unlocked,
+    isShown = unlocked,
+}
 
 --- The player's close: the picker seen, and nothing else (the library's put-back already wears the
 --- stored choice).
 local function pickerClosed()
+    owedProfile = nil   -- the library's restore has run (it runs before onClose)
+    if not InCombatLockdown() then eyeMoved = false end
     if quietClose then return end
     if not (NS.db and NS.SetByPath) then return end
     NS.SetByPath(PICKER_PATH, true)
@@ -231,7 +279,7 @@ function NS.SkinPickerSpec()
         -- The gear's default: O.OpenOptionsPanel("general"), then O.SelectTab("general",
         -- "Appearance"), the Skin tab's key on the General page (settings/General.lua).
         page = "general", tab = "Appearance",
-        onPreview = previewSkin, onClose = pickerClosed,
+        preview = PREVIEW, onClose = pickerClosed,
     }
 end
 
@@ -280,9 +328,13 @@ function NS.HideSkinPicker()
     dropPickerTimer()
     local O = NS.Helpers
     if not (O and type(O.HideSkinPicker) == "function") then return end
+    local owed = owedProfile
     quietClose = true
     local ok, err = pcall(O.HideSkinPicker)
     quietClose = false
+    owedProfile = nil
+    -- THE PREVIEW's profile-event case: the profile left behind gets its stored lock back.
+    if owed and NS.db and owed ~= NS.db.profile and owed.locked == false then owed.locked = nil end
     if not ok then error(err, 0) end
 end
 

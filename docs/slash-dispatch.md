@@ -58,7 +58,8 @@ empty data.
 **Only a verb that drives the features refuses.** With `enabled` false, `skin`, `resetposition`,
 `lock` and `unlock` answer on **one** tagged line and do nothing else — no partial work, no side
 effect, no second line. The last three drive what the addon draws, and unlocking *is* this addon's
-preview switch (options-ui-§15); `skin` opens the picker, whose eye unlocks, and the reserved verb is
+preview switch (options-ui-§15); `skin` opens the picker, which unlocks while it is up (its eye toggles the lock, and a close
+locks again what it unlocked), and the reserved verb is
 refused while disabled (ruling D-16 of the 2026-10-30 skin fonts run). Acting would be wrong twice over: the player asked for something the addon is
 standing down from, and a silent no-op leaves them with no clue why nothing happened.
 

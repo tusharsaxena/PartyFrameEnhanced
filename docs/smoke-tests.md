@@ -25,7 +25,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | LAUNCH-1 – 8 | Minimap button and broker | the logo, the tooltip, both clicks, the broker object, the account-wide row |
 | COMBAT-1 – 12 | Combat | the panel refusal and lock, the combat re-lock, unlock refusal, visibility, the in-combat follow through a re-sort (join, leave, EllesmereUI, disabled, a placement changed in combat), toggles and moves |
 | DIAG-1 – 17 | Debug console, diagnostics and perf | the console, the `[Init]` line, perf runs, the diagnostics report, resizing the three windows, the Diagnostics link, diagnostics turning logging on, the library's slash refusals and stand-down edges in the console, the launcher's login line |
-| SKIN-1 – 42 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin, a stored pick of the deleted Friz, the cast icon's black HUD edge, the skin list's outside-press close, the tool windows' header band |
+| SKIN-1 – 43 | Skins | the one-time HUD reset's visible change under Ka0s Default and that it runs once, the Skin tab, every skin live on the HUD, a companion off, the holders, the settings pages and the Profiles tree, the tool windows, the Font and texture overrides, what stays unskinned, EllesmereUI on and off and the reload back, copy to every Ka0s addon, profiles, combat, the first-run picker (login, preview, Apply, close, the eye, the gear, profiles, the stand-down, across Ka0s addons), Ignore fonts on the HUD and the tool windows, Show border under Ka0s Default, the Font outline, Font flags From skin, the HUD's and the windows' width in every skin, a stored pick of the deleted Friz, the cast icon's black HUD edge, the skin list's outside-press close, the tool windows' header band, the picker's preview (unlock mode) |
 | LOC-1 – 4 | Non-English client | load, class colors, spell names and detection on deDE or frFR |
 
 ## Before you start
@@ -781,6 +781,8 @@ Midnight and WoW Forever. Every check also fails on a Lua error or a taint warni
   unlocking is this addon's test mode). After closing the picker the addon is still unlocked until you
   lock it. In combat, press the eye → the unlock's own refusal line, and nothing unlocks. *Failure:*
   nothing unlocks out of combat, the picker hidden behind the HUD, or an unlock in combat. Result: pass (owner-marked 2026-10-30)
+  *Since R6-PV (2026-11-04) the eye toggles and a close locks again what the picker unlocked; SKIN-43
+  is the check for that, and this row's "still unlocked after closing" no longer holds.*
 - **SKIN-20. The picker's gear (PF-04).** On a fresh profile preview **Obsidian** and press the gear →
   the settings panel opens on **General** with its **Skin** tab selected, showing Obsidian, and the
   picker closes; `/reload` → still Obsidian, no picker. In combat the gear says the panel cannot open
@@ -888,6 +890,21 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   x are centered vertically on the band. Pick **Glass**, **WoW Midnight** and **WoW Default** → the
   same in each. *Failure:* a dark strip above or beside the band, two bands, or a title or close x
   sitting above or below the band's middle. Result:
+- **SKIN-43. The picker's preview: unlock mode (R6-PV, LibKa0s R6-L1, `spec.preview` mode `unlock`).**
+  Out of combat, with the elements locked: `/pfe skin` → unlock mode turns on (the same as `/pfe
+  unlock`: in a party the placeholders on the real party frames, out of one the stand-in), the Lock
+  frame box in the settings panel and the launcher's *Locked* line read unlocked, and the picker stays
+  in front. Press the eye → the elements lock, the eye dims and its tooltip says unlock mode is off;
+  press it again → they unlock, the eye lights and the tooltip says it is on. Close the picker → the
+  elements are locked again; repeat with **Apply**, the close mark, **Escape** and the gear (the gear
+  leaves the panel open on the Skin tab, with Lock frame ticked). Now `/pfe unlock` first, then `/pfe
+  skin` → nothing changes at open; press the eye (locks), close → unlocked again, as it was. The
+  first-run picker on a new profile and the one-time skin notice behave the same. In combat a press of
+  the eye that would unlock prints the unlock's own refusal and nothing unlocks. Unlock is a stored
+  setting: a `/reload` while the picker is up leaves the elements unlocked until `/pfe lock`.
+  *Failure:* the picker opening with nothing unlocked, an eye that only unlocks, the elements left
+  unlocked after any close, an unlock the player made before opening undone by the close, or an
+  unlock in combat. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -1016,5 +1033,7 @@ Owed from the owner's third smoke round (R3-FRIZ, 2026-11-02): SKIN-39, new; SKI
 Owed from the owner's fourth smoke round (R4-HUD, 2026-11-03): SKIN-40, new; SKIN-36 now names the HUD's black `icon.border` edge under Ka0s Default.
 
 Owed from the owner's fifth smoke round (R5-RV, 2026-11-03): SKIN-41 and SKIN-42, new. The re-vendor also reopens INSTALL-4.
+
+Owed from the owner's sixth smoke round (R6-RV, R6-PV, 2026-11-04): SKIN-43, new. The re-vendor also reopens INSTALL-4.
 
 On 2026-11-02 the owner reported that every check on the smoke lists of the full skinning run and its smoke feedback batch (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/` and `docs/2026-11-01-SMOKE_FEEDBACK/`) passed, apart from DpsRace's clock font, the skinned look of the AceGUI Dropdown and the Ka0sMedia_Font and Ka0sMedia_Statusbar pickers, FadeNineSlice and IconBorder (`docs/2026-11-02-SMOKE_ROUND3/`, R3-SMOKE). Passed, recorded on each `Result:` line as `Passed (owner, 2026-11-02)`: INSTALL-4, LAYER-2, PANEL-8, SKIN-1, SKIN-5, SKIN-24, SKIN-25, SKIN-27, SKIN-32, SKIN-33, SKIN-34, SKIN-35, SKIN-37, SKIN-38 and UNIT-9. Failed, re-opened as R3-L3 (IconBorder's 1 px outline and zoom) and recorded as `Failed (owner, 2026-11-02): re-opened as R3-L3`: SKIN-36. Still owed: SKIN-4, whose expected result the third smoke round itself changed after the owner's run.

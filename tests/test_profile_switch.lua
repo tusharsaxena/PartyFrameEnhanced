@@ -72,6 +72,8 @@ local function cleanup(start)
     if hasProfile(name) then NS.db:DeleteProfile(name, true) end
   end
   settle()
+  NS.HideSkinPicker()   -- a new profile's first-run picker, and the unlock its preview made (R6-PV)
+  settle()
 end
 
 local function case(fn)
@@ -160,9 +162,15 @@ local function copyInCombat(srcLocked)
   local savedCombat = mocks.InCombatLockdown
   local result = {}
   local ok, err = pcall(withFrames, function()
+    -- Each new profile's first-run picker comes up and its preview unlocks the elements (spec.preview,
+    -- R6-PV); this addon's own hide takes it down and locks them again, before SRC's raw lock is laid.
     NS.db:SetProfile(SRC)
+    settle()
+    NS.HideSkinPicker()
     NS.db.profile.locked = srcLocked
     NS.db:SetProfile(COPY)
+    settle()
+    NS.HideSkinPicker()
     settle()
     T.assertFalse(NS.State.preview, "precondition: preview is off before the copy")
     mocks.InCombatLockdown = function() return true end
@@ -180,6 +188,8 @@ local function copyInCombat(srcLocked)
   for _, name in ipairs({ SRC, COPY }) do
     if hasProfile(name) then NS.db:DeleteProfile(name, true) end
   end
+  settle()
+  NS.HideSkinPicker()   -- a new profile's first-run picker, and the unlock its preview made (R6-PV)
   settle()
   if not ok then error(err, 0) end
   return result

@@ -1,0 +1,4 @@
+R6-NAME review (2026-11-04, independent reviewer): PASS. Only README.md changed: the title went from '# Ka0s Party Frame Enhanced' to '# Party Frame Enhanced'. The survey's other README site (line 65, Settings -> AddOns -> Ka0s Party Frame Enhanced) is correctly left alone, because the TOC Title, which is the in-game name, still reads Ka0s Party Frame Enhanced (OWNER_ANSWERS: README only). Body prose already says Party Frame Enhanced. The standard badge, Ka0s Default and the LibKa0s credits stay. No test pins the README title. R6-SIM and R6-MM2 have no commits here, correctly: PFE has no sim mode (survey hasSim false) and MM2 belongs to MultiMeters.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JV4dmLSn8ys2xpPiPZV4gK

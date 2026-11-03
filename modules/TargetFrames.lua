@@ -24,9 +24,9 @@ local _, NS = ...
 -- tokens -- so such a button is marked pending and the ticker repaints it whole until it resolves.
 --
 -- COLOR: a player target in its class color when "Use class color" is on; an NPC by its reaction
--- when "Color NPCs by reaction" is on; the stored bar color otherwise. The target's class, player-ness
--- and reaction can each be secret: an unknown class falls through to the stored swatch, an unknown
--- reaction reads as hostile.
+-- when "Color NPCs by reaction" is on; the bar color as it draws otherwise (Element.FillColor). The
+-- target's class, player-ness and reaction can each be secret: an unknown class falls through to that
+-- bar color, an unknown reaction reads as hostile.
 
 local Perf        = NS.Perf
 local Compat      = NS.Compat
@@ -45,6 +45,7 @@ local suspended = false
 local ticker, tickerInterval
 
 local PREVIEW_MARKER = 8   -- skull
+local FILL_TOKEN = "pf.targetFill"   -- core/SkinSetup.lua
 
 -- ── color ─────────────────────────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ local function paintColors(btn, token)
         -- Player-ness itself unknown: reaction if it is plain, else the hostile swatch.
         r, g, b, a = Element.Stored(reactionColor(Compat.Reaction(token)))
     else
-        r, g, b, a = resolve(cfg.barColor, cfg.useClassColorBar)
+        r, g, b, a = Element.FillColor(cfg, resolve, FILL_TOKEN)
     end
     btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
     Element.ApplyColors(btn, cfg, resolve)
@@ -91,13 +92,23 @@ local function paintAll(btn)
     if cfg.showMarker then Compat.RaidMarker(btn.marker, token) else btn.marker:Hide() end
 end
 
+local function previewColors(btn)
+    local resolve = Element.ClassResolver(nil)
+    local r, g, b, a
+    if cfg.colorReaction then
+        r, g, b, a = Element.Stored(cfg.hostileColor)
+    else
+        r, g, b, a = Element.FillColor(cfg, resolve, FILL_TOKEN)
+    end
+    btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
+    Element.ApplyColors(btn, cfg, resolve)
+end
+
 local function paintPreview(btn)
     local health = gen.updateHealth
     UnitButtons.RenderPreview(btn, L["Preview target"], health and 65 or 100, cfg.showName,
         health and cfg.showPercent)
-    local r, g, b, a = Element.Stored(cfg.colorReaction and cfg.hostileColor or cfg.barColor)
-    btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
-    Element.ApplyColors(btn, cfg, Element.ClassResolver(nil))
+    previewColors(btn)
     if cfg.showMarker and SetRaidTargetIconTexture then
         SetRaidTargetIconTexture(btn.marker, PREVIEW_MARKER)
         btn.marker:Show()
@@ -267,11 +278,20 @@ local function syncEvents()
     end
 end
 
+-- One allowed button's colors, as they draw now.
+local function recolor(btn)
+    if not btn.__allowed then return end
+    if NS.State.preview then previewColors(btn) else paintColors(btn, btn.token) end
+end
+
 local function reskinAll()
     -- Size and anchors on a secure button are protected: the whole restyle is one secure write.
     NS.RunSecure("target:reskin", function()
         local t0 = Perf.on and debugprofilestop()
-        for _, unit in ipairs(Units.LIST) do Element.Reskin(buttons[unit], cfg, nil) end
+        for _, unit in ipairs(Units.LIST) do
+            -- S.HudFont puts a font object on the text, so its color goes back on after.
+            if Element.Reskin(buttons[unit], cfg, nil) then recolor(buttons[unit]) end
+        end
         if t0 then Perf.Note("reskin", debugprofilestop() - t0) end
     end)
     for _, unit in ipairs(Units.LIST) do UnitButtons.ApplyClicks(buttons[unit], cfg.clickToTarget) end
@@ -354,8 +374,13 @@ ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 -- (skinning-§6): the media keys a companion follows resolve anew. Through reskinAll, so the restyle
 -- of these secure buttons stays one RunSecure write, deferred to combat's end under lockdown
 -- (Risks R1). Not a bus message: the library owns the notification, and a hidden, stood-down
--- element restyled here is drawn right when it comes back.
-NS.Skin.OnLooksChanged(function() if cfg then reskinAll() end end)
+-- element restyled here is drawn right when it comes back. The colors are no secure write and move
+-- at once, whether or not a media key did.
+NS.Skin.OnLooksChanged(function()
+    if not cfg then return end
+    reskinAll()
+    for _, unit in ipairs(Units.LIST) do recolor(buttons[unit]) end
+end)
 
 -- THE PLAYER'S OWN TARGET. `UNIT_TARGET` fires when a PARTY member's target changes and NOT when
 -- the player's does -- that is `PLAYER_TARGET_CHANGED`, which carries no unit argument. The

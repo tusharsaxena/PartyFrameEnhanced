@@ -38,11 +38,18 @@ if not lib then
         if type(stored) ~= "table" then stored = {} end
         local r, g, b, a = stored.r or 1, stored.g or 1, stored.b or 1, stored.a or 1
         if not on then return r, g, b, a end
+        local cr, cg, cb = NS.ClassColor(unit)
+        if cr == nil then return r, g, b, a end
+        return cr, cg, cb, a
+    end
+
+    -- The class color for a unit, or nil: nil is an answer, and Element.Drawn reads it as "no class".
+    function NS.ClassColor(unit)
         local ok, _, token = pcall(UnitClass, unit or "player")
         local c = (ok and type(token) == "string" and type(RAID_CLASS_COLORS) == "table")
             and RAID_CLASS_COLORS[token] or nil
-        if type(c) ~= "table" or type(c.r) ~= "number" then return r, g, b, a end
-        return c.r, c.g, c.b, a
+        if type(c) ~= "table" or type(c.r) ~= "number" then return nil end
+        return c.r, c.g, c.b
     end
 
     -- MakeCloseButton answers nil, as the library's own does where CreateFrame is unavailable.
@@ -91,6 +98,7 @@ end
 NS.IsConcatSafe = lib.IsConcatSafe
 NS.SafeToString = lib.SafeToString
 NS.ResolveColor = lib.ResolveColor
+NS.ClassColor = lib.ClassColor
 
 -- The pcalled event registration helper (events-frames-taint-§1, Core minor 8). Every RegisterEvent
 -- and RegisterUnitEvent in core/, modules/ and settings/ goes through one of these three, with

@@ -8,7 +8,7 @@ local _, NS = ...
 --                      (health updates are shared with target frames: the General page > All elements)
 --     Size and position  settings/ElementRows.lua's Size and position rows
 --     Bar              -- Fill --        the canonical bar block (Use class color = the OWNER's class)
---                      -- Background --  the background swatch and its class-color companion
+--                      -- Background --  the background swatch, its class-color and skin companions
 --                      -- Border --      the canonical border block
 --     Text             -- Shown text --  Show name · Show health percent
 --                      -- Font --        the canonical font block
@@ -41,7 +41,7 @@ local rows = {
 
 ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
 ElementRows.Append(rows, ElementRows.Bar(PAGE, P, D))
-ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 50))
+ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 60))
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
 rows[#rows + 1] = row{ path = "showName", group = L["Text"], subgroup = L["Shown text"], order = 10,
                        type = "bool", label = L["Show name"], desc = L["The unit's name."],

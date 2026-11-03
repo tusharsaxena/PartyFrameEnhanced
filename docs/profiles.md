@@ -59,6 +59,14 @@ turns on mid-fight.
 `SetProfile` only ever creates, and a new profile is all defaults already. It writes the one
 `[Profile] changed` line and publishes **PROFILE** once; there is no reset after it.
 
+## The one step onto the skin
+
+Each profile carries `skin.fullSkinReset`, the record of schema v4's step (FS-PF-FLIP,
+[schema.md](schema.md#migrations)). The step runs from the ladder and first in every profile adopt
+(switch, copy, reset), so a profile that never met the ladder still moves once, and a companion turned
+off afterwards stays off. It has no schema row, so no Defaults button reaches it; a profile reset clears
+it, and the step then runs against defaults.
+
 ## Reset all settings
 
 `/pfe resetall`, the General page's *Reset all settings* and Profiles → *Reset Profile* are **one act**:

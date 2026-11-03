@@ -32,7 +32,7 @@ free-placement stacks are movable, so every row applies.
 | Master alpha | `alpha` | multiplies every element's alpha (CONFIG "master") |
 | Lock frame | `locked` | **The addon's one preview switch**, and its tooltip says so: the composer's `lockIsPreview` sentence (LibKa0s compose minor 9), then the host's `notes.locked`, *Unlocking is refused in combat, and combat locks it again.* (options-ui-§15, which is why there is no Test mode row). Off = unlocked = preview mode, grabbable free-placement stacks, placeholders on the real party frames in a party and `modules/StandIn.lua`'s stand-in raised in party1's place out of one (`NS.OnLockChanged` → `modules/Preview.lua`). Unlocking is refused in combat, with the addon disabled, or during a perf-run suspend, and the box snaps back; locking is never refused, and entering combat forces it |
 | Debug console | `state.debugConsole` | session-only; shows or hides the console window |
-| Minimap button | `global.minimap.shown` | shows or hides the launcher's minimap button (launcher-§3). **The row and its path say SHOWN and the stored key (LibDBIcon's `global.minimap.hide`) says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` stamps them onto the composed row) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons. It also **survives both resets** — *Reset all settings* and this page's own *Defaults* button — because the choice is a per-installation display preference, like the button's position; see *Resets* below. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged. **The button's tooltip** (launcher-§1) is drawn by `LibKa0s-Launcher-1.0` on every hover, the addon disabled or not: the label and `v<version>`, `Enabled: Yes\|No` (this page's *Enable* row), `Locked: Yes\|No` (the *Lock frame* row), `Left-click: Open settings` and `Right-click: Options menu`. There is no `Test mode` line, because the addon has no Test mode row. **The button's clicks** (launcher-§2): left-click opens this panel in either state; right-click opens the options menu, *Enabled* (this page's *Enable* row, through the `/pfe enable\|disable` handler) and *Locked* (the *Lock frame* row, through `NS.ToggleLock`), with *Locked* grayed while the addon is disabled |
+| Minimap button | `global.minimap.shown` | shows or hides the launcher's minimap button (launcher-§3). **The row and its path say SHOWN and the stored key (LibDBIcon's `global.minimap.hide`) says HIDDEN**, so its get/set invert at the single write seam (`settings/General.lua` stamps them onto the composed row) and call `NS.Launcher:SetShown`, so the button follows the checkbox immediately. Stored in the **global** store, not the profile: a profile switch must not move the player's buttons. It also **survives both resets** — *Reset all settings* and this page's own *Defaults* button — because the choice is a per-installation display preference, like the button's position; see *Resets* below. LibDBIcon owns the same table and writes `hide` from its own menu and `minimapPos` when the button is dragged. **The button's tooltip** (launcher-§1) is drawn by `LibKa0s-Launcher-1.0` on every hover, the addon disabled or not: the label and `v<version>`, `Enabled: Yes\|No` (this page's *Enable* row), `Locked: Yes\|No` (the *Lock frame* row), `Left-click: Open settings` and `Right-click: Options menu`. There is no `Test mode` line, because the addon has no Test mode row. **The button's clicks** (launcher-§2): left-click opens this panel in either state; right-click opens the options menu, *Enabled* (this page's *Enable* row, through the `/pfe enable\|disable` handler) and *Locked* (the *Lock frame* row, through `NS.ToggleLock`), with *Locked* grayed while the addon is disabled, then the *Open settings* action (never grayed) and *Open skin selector* (the `/pfe skin` picker, grayed while disabled) |
 | Reset position | — (button) | `NS.Anchor.ResetPositions()` — the free-placement stacks back to defaults |
 | Reset all settings | — (button) | confirms, then resets the active profile (options-ui-§12) |
 
@@ -126,21 +126,23 @@ the other block on the same frame. A dimmed row keeps its stored value, and `/pf
 
 | Subgroup | Controls → path |
 |---|---|
-| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Show spark → `showSpark` (the bar block's one `extra`: the spark rides the fill) |
+| Fill | Bar texture · Bar opacity · Normal cast color (`barColor`) · Use class color · Use the skin's texture → `barTextureFromSkin` · Use the skin's color → `barColorFromSkin` · Show spark → `showSpark` (the bar block's `extra` rows: the spark rides the fill) |
 | Cast state colors | Channel · Empowered · Can't be interrupted · Interrupted (palette: no companion) |
-| Background | Background color → `bgColor` · Use class color → `useClassColorBg` |
-| Border | Show border · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` (order 120, after Background) |
+| Background | Background color → `bgColor` · Use class color → `useClassColorBg` · Use the skin's color → `bgColorFromSkin` |
+| Border | Show border (off by default; a skin's real style draws regardless) · Border style · Border thickness (px) · Border color · Use class color · Use the skin's border → `borderStyleFromSkin` · Use the skin's color → `borderColorFromSkin` (order 140, after Background) |
 
 ### Text
 
 | Subgroup | Controls → path |
 |---|---|
 | Shown text | Show spell name → `showName` · Show time left → `showTime` |
-| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` |
+| Font | Font · Font size · Font color · Use class color · Font flags (leads with *From skin*, the default) · Font shadow · Use the skin's font → `fontFromSkin` · Use the skin's color → `fontColorFromSkin` · Use the skin's shadow → `fontShadowFromSkin` |
 
-The three *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the picker
-it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture, border
-style or HUD font. Colors and the shadow never follow the skin. While the font follows it, the drawn
+The three media *Use the skin's …* companions (skinning-§6) are on by default; while one is on, the
+picker it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture,
+border style and thickness, or HUD font. The color and shadow companions are on by default too, but
+their swatch is never dimmed (options-ui-§17): it stays live, is not read while the companion is on,
+and comes back when it goes off. A class color and the cast-state colors come first. While the font follows it, the drawn
 size scales with the skin's HUD size and the stored size is kept; Font flags on *From skin* follow the
 Skin tab's Font outline, and a picked flag wins.
 

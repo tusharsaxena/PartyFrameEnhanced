@@ -1,10 +1,10 @@
-# Ka0s Party Frame Enhanced
+# Party Frame Enhanced
 
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.5-purple)
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
-![Tests](https://img.shields.io/badge/Tests-566%2F566_passing-green)
+![Tests](https://img.shields.io/badge/Tests-647%2F647_passing-green)
 
 Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
@@ -59,8 +59,9 @@ Setting it up the way you like takes three steps. The **Cast Bars**, **Target Fr
   have a **Marker** tab for the raid marker.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim with their party
-frame. The minimap button opens the settings on a left click, and a right click gives you
-**Enabled** and **Locked** switches. You can hide it on the **General** page.
+frame. The minimap button opens the settings on a left click. A right click gives you **Enabled**
+and **Locked** switches, then **Open settings** and **Open skin selector**. You can hide the button
+on the **General** page.
 
 Everything else is under Settings → AddOns → Ka0s Party Frame Enhanced, which `/pfe` opens, and
 `/pfe help` (or `/partyframeenhanced help`) lists every command.
@@ -98,8 +99,8 @@ Enhanced is built around that, so a pull can't break it.
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | On EllesmereUI and Blizzard's raid-style party frames they should move with their party member straight away; if they fade instead, send `/pfe diagnostics` with a bug report. On Blizzard's classic party frames they come back when combat ends, because the game doesn't let addons move clickable frames in combat. |
 | Cast bars or target frames draw over other windows, or hide behind something | By default they sit on the same layer as your party frames, so a window that covers your party frames covers them too. To change that, pick another layer under **Frame strata** on the **General** page. |
-| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border style and font follow the skin unless you untick **Use the skin's texture**, **border** or **font** on a page's **Bar** and **Text** tabs and pick your own. Your colors are never changed, and your font sizes stay as you set them: while the font follows the skin, a skin with a wider or narrower face draws the text a little smaller or larger so it takes the same room. **Font flags** start on **From skin**, which follows the Skin tab's **Font outline** (all text, HUD text only, or off); pick a flag to keep your own. `/pfe skin` opens the skin window again whenever you want it. |
-| I ticked **Show border** and no border appears | Under the **Ka0s Default** skin the skin's border is *None*, and **Use the skin's border** is ticked by default. Untick it on the same **Bar** tab and pick a **Border style** to draw your own. |
+| My bars changed texture and font after an update, or a window asked me to choose a skin | The addon now wears a skin, picked on the **General** page's **Skin** tab (the window that asks shows once per profile). The bar texture, border, font, colors and text shadow follow the skin unless you untick **Use the skin's texture**, **border**, **font**, **color** or **shadow** on a page's **Bar** and **Text** tabs. The update puts every profile on the skin once: your own colors and picks are kept and come back when you untick the box. Cast state, reaction and class colors never follow it, and your font sizes stay as you set them: while the font follows the skin, a skin with a wider or narrower face draws the text a little smaller or larger so it takes the same room. **Font flags** start on **From skin**, which follows the Skin tab's **Font outline** (all text, HUD text only, or off); pick a flag to keep your own. `/pfe skin` opens the skin window again whenever you want it. |
+| A border I didn't ask for appears, or **Show border** does nothing | Show border is off by default. A skin with no border of its own (**Ka0s Default** among them) draws your **Show border**, **Border style** and thickness. Azeroth, High Contrast, WoW Default and WoW Midnight have their own border, which draws whatever Show border says; untick **Use the skin's border** on the same **Bar** tab to use yours. |
 | The settings panel won't open, or it's grayed out | It locks in combat on purpose. Try again once combat ends. |
 | Something looks wrong and I want to report it | Follow [Reporting a bug](#reporting-a-bug) below. |
 
@@ -129,8 +130,8 @@ you file there gets seen.
 
 ## Credits
 
-The close, copy and clear marks on the debug console and the perf panel, and the skin picker's
-settings and preview marks, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
+The close, copy and clear marks on the debug console and the perf panel, the skin picker's settings
+and preview marks, and the small marks LibKa0s draws beside skinned controls, come from [Open Iconic](https://github.com/iconic/open-iconic) by Waybury,
 under the MIT license. Only the icons the addon draws are shipped. The icons are bundled inside
 the LibKa0s payload, with their license text beside them
 (`libs/LibKa0s/media/icons/LICENSE-open-iconic.txt`).

@@ -87,6 +87,14 @@ NS.SKIN_TOKENS = {
     -- its plate is its yellow focus color (#FFE600) at the same 0.25.
     ["pf.mover"] = { default = { 0, 0.6, 1, 0.25 }, follow = "list.sel",
                      skins = { contrast = { 1, 0.9, 0, 0.25 } } },
+    -- The HUD's plain fills and background (FS-PF-FLIP, causes D3 and D4). Ka0s Default keeps what
+    -- each feature drew, which is not that skin's `bar.fill` or `bar.bg`; every other skin answers
+    -- the library token. The fills are data-free: cast states and reactions are meaning colors and
+    -- never read these.
+    ["pf.castFill"]   = { default = { 1.0, 0.7, 0.0, 1 }, follow = "bar.fill" },
+    ["pf.targetFill"] = { default = { 0.25, 0.75, 0.25, 1 }, follow = "bar.fill" },
+    ["pf.petFill"]    = { default = { 0.35, 0.70, 0.35, 1 }, follow = "bar.fill" },
+    ["pf.barBg"]      = { default = { 0, 0, 0, 0.6 }, follow = "bar.bg" },
 }
 
 -- The Ka0s Default library tokens the DEGRADED facade answers, copied from the library and limited
@@ -95,6 +103,7 @@ NS.SKIN_TOKENS = {
 -- surface converted to a token adds the token here in the same change.
 NS.SKIN_FALLBACK = {
     ["text.accent"] = { 1, 0.82, 0, 1 },
+    ["bar.border"]  = { 0, 0, 0, 1 },
 }
 
 -- The source row's values and order.
@@ -191,26 +200,81 @@ end
 -- reads `get` at the close). A profile event takes the picker down FIRST, before the new profile's
 -- skin is applied, so the new profile's whole pair is what stays worn.
 --
--- THE EYE. This addon has no window and no test mode: its unlocked view IS its preview
--- (options-ui-§15, modules/Preview.lua), the placeholders on every enabled element, or the stand-in
--- party frame out of a party. So the eye unlocks, through the write seam, the same path the Lock
--- row and `/pfe unlock` take, refusals included (combat, a perf suspend). It leaves the addon
--- unlocked until the player locks it again (2026-10-29 rollout DECISIONS, PartyFrameEnhanced D6).
+-- THE PREVIEW (LibKa0s OptionsSkinPicker minor 11, spec.preview, mode "unlock"; Ka0sAddonsCommonTasks
+-- docs/2026-11-03-SMOKE_ROUND6, R6-PV). This addon has no window and no test mode: its unlocked
+-- view IS its preview (options-ui-§15, modules/Preview.lua), the placeholders on every enabled
+-- element, or the stand-in party frame out of a party. So "the surface hidden" is "locked": a
+-- picker shown with the elements locked unlocks them, the eye toggles the lock, and every close
+-- (Apply, Apply to all, the gear, the close control, Escape, O.HideSkinPicker and this addon's own
+-- NS.HideSkinPicker) puts the lock back as it was at open; the library undoes only what moved.
+-- Enter and exit take `/pfe unlock` and `/pfe lock`'s path (settings/Slash.lua's runLock): the
+-- write seam, with the row's refusals (combat, a perf suspend, disabled) printed by NS.AcceptLock,
+-- then the panel refresh, so the Lock frame checkbox and the launcher's Locked entry stay in step.
+-- The verbs' "Elements unlocked" reply is left out: the eye's lit or dimmed state is the reply, and
+-- a picker that shows at login or on a new profile would otherwise print it unasked.
+-- This reverses the enter-only eye of 2026-10-29 (rollout DECISIONS, PartyFrameEnhanced D6). The
+-- lock is a stored setting: a /reload while the picker is up leaves the elements unlocked until
+-- `/pfe lock`.
+--
+-- A PROFILE EVENT closes the picker after AceDB has switched (adoptProfile's NS.HideSkinPicker), so
+-- the library's restore reads the NEW profile's lock and has nothing to undo, while the profile left
+-- behind still stores the picker's `locked = false`. So the profile a showing's own enter unlocked
+-- is remembered (`owedProfile`), and a quiet close that finds another profile active puts that
+-- one's stored lock back to its default, raw: it is not the active profile, so nothing publishes.
+-- An unlock the player made before the picker opened is never the picker's, and is left alone.
+-- The library also calls enter("picker") to put such an unlock BACK after the eye locked it, at the
+-- close or, after a close in combat, from its end-of-combat park. Both follow an eye press, so an
+-- enter("picker") after one (`eyeMoved`) is a restore, never the opening's own unlock. The flag
+-- clears when that restore unlocks, and at every close except one whose restore was refused in
+-- combat (`restoreParked`), which keeps it for the parked restore. A close in combat that owed
+-- nothing clears it too, or the next showing's own opening unlock would read as that restore and
+-- owe no profile.
 
 local PICKER_PATH = "skin.pickerSeen"
 local PICKER_DELAY = 2
 local pickerTarget       -- the one-shot PLAYER_REGEN_ENABLED target, while a start is held
 local pickerTimer        -- the login fuse's AceTimer handle, while it is lit
 local quietClose = false -- true while NS.HideSkinPicker takes the picker down
+local owedProfile        -- the profile table this showing's own enter unlocked, while it is up
+local eyeMoved = false   -- the eye has moved the lock since the restore it would owe
+local restoreParked = false -- this close's restore unlock was refused, so the library parked it
 
---- The eye: unlocked, so the skin shows on this addon's own elements.
-local function previewSkin()
-    if NS.SetByPath then NS.SetByPath("locked", false) end
+--- The lock through the write seam, then the panel redrawn, as runLock does.
+local function setLocked(v)
+    if not NS.SetByPath then return end
+    NS.SetByPath("locked", v)
+    if NS.RefreshOptionsPanel then NS.RefreshOptionsPanel() end
 end
+
+local function unlocked() return NS.GetSetting ~= nil and NS.GetSetting("locked") == false end
+
+--- spec.preview: unlocked is the mode, and unlocked is what shows (there is no window to ask).
+local PREVIEW = {
+    mode = "unlock",
+    enter = function(why)
+        local profile, restore = NS.db and NS.db.profile, why == "picker" and eyeMoved
+        if why == "eye" then eyeMoved = true end
+        setLocked(false)
+        if not unlocked() then              -- refused: a restore stays owed for the park
+            if restore then restoreParked = true end
+            return
+        end
+        if restore then eyeMoved = false elseif why == "picker" then owedProfile = profile end
+    end,
+    exit = function(why)
+        if why == "eye" then eyeMoved = true end
+        setLocked(true)
+    end,
+    isActive = unlocked,
+    isShown = unlocked,
+}
 
 --- The player's close: the picker seen, and nothing else (the library's put-back already wears the
 --- stored choice).
 local function pickerClosed()
+    owedProfile = nil   -- the library's restore has run (it runs before onClose)
+    if not (restoreParked and InCombatLockdown()) then eyeMoved = false end
+    restoreParked = false
     if quietClose then return end
     if not (NS.db and NS.SetByPath) then return end
     NS.SetByPath(PICKER_PATH, true)
@@ -222,7 +286,7 @@ function NS.SkinPickerSpec()
         -- The gear's default: O.OpenOptionsPanel("general"), then O.SelectTab("general",
         -- "Appearance"), the Skin tab's key on the General page (settings/General.lua).
         page = "general", tab = "Appearance",
-        onPreview = previewSkin, onClose = pickerClosed,
+        preview = PREVIEW, onClose = pickerClosed,
     }
 end
 
@@ -271,9 +335,13 @@ function NS.HideSkinPicker()
     dropPickerTimer()
     local O = NS.Helpers
     if not (O and type(O.HideSkinPicker) == "function") then return end
+    local owed = owedProfile
     quietClose = true
     local ok, err = pcall(O.HideSkinPicker)
     quietClose = false
+    owedProfile = nil
+    -- THE PREVIEW's profile-event case: the profile left behind gets its stored lock back.
+    if owed and NS.db and owed ~= NS.db.profile and owed.locked == false then owed.locked = nil end
     if not ok then error(err, 0) end
 end
 
@@ -297,6 +365,51 @@ function NS.MaybeShowSkinPicker()
         return nil
     end
     return O.SkinPicker(NS.SkinPickerSpec())
+end
+
+-- ── the one-time skin notice (LibKa0s OptionsSkinPicker minor 9, SG-L3) ────────────────────────
+-- A release that wants every account to learn skins exist raises lib.SKIN_NOTICE_VERSION. The first
+-- addon to ask in a session claims the notice and shows the picker; every other addon records the
+-- version and stays quiet. The record is `db.global.skinNotice`, a number: account-wide, so a profile
+-- switch never shows it twice. In combat nothing is claimed; it asks again every NOTICE_RETRY seconds until combat ends.
+local NOTICE_RETRY = 5   -- seconds between asks while the player is in combat
+local noticeWaiting = false
+
+local function noticeGlobal()
+    local d = NS.db or (NS.addon and NS.addon.db)
+    return d and d.global or nil
+end
+
+local noticeStore = {
+    get = function() local g = noticeGlobal(); return g and g.skinNotice or nil end,
+    set = function(v) local g = noticeGlobal(); if g then g.skinNotice = v end end,
+}
+
+function NS.MaybeShowSkinNotice()
+    local O = NS.Helpers
+    if not (O and type(O.SkinNotice) == "function" and noticeGlobal()) then return nil, "unavailable" end
+    if NS.IsStoodDown and NS.IsStoodDown() then
+        -- A stood-down addon shows nothing, but a seen record still silences the rest (SG-L3).
+        O.SkinNotice(nil, noticeStore, true)
+        return nil, "standdown"
+    end
+    local spec = NS.SkinPickerSpec()
+    local frame, why = O.SkinNotice(spec, noticeStore)
+    if why == "combat" and not noticeWaiting and type(_G.C_Timer) == "table" and _G.C_Timer.After then
+        noticeWaiting = true
+        _G.C_Timer.After(NOTICE_RETRY, function()
+            noticeWaiting = false
+            NS.MaybeShowSkinNotice()
+        end)
+    end
+    return frame, why
+end
+
+local pickerFirstRun = NS.MaybeShowSkinPicker
+function NS.MaybeShowSkinPicker()
+    local frame, why = NS.MaybeShowSkinNotice()
+    if frame or why == "queued" then return frame, why end
+    return pickerFirstRun()
 end
 
 --- The login fuse: the picker two seconds in, off the login spike; one fuse at most, canceled by
@@ -338,7 +451,14 @@ if not Skin then
         "GetAccentColor", "GetPanelColor", "GetFont",
         "TitleBar", "Divider", "Footer", "Card", "Slider", "NavItem", "Drawer", "ListRow", "MenuFrame",
         "Tooltip", "Strip", "Cover", "Text", "ChartStyle", "BarStyle", "IconBorder", "GlowColor",
-        "BarTexture", "FontFlags", "HudFontSize",
+        "BarTexture", "FontFlags", "HudFontSize", "Mark",
+        -- LibKa0s v1.85.0: nil is each getter's degraded answer. The three colors answer nothing, so
+        -- the stored color draws; HudShadow's nil is "the stored fontShadow stands". BarGloss and
+        -- HoverArt draw nothing: no skin, no gloss, and the client's own hover art.
+        "HudTextColor", "HudLabelColor", "BarFillColor", "HudShadow", "BarGloss", "HoverArt",
+        -- Round 5: Band answers nil (no library, no band frame to anchor to) and Header, which lays
+        -- a window's header children on the band, does nothing.
+        "Band", "Header",
     }) do S[name] = noop end
 
     S.Token = function(name)
@@ -349,6 +469,8 @@ if not Skin then
     S.Color = color
     -- A HUD style value that follows the skin has no skin to follow without the library: the
     -- player's stored pick stands, and a caller's own fallback covers the sentinel.
+    -- No skin to win: the player's stored three stand (Skin doc, What a consumer owes).
+    S.BarBorder = function(style, show, size) return style, show, size end
     S.Resolve = function(kind, value, fromSkin)
         if fromSkin or value == S.FROM_SKIN then
             local t = S.Token(kind)
@@ -378,6 +500,25 @@ if not Skin then
     S.HudFontSize = function(size)
         local n = tonumber(size)
         return (n and n > 0) and n or 12
+    end
+    -- LibKa0s v1.85.0 (SkinPaintExtras minor 9): a string a caller concatenates, so never nil. The
+    -- same markup in the art's own color, there being no tint to read.
+    S.MarkText = function(path, size)
+        size = size or 14
+        return ("|T%s:%d:%d|t"):format(path, size, size)
+    end
+    -- The one member that must draw (LibKa0s Options doc, Moving to, section 7): a no-op leaves the
+    -- string with no face. Both shadow arms are written, so turning the row off clears it; on a
+    -- 12.0.7 client the stored shadow itself does not draw here, which that section accepts.
+    S.HudFont = function(fs, opts)
+        opts = type(opts) == "table" and opts or {}
+        local face = opts.face
+        if type(face) ~= "string" or face == "" then face = STANDARD_TEXT_FONT end
+        if type(face) ~= "string" then return nil end
+        fs:SetFont(face, S.HudFontSize(opts.size), S.FontFlags(opts.flags))
+        local on = opts.shadow and true or false
+        fs:SetShadowColor(0, 0, 0, on and 1 or 0)
+        fs:SetShadowOffset(on and 1 or 0, on and -1 or 0)
     end
 
     NS.Skin = S

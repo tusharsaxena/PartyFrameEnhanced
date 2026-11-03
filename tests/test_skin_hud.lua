@@ -4,7 +4,7 @@
 -- The cast bars, target frames and pet frames draw three media picks: the bar texture, the border
 -- style and the text face. Each composer group takes its `fromSkin` companion ("Use the skin's
 -- texture / border / font"), defaulting to true (X3), and modules/Element.lua resolves the pick
--- through S.Resolve while it is on. The colors and the shadow stay the player's (X4); the size and
+-- through S.Resolve while it is on. The colors and the shadow are tests/test_skin_flip.lua's; the size and
 -- the flags' From skin are LibKa0s v1.82.0's (tests/test_skin_fonts.lua). A skin switch restyles every element live, and the v2
 -- migration step sets the companions once on every stored profile (O2), the border only where no
 -- border is drawn (D2), and never again after the player changes one.
@@ -53,12 +53,14 @@ local function lastKey(fetched, kind)
   end
 end
 
---- A fresh probe element and a copy of `section`'s defaults to draw it with.
+--- A fresh probe element and a copy of `section`'s defaults to draw it with, under two picks a
+--- player made, so a stored pick never reads as the skin's.
 local function probe(section)
   local el = Element.Build(mocks.CreateFrame("Frame", nil, mocks.UIParent), { icon = section == "castbar" })
   local cfg = {}
   for k, v in pairs(NS.defaults.profile[section]) do cfg[k] = v end
   cfg.borderShow = true
+  cfg.barTexture, cfg.font = "Blizzard", "Friz Quadrata TT"
   return el, cfg
 end
 
@@ -92,9 +94,12 @@ end)
 test("skin hud: following the skin, an element draws Ka0s Default's bar, border and HUD face",
   withFetches(function(fetched)
     local el, cfg = probe("castbar")
+    cfg.borderShow = false
     Element.Reskin(el, cfg, cfg, true)
     assertEqual(lastKey(fetched, "statusbar"), NS.Skin.Token("bar.texture"), "the bar texture")
-    assertEqual(lastKey(fetched, "border"), NS.Skin.Token("bar.borderStyle"), "the border style")
+    assertEqual(NS.Skin.Token("bar.borderStyle"), "None", "Ka0s Default's own style, which defers")
+    assertEqual(select(2, Element.MediaKeys(cfg)), cfg.borderStyle, "the stored border style")
+    assertEqual(lastKey(fetched, "border"), nil, "Show border off fetches no edge")
     assertEqual(lastKey(fetched, "font"), NS.Skin.Token("hud.font"), "the HUD face")
     assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "Ka0s Default's face (X5)")
   end))
@@ -145,6 +150,9 @@ test("skin hud: Ignore fonts gives the HUD the player's own face back, live", wi
   local el, cfg = probe("castbar")
   Element.Reskin(el, cfg, cfg, true)
   assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "following: the skin's face")
+  local bars = NS.db.profile.castbar
+  local pick = bars.font
+  bars.font = "Friz Quadrata TT"
   local ok, err = pcall(function()
     Skin:SetIgnore(OWNER, nil, true)
     settle()
@@ -158,26 +166,13 @@ test("skin hud: Ignore fonts gives the HUD the player's own face back, live", wi
         unit .. "'s cast bar went back to its own face")
     end
   end)
+  bars.font = pick
   Skin:SetIgnore(OWNER, nil, false)
   settle()
   if not ok then error(err, 0) end
   assertEqual(select(2, Skin:GetIgnore(OWNER)), false, "the exception off again")
   Element.Reskin(el, cfg, cfg)
   assertEqual(lastKey(fetched, "font"), "Ka0s Prototype", "the skin's face back, live")
-end))
-
-test("skin hud: the HUD colors stay the player's under every skin (X4)", withFetches(function()
-  local el, cfg = probe("castbar")
-  choose("ember")
-  Element.Reskin(el, cfg, cfg, true)
-  local seen
-  rawset(el.text, "SetTextColor", function(_, r, g, b, a) seen = { r, g, b, a } end)
-  Element.ApplyColors(el, cfg, Element.ClassResolver(nil))
-  local c = cfg.fontColor
-  assertEqual(seen[1], c.r)
-  assertEqual(seen[2], c.g)
-  assertEqual(seen[3], c.b)
-  assertEqual(seen[4], c.a)
 end))
 
 test("skin hud: a skin switch restyles the live cast bars, target and pet frames", withFetches(function(fetched)
@@ -204,10 +199,14 @@ end))
 local function fromV1(profiles, fn)
   local g, stored = NS.db.global, NS.db.sv.profiles
   local stamp = g.schemaVersion
+  -- v2 writes the active profile's style companion too, so it goes back with the stamp.
+  local follows = {}
+  for _, section in ipairs(SECTIONS) do follows[section] = NS.db.profile[section].borderStyleFromSkin end
   for name, p in pairs(profiles) do stored[name] = p end
   g.schemaVersion = 1
   local ok, err = pcall(fn, stored)
   for name in pairs(profiles) do stored[name] = nil end
+  for _, section in ipairs(SECTIONS) do NS.db.profile[section].borderStyleFromSkin = follows[section] end
   g.schemaVersion = stamp
   if not ok then error(err, 0) end
 end
@@ -232,7 +231,9 @@ test("skin hud: v2 sets every stored profile's HUD companions to follow the skin
 end)
 
 test("skin hud: v2 keeps a drawn border the player's own (D2)", function()
-  local shown = { target = { borderShow = true, borderStyle = "Blizzard Dialog" }, pet = { borderShow = false } }
+  -- The record seeded: the v4 step (FS-PF-FLIP) reverses this on a profile that has not met it.
+  local shown = { skin = { fullSkinReset = true },
+    target = { borderShow = true, borderStyle = "Blizzard Dialog" }, pet = { borderShow = false } }
   fromV1({ Shown = shown }, function()
     NS:RunMigrations()
     -- red under: borderStyleFromSkin = true everywhere, which hands a shown border to Ka0s

@@ -317,6 +317,9 @@ local function currentProfile()
 end
 
 local function adoptProfile(tag, fmt, ...)
+    -- The one step onto the skin, before anything reads the profile: its own per-profile record
+    -- gates it, and a profile that never met the ladder arrives here (core/Database.lua).
+    if NS.ResetProfileToSkin and NS.db then NS.ResetProfileToSkin(NS.db.profile) end
     NS.Debug(tag, fmt, ...)
     -- FIRST of all, the first-run skin picker down, quietly (core/SkinSetup.lua): a showing belongs
     -- to the profile it opened on, and taking it down puts back a pending preview, so that lands

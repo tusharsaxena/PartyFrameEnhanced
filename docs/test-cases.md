@@ -53,7 +53,7 @@ Total.
 - schema: without the library, /pfe unlock and /pfe lock still write the stored path
 - schema: without the library, a row-less path outside writeThrough is refused and not stored
 
-### test_database.lua (6)
+### test_database.lua (7)
 
 - database: InitDB stamps NS.SCHEMA_VERSION over a default of 0
 - database: RunMigrations is idempotent
@@ -61,6 +61,7 @@ Total.
 - database: a raising step leaves the stamp and prints one line; a rerun is a no-op
 - database: a counted profile reset restores defaults and publishes PROFILE once
 - database: a profile switch publishes PROFILE and VISIBILITY
+- database: v6 moves a stored Ka0s Friz Quadrata TT to Ka0s Ubuntu in every profile, Blizzard's Friz kept
 
 ### test_coresetup.lua (4)
 
@@ -169,7 +170,7 @@ Total.
 - anchor: a holder opts out of the client's layout cache; the addon owns its position
 - anchor: a holder still builds on a client without SetDontSavePosition
 
-### test_profile_switch.lua (6)
+### test_profile_switch.lua (8)
 
 - profile switch: Anchor places by the NEW profile even when it hears PROFILE first
 - profile switch: a real SetProfile each way follows the profile
@@ -177,6 +178,8 @@ Total.
 - profile switch: copying a free profile in places by the copy
 - profile switch: copying an unlocked profile in combat keeps preview off and relocks it
 - profile switch: copying a locked profile in combat changes nothing and says nothing
+- profile switch: VISIBILITY heard before CastBars' PROFILE paints the preview cast from the new profile
+- profile switch: leaving preview for a profile on another skin repaints the cast bars without an error
 
 ### test_castbars.lua (14)
 
@@ -522,6 +525,10 @@ Total.
 - launcher: a host with NEITHER broker library loads, reports, and does not raise
 - launcher: the main harness -- no broker libraries at all -- never raised
 
+### test_launcher_skin_entry.lua (1)
+
+- launcher descriptor passes openSkinPicker, which runs the skin verb
+
 ### test_optionssetup.lua (11)
 
 - optionssetup: the live and degraded builds veto the same rows from Reset All
@@ -572,7 +579,7 @@ Total.
 - skin holders: under High Contrast the plate is a translucent yellow wash, never opaque black
 - skin holders: a skin whose wash is none leaves the plate clear, never stale
 
-### test_skin_hud.lua (12)
+### test_skin_hud.lua (11)
 
 - skin hud: every HUD section's three companions default to true (X3)
 - skin hud: each companion is a composed bool row defaulting to true, written through the seam
@@ -581,13 +588,53 @@ Total.
 - skin hud: a skin that leaves a token alone falls back to the player's pick
 - skin hud: the structure memo holds the RESOLVED keys, so a skin switch restyles
 - skin hud: Ignore fonts gives the HUD the player's own face back, live
-- skin hud: the HUD colors stay the player's under every skin (X4)
 - skin hud: a skin switch restyles the live cast bars, target and pet frames
 - skin hud: v2 sets every stored profile's HUD companions to follow the skin
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
-### test_skin_fonts.lua (11)
+### test_skin_flip.lua (38)
+
+- skin flip: every section's color and shadow companions are bool rows defaulting on, in both places
+- skin flip: no swatch carries disabledIf, and no class or meaning color has a companion
+- skin flip: the picks' defaults moved to the Ka0s picks, in both places
+- skin flip: Show border ships off, and a bar row's thickness is the skin's through the composer
+- skin flip: Ka0s Default keeps this addon's pixels: fill, background, text, no edge, no shadow
+- skin flip: a skin's real style wins: its style, thickness and color, Show border off or not
+- skin flip: a skin's None defers to Show border and the stored style and thickness
+- skin flip: the memo signs the border that draws, so a switch onto a real style restyles
+- skin flip: no step of the ladder moves a stored Show border
+- skin flip: every other skin answers the HUD values from its own palette, Ka0s Default's unmoved
+- skin flip: a skin switch changes what every element's fill, background and text draw
+- skin flip: a companion off draws the stored color
+- skin flip: a class color comes first, whatever the companion says
+- skin flip: a class toggle with no class to show follows the skin, not the stored swatch
+- skin flip: a party member's class still comes first through the unit resolver
+- skin flip: the live target's plain fill follows the skin, for a player and an NPC
+- skin flip: two skins with one set of media still recolor the target and pet frames
+- skin flip: the text color lands after S.HudFont, on a switch and past combat
+- skin flip: every meaning color stays under a skin
+- skin flip: without the library the stored color draws, not a token's default
+- skin flip: the degraded HudFont writes both shadow arms, so turning the row off clears it
+- skin flip: a skin's shadow draws, and a skin that says none draws none over a stored shadow
+- skin flip: two skins alike but for the shadow still redraw a string that has drawn
+- skin flip: the companion off draws the stored shadow under every skin
+- skin flip: Ignore fonts leaves the stored shadow standing
+- skin flip: the shadow lands on a font object where the client has CreateFont
+- skin flip: the step moves every listed key and leaves every pick and color byte-identical
+- skin flip: the list names no size, class toggle, meaning color, Scope key, pick or swatch
+- skin flip: a second run writes nothing, and a companion turned off afterwards stays off
+- skin flip: the step creates the record's table on a raw profile with none
+- skin flip: the step is the same write with the library absent
+- skin flip: the record outlives every Defaults button, so a turned-off companion stays off
+- skin flip: the ladder walks every stored profile, and a profile event runs the step
+- skin flip: past the stamp the runner still moves an active profile with no record
+- skin flip: a glossy skin glosses the fill; Ka0s Default and the player's own texture do not
+- skin flip: the memo signs the texture's companion when the pick equals the skin's key
+- skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay
+- skin flip: the cast icon is a HUD icon, so its edge is icon.border, never the window icon.outline
+
+### test_skin_fonts.lua (12)
 
 - skin fonts: every HUD section's Font flags default to From skin
 - skin fonts: every HUD Font block is the minimum set, class color included
@@ -600,15 +647,49 @@ Total.
 - skin fonts: a skin switch moves the drawn size on the live elements
 - skin fonts: v3 moves a stored OUTLINE onto From skin, on every stored profile
 - skin fonts: v3 runs once; an OUTLINE the player picks after it is kept
-
-### test_skin_literals.lua (4)
-
-- skin literals: no color literal outside core/SkinSetup.lua and the named allow-list
-- skin literals: every allow-list entry carries its reason
-- skin literals: the gate is falsifiable, a planted literal of each shape is reported
 - glyphs: no displayed string carries a character a shipped skin face cannot draw
 
-### test_skin_picker.lua (17)
+### test_skin_values.lua (3)
+
+- skin values: every host row carries its file, substring, why and cause id
+- skin values: no typed value outside the kit's categories and the host's rows
+- skin values: the check is falsifiable, a planted value of each shape is reported
+
+### test_skin_switch.lua (31)
+
+- skin switch: the check is falsifiable, a surface that redraws a literal is reported
+- skin switch: the cast bar's fill changes
+- skin switch: the cast bar's bar texture changes
+- skin switch: the cast bar's background changes
+- skin switch: the cast bar's border style changes
+- skin switch: the cast bar's border color changes
+- skin switch: the cast bar's text color changes
+- skin switch: the cast bar's face changes
+- skin switch: the cast bar's text shadow changes
+- skin switch: the target frame's fill changes
+- skin switch: the target frame's bar texture changes
+- skin switch: the target frame's background changes
+- skin switch: the target frame's border style changes
+- skin switch: the target frame's border color changes
+- skin switch: the target frame's text color changes
+- skin switch: the target frame's face changes
+- skin switch: the target frame's text shadow changes
+- skin switch: the pet frame's fill changes
+- skin switch: the pet frame's bar texture changes
+- skin switch: the pet frame's background changes
+- skin switch: the pet frame's border style changes
+- skin switch: the pet frame's border color changes
+- skin switch: the pet frame's text color changes
+- skin switch: the pet frame's face changes
+- skin switch: the pet frame's text shadow changes
+- skin switch: the cast bar's spell icon edge changes
+- skin switch: the cast bar's spell icon edge changes with the Scope ignored
+- skin switch: a holder's plate changes
+- skin switch: a holder's plate changes with the Scope ignored
+- skin switch: a holder's caption changes
+- skin switch: a holder's caption changes with the Scope ignored
+
+### test_skin_picker.lua (26)
 
 - Skin picker: the spec names this owner, its seams, the Skin tab and the eye
 - Skin picker: an unseen profile shows it; a seen one does not
@@ -621,8 +702,17 @@ Total.
 - Skin picker: the player's close marks it seen; this addon's own hide does not
 - Skin picker: a profile that has seen it takes a shown picker down, unmarked
 - Skin picker: a profile switch takes a shown picker down before the new skin
-- Skin picker: the eye unlocks through the write seam, this addon's preview
-- Skin picker: the eye in combat is the unlock's own refusal
+- Skin picker: shown with the elements locked, it unlocks them through the write seam
+- Skin picker: the eye toggles the lock, both ways
+- Skin picker: every close locks again what the picker unlocked
+- Skin picker: elements already unlocked are left alone, and the close keeps them unlocked
+- Skin picker: an eye pressed back to the opening state leaves nothing to undo
+- Skin picker: a profile switch under the picker's unlock leaves the profile it left stored locked
+- Skin picker: a profile switch leaves a profile the picker found unlocked as it was
+- Skin picker: a restore parked through combat is the player's unlock, not one a profile switch undoes
+- Skin picker: a close in combat that owes nothing leaves the next showing's unlock owed to its profile
+- Skin picker: the preview's unlock in combat is the unlock's own refusal
+- Skin picker: the preview's enter and exit write the lock through the seam and redraw the panel
 - Skin picker: Apply with no pick saves nothing and marks the picker seen
 - Skin picker: the write seam a saved pick reaches stores both halves
 - Profiles page: the tree AceConfigDialog drew is painted for this owner, after the Open
@@ -725,7 +815,7 @@ Total.
 |-------|------:|
 | test_loadorder.lua | 18 |
 | test_schema.lua | 21 |
-| test_database.lua | 6 |
+| test_database.lua | 7 |
 | test_coresetup.lua | 4 |
 | test_envsetup.lua | 3 |
 | test_mediasetup.lua | 4 |
@@ -736,7 +826,7 @@ Total.
 | test_compat.lua | 10 |
 | test_providers.lua | 16 |
 | test_anchor.lua | 11 |
-| test_profile_switch.lua | 6 |
+| test_profile_switch.lua | 8 |
 | test_castbars.lua | 14 |
 | test_targetframes.lua | 25 |
 | test_petframes.lua | 11 |
@@ -755,14 +845,17 @@ Total.
 | test_disabled.lua | 22 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
+| test_launcher_skin_entry.lua | 1 |
 | test_optionssetup.lua | 11 |
 | test_settings_layout.lua | 9 |
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
-| test_skin_hud.lua | 12 |
-| test_skin_fonts.lua | 11 |
-| test_skin_literals.lua | 4 |
-| test_skin_picker.lua | 17 |
+| test_skin_hud.lua | 11 |
+| test_skin_flip.lua | 38 |
+| test_skin_fonts.lua | 12 |
+| test_skin_values.lua | 3 |
+| test_skin_switch.lua | 31 |
+| test_skin_picker.lua | 26 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
 | test_surface_parity.lua | 18 |
@@ -772,4 +865,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **566** |
+| **Total** | **647** |

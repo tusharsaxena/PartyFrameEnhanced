@@ -26,6 +26,10 @@ NS.defaults.profile = {
     skin = {
         source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
         font = "", texture = "", outline = "hud", pickerSeen = false,
+        -- This profile has been through the one step onto the skin (core/Database.lua,
+        -- NS.ResetProfileToSkin). False until it has; the step sets it. No schema row, so no Defaults
+        -- button can put it back and run the step again over a companion the player turned off.
+        fullSkinReset = false,
     },
 
     general = {
@@ -63,25 +67,31 @@ NS.defaults.profile = {
         -- skin's ..." rows (skinning-§6): true, so a new or reset profile draws the skin's bar
         -- texture, border style and HUD face, as an adopted one does after the v2 reset (X3 of the
         -- 2026-10-29 rollout). The picks beside them stay stored, and come back when one is turned off.
+        -- The colors and the shadow have companions too (FS-PF-FLIP, the owner's ruling of 2026-11-01,
+        -- causes D2, D3, D4 and D6): fill `pf.castFill` and its kin, background `pf.barBg`, border
+        -- `bar.border`, text `hud.text`, shadow `hud.shadow`. Each swatch beside one is kept the same
+        -- way. A class color comes first, and a cast-state or reaction color has no companion.
         -- Bar: the canonical block (the fill is the plain-cast color), then the cast-state palette.
-        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
-        barColor = { r = 1.0, g = 0.7, b = 0.0, a = 1.0 }, useClassColorBar = false,
+        barTexture = "Ka0s Default", barTextureFromSkin = true, barAlpha = 1.0,
+        barColor = { r = 1.0, g = 0.7, b = 0.0, a = 1.0 }, useClassColorBar = false, barColorFromSkin = true,
         channelColor         = { r = 0.3, g = 0.7, b = 1.0, a = 1.0 },
         empowerColor         = { r = 0.8, g = 0.5, b = 1.0, a = 1.0 },
         uninterruptibleColor = { r = 0.6, g = 0.6, b = 0.6, a = 1.0 },
         failedColor          = { r = 0.9, g = 0.2, b = 0.2, a = 1.0 },
-        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
+        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
-        -- Border: off by default — a 16 px bar reads cleaner on its background alone.
+        -- Border: off, as AuraMaster's, because a skin's None defers to Show border and the stored
+        -- style and thickness (S.BarBorder), so true would draw them on every untouched profile and
+        -- move Ka0s Default's look. A skin with a real style draws it whatever this says.
         borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
-        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
+        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
         -- Text
-        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 11,
-        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
+        font = "Ka0s Prototype", fontFromSkin = true, fontSize = 11,
+        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false, fontColorFromSkin = true,
         -- Font flags: "@skin", From skin (LibKa0s v1.82.0, ruling D-07): the Skin tab's Font
         -- outline decides; a picked flag wins. v3 (core/Database.lua) moved a stored OUTLINE here.
-        fontFlags = "@skin", fontShadow = false,
+        fontFlags = "@skin", fontShadow = false, fontShadowFromSkin = true,
         showName = true, showTime = true,
 
         -- Icon and marks
@@ -100,21 +110,21 @@ NS.defaults.profile = {
         width = 110, height = 20, growth = "DOWN", spacing = 4,
         position = nil,
 
-        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
-        barColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 }, useClassColorBar = false,
+        barTexture = "Ka0s Default", barTextureFromSkin = true, barAlpha = 1.0,
+        barColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 }, useClassColorBar = false, barColorFromSkin = true,
         -- NPCs by their reaction to you; a secret reaction reads as hostile.
         colorReaction = true,
         hostileColor  = { r = 0.85, g = 0.20, b = 0.20, a = 1.0 },
         neutralColor  = { r = 0.90, g = 0.80, b = 0.20, a = 1.0 },
         friendlyColor = { r = 0.25, g = 0.75, b = 0.25, a = 1.0 },
-        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
+        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
         borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
-        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
+        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
-        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 10,
-        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "@skin", fontShadow = false,
+        font = "Ka0s Prototype", fontFromSkin = true, fontSize = 10,
+        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false, fontColorFromSkin = true,
+        fontFlags = "@skin", fontShadow = false, fontShadowFromSkin = true,
         showName = true, showPercent = true,
 
         -- The marker's center sits on this point of the bar, nudged by the offsets (before Master
@@ -133,16 +143,16 @@ NS.defaults.profile = {
         width = 80, height = 14, growth = "DOWN", spacing = 4,
         position = nil,
 
-        barTexture = "Blizzard", barTextureFromSkin = true, barAlpha = 1.0,
-        barColor = { r = 0.35, g = 0.70, b = 0.35, a = 1.0 }, useClassColorBar = false,
-        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false,
+        barTexture = "Ka0s Default", barTextureFromSkin = true, barAlpha = 1.0,
+        barColor = { r = 0.35, g = 0.70, b = 0.35, a = 1.0 }, useClassColorBar = false, barColorFromSkin = true,
+        bgColor = { r = 0.0, g = 0.0, b = 0.0, a = 0.6 }, useClassColorBg = false, bgColorFromSkin = true,
 
         borderShow = false, borderStyle = "Blizzard Tooltip", borderStyleFromSkin = true, borderSize = 8,
-        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false,
+        borderColor = { r = 0.0, g = 0.0, b = 0.0, a = 1.0 }, useClassColorBorder = false, borderColorFromSkin = true,
 
-        font = "Friz Quadrata TT", fontFromSkin = true, fontSize = 9,
-        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false,
-        fontFlags = "@skin", fontShadow = false,
+        font = "Ka0s Prototype", fontFromSkin = true, fontSize = 9,
+        fontColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 }, useClassColorFont = false, fontColorFromSkin = true,
+        fontFlags = "@skin", fontShadow = false, fontShadowFromSkin = true,
         showName = true, showPercent = false,
 
         -- As the target frame's: the marker's center on this point of the bar, nudged by the offsets.

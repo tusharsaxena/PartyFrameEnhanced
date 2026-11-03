@@ -31,6 +31,13 @@ local suspended = false
 local HEALTH_EVENTS = { UNIT_HEALTH = true, UNIT_MAXHEALTH = true }
 local PREVIEW_MARKER = 8   -- skull
 
+local function paintColors(btn)
+    local resolve = Element.UnitResolver(btn, btn.unit)
+    local r, g, b, a = Element.FillColor(cfg, resolve, "pf.petFill")
+    btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
+    Element.ApplyColors(btn, cfg, resolve)
+end
+
 local function paintAll(btn)
     UnitButtons.Invalidate(btn)
     UnitButtons.RenderName(btn, btn.token, cfg.showName)
@@ -39,9 +46,7 @@ local function paintAll(btn)
     else
         UnitButtons.RenderFull(btn)
     end
-    local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
-    btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
-    Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
+    paintColors(btn)
     if cfg.showMarker then Compat.RaidMarker(btn.marker, btn.token) else btn.marker:Hide() end
 end
 
@@ -49,9 +54,7 @@ local function paintPreview(btn)
     local health = gen.updateHealth
     UnitButtons.RenderPreview(btn, L["Preview pet"], health and 80 or 100, cfg.showName,
         health and cfg.showPercent)
-    local r, g, b, a = NS.ResolveColor(cfg.barColor, cfg.useClassColorBar, btn.unit)
-    btn.bar:SetStatusBarColor(r, g, b, (a or 1) * (cfg.barAlpha or 1))
-    Element.ApplyColors(btn, cfg, Element.UnitResolver(btn, btn.unit))
+    paintColors(btn)
     if cfg.showMarker and SetRaidTargetIconTexture then
         SetRaidTargetIconTexture(btn.marker, PREVIEW_MARKER)
         btn.marker:Show()
@@ -149,10 +152,18 @@ local function syncEvents()
     end
 end
 
+-- One allowed button's colors, as they draw now.
+local function recolor(btn)
+    if btn.__allowed then paintColors(btn) end
+end
+
 local function reskinAll()
     NS.RunSecure("pet:reskin", function()
         local t0 = Perf.on and debugprofilestop()
-        for _, unit in ipairs(Units.LIST) do Element.Reskin(buttons[unit], cfg, nil) end
+        for _, unit in ipairs(Units.LIST) do
+            -- S.HudFont puts a font object on the text, so its color goes back on after.
+            if Element.Reskin(buttons[unit], cfg, nil) then recolor(buttons[unit]) end
+        end
         if t0 then Perf.Note("reskin", debugprofilestop() - t0) end
     end)
     for _, unit in ipairs(Units.LIST) do UnitButtons.ApplyClicks(buttons[unit], cfg.clickToTarget) end
@@ -226,8 +237,13 @@ ev:RegisterMessage(NS.MSG.LAYOUT, whenReady(refreshAll))
 -- (skinning-§6): the media keys a companion follows resolve anew. Through reskinAll, so the restyle
 -- of these secure buttons stays one RunSecure write, deferred to combat's end under lockdown
 -- (Risks R1). Not a bus message: the library owns the notification, and a hidden, stood-down
--- element restyled here is drawn right when it comes back.
-NS.Skin.OnLooksChanged(function() if cfg then reskinAll() end end)
+-- element restyled here is drawn right when it comes back. The colors are no secure write and move
+-- at once, whether or not a media key did.
+NS.Skin.OnLooksChanged(function()
+    if not cfg then return end
+    reskinAll()
+    for _, unit in ipairs(Units.LIST) do recolor(buttons[unit]) end
+end)
 
 -- Markers change for every unit at once; one repaint pass over the allowed buttons. Held by
 -- syncModuleEvents above, only while the feature is on and in a party.

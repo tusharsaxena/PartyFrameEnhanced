@@ -9,7 +9,7 @@ local _, NS = ...
 --     Size and position  settings/ElementRows.lua's Size and position rows
 --     Bar              -- Fill --             the canonical bar block
 --                      -- Reaction colors --  Color NPCs by reaction · Hostile / Neutral · Friendly
---                      -- Background --       the background swatch and its class-color companion
+--                      -- Background --       the background swatch, its class-color and skin companions
 --                      -- Border --           the canonical border block
 --     Text             -- Shown text --  Show name · Show health percent
 --                      -- Font --        the canonical font block
@@ -48,7 +48,7 @@ ElementRows.Append(rows, ElementRows.Position(PAGE, P, D))
 
 ElementRows.Append(rows, ElementRows.Bar(PAGE, P, D))
 rows[#rows + 1] = row{ path = "colorReaction", group = L["Bar"], subgroup = L["Reaction colors"],
-                       order = 50, type = "bool", label = L["Color NPCs by reaction"],
+                       order = 60, type = "bool", label = L["Color NPCs by reaction"],
                        desc = L["Color a non-player target by how it feels about you. When the game hides that, the hostile color is used."],
                        default = D.colorReaction }
 for i, spec in ipairs({
@@ -57,10 +57,10 @@ for i, spec in ipairs({
     { "friendlyColor", L["Friendly color"], L["Bar color for a friendly NPC. Needs Color NPCs by reaction."] },
 }) do
     rows[#rows + 1] = row{ path = spec[1], group = L["Bar"], subgroup = L["Reaction colors"],
-                           order = 50 + i * 10, type = "color", hasAlpha = true,
+                           order = 60 + i * 10, type = "color", hasAlpha = true,
                            label = spec[2], desc = spec[3], default = D[spec[1]] }
 end
-ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 100))
+ElementRows.Append(rows, ElementRows.Background(PAGE, P, D, 110))
 
 ElementRows.Append(rows, ElementRows.Border(PAGE, P, D))
 

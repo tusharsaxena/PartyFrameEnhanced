@@ -104,7 +104,7 @@ test("layers: Show border off clears the border's backdrop and keeps it shown", 
     NS.Element.Reskin(el, cfg, nil, true)
     assertEqual(cleared, 1, "the edge is cleared")
     assertEqual(hidden, 0, "the border frame is never hidden")
-    cfg.borderShow = true
+    cfg.borderShow, cfg.borderStyleFromSkin, cfg.borderStyle = true, false, "Blizzard Tooltip"
     NS.Element.Reskin(el, cfg, nil, true)
     assertEqual(cleared, 1, "on again: a backdrop, not a clear")
   end)

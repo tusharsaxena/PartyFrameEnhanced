@@ -176,7 +176,7 @@ one icon, one label and one identity.
 | Icon | `media/logos/partyframeenhanced.logo.128.tga`, the same file the TOC's `## IconTexture` names (launcher-§4, layout-§4): 128×128, uncompressed 32-bit |
 | Label | `Ka0s Party Frame Enhanced` — the **brand name in plain text** (launcher-§1). It is what a broker display prints in its row, beside the collection's other ten, so it carries the shared `Ka0s ` prefix and **no escape sequence**. Deliberately not the TOC `## Title` (a Title may carry color escapes) and not the folder name (that is the registration *Name* above); the two are never wired to each other |
 | Left click | **always** `NS.OpenOptionsPanel` (`openSettings`), on this addon as on every other, in **either** state (launcher-§2, standard v2.67.0; Launcher minor 4). The settings panel is setup and is where a disabled addon is re-enabled; this click and the bare `/pfe` are the two routes to it |
-| Right click | **the options menu**, the client's own context menu built by the library (`MenuUtil.CreateContextMenu`), titled with the label, one checkbox per pair the descriptor passes: *Enabled* (`isEnabled` + `setEnabled` = `NS.SetEnabled`, the `/pfe enable` / `/pfe disable` handler, so the write, the panel refresh and the `enabled = …` echo are the verbs' own) and *Locked* (`isLocked` + `toggleLock` = `NS.ToggleLock`, the seam that drives the `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` write, holding no copy of that state). These are the entries WowAddonStandards' `standards/ADDONS.md` gives this addon. No *Test mode* (unlocking is the preview, options-ui-§15) and no *Show window* (no primary window). **While disabled** the library grays *Locked* — `Locked (enable the addon first)` — and a grayed entry calls nothing, so no SavedVariable is written; *Enabled* stays live. `NS.ToggleLock` keeps its own `cli:DisabledLine()` gate for any other caller. Where the client has no `MenuUtil`, right-click opens the panel instead |
+| Right click | **the options menu**, the client's own context menu built by the library (`MenuUtil.CreateContextMenu`), titled with the label, one checkbox per pair the descriptor passes: *Enabled* (`isEnabled` + `setEnabled` = `NS.SetEnabled`, the `/pfe enable` / `/pfe disable` handler, so the write, the panel refresh and the `enabled = …` echo are the verbs' own) and *Locked* (`isLocked` + `toggleLock` = `NS.ToggleLock`, the seam that drives the `locked` row the Lock frame checkbox and `/pfe lock` / `/pfe unlock` write, holding no copy of that state), then two action rows (Launcher minor 6): *Open settings* (`openSettings`, on every host and never grayed) and *Open skin selector* (`openSkinPicker` = `NS.RunSkinVerb`, the `/pfe skin` handler, offered while `PartyFrameEnhanced` is a registered `LibKa0s-Skin-1.0` owner and grayed while disabled, as the verb refuses then). These are the checkboxes WowAddonStandards' `standards/ADDONS.md` gives this addon. No *Test mode* (unlocking is the preview, options-ui-§15) and no *Show window* (no primary window). **While disabled** the library grays *Locked* — `Locked (enable the addon first)` — and a grayed entry calls nothing, so no SavedVariable is written; *Enabled* stays live. `NS.ToggleLock` keeps its own `cli:DisabledLine()` gate for any other caller. Where the client has no `MenuUtil`, right-click opens the panel instead |
 | Tooltip | **drawn by the library** (launcher-§1, Launcher minor 3), on every hover and **while disabled**: `Ka0s Party Frame Enhanced  v<## Version>`, `Enabled: Yes\|No`, `Locked: Yes\|No`, `Left-click: Open settings`, `Right-click: Options menu`. The descriptor only answers its questions (`isEnabled`, `isLocked`, `version` = `NS.Version()`), each read on every show. **No `Test mode` line**: the addon passes no `isTestMode`. No `onTooltipShow`: nothing of the addon's own to add |
 | Visibility | one Master-controls row, `global.minimap.shown`, inverting onto LibDBIcon's stored `hide` (see *Settings Schema* → Global rows) |
 | Registered | from `addon:OnEnable`, because the library resolves `db.global.minimap` at `Register` time and AceDB builds that table in `OnInitialize`. Idempotent |
@@ -418,11 +418,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   owner and then fires `NS.Skin.OnLooksChanged`, on which the free-placement holders, the cast bars,
   the target frames and the pet frames each restyle (the target and pet frames' secure restyle
   through `NS.RunSecure`, deferred to combat's end under lockdown).
-- **The HUD follows the skin's bar texture, border style and font** (skinning-§6; DECISIONS X4).
+- **The HUD follows the skin's bar texture, border style and font** (skinning-§6).
   Each of `castbar`, `target` and `pet` has `barTextureFromSkin`, `borderStyleFromSkin` and
   `fontFromSkin`, the composers' *Use the skin's …* companions, default true (X3). `modules/Element.lua`
-  resolves the three picks through `S.Resolve("bar.texture" | "bar.borderStyle" | "hud.font", pick,
-  companion)` at restyle time only, never on the hot path, and falls back to the player's pick where
+  resolves the picks through `S.Resolve("bar.texture" | "hud.font", pick, companion)` and the border
+  through `S.BarBorder` at restyle time only, never on the hot path, and falls back to the player's pick where
   the facade answers nothing (since LibKa0s v1.81.0 every Ka0s skin names its own `hud.font`, so
   for the face that is the degraded facade). Since LibKa0s v1.82.0 two more follow it, through
   `Element.FontStyle` at restyle time, both in the structure signature: the **size**, while the face
@@ -430,22 +430,33 @@ collection's first adopter; only the paths, the brand and the preview are this a
   over Ka0s Default's 12, so the text is as wide in every skin; the stored value is never
   rewritten; its own face or *Ignore fonts* draws the stored size), and the **Font flags**' default,
   *From skin* (`"@skin"`, `S.FontFlags`), which follows the Skin tab's *Font outline* (OUTLINE under
-  All text and HUD text only, none under Off); a flag the player picked wins. Colors, the shadow,
-  the spark, the shield, the raid
-  marker and the cast-state, reaction and class colors stay the player's or the client's under every
-  skin. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
+  All text and HUD text only, none under Off); a flag the player picked wins. **The colors and the
+  shadow follow it too** (FS-PF-FLIP, the owner's rulings of 2026-11-01, reversing X4): five
+  companions per section, drawn by `Element.Drawn` after a class color that resolved (a class toggle
+  with no class to show, an NPC say, follows the skin) and on no meaning color. Ka0s
+  Default keeps its pixels through the owner tokens `pf.castFill`, `pf.targetFill`, `pf.petFill` and
+  `pf.barBg`. The shadow goes through `S.HudFont`, which puts a font object on each string, so the
+  structure signature signs the resolved `S.HudShadow()`, and a restyle that ran is followed by the
+  colors. A skin switch recolors the target and pet frames at once, whatever the media keys did.
+  The spark, the shield, the raid marker and the cast-state, reaction and class colors stay the
+  client's or the player's under every skin. The skin's gloss (`S.BarGloss`, cause A3) sits on the
+  fill while the bar's texture is the skin's. The Font and texture overrides reach the HUD through the same tokens (`hud.font`,
   `bar.texture`) wherever a companion is on. The Scope's *Ignore fonts* keeps each section's own face
   whatever its font companion says, and the library decides it: while the owner ignores fonts,
   `S.Resolve("hud.font", pick, true)` answers the stored pick (LibKa0s v1.81.0, Skin minor 8), so
-  `Element.MediaKeys` composes nothing of its own. Under Ka0s Default
-  the skin's border is *None*, so *Show border* draws nothing until the player unticks *Use the skin's
-  border* (X5; the README's troubleshooting table and smoke check SKIN-25 say so).
-- **Cast icon edge (DECISIONS PartyFrameEnhanced D4) not adopted.** The cast icon is a Texture, and
-  `S.IconBorder` takes a frame, so a skin's icon edge would need a new holder frame around `el.icon` in
-  `modules/Element.lua`, with its own layout on both icon sides. Ka0s Default draws no icon edge, so
-  nothing is lost there; under other skins the cast icon keeps its plain trimmed square. Skipped as the
-  inventory allows (low priority). Re-check trigger: a player asks for skinned icon edges, or the
-  library's `S.IconBorder` takes a Texture.
+  `Element.MediaKeys` composes nothing of its own. The border is `S.BarBorder`'s answer, as in
+  AuraMaster: a skin's real style wins, Show border included, at the skin's thickness; a skin's *None*
+  is no border of its own, so the stored Show border, style and thickness stand with the companion on
+  or off (the owner's ruling of 2026-11-01; the README's troubleshooting table and smoke check SKIN-25
+  say so). Show border therefore stays off by default: on, it would draw the shipped Blizzard Tooltip
+  on every untouched profile. No schema step writes it, so a stored Show border stands. A
+  `None` style clears the backdrop as Show border off does, so no border color is set on it.
+- **Cast icon edge (cause A1).** `S.IconBorder` takes the icon Texture itself: the library's holder, a
+  plain mouse-off child on the icon's bounds, carries a 1 px edge in every skin, and zooms the icon so
+  its own edge never shows (LibKa0s v1.85.0 R3-L3). The cast bar is a HUD, so the call passes
+  `hud = true` (R4-HUD): the edge is the skin's HUD `icon.border` (black under Ka0s Default), never
+  the window `icon.outline` (gray #4D4D57 under Ka0s Default), through every replay and skin switch.
+  It has no setting, and it shows and hides with the icon.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`
@@ -453,6 +464,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   HUD looks different after this run** (X5, D11): the bars draw the Ka0s Default bar instead of
   Blizzard's and their text Ka0s Default's HUD face (Oxanium SemiBold then, Prototype since LibKa0s
   v1.82.0) instead of Friz Quadrata. That is the rulings' intended change, not a regression.
+- **The one step onto the skin (FS-PF-FLIP).** Schema v4, `NS.ResetProfileToSkin`, moves existing
+  profiles too, by the owner's ruling, including the border v2 kept: `Skin.FollowOnce` over the listed
+  companions and `fontFlags`, gated per profile by `skin.fullSkinReset`, which has no schema row. It
+  also runs after every `RunMigrations` and first in every profile adopt. Stored colors and picks
+  stay for a player who turns a companion off ([schema.md](schema.md#migrations)).
 - **The free-placement holders** (`modules/Anchor.lua`) are the one surface outside the HUD this addon
   draws: the plate reads `pf.mover`, and the caption takes `S.Text`'s accent role (gold under Ka0s
   Default, as before, in the skin's body face).
@@ -461,10 +477,18 @@ collection's first adopter; only the paths, the brand and the preview are this a
   after the login or reload entry, and after every profile event, because a new, copied or reset
   profile carries its own flag; a start in combat waits for `PLAYER_REGEN_ENABLED`. Only the player's
   close writes `pickerSeen`; `NS.HideSkinPicker` (the stand-down, and first in every profile adopt)
-  takes it down unmarked. Its gear opens General on the Skin tab. **Its eye unlocks** through the
-  write seam (`locked = false`), because unlocking is this addon's preview (options-ui-§15; DECISIONS
-  D6): the placeholders on the real party frames, or the stand-in out of a party. It leaves the
-  addon unlocked, and is refused where the unlock is (combat, a perf suspend). Since LibKa0s v1.81.0
+  takes it down unmarked. Its gear opens General on the Skin tab. **Its preview is unlock mode**
+  (`spec.preview`, mode `"unlock"`, LibKa0s OptionsSkinPicker minor 11; R6-PV), because unlocking
+  is this addon's preview (options-ui-§15): the placeholders on the real party frames, or the
+  stand-in out of a party. A picker shown with the elements locked unlocks them, the eye toggles
+  the lock (lit while unlocked), and every close puts the lock back as it was at open; an unlock the
+  player made before the picker opened is left alone. Enter and exit write `locked` through the
+  write seam and redraw the panel, the path `/pfe lock` and `/pfe unlock` take, so the refusals
+  (combat, a perf suspend, disabled) hold and the Lock frame box and the launcher stay in step. A
+  profile event closes the picker after AceDB switched, so the profile a showing's own unlock was
+  written to is put back to its stored default there (`owedProfile` in `core/SkinSetup.lua`). The
+  lock is stored, so a `/reload` while the picker is up leaves the elements unlocked until `/pfe
+  lock`. This replaces the enter-only eye of DECISIONS D6. Since LibKa0s v1.81.0
   (OptionsSkinPicker minor 2) the window is titled *Choose a skin* and the brand, *Ka0s Party Frame
   Enhanced*, has its own line above the dropdown (`frame.ownerLabel`), the window widening to fit it. Since
   LibKa0s v1.83.0 it also carries the Skin tab's rows: Font and Texture as media pickers, Font outline
@@ -489,13 +513,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   StaticPopup (Blizzard's). Chat lines (`NS.PREFIX`, the `ON` / `OFF` marks, refusals) go to the
   chat frame, which is not a skinned surface (X7). The launcher's tooltip is GameTooltip, drawn by
   `LibKa0s-Launcher-1.0`.
-- **The color gate.** `tests/test_skin_literals.lua` (LootHistory's anti-pattern #107 gate) fails on
-  a numeric color literal in a paint call or a `|cff` escape in `core/`, `modules/` or `settings/`
-  outside `core/SkinSetup.lua` and a reasoned allow-list (the stand-in's look and its *(test)* mark,
-  the chat lines). An entry that matches nothing fails the gate, and a planted literal proves it can
-  fail. The HUD text's `SetShadowColor(0, 0, 0, 1)` is the client's stock shadow, drawn only when the
-  player turns *Font shadow* on, and stays, as a named allow-list entry (DECISIONS D5); the gate
-  scans `SetShadowColor` and `SetStatusBarColor` too.
+- **The two skin gates (kit revision 50, skinning-§1).** `test_skin_values` fails on a typed color or
+  texture no kit category takes and no row in `tests/skin_facts.lua` names: the rows are the stand-in's
+  look, art and *(test)* mark (A7) and the preview refusals' chat lines (L13). `test_skin_switch` takes
+  the painted surfaces the same file declares, each part of each element, the spell icon's edge and a
+  holder's plate and caption, and fails one that does not change under a probe skin.
 
 ## Known Limitations
 

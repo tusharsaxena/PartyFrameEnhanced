@@ -873,3 +873,31 @@ test("skin flip: the cast bar's spell icon wears the skin's icon edge, recorded 
   assertEqual(probe("target").icon, nil, "a frame with no icon has no edge to wear")
   Skin:Untrack(el.icon)
 end)
+
+test("skin flip: the cast icon is a HUD icon, so its edge is icon.border, never the window icon.outline", function()
+  -- R4-HUD (Ka0sAddonsCommonTasks docs/2026-11-03-SMOKE_ROUND4, R4_ADDENDUM_HUD_ICON_EDGE.md): the
+  -- owner keeps the HUD icons' black edges. red under: a call without `hud = true`, which draws
+  -- Ka0s Default's gray #4D4D57 window outline, or a replay that drops the flag on a skin switch.
+  local restorePaint = dofile("tests/_kit/mock_paint.lua")(mocks)
+  local savedCreate = rawget(_G, "CreateFrame")
+  rawset(_G, "CreateFrame", mocks.CreateFrame)
+  local el = Element.Build(mocks.CreateFrame("Frame", nil, mocks.UIParent), { icon = true })
+  rawset(_G, "CreateFrame", savedCreate)
+  local ok, err = pcall(function()
+    local function edge()
+      local c = rawget(Skin.painted[el.icon].regions.edgeTop, "__color")
+      return c and rgba(c[1], c[2], c[3], c[4])
+    end
+    choose("ka0s")
+    assertEqual(edge(), "0,0,0,1", "black under Ka0s Default")
+    assertTrue(edge() ~= rgba(S.Color("icon.outline")), "not the window outline")
+    for _, skin in ipairs({ "glass", "ember", "midnight", "forever", "ka0s" }) do
+      choose(skin)
+      assertEqual(edge(), rgba(S.Color("icon.border")), skin .. " draws its HUD icon.border")
+    end
+  end)
+  choose("ka0s")
+  Skin:Untrack(el.icon)
+  restorePaint()
+  if not ok then error(err, 0) end
+end)

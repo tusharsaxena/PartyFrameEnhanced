@@ -26,10 +26,12 @@ local FONT_FLAGS = { NONE = "" }
 local NO_EDGE = "None"
 
 -- The spell icon's edge is the skin's own (cause A1): no setting offers one. It is a 1 px outline in
--- every skin (LibKa0s R3-L3), black under Ka0s Default, the icon art is zoomed so its own edge never
--- shows, and the record replays it on a skin change. S.IconBorder takes the Texture itself (Skin's
--- SkinPaintControls minor 15): its holder rides the icon's own show and hide.
-local ICON_EDGE = { fromSkin = true }
+-- every skin (LibKa0s R3-L3), the icon art is zoomed so its own edge never shows, and the record
+-- replays it on a skin change. The cast bar is a HUD, so `hud = true` (SkinPaintControls minor 17,
+-- R4-HUD) draws the skin's HUD `icon.border`, black under Ka0s Default, never a window's gray
+-- `icon.outline`. S.IconBorder takes the Texture itself (minor 15): its holder rides the icon's own
+-- show and hide.
+local ICON_EDGE = { fromSkin = true, hud = true }
 
 --- The flags and the size `cfg`'s text draws with now (LibKa0s v1.82.0, SkinPaintExtras minor 7;
 --- rulings D-07 and D-09). Flags: a picked one as stored; From skin ("@skin", the default) through

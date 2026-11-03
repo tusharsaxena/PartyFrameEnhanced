@@ -591,7 +591,7 @@ Total.
 - skin hud: v2 keeps a drawn border the player's own (D2)
 - skin hud: the reset runs once; a pick the player makes after it is kept
 
-### test_skin_flip.lua (37)
+### test_skin_flip.lua (38)
 
 - skin flip: every section's color and shadow companions are bool rows defaulting on, in both places
 - skin flip: no swatch carries disabledIf, and no class or meaning color has a companion
@@ -630,6 +630,7 @@ Total.
 - skin flip: a glossy skin glosses the fill; Ka0s Default and the player's own texture do not
 - skin flip: the memo signs the texture's companion when the pick equals the skin's key
 - skin flip: the cast bar's spell icon wears the skin's icon edge, recorded for a replay
+- skin flip: the cast icon is a HUD icon, so its edge is icon.border, never the window icon.outline
 
 ### test_skin_fonts.lua (12)
 
@@ -839,7 +840,7 @@ Total.
 | test_skinsetup.lua | 13 |
 | test_skin_holders.lua | 5 |
 | test_skin_hud.lua | 11 |
-| test_skin_flip.lua | 37 |
+| test_skin_flip.lua | 38 |
 | test_skin_fonts.lua | 12 |
 | test_skin_values.lua | 3 |
 | test_skin_switch.lua | 31 |
@@ -853,4 +854,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **635** |
+| **Total** | **636** |

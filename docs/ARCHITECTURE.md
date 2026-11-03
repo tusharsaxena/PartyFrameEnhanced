@@ -452,8 +452,11 @@ collection's first adopter; only the paths, the brand and the preview are this a
   on every untouched profile. No schema step writes it, so a stored Show border stands. A
   `None` style clears the backdrop as Show border off does, so no border color is set on it.
 - **Cast icon edge (cause A1).** `S.IconBorder` takes the icon Texture itself: the library's holder, a
-  plain mouse-off child on the icon's bounds, carries the skin's icon outline, 1 px in every skin (black
-  under Ka0s Default), and zooms the icon so its own edge never shows (LibKa0s v1.85.0 R3-L3). It has no setting, and it shows and hides with the icon.
+  plain mouse-off child on the icon's bounds, carries a 1 px edge in every skin, and zooms the icon so
+  its own edge never shows (LibKa0s v1.85.0 R3-L3). The cast bar is a HUD, so the call passes
+  `hud = true` (R4-HUD): the edge is the skin's HUD `icon.border` (black under Ka0s Default), never
+  the window `icon.outline` (gray #4D4D57 under Ka0s Default), through every replay and skin switch.
+  It has no setting, and it shows and hides with the icon.
 - **The one-time reset (O2).** Schema v2's profile step sets the texture and font companions true on
   every stored HUD section, and the border companion true except where the section draws a border
   (`borderShow = true`), where it is written false so the border survives Ka0s Default's `None`

@@ -687,7 +687,7 @@ Total.
 - skin switch: a holder's caption changes
 - skin switch: a holder's caption changes with the Scope ignored
 
-### test_skin_picker.lua (25)
+### test_skin_picker.lua (26)
 
 - Skin picker: the spec names this owner, its seams, the Skin tab and the eye
 - Skin picker: an unseen profile shows it; a seen one does not
@@ -708,6 +708,7 @@ Total.
 - Skin picker: a profile switch under the picker's unlock leaves the profile it left stored locked
 - Skin picker: a profile switch leaves a profile the picker found unlocked as it was
 - Skin picker: a restore parked through combat is the player's unlock, not one a profile switch undoes
+- Skin picker: a close in combat that owes nothing leaves the next showing's unlock owed to its profile
 - Skin picker: the preview's unlock in combat is the unlock's own refusal
 - Skin picker: the preview's enter and exit write the lock through the seam and redraw the panel
 - Skin picker: Apply with no pick saves nothing and marks the picker seen
@@ -852,7 +853,7 @@ Total.
 | test_skin_fonts.lua | 12 |
 | test_skin_values.lua | 3 |
 | test_skin_switch.lua | 31 |
-| test_skin_picker.lua | 25 |
+| test_skin_picker.lua | 26 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
 | test_surface_parity.lua | 18 |
@@ -862,4 +863,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **644** |
+| **Total** | **645** |

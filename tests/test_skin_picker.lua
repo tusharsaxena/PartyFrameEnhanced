@@ -417,6 +417,36 @@ test("Skin picker: a restore parked through combat is the player's unlock, not o
   assertEqual(stored, false, "the profile left behind keeps the player's unlock")
 end))
 
+test("Skin picker: a close in combat that owes nothing leaves the next showing's unlock owed to its profile", clean(function()
+  -- red under: an eye flag a close in combat keeps when no restore was parked. The next showing's
+  -- opening unlock then reads as a parked restore, records no owed profile, and a profile switch
+  -- under it leaves the profile behind stored unlocked.
+  local f = shownWith(false)
+  f.preview:__fire("OnClick")   -- locked again: the state at open, so nothing is owed
+  settle()
+  assertTrue(locked(), "the eye locked it")
+  local real = mocks.InCombatLockdown
+  mocks.InCombatLockdown = function() return true end
+  local ok, err = pcall(function() f.close:__fire("OnClick") end)
+  mocks.InCombatLockdown = real
+  if not ok then error(err, 0) end
+  assertTrue(locked(), "the close in combat leaves it locked")
+  NS.SetByPath(PATH, false)
+  shownWith(false)
+  local left = NS.db.profile
+  assertEqual(left.locked, false, "the next showing unlocks the profile it opened on")
+  spying(function()
+    NS.db:SetProfile("PickerProbe6")
+    settle()
+  end)
+  local stored = left.locked
+  left.locked = nil
+  NS.db:SetProfile("Default")
+  settle()
+  if NS.db.DeleteProfile then pcall(NS.db.DeleteProfile, NS.db, "PickerProbe6", true) end
+  assertTrue(stored ~= false, "the profile left behind is stored locked again")
+end))
+
 test("Skin picker: the preview's unlock in combat is the unlock's own refusal", clean(function()
   local real = mocks.InCombatLockdown
   mocks.InCombatLockdown = function() return true end

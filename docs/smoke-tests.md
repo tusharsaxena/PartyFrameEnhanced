@@ -900,7 +900,9 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   leaves the panel open on the Skin tab, with Lock frame ticked). Now `/pfe unlock` first, then `/pfe
   skin` → nothing changes at open; press the eye (locks), close → unlocked again, as it was. The
   first-run picker on a new profile and the one-time skin notice behave the same. In combat a press of
-  the eye that would unlock prints the unlock's own refusal and nothing unlocks. Unlock is a stored
+  the eye that would unlock prints the unlock's own refusal and nothing unlocks. With the elements
+  locked, `/pfe skin`, then switch profile in the Profiles tree while the picker is up, then switch
+  back → the profile you left comes back locked. Unlock is a stored
   setting: a `/reload` while the picker is up leaves the elements unlocked until `/pfe lock`.
   *Failure:* the picker opening with nothing unlocked, an eye that only unlocks, the elements left
   unlocked after any close, an unlock the player made before opening undone by the close, or an

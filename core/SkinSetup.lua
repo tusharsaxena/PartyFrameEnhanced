@@ -225,8 +225,10 @@ end
 -- The library also calls enter("picker") to put such an unlock BACK after the eye locked it, at the
 -- close or, after a close in combat, from its end-of-combat park. Both follow an eye press, so an
 -- enter("picker") after one (`eyeMoved`) is a restore, never the opening's own unlock. The flag
--- clears when that restore unlocks, and at a close out of combat; a close in combat keeps it for
--- the parked restore.
+-- clears when that restore unlocks, and at every close except one whose restore was refused in
+-- combat (`restoreParked`), which keeps it for the parked restore. A close in combat that owed
+-- nothing clears it too, or the next showing's own opening unlock would read as that restore and
+-- owe no profile.
 
 local PICKER_PATH = "skin.pickerSeen"
 local PICKER_DELAY = 2
@@ -235,6 +237,7 @@ local pickerTimer        -- the login fuse's AceTimer handle, while it is lit
 local quietClose = false -- true while NS.HideSkinPicker takes the picker down
 local owedProfile        -- the profile table this showing's own enter unlocked, while it is up
 local eyeMoved = false   -- the eye has moved the lock since the restore it would owe
+local restoreParked = false -- this close's restore unlock was refused, so the library parked it
 
 --- The lock through the write seam, then the panel redrawn, as runLock does.
 local function setLocked(v)
@@ -252,7 +255,10 @@ local PREVIEW = {
         local profile, restore = NS.db and NS.db.profile, why == "picker" and eyeMoved
         if why == "eye" then eyeMoved = true end
         setLocked(false)
-        if not unlocked() then return end   -- refused: a restore stays owed for the park
+        if not unlocked() then              -- refused: a restore stays owed for the park
+            if restore then restoreParked = true end
+            return
+        end
         if restore then eyeMoved = false elseif why == "picker" then owedProfile = profile end
     end,
     exit = function(why)
@@ -267,7 +273,8 @@ local PREVIEW = {
 --- stored choice).
 local function pickerClosed()
     owedProfile = nil   -- the library's restore has run (it runs before onClose)
-    if not InCombatLockdown() then eyeMoved = false end
+    if not (restoreParked and InCombatLockdown()) then eyeMoved = false end
+    restoreParked = false
     if quietClose then return end
     if not (NS.db and NS.SetByPath) then return end
     NS.SetByPath(PICKER_PATH, true)

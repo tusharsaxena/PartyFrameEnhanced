@@ -59,8 +59,9 @@ Setting it up the way you like takes three steps. The **Cast Bars**, **Target Fr
   have a **Marker** tab for the raid marker.
 
 When someone wanders out of range, their cast bar, target frame and pet frame dim with their party
-frame. The minimap button opens the settings on a left click, and a right click gives you
-**Enabled** and **Locked** switches. You can hide it on the **General** page.
+frame. The minimap button opens the settings on a left click. A right click gives you **Enabled**
+and **Locked** switches, then **Open settings** and **Open skin selector**. You can hide the button
+on the **General** page.
 
 Everything else is under Settings → AddOns → Ka0s Party Frame Enhanced, which `/pfe` opens, and
 `/pfe help` (or `/partyframeenhanced help`) lists every command.

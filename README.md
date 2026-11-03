@@ -1,4 +1,4 @@
-# Ka0s Party Frame Enhanced
+# Party Frame Enhanced
 
 ![WoW](https://img.shields.io/badge/WoW-Midnight_12.1.5-purple)
 ![CurseForge Version](https://img.shields.io/curseforge/v/1698335)

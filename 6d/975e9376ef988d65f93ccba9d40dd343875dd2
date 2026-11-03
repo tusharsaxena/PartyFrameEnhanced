@@ -1,0 +1,1 @@
+R6 independent review (2026-11-04): R6-RV PASS. libs/LibKa0s/ matches LibKa0s tag v1.85.0 (79d043d) byte for byte apart from the declared icon prune under media/icons; tests/_kit/ matches testkit/ exactly. Only OptionsSkinPicker.lua (picker minor 11) moved. CLAUDE.md provenance already v1.85.0. Fresh gate at HEAD: 645 passed / 0 failed / 1 skipped; luacheck 0/0 in 92 files.

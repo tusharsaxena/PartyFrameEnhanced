@@ -1,0 +1,1 @@
+ka0s-review (R7 adversarial reviewer, 2026-11-04): reviewer's own fix for 8c35911's README wording; checked against core/SkinSetup.lua PREVIEW and libs/LibKa0s/OptionsSkinPicker.lua pick/makeRow. Gate green: 647/0/1, luacheck 0/0. Not pushed.

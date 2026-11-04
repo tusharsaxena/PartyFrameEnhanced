@@ -63,6 +63,10 @@ frame. The minimap button opens the settings on a left click. A right click give
 and **Locked** switches, then **Open settings** and **Open skin selector**. You can hide the button
 on the **General** page.
 
+`/pfe skin` opens the skin picker. Hover over or select a skin to preview it on your bars and frames,
+and **Apply** keeps it. While the picker is up your frames unlock, so the preview has something to
+paint; the eye turns that unlock off and on, and closing the picker locks them again.
+
 Everything else is under Settings → AddOns → Ka0s Party Frame Enhanced, which `/pfe` opens, and
 `/pfe help` (or `/partyframeenhanced help`) lists every command.
 

@@ -578,7 +578,7 @@ It is parked as an enhancement with the collection-wide WoW:F support work, LibK
 | `perf-analysis/README.md` | Present | The performance harness is wired (`core/PerfSetup.lua`) |
 | `slash-dispatch.md` | Present | 19 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
-| `midnight-quirks.md` | Present | The cast bars' and providers' secret-value workarounds (at least one of the addon's own) |
+| `midnight-quirks.md` | Present | Always (documentation-§3): the vendored client-quirks catalog (client-quirks-§1), plus the cast bars' and providers' secret-value workarounds |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 14 shims (the standard's grep over `core/Compat.lua`, `grep -cE '^\s*function\s+[A-Za-z_][A-Za-z0-9_]*\.' core/Compat.lua`), plus `IsSecret` routed from `LibKa0s-Compat-1.0`, which is the library's and is not counted (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Present | The diagnostics report is a debug surface (`/pfe diagnostics`, `modules/Diagnostics.lua`) |

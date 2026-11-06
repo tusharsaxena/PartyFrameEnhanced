@@ -554,7 +554,7 @@ collection's first adopter; only the paths, the brand and the preview are this a
 Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
 #1–#13 were filed from, and #14 was the deferred `LibKa0s-Schema-1.0` adoption, now landed. #15 is a
 player's report from the unsupported WoW:F client (interface 16001): checkbox rows fail to render in the
-settings panel there (`AceGUIWidget-CheckBox.lua:130` calls the global `SetDesaturation`, which WoW:F lacks).
+settings panel there (`AceGUIWidget-CheckBox.lua`'s `SetValue` calls the global `SetDesaturation`, which WoW:F lacks).
 It is parked as an enhancement with the collection-wide WoW:F support work, LibKa0s#44.
 
 ## Documentation map

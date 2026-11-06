@@ -322,7 +322,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **CAST-8. A profile switch from preview (R6-PF1).** `/console scriptErrors 1`. Make two profiles,
   `A` on Ka0s Default and `B` on another skin (Glass), both past the first-run skin picker. On `A`,
   `/pfe unlock` → the preview cast bars show. `/pfe profile B` → the bars repaint in B's skin and B's
-  lock with zero Lua errors. *Failure:* an error naming `CastBars.lua:120` (`attempt to index local
+  lock with zero Lua errors. *Failure:* an error raised in `CastBars.lua` (`attempt to index local
   'u'`). Then `/pfe lock`, `/pfe profile A`, `/pfe unlock`, `/pfe profile B`, `/pfe unlock`, and
   switch back and forth between the two unlocked profiles a few times → still zero Lua errors, and
   the preview casts keep their fill color. Run it once solo and once in a party. Result:

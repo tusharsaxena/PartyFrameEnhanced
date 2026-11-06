@@ -1,0 +1,1 @@
+V89 verify: PASS - payloads byte-identical to v1.89.0 (only undeclared icons absent, all 12 declared present), provenance v1.89.0 + icons line, bundle 01/02/03/05 with plan decisions and no issue, Kit.VERSION 51; luacheck 0 warnings / 0 errors in 92 files; tests 647 passed, 0 failed, 1 skipped (by-design diagnostics opt-out case), 648 total

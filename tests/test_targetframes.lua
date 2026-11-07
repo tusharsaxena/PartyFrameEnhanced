@@ -8,6 +8,19 @@ local NS, mocks = T.NS, T.mocks
 local TargetFrames = NS.TargetFrames
 local buttons = TargetFrames.__buttons
 
+-- Ka0s Default by name, for a case that pins its values: under the forever kit profile the client's
+-- default skin is WoW Forever (LibKa0s v1.94.0, Skin minor 18), so the boot wears that.
+local function testOnKa0s(name, fn)
+  test(name, function()
+    local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
+    local source, skin = Skin:GetChoice("PartyFrameEnhanced")
+    Skin:SetChoice("PartyFrameEnhanced", "ka0s", "ka0s")
+    local ok, err = pcall(fn)
+    Skin:SetChoice("PartyFrameEnhanced", source, skin)
+    if not ok then error(err, 0) end
+  end)
+end
+
 -- Free placement, feature and addon on — written straight into the profile (an earlier suite's
 -- profile reset may have undone them), then republished so every button re-decides.
 local function prep()
@@ -138,7 +151,51 @@ test("targetframes: UNIT_TARGET paints the name, health, percent and marker", fu
   drain()
 end)
 
-test("targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise", function()
+-- WoW Forever's names (client-quirks-§5): names are unique per region, and UnitName answers the first
+-- name and then the SURNAME, where Retail answers the name and then the realm.
+local function withNames(regional, second, fn)
+  local base = mocks.UnitName
+  mocks.UnitName = function(u)
+    if u == "party1target" then return "Traxex", second end
+    return base(u)
+  end
+  mocks.RegionalUniqueNamesEnabled = regional and function() return true end or nil
+  local ok, err = pcall(fn)
+  mocks.UnitName, mocks.RegionalUniqueNamesEnabled = base, nil
+  mocks.__units.party1target = nil
+  drain()
+  if not ok then error(err, 0) end
+end
+
+test("targetframes: on WoW Forever a player target's label is its first name and surname", function()
+  -- red under: a one-value UnitName read, which shows "Traxex" alone on Forever.
+  prep()
+  withNames(true, "Silentshot", function()
+    target("party1", { name = "Traxex", isPlayer = true, class = "HUNTER" })
+    assertEqual(buttons.party1.text.__text, "Traxex Silentshot")
+  end)
+end)
+
+test("targetframes: on Retail the label is the name alone, never the realm", function()
+  prep()
+  withNames(false, "Stormrage", function()
+    target("party1", { name = "Traxex", isPlayer = true, class = "HUNTER" })
+    assertEqual(buttons.party1.text.__text, "Traxex")
+  end)
+end)
+
+test("targetframes: the name label is one line held between the bar's left edge and the percent", function()
+  -- red under: a label free to run past the bar, where a two-word name would overflow the frame.
+  -- Anchored at both ends with word wrap off, the client cuts a long name with an ellipsis.
+  prep()
+  local text = buttons.party1.text
+  assertEqual(text.__wordWrap, false, "one line")
+  assertEqual(text.__nPoints, 2, "anchored at both ends")
+  assertEqual(text.__lastPoint, "RIGHT")
+  assertTrue(text.__lastRel == buttons.party1.text2, "its right edge stops at the percent")
+end)
+
+testOnKa0s("targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise", function()
   prep()
   local cfg = NS.db.profile.target
   target("party1", { name = "Wolf", reaction = 2 })

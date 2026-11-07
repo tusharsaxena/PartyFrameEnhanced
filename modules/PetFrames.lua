@@ -88,7 +88,7 @@ end
 -- the repeat, per button.
 local function logPet(btn)
     if not NS.State.debug then return end
-    local label = NS.SafeToString(UnitName(btn.token) or "none")
+    local label = NS.SafeToString(Compat.UnitCharacterName(btn.token) or "none")
     NS.DebugChanged("Pet:" .. btn.unit, "Pet", "%s pet: %s", btn.unit, label)
 end
 

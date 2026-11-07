@@ -101,6 +101,7 @@ PRESETS.ellesmere = function(f, _, _, r, g, b)
     inset(f.health, f, 1)
     f.name:ClearAllPoints()
     f.name:SetPoint("LEFT", f.health, "LEFT", 4, 0)
+    f.name:SetPoint("RIGHT", f.health, "RIGHT", -4, 0)
 end
 
 -- Blizzard raid-style: Blizzard's raid bar textures in class color, the name top left.
@@ -113,6 +114,7 @@ PRESETS["blizzard-raid"] = function(f, _, _, r, g, b)
     inset(f.health, f, 1)
     f.name:ClearAllPoints()
     f.name:SetPoint("TOPLEFT", f.health, "TOPLEFT", 3, -3)
+    f.name:SetPoint("TOPRIGHT", f.health, "TOPRIGHT", -3, -3)
 end
 
 -- Blizzard classic: the portrait on the left, a green health bar over a power-colored bar, the name
@@ -139,6 +141,7 @@ PRESETS["blizzard-party"] = function(f, _, h)
     f.power:SetHeight(barH)
     f.name:ClearAllPoints()
     f.name:SetPoint("BOTTOMLEFT", f.health, "TOPLEFT", 0, 2)
+    f.name:SetPoint("BOTTOMRIGHT", f.health, "TOPRIGHT", 0, 2)
 end
 
 -- ── the frame ─────────────────────────────────────────────────────────────────────────────────
@@ -170,6 +173,11 @@ local function build()
     f.health = bar(f)
     f.power = bar(f)
     f.name = f.health:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    -- Held to the bar's width on one line: each preset anchors both ends, so a name longer than the
+    -- frame (a first name and surname on WoW Forever, then the test mark) is cut with an ellipsis
+    -- instead of running past the frame's edge.
+    f.name:SetJustifyH("LEFT")
+    f.name:SetWordWrap(false)
     f:Hide()
     return f
 end
@@ -244,7 +252,11 @@ function StandIn.Place(id, source, configured)
     local w, h = place(f, id, source, configured)
     local r, g, b = classColor()
     PRESETS[id](f, w, h, r, g, b)
-    f.name:SetText((UnitName("player") or "") .. " " .. TEST_MARK)
+    -- The character name: first name and surname on WoW Forever (client-quirks-§5). A secret is
+    -- never concatenated, so one reads as no name.
+    local name = Compat.UnitCharacterName("player")
+    if Compat.IsSecret(name) or type(name) ~= "string" then name = "" end
+    f.name:SetText(name .. " " .. TEST_MARK)
     return f
 end
 

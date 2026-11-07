@@ -27,7 +27,7 @@ general.tickInterval  = 0.2      the target health ticker's pace, seconds (pets 
 
 ```text
 skin.source      = "ka0s"   "ka0s" (the Ka0s skin below) | "eui" (EllesmereUI's look)
-skin.skin        = "ka0s"   every registered skin's key: ka0s | obsidian | azeroth | glass | contrast | ember | wow | midnight | forever
+skin.skin        = NS.DEFAULT_SKIN   "forever" on WoW Forever, "ka0s" on Retail (LibKa0s v1.94.0, skinning-§2); every registered skin's key: ka0s | obsidian | azeroth | glass | contrast | ember | wow | midnight | forever
 skin.ignorePanel = true     the Scope: keep the settings panel in the client's own look
 skin.ignoreFonts = false    the Scope: keep every font as the client draws it (the skin still colors the text); the HUD keeps each section's own Font
 skin.font        = ""       the Font override: an LSM font key, "" for the skin's own

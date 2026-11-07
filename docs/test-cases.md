@@ -124,7 +124,7 @@ Total.
 - bus: without the library nothing is recorded, so a stand-down leaves the receivers live (a stated limitation)
 - bus: without the library NS.MSG declares the same four names
 
-### test_compat.lua (10)
+### test_compat.lua (12)
 
 - compat: IsSecret answers false without the client's issecretvalue
 - compat: FrameUnit prefers displayedUnit, then unit, then unitToken, then the attribute
@@ -133,6 +133,8 @@ Total.
 - compat: UseRaidStyleParty reads Edit Mode first and the CVar second
 - compat: IsAddOnLoaded goes through C_AddOns and answers false without it
 - compat: IsSecret answers exactly one boolean, true only for what the client marks secret
+- compat: UnitCharacterName is the library's member on the live load
+- compat: without the library UnitCharacterName answers UnitName's name alone and joins nothing
 - compat: IsSecret is the library's member on the live load
 - compat: without the library the guard stub answers what the library answers, fixture for fixture
 - compat: NS.Compat carries every LibKa0s-Compat-1.0 member it wires
@@ -198,7 +200,7 @@ Total.
 - castbars: preview shows every included bar with placeholder content, and clears on exit
 - castbars: suspended, every bar unregisters and hides; resumed, they come back
 
-### test_targetframes.lua (25)
+### test_targetframes.lua (28)
 
 - targetframes: every button is a secure unit button acting on its owner's target
 - targetframes: the state driver folds General visibility in, and hides what is not allowed
@@ -208,6 +210,9 @@ Total.
 - targetframes: click to target unticked and re-ticked in combat stays on after combat
 - targetframes: click to target sets the attribute and the mouse, both ways
 - targetframes: UNIT_TARGET paints the name, health, percent and marker
+- targetframes: on WoW Forever a player target's label is its first name and surname
+- targetframes: on Retail the label is the name alone, never the realm
+- targetframes: the name label is one line held between the bar's left edge and the percent
 - targetframes: NPCs color by reaction, players by class when asked, the swatch otherwise
 - targetframes: a secret class and a secret reaction never reach a table lookup
 - targetframes: the ticker runs only while someone has a target, and repaints health
@@ -266,7 +271,7 @@ Total.
 - securefollow: the degraded build (LibKa0s absent) loads the module
 - securefollow: teardown — the placement the earlier suites left is put back
 
-### test_rangefade.lua (16)
+### test_rangefade.lua (17)
 
 - rangefade: every cast bar, target frame and pet frame sits under its unit's fade frame
 - rangefade: Blizzard raid-style — the member frame's SetAlpha is copied to its unit
@@ -281,6 +286,7 @@ Total.
 - rangefade: a forbidden child of the party frame is skipped, never read
 - rangefade: a child that refuses its reads but is not flagged forbidden ends the walk there
 - rangefade: a party frame that cannot be read falls back to LOW at a fixed level
+- rangefade: a secret strata falls back to LOW and never indexes the rank table
 - rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW
 - rangefade: a free-placement holder stacks on its elements' strata, under every one of them
 - rangefade: a strata change in combat waits for the secure queue
@@ -313,7 +319,7 @@ Total.
 - status: names the frame system, each unit, each feature, and anything switched off
 - preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (15)
+### test_standin.lua (16)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -323,6 +329,7 @@ Total.
 - standin: a secret size or position is never compared — fallback and center
 - standin: draws beneath what attaches to it, on the strata of the frames it imitates
 - standin: marks the player's name (test), with no corner tag for an element to cover, and drags
+- standin: on WoW Forever the name is the first name and surname, held to the frame's width
 - standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
 - standin: setting and clearing it resolve at once, each sending LAYOUT
@@ -558,9 +565,9 @@ Total.
 ### test_skinsetup.lua (13)
 
 - Skin seam: the owner is the folder name, and NS.Skin is its facade
-- Skin seam: the read answers Ka0s Default before the profile store exists
+- Skin seam: the read answers the client's default skin before the profile store exists
 - Skin seam: the owner's own token keeps Ka0s Default's pixels and follows its role elsewhere
-- Skin seam: the skin keys default to Ka0s Default, and the picker unseen on every profile
+- Skin seam: the skin keys default to the client's default skin, and the picker unseen on every profile
 - Skin seam: every skin key is a skip-render row in General's Appearance group
 - Skin seam: the skin row's values are every registered skin, in the library's order
 - Skin seam: /pfe set refuses a skin that is not registered and applies one that is
@@ -688,6 +695,12 @@ Total.
 - skin switch: a holder's plate changes with the Scope ignored
 - skin switch: a holder's caption changes
 - skin switch: a holder's caption changes with the Scope ignored
+
+### test_client_globals.lua (3)
+
+- client globals: no call of a global a client lacks
+- client globals: every allowlist row has a reason and a finding to excuse
+- client globals: the check is falsifiable, a planted bare call is flagged for both clients
 
 ### test_skin_picker.lua (26)
 
@@ -823,19 +836,19 @@ Total.
 | test_perfsetup.lua | 5 |
 | test_lifecycle.lua | 7 |
 | test_bus.lua | 13 |
-| test_compat.lua | 10 |
+| test_compat.lua | 12 |
 | test_providers.lua | 16 |
 | test_anchor.lua | 11 |
 | test_profile_switch.lua | 8 |
 | test_castbars.lua | 14 |
-| test_targetframes.lua | 25 |
+| test_targetframes.lua | 28 |
 | test_petframes.lua | 11 |
 | test_securefollow.lua | 23 |
-| test_rangefade.lua | 16 |
+| test_rangefade.lua | 17 |
 | test_layers.lua | 5 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
-| test_standin.lua | 15 |
+| test_standin.lua | 16 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
@@ -855,6 +868,7 @@ Total.
 | test_skin_fonts.lua | 12 |
 | test_skin_values.lua | 3 |
 | test_skin_switch.lua | 31 |
+| test_client_globals.lua | 3 |
 | test_skin_picker.lua | 26 |
 | test_skin_outline.lua | 8 |
 | test_skin_verb.lua | 6 |
@@ -865,4 +879,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **647** |
+| **Total** | **657** |

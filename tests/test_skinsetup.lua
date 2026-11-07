@@ -2,8 +2,9 @@
 --
 -- What this addon owes the skin engine, and nothing the library pins itself (LootHistory's
 -- tests/test_skinsetup.lua is the shape): the owner is registered under the folder name with this
--- addon's read and write seams and its own tokens; the skin.* keys default to Ka0s Default and are
--- skip-render schema rows on General's Appearance group; the Skin tab is General's last tab; the
+-- addon's read and write seams and its own tokens; the skin.* keys default to the client's default
+-- skin (Ka0s Default on Retail, WoW Forever on Forever) and are skip-render schema rows on General's
+-- Appearance group; the Skin tab is General's last tab; the
 -- profile's skin is applied when the store exists and FIRST on every profile event; and one pick,
 -- from the tab, a bare `/pfe set` or another addon's copy, is ONE effective SetChoice (one
 -- OnLooksChanged), however many store writes follow it.
@@ -14,6 +15,9 @@ local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 
 local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
 local OWNER = "PartyFrameEnhanced"
+-- The client's default skin under the active kit profile (LibKa0s v1.94.0, skinning-§2): WoW Forever
+-- on forever, Ka0s Default on retail. Pinned from the profile, never read back from the addon.
+local CLIENT_SKIN = dofile("tests/_kit/mock_client.lua").current() == "forever" and "forever" or "ka0s"
 local PATHS = { "skin.source", "skin.skin", "skin.ignorePanel", "skin.ignoreFonts", "skin.font",
   "skin.texture", "skin.outline", "skin.pickerSeen" }
 
@@ -68,7 +72,7 @@ test("Skin seam: the owner is the folder name, and NS.Skin is its facade", funct
   assertEqual(Skin:OwnerLabel(OWNER), "Ka0s Party Frame Enhanced", "the copy confirmation names the brand")
 end)
 
-test("Skin seam: the read answers Ka0s Default before the profile store exists", function()
+test("Skin seam: the read answers the client's default skin before the profile store exists", function()
   -- RegisterOwner calls `get` at FILE LOAD, before NS:InitDB; a getter that raised there would be a
   -- visible Lua error on every login.
   local db = NS.db
@@ -78,7 +82,7 @@ test("Skin seam: the read answers Ka0s Default before the profile store exists",
   NS.db = db
   assertTrue(ok, "NS.SkinChoice raised without a store: " .. tostring(source))
   assertEqual(source, "ka0s")
-  assertEqual(skin, "ka0s")
+  assertEqual(skin, CLIENT_SKIN)
   assertTrue(wok, "NS.WriteSkinChoice raised without a store")
 end)
 
@@ -97,12 +101,12 @@ end))
 
 -- ── the keys and the rows ────────────────────────────────────────────────────────────────────
 
-test("Skin seam: the skin keys default to Ka0s Default, and the picker unseen on every profile", function()
+test("Skin seam: the skin keys default to the client's default skin, and the picker unseen on every profile", function()
   -- red under: a default other than today's look; the Scope moved off LootHistory's (panel left the
   -- client's, fonts skinned); or pickerSeen true, which would skip O3's one-time picker.
   local d = NS.defaults.profile.skin
   assertEqual(d.source, "ka0s")
-  assertEqual(d.skin, "ka0s")
+  assertEqual(d.skin, CLIENT_SKIN, "WoW Forever on Forever, Ka0s Default on Retail")
   assertEqual(d.ignorePanel, true)
   assertEqual(d.ignoreFonts, false)
   assertEqual(d.font, "")

@@ -1,15 +1,17 @@
 local _, NS = ...
 
 -- core/Compat.lua — every version-variant or optional client API this addon calls (compat), and the
--- secret-value guards around them (design spec §7). Retail only: these shim cross-patch differences, never
--- game flavors. Feature modules call NS.Compat.X and never the raw API, so a patch that renames or
--- removes one is a one-file fix. Every global is read at CALL time: 12.0 and 12.1 differ in which
+-- secret-value guards around them (design spec §7). Retail and WoW Forever from one codebase: these shim
+-- cross-patch differences and probe for features, and never ask which client they are on (clients-§3).
+-- Feature modules call NS.Compat.X and never the raw API, so a patch that renames or removes one is a
+-- one-file fix. Every global is read at CALL time: 12.0 and 12.1 differ in which
 -- members exist, and a headless run has none of them.
 NS.Compat = NS.Compat or {}
 local Compat = NS.Compat
 
--- LibKa0s-Compat-1.0 carries the collection's shared secret seam. Only IsSecret is wired from it:
--- every other member here is this addon's own (the library's readers have no caller in this tree).
+-- LibKa0s-Compat-1.0 carries the collection's shared secret seam. Two members are wired from it, IsSecret
+-- and UnitCharacterName (minor 4); every other member here is this addon's own (the library's other
+-- readers have no caller in this tree).
 local CompatLib = LibStub and LibStub("LibKa0s-Compat-1.0", true)
 
 --- True only for a value the client marks secret. `issecretvalue` is a 12.0 global; an older build
@@ -20,6 +22,18 @@ local CompatLib = LibStub and LibStub("LibKa0s-Compat-1.0", true)
 Compat.IsSecret = CompatLib and CompatLib.IsSecret or function(v)
     local f = issecretvalue
     return f ~= nil and f(v) and true or false
+end
+
+--- A unit's character name and realm (client-quirks-§5; LibKa0s-Compat-1.0 minor 4). Where names are
+--- unique per region (WoW Forever), UnitName answers the first name and then the SURNAME, so a
+--- one-value read shows "Traxex" alone; this answers "Traxex Silentshot" there, and UnitName's own
+--- name and realm elsewhere. A unit with no surname (a pet, an NPC) answers its name. A secret name
+--- comes back untouched and is never concatenated. Without the library: UnitName's first return and
+--- no realm, the first name alone on Forever, and nothing joined.
+Compat.UnitCharacterName = CompatLib and CompatLib.UnitCharacterName or function(unit)
+    if not unit or not UnitName then return nil, nil end
+    local name = UnitName(unit)
+    return name, nil
 end
 
 --- Whether an addon is loaded. The presence guard every optional integration goes through

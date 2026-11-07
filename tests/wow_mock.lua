@@ -40,6 +40,15 @@ return function()
       self.__fontPath, self.__fontSize, self.__fontFlags = path, size, flags
     end)
     rawset(r, "GetFont", function(self) return self.__fontPath, self.__fontSize, self.__fontFlags end)
+    -- Whether a text line may wrap, and how many points hold it with the last one's point and
+    -- relative frame, as fields (no table per call, for the same reason). A label anchored at both
+    -- ends with word wrap off is cut with an ellipsis instead of running past its frame.
+    rawset(r, "SetWordWrap", function(self, on) self.__wordWrap = not not on end)
+    rawset(r, "ClearAllPoints", function(self) self.__nPoints = 0 end)
+    rawset(r, "SetPoint", function(self, point, rel)
+      self.__nPoints = (self.__nPoints or 0) + 1
+      self.__lastPoint, self.__lastRel = point, rel
+    end)
     return r
   end
   M.CreateFrame = function(frameType, name, parent, template)

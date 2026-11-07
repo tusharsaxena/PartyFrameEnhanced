@@ -24,7 +24,8 @@ NS.defaults.profile = {
     -- `pickerSeen`: the first-run skin picker was closed on this profile, so every profile, old or
     -- new, shows it once (ruling O3 of the 2026-10-29 rollout).
     skin = {
-        source = "ka0s", skin = "ka0s", ignorePanel = true, ignoreFonts = false,
+        -- The client's default skin: WoW Forever on the Forever client, Ka0s Default on Retail (skinning-§2).
+        source = "ka0s", skin = NS.DEFAULT_SKIN or "ka0s", ignorePanel = true, ignoreFonts = false,
         font = "", texture = "", outline = "hud", pickerSeen = false,
         -- This profile has been through the one step onto the skin (core/Database.lua,
         -- NS.ResetProfileToSkin). False until it has; the step sets it. No schema row, so no Defaults

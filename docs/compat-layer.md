@@ -3,8 +3,8 @@
 `core/Compat.lua` owns every version-variant or optional client API this addon calls, and the
 secret-value guards around them (compat, spec §7). Feature modules call `NS.Compat.X` for those. Stable unit queries that
 never changed shape are called directly from the feature modules rather than wrapped here, for example
-`UnitHealth` / `UnitHealthMax` and `UnitName` (`modules/UnitButtons.lua`, `modules/TargetFrames.lua`,
-`modules/PetFrames.lua`), `UnitClass` / `UnitPowerType` (`modules/StandIn.lua`), `UnitCastingInfo` /
+`UnitHealth` / `UnitHealthMax` (`modules/UnitButtons.lua`), `UnitName` for the unresolved-target test
+alone (`modules/TargetFrames.lua`), `UnitClass` / `UnitPowerType` (`modules/StandIn.lua`), `UnitCastingInfo` /
 `UnitChannelInfo` (the cast-bar ticker's missed-stop check) and `UnitInRange` (`modules/RangeFade.lua`).
 A query about another unit may answer a secret, so its result is only tested for presence, handed
 straight to a C setter or the debug formatter, or passed through `Compat.IsSecret` before any
@@ -13,7 +13,11 @@ headless run has none of them. Shims LibKa0s supplies (metadata, media, the stri
 library's and are not documented here.
 
 `Compat.IsSecret` is one of them: it is routed from `LibKa0s-Compat-1.0` (see that library's own
-documentation), so it is neither counted nor documented as a shim here.
+documentation), so it is neither counted nor documented as a shim here. So is
+`Compat.UnitCharacterName` (Compat minor 4, client-quirks-§5): every name this addon draws or logs
+reads it, because on WoW Forever `UnitName` answers the first name and then the surname, and this
+answers "First Surname" there and UnitName's own name elsewhere. Without the library a two-value stub
+answers UnitName's first return and joins nothing.
 
 | Shim | Wraps | Answers | Why it exists |
 |---|---|---|---|

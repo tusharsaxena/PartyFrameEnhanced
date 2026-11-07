@@ -224,7 +224,7 @@ end
 -- per UNIT_TARGET otherwise.
 local function logTarget(btn)
     if not NS.State.debug then return end
-    local label = NS.SafeToString(UnitName(btn.token) or "nothing")
+    local label = NS.SafeToString(Compat.UnitCharacterName(btn.token) or "nothing")
     NS.DebugChanged("Target:" .. btn.unit, "Target", "%s targets %s", btn.unit, label)
 end
 

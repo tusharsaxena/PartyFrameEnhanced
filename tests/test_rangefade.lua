@@ -352,6 +352,25 @@ case("rangefade: a party frame that cannot be read falls back to LOW at a fixed 
   assertEqual(f1.__strata, "HIGH", "a fixed choice still applies to an unreadable frame")
 end)
 
+case("rangefade: a secret strata falls back to LOW and never indexes the rank table", function()
+  -- red under: the strata read's answer used as a table key unchecked. A secret strata is a string
+  -- (WoW Forever, or Retail under secrets), so the type test passes it, and indexing with a secret
+  -- raises. Here the rank table raises the same way the client would.
+  local SECRET = "SECRET_STRATA"
+  local frames = installRaidStyle({ "player", "party1" })
+  dress(frames.party1, SECRET, 5, 6)
+  Providers.Resolve()
+  mocks.issecretvalue = function(v) return v == SECRET end
+  local rank = NS.Constants.LAYERS.STRATA_RANK
+  setmetatable(rank, { __index = function(_, k)
+    if k == SECRET then error("a secret was used as a table key") end
+  end })
+  local ok, s = pcall(RangeFade.StackFor, "party1")
+  setmetatable(rank, nil)
+  assertTrue(ok, tostring(s))
+  assertEqual(s, "LOW", "the fallback strata, Blizzard's unit frames' own")
+end)
+
 case("rangefade: a fixed strata overrides the party frame's, and nothing to copy lands on LOW", function()
   local frames = installRaidStyle({ "player", "party1" })
   dress(frames.party1, "LOW", 5, 6)

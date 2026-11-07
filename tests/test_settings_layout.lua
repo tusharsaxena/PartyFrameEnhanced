@@ -38,6 +38,10 @@ local function signature(row)
     "shown=" .. ser(row.shownWhen) }, "|")
 end
 
+-- The client's default skin under the active kit profile (LibKa0s v1.94.0, skinning-§2): WoW Forever
+-- on forever, Ka0s Default on retail. Pinned from the profile, never read back from the addon.
+local CLIENT_SKIN = dofile("tests/_kit/mock_client.lua").current() == "forever" and "forever" or "ka0s"
+
 -- Pinned from the schema at the commit before item 020's first edit (93e4eb3). Regenerate only for
 -- a change that is MEANT to add, remove or redefine a setting, never for a layout move.
 local PINNED = {
@@ -147,7 +151,7 @@ local PINNED = {
   ["skin.ignorePanel"] = "general|bool|true|nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["skin.outline"] = "general|string|hud|nil|nil|nil|all,hud,off|false|onChange=true|dim=false|shown=nil",
   ["skin.pickerSeen"] = "general|bool|false|nil|nil|nil|nil|false|onChange=false|dim=false|shown=nil",
-  ["skin.skin"] = "general|string|ka0s|nil|nil|nil|azeroth,contrast,ember,forever,glass,ka0s,midnight,obsidian,wow|false|onChange=true|dim=false|shown=nil",
+  ["skin.skin"] = "general|string|" .. CLIENT_SKIN .. "|nil|nil|nil|azeroth,contrast,ember,forever,glass,ka0s,midnight,obsidian,wow|false|onChange=true|dim=false|shown=nil",
   ["skin.source"] = "general|string|ka0s|nil|nil|nil|eui,ka0s|false|onChange=true|dim=false|shown=nil",
   ["skin.texture"] = "general|string||nil|nil|nil|nil|false|onChange=true|dim=false|shown=nil",
   ["state.debugConsole"] = "general|bool|nil|nil|nil|nil|nil|true|onChange=true|dim=false|shown=nil",

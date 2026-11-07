@@ -19,6 +19,9 @@ reshuffle by a restricted snippet wrapped on the member frames (`modules/SecureF
 yet confirmed in the client); anything that snippet does not cover fades out and comes back on
 `PLAYER_REGEN_ENABLED`.
 
+It runs on **Retail Midnight and WoW Forever** (Interface 120105, 16001), from one codebase; every
+feature serves both clients. English only.
+
 ## What it deliberately does not do
 
 - **Raid frames, or anything out of a party.** The addon is party-only by design: solo or in a raid it

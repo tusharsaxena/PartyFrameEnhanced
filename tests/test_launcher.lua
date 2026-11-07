@@ -15,6 +15,19 @@ local ICON = "Interface\\AddOns\\PartyFrameEnhanced\\media\\logos\\partyframeenh
 -- One fully wired world, built once: every case below reads it or drives it and puts it back.
 local NS, mocks, ldb, icons = loadLauncher()
 
+-- Ka0s Default by name, for a case that pins its values: under the forever kit profile the client's
+-- default skin is WoW Forever (LibKa0s v1.94.0, Skin minor 18), so the boot wears that.
+local function testOnKa0s(name, fn)
+  test(name, function()
+    local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
+    local source, skin = Skin:GetChoice("PartyFrameEnhanced")
+    Skin:SetChoice("PartyFrameEnhanced", "ka0s", "ka0s")
+    local ok, err = pcall(fn)
+    Skin:SetChoice("PartyFrameEnhanced", source, skin)
+    if not ok then error(err, 0) end
+  end)
+end
+
 local function registration() return icons.__registrations.PartyFrameEnhanced end
 local function object() return NS.Launcher:Object() end
 
@@ -304,7 +317,7 @@ test("launcher: each accessor reads the store the Master-controls rows read, on 
   assertEqual(d.version(), tocVersion(), "the version is the TOC's ## Version")
 end)
 
-test("launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two fixed hints", function()
+testOnKa0s("launcher: tooltip while enabled and locked -- title, Enabled, Locked, the two fixed hints", function()
   NS.SetByPath("locked", true)
   local lines = hover()
   assertEqual(#lines, 5, "title, Enabled, Locked, Left-click, Right-click: " .. table.concat(lines, " / "))
@@ -315,7 +328,7 @@ test("launcher: tooltip while enabled and locked -- title, Enabled, Locked, the 
   assertEqual(lines[5], "Right-click: Options menu")
 end)
 
-test("launcher: tooltip while unlocked -- Locked: No, and no Test mode line in any state", function()
+testOnKa0s("launcher: tooltip while unlocked -- Locked: No, and no Test mode line in any state", function()
   NS.SetByPath("locked", false)
   local lines = hover()
   assertEqual(#lines, 5)
@@ -326,7 +339,7 @@ test("launcher: tooltip while unlocked -- Locked: No, and no Test mode line in a
   NS.SetByPath("locked", true)
 end)
 
-test("launcher: tooltip while DISABLED -- still shown, Enabled: No, the same two hints", function()
+testOnKa0s("launcher: tooltip while DISABLED -- still shown, Enabled: No, the same two hints", function()
   -- red under: no tooltip while disabled (anti-pattern #89), or an Enabled line that stays Yes.
   NS.SetByPath("enabled", false)
   settleTimers()

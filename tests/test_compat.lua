@@ -115,7 +115,26 @@ local NOT_WIRED = {
   "GetSpecialization", "GetSpecializationInfo",
   -- LibKa0s v1.92.0 (Compat minor 2) added these four client helpers. No caller here until the Forever port.
   "IsForever", "IsRetail", "ClientKey", "ForClient",
+  -- LibKa0s v1.94.0 (Compat minor 4): the character-identity readers. UnitCharacterName is wired (the
+  -- name labels); these three have no caller here, because AceDB keys the profiles itself.
+  "RegionalNames", "CharacterKey", "RealmKey",
 }
+
+test("compat: UnitCharacterName is the library's member on the live load", function()
+  assertTrue(Compat.UnitCharacterName == mocks.LibStub("LibKa0s-Compat-1.0").UnitCharacterName)
+end)
+
+test("compat: without the library UnitCharacterName answers UnitName's name alone and joins nothing", function()
+  -- The degraded path never concatenates: on WoW Forever that is the first name alone, a lesser label
+  -- but never a raise, and never the realm on Retail.
+  local NS2, mocks2 = loadDegraded()
+  mocks2.UnitName = function() return "Traxex", "Silentshot" end
+  local got = answers(NS2.Compat.UnitCharacterName("party1"))
+  assertEqual(got.n, 2)
+  assertEqual(got[1], "Traxex")
+  assertNil(got[2])
+  assertNil((NS2.Compat.UnitCharacterName(nil)))
+end)
 
 test("compat: IsSecret is the library's member on the live load", function()
   assertTrue(Compat.IsSecret == mocks.LibStub("LibKa0s-Compat-1.0").IsSecret)

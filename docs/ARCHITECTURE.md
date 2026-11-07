@@ -14,6 +14,9 @@ stacks them in one movable free-placement group. Every element fades with its pa
 when that member is out of range (`modules/RangeFade.lua`). What it deliberately leaves out is
 [scope.md](scope.md).
 
+It runs on Retail Midnight and WoW Forever from one codebase (Interface 120105, 16001); see
+[Per-client features](#per-client-features).
+
 It is **party-only**: solo or in a raid it shows nothing and registers nothing. `/pfe unlock` previews
 it anyway, on the real party frames in a party and on a stand-in party frame out of one
 ([the design](superpowers/specs/2026-09-15-test-mode-design.md)).
@@ -24,7 +27,7 @@ and **LibKa0s** vendored whole at the tag `CLAUDE.md`'s provenance line names, e
 launcher. The addon consumes thirteen LibKa0s majors through one setup file each — Media
 (`core/MediaSetup.lua`), Env (`core/EnvSetup.lua`), Core (`core/CoreSetup.lua`), Skin
 (`core/SkinSetup.lua`, [§ Skins](#skins)), Compat
-(`core/Compat.lua`, the `IsSecret` guard only), Bus (`core/Bus.lua`), Lifecycle
+(`core/Compat.lua`, the `IsSecret` guard and the `UnitCharacterName` reader), Bus (`core/Bus.lua`), Lifecycle
 (`core/LifecycleSetup.lua`), Perf (`core/PerfSetup.lua`), DebugLog (`core/DebugLogSetup.lua`),
 Launcher (`core/LauncherSetup.lua`), Schema (`settings/Schema.lua`), Slash (`settings/Slash.lua`)
 and Options (`settings/OptionsSetup.lua`). **Pool, Item and Widgets are vendored, not wired**: fifteen elements
@@ -52,6 +55,40 @@ diagnostics report for bug reports. LibKa0s is re-vendored whole (v1.62.0 in the
 then the tag `CLAUDE.md`'s provenance line names), except `media/icons/`, which is pruned to the
 `CLAUDE.md` `LibKa0s icons:` line (library-stack-§7), and what each re-vendor brought and what this
 addon adopted from it is recorded per tag under [revendor/](revendor/).
+
+### Per-client features
+
+The addon serves Retail and WoW Forever (clients-§1; the roster's Clients value is `Retail · Forever`).
+**All features serve both clients.** No module, settings page or tab, slash verb, launcher entry, key
+binding or event registration carries a `clients` declaration, and the addon never asks which client it
+is on. It ships no seed list (clients-§5). The headless suite runs under both kit profiles (clients-§6),
+and the kit's missing-globals suite checks the tracked source against both clients' API sets.
+
+What the port checked, and what it changed (W2-PF-01, 2026-11-08):
+
+- **The party frames and Edit Mode, read against Blizzard's own UI source** (Gethe/wow-ui-source, the
+  `forever` branch at 1.60.1 (70862) against `live` at 12.1.5 (70783)). `PartyFrame` builds the same
+  `MemberFrame1..4` parent keys through `PartyMemberFramePool` and keeps the same `UpdatePartyFrames`;
+  `PartyMemberFrame.lua` and `PartyFrameTemplates.xml` are byte-identical; `CompactPartyFrame`'s
+  `memberUnitFrames` and `RefreshMembers` exist (Forever adds only OnShow and OnHide hooks);
+  `EditModeManagerFrame:UseRaidStylePartyFrames` and the `EditMode.Exit` EventRegistry event exist on
+  both; and `CompactUnitFrame`'s `outOfRange` flag exists on Forever. The providers
+  (`modules/Providers.lua`) and `Compat.UseRaidStyleParty` were already presence-guarded, so neither
+  changed. How Forever behaves at run time is the smoke's to answer
+  ([smoke-tests.md, WoW Forever](smoke-tests.md#wow-forever)).
+- **The strata read.** `RangeFade.StackFor` tests a party frame's strata for a secret before it indexes
+  the rank table, as the stand-in's `strataOf` already did: a secret strata is a string, so the type
+  test passes it, and indexing a table with a secret raises.
+- **Names** (client-quirks-§5). On Forever, `UnitName` answers the first name and then the surname, so a
+  one-value read shows the first name alone. The target and pet labels, the stand-in's name and the
+  target and pet debug lines read `Compat.UnitCharacterName` (LibKa0s-Compat-1.0 minor 4), which answers
+  "First Surname" where `RegionalUniqueNamesEnabled()` is true and UnitName's own name elsewhere. A pet
+  or an NPC has no surname and reads as before. The target and pet labels sit between the bar's left
+  edge and the percent with word wrap off (`modules/Element.lua`), and the stand-in's name is now
+  anchored across its health bar the same way, so a two-word name too long for the frame is cut with an
+  ellipsis instead of drawn past it.
+- **The default skin** (skinning-§2): a fresh profile wears WoW Forever on Forever and Ka0s Default on
+  Retail (`NS.DEFAULT_SKIN`, `core/SkinSetup.lua`, from LibKa0s v1.94.0's `Skin:DefaultSkin()`).
 
 ## Module Map
 
@@ -521,6 +558,8 @@ collection's first adopter; only the paths, the brand and the preview are this a
 
 ## Known Limitations
 
+- **Retail and WoW Forever** (Interface 120105, 16001), one codebase and no client branching: every
+  feature serves both clients ([Per-client features](#per-client-features)). No Classic flavor.
 - Party only, by design: solo or in a raid of any size nothing shows (`/pfe unlock` previews it). Arena
   frames are not attached to (#11).
 - Blizzard (both layouts) and EllesmereUI are the only frame systems detected; others use free
@@ -553,9 +592,10 @@ collection's first adopter; only the paths, the brand and the preview are this a
 
 Every deferred item is a GitHub issue (#1–#14, #13 still `state:untriaged`); the spec's §10 is the list
 #1–#13 were filed from, and #14 was the deferred `LibKa0s-Schema-1.0` adoption, now landed. #15 is a
-player's report from the unsupported WoW:F client (interface 16001): checkbox rows fail to render in the
-settings panel there (`AceGUIWidget-CheckBox.lua`'s `SetValue` calls the global `SetDesaturation`, which WoW:F lacks).
-It is parked as an enhancement with the collection-wide WoW:F support work, LibKa0s#44.
+player's report from the WoW Forever client (interface 16001), then unsupported: checkbox rows failed to
+render in the settings panel there (`AceGUIWidget-CheckBox.lua`'s `SetValue` called the global
+`SetDesaturation`, which Forever lacks). The vendored Ace3 (ac3d1225, CheckBox v27) carries the fix and
+the addon now serves Forever; smoke check FOREVER-4 is the client's word on it.
 
 ## Documentation map
 

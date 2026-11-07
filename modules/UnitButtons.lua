@@ -127,10 +127,13 @@ function UnitButtons.RenderFull(btn)
     UnitButtons.Invalidate(btn)
 end
 
---- The unit's name (possibly secret — SetText takes it as is), or nothing.
+--- The unit's name (possibly secret — SetText takes it as is), or nothing. A player's name is the
+--- character name, first name and surname on WoW Forever (Compat.UnitCharacterName); the label is
+--- anchored between the bar's left edge and the percent with word wrap off (modules/Element.lua), so a
+--- name too long for the bar is cut with an ellipsis, never drawn past it.
 function UnitButtons.RenderName(btn, token, showName)
     if showName then
-        local name = UnitName(token)
+        local name = Compat.UnitCharacterName(token)
         btn.text:SetText(name or "")
     else
         btn.text:SetText("")

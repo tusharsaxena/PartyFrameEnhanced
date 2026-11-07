@@ -156,6 +156,31 @@ test("standin: marks the player's name (test), with no corner tag for an element
   assertTrue(not StandIn.IsShown())
 end)
 
+test("standin: on WoW Forever the name is the first name and surname, held to the frame's width", function()
+  -- red under: a one-value UnitName read ("Traxex" alone on Forever, client-quirks-§5), or a name
+  -- anchored at one end only, which ran past a 72 px raid-style frame.
+  local base = mocks.UnitName
+  mocks.UnitName = function(u)
+    if u == "player" then return "Traxex", "Silentshot" end
+    return base(u)
+  end
+  mocks.RegionalUniqueNamesEnabled = function() return true end
+  local ok, err = pcall(function()
+    for _, id in ipairs({ "ellesmere", "blizzard-raid", "blizzard-party" }) do
+      local f = StandIn.Place(id, nil)
+      assertTrue(f.name.__text:find("Traxex Silentshot", 1, true) == 1, id .. ": " .. tostring(f.name.__text))
+      assertEqual(f.name.__wordWrap, false, id .. ": one line")
+      assertEqual(f.name.__nPoints, 2, id .. ": anchored at both ends, so a long name is cut")
+    end
+    mocks.RegionalUniqueNamesEnabled = nil
+    local retail = StandIn.Place("ellesmere", nil).name.__text
+    assertTrue(retail:find("Traxex ", 1, true) == 1 and not retail:find("Silentshot", 1, true),
+      "on Retail the second return is the realm, and it is never drawn: " .. retail)
+  end)
+  mocks.UnitName, mocks.RegionalUniqueNamesEnabled = base, nil
+  if not ok then error(err, 0) end
+end)
+
 test("standin: imitating EllesmereUI, its configured party size beats what the hidden button measures", function()
   -- red under: copying the hidden first party button, which EllesmereUI styles at its RAID size
   -- (_StyleButtonSecure) until ReloadPartyFrames gives it the party size. Seen in game as a stand-in

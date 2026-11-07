@@ -272,8 +272,10 @@ function RangeFade.StackFor(unit)
     if not readable(frame) then return fixed or FALLBACK_STRATA, uiBase() + LEVEL.UNREADABLE end
     local strata = fixed
     if not strata then
+        -- The secret test comes before the index: a secret strata is a string, and indexing a
+        -- table with a secret raises (modules/StandIn.lua's strataOf holds the same line).
         local ok, s = pcall(frame.GetFrameStrata, frame)
-        strata = (ok and type(s) == "string" and RANK[s]) and s or FALLBACK_STRATA
+        strata = (ok and type(s) == "string" and not Compat.IsSecret(s) and RANK[s]) and s or FALLBACK_STRATA
     end
     return strata, math.min(topLevel(frame) + LEVEL.HOST_STEP, LEVEL.CEILING)
 end

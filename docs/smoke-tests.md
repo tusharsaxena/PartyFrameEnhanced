@@ -994,58 +994,58 @@ and a target dummy.
 
 - **FOREVER-1. The AddOns list.** At character select → **Ka0s Party Frame Enhanced** is listed with
   its logo and is **not** marked *Out of date*, and "Load out of date AddOns" does not need to be ticked
-  for it to load. Result: owed
+  for it to load. Result: passed (owner, 2026-11-08)
 - **FOREVER-2. A fresh install loads clean.** With no `PartyFrameEnhanced.lua` in Forever's
   SavedVariables, log in solo → zero Lua errors, `[PFE]` lines in chat, and nothing drawn (the addon is
-  party-only). Result: owed
+  party-only). Result: passed (owner, 2026-11-08)
 - **FOREVER-3. The settings panel.** Out of combat, `/pfe` and the minimap button's left-click → the
   panel opens on the **Ka0s Party Frame Enhanced** landing page; walk General, Cast Bars, Target Frames,
-  Pet Frames and Profiles → every page draws, with no error. Result: owed
+  Pet Frames and Profiles → every page draws, with no error. Result: passed (owner, 2026-11-08)
 - **FOREVER-4. Checkboxes and the color picker (#15).** On General and a feature page, tick and untick
   several boxes → each draws its check and its grayed state, and no `SetDesaturation` error appears
   (the Ace3 CheckBox fix). Open a color swatch, drag the opacity to about 25% and accept → the element
-  is faint, not nearly opaque. Result: owed
+  is faint, not nearly opaque. Result: passed (owner, 2026-11-08)
 - **FOREVER-5. Raid-style party frames.** In a party, Edit Mode's party frame setting **Use Raid-Style
   Party Frames** on → a cast bar, a target frame and a pet frame attach beside each member's frame,
   the player's included, as CAST-1 and UNIT-1 on Retail; `/pfe debug on` and the `[Init]` line names
-  Blizzard raid-style. Result: owed
+  Blizzard raid-style. Result: passed (owner, 2026-11-08)
 - **FOREVER-6. Classic party frames.** The same setting off, `/reload` if the frames do not swap → the
   elements attach to each party member's classic frame; the player's own have no frame there and sit in
-  free placement, as on Retail (#8). Result: owed
+  free placement, as on Retail (#8). Result: passed (owner, 2026-11-08)
 - **FOREVER-7. Edit Mode re-anchors.** Open Edit Mode, move the party frames, and close it → on exit
   every element moves to its member's new position at once, with no error, on both layouts.
-  Result: owed
+  Result: passed (owner, 2026-11-08)
 - **FOREVER-8. Two-word names on the target frames.** Have a party member target another player →
   the target frame shows that player's **first name and surname** ("Traxex Silentshot"), not the first
   name alone; a name too long for the frame ends in an ellipsis inside the bar, before the percent, and
   never runs past the frame. Target an NPC → its name, as on Retail. Clear the target → the frame
-  hides. Result: owed
+  hides. Result: passed (owner, 2026-11-08)
 - **FOREVER-9. Pet frames.** With a Hunter or Warlock's pet out → its pet frame shows the pet's name
-  and health; dismiss it → the frame hides. Result: owed
+  and health; dismiss it → the frame hides. Result: passed (owner, 2026-11-08)
 - **FOREVER-10. The stand-in out of a group.** Solo, `/pfe unlock` → the stand-in party frame shows
   with your **first name and surname** and the gray *(test)* mark; on the raid-style look (72 px wide)
   the line is cut with an ellipsis inside the frame rather than running past it. Drag it, then
-  `/pfe lock` → it goes away. Result: owed
+  `/pfe lock` → it goes away. Result: passed (owner, 2026-11-08)
 - **FOREVER-11. Range fade.** Walk away from a party member past 40 yards → their elements fade with
-  their party frame on raid-style, and to half on classic; walk back → full alpha. Result: owed
+  their party frame on raid-style, and to half on classic; walk back → full alpha. Result: passed (owner, 2026-11-08)
 - **FOREVER-12. Cast bars.** A party member casts, channels, and is interrupted → the bar fills, drains
   for the channel, and shows the client's interrupted word in the failed color, as CAST-2 to CAST-4 on
-  Retail. Result: owed
+  Retail. Result: passed (owner, 2026-11-08)
 - **FOREVER-13. Profiles across a full restart.** Create profile `SmokeTest` on the Profiles page, move
   the free-placement group and change a cast bar width, then **exit the client completely** and start
   it again → the same profile is active with both changes. The Profiles page names this character's
-  profile key (first name and surname) with no error. Delete `SmokeTest` afterwards. Result: owed
+  profile key (first name and surname) with no error. Delete `SmokeTest` afterwards. Result: passed (owner, 2026-11-08)
 - **FOREVER-14. The default skin per client.** On a fresh profile (Profiles page, **New**), the Skin tab
   reads **WoW Forever** and the HUD and holders wear it. On **Retail**, the same step reads **Ka0s
-  Default**. Result: owed
+  Default**. Result: passed (owner, 2026-11-08)
 - **FOREVER-15. The launcher and diagnostics.** Right-click the minimap button → the menu titled `Ka0s
   Party Frame Enhanced` with **Enabled** and **Locked**, each working as LAUNCH-4 describes.
   `/pfe diagnostics`, out of combat and in a party → no Lua error, and the report's `client:` line reads
-  `version=1.60.1` and `interface=16001`. Result: owed
+  `version=1.60.1` and `interface=16001`. Result: passed (owner, 2026-11-08)
 - **FOREVER-16. Combat.** In a party, on the raid-style layout, pull a dummy → the elements stay with
   their members, a click on a target frame targets that unit, `/pfe` prints COMBAT-1's gray refusal
   and opens no panel, and leaving combat shows no taint warning (`/console taintLog 1` and the client's
-  `Logs/taint.log` names no `PartyFrameEnhanced` taint). Result: owed
+  `Logs/taint.log` names no `PartyFrameEnhanced` taint). Result: passed (owner, 2026-11-08)
 
 ## Non-English client
 
@@ -1136,3 +1136,5 @@ LibKa0s v1.94.0, which reopens INSTALL-4.
 The LibKa0s v1.91.0 re-vendor (2026-11-06, FU-RV-PFE) reopens INSTALL-4. It changes nothing a player sees in this addon: the line-chart pixel change touches a widget this addon does not draw, and the four peels (CorePixel, WidgetsDropdown, SkinPaintHud, SkinAceConfirm) move code with no member or behavior change. The owner's in-game pass of that run (Ka0sAddonsCommonTasks `docs/2026-11-06-FOLLOWUPS_V1_91/`, SM-1 and SM-2, 2026-11-06) is recorded there; INSTALL-4's own icon checks are owed.
 
 On 2026-11-02 the owner reported that every check on the smoke lists of the full skinning run and its smoke feedback batch (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/` and `docs/2026-11-01-SMOKE_FEEDBACK/`) passed, apart from DpsRace's clock font, the skinned look of the AceGUI Dropdown and the Ka0sMedia_Font and Ka0sMedia_Statusbar pickers, FadeNineSlice and IconBorder (`docs/2026-11-02-SMOKE_ROUND3/`, R3-SMOKE). Passed, recorded on each `Result:` line as `Passed (owner, 2026-11-02)`: INSTALL-4, LAYER-2, PANEL-8, SKIN-1, SKIN-5, SKIN-24, SKIN-25, SKIN-27, SKIN-32, SKIN-33, SKIN-34, SKIN-35, SKIN-37, SKIN-38 and UNIT-9. Failed, re-opened as R3-L3 (IconBorder's 1 px outline and zoom) and recorded as `Failed (owner, 2026-11-02): re-opened as R3-L3`: SKIN-36. Still owed: SKIN-4, whose expected result the third smoke round itself changed after the owner's run.
+
+On 2026-11-08 the owner reported that every check of the WoW Forever port (W2-PF-01, Ka0sAddonsCommonTasks `docs/2026-11-07-WOW_FOREVER_PORT_STEP5/04_WAVE2_SMOKE.md`) passed, with a Retail sanity pass: FOREVER-1 to FOREVER-16, each recorded on its `Result:` line as `passed (owner, 2026-11-08)`.

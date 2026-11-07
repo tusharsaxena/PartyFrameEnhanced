@@ -117,6 +117,7 @@ Kit.run{
     "test_skin_fonts",
     { name = "test_skin_values", dir = "tests/_kit/" },
     { name = "test_skin_switch", dir = "tests/_kit/" },
+    { name = "test_client_globals", dir = "tests/_kit/" },
     "test_skin_picker",
     "test_skin_outline",
     "test_skin_verb",

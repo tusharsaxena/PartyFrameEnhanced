@@ -6,7 +6,7 @@
 ![Standard](https://img.shields.io/badge/Ka0s-WoW_Addon_Standard-yellow)
 ![Tests](https://img.shields.io/badge/Tests-647%2F647_passing-green)
 
-Party frames show you everyone's health. They don't show you what the healer is halfway through
+Retail only for now; WoW Forever support is planned. Party frames show you everyone's health. They don't show you what the healer is halfway through
 casting, or which mob the tank actually has targeted. Party Frame Enhanced puts that next to each
 party member's frame: a cast bar, a small frame for whatever they're targeting, and one for their pet.
 

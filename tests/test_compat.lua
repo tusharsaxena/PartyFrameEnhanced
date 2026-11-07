@@ -113,6 +113,8 @@ local NOT_WIRED = {
   "CanAccess", "IsSafeKey",
   "GetSpellInfo", "GetSpellName", "GetSpellTexture", "GetSpellCooldown",
   "GetSpecialization", "GetSpecializationInfo",
+  -- LibKa0s v1.92.0 (Compat minor 2) added these four client helpers. No caller here until the Forever port.
+  "IsForever", "IsRetail", "ClientKey", "ForClient",
 }
 
 test("compat: IsSecret is the library's member on the live load", function()

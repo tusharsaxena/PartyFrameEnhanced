@@ -68,6 +68,24 @@ if not lib then
         BuildDiagnostics = function()
             return { lines = {}, dropped = 0, capped = false, capsHit = false }
         end,
+        -- A multi-line report (DebugLogDiagnostics 11, LibKa0s#79): with no console to write into,
+        -- the lines stream to chat with no pointer line, and the count comes back like the live one.
+        -- Called as a method, so the first parameter is self.
+        Report          = function(_, _, fn)
+            local n = 0
+            if type(fn) == "function" then
+                fn(function(line)
+                    n = n + 1
+                    if NS.Print then NS.Print(NS.SafeToString and NS.SafeToString(line) or tostring(line)) end
+                end)
+            end
+            return n
+        end,
+        -- The report's value serializer (DebugLogDiagnostics 11): one safe line, no table walk.
+        Serialize       = function(_, v)
+            local safe = NS.SafeToString or tostring
+            return { safe(type(v) == "table" and "<table>" or v) }
+        end,
         DebugVerb       = function(self, rest)
             local word = (tostring(rest or ""):match("^%s*(%S*)") or ""):lower()
             if word == "diagnostics" then self:RunDiagnostics() return true end

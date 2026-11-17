@@ -146,6 +146,9 @@ if not lib then
         -- The Skin tab (LibKa0s v1.78.0) and the first-run skin picker (v1.79.0): AppearanceTab is
         -- called at render in the live arm only, and the picker needs the panel, so nil is honest.
         "AppearanceTab", "AppearanceRows", "SkinPicker", "HideSkinPicker",
+        -- The one-tab side strip (LibKa0s v1.100.0, OptionsNav minor 7): it draws on a panel, and
+        -- there is none without the library.
+        "SideTabs",
     }) do
         Helpers[name] = function() end
     end

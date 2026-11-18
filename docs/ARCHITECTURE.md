@@ -196,7 +196,11 @@ wording of. `skin` and the three verbs that drive what this addon draws — `res
 `unlock` — are what is left. `profile` keeps its sub-verbs and routes the list and every switch (`profile <name>`,
 `profile use <name>`) through the library's `cli:CliProfile` / `cli:ProfileSwitch` (Slash minor 17),
 given the store through the descriptor's `profiles` field, so an unknown name is refused and never
-created. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
+created. `status` is this addon's one report verb besides `diagnostics` (debug-logging-§15): its
+lines go to the debug console through `NS.DebugLog:Report`, ungated, with the console revealed and
+one chat pointer, and without the library the stub prints them in chat with no pointer. Every other
+verb's output (acknowledgments, refusals, usage, the help index, `/pfe list`, the profile list) stays
+in chat. Table and behavior: [slash-dispatch.md](slash-dispatch.md).
 
 ## Launcher
 
@@ -243,7 +247,7 @@ library's, the same on every addon (launcher-§2), rather than a preference.
 
 Every row in this table registers through `NS.SafeRegisterEvent` / `NS.SafeRegisterUnitEvent` /
 `NS.SafeRegisterEvents` (LibKa0s-Core minor 8, published in `core/CoreSetup.lua`), so a name the client
-refuses costs only itself and lands once in `NS.RejectedEvents`, which `/pfe status` prints
+refuses costs only itself and lands once in `NS.RejectedEvents`, which the `/pfe status` report names
 (events-frames-taint-§1; `docs/midnight-quirks.md`).
 
 **Every registration in this table except the last comes off while the addon is stood down** — for

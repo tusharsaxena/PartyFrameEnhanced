@@ -68,10 +68,11 @@ if not lib then
         BuildDiagnostics = function()
             return { lines = {}, dropped = 0, capped = false, capsHit = false }
         end,
-        -- A multi-line report (DebugLogDiagnostics 11, LibKa0s#79): with no console to write into,
-        -- the lines stream to chat with no pointer line, and the count comes back like the live one.
-        -- Called as a method, so the first parameter is self.
-        Report          = function(_, _, fn)
+        -- A multi-line report (DebugLog 23, LibKa0s#79; debug-logging-§15): with no console to write
+        -- into, the lines stream to chat with no pointer line, and the count comes back like the
+        -- live one. Called as a method, D:Report(tag, title, fn), so the body is the FOURTH
+        -- parameter: self, tag and title come first.
+        Report          = function(_, _, _, fn)
             local n = 0
             if type(fn) == "function" then
                 fn(function(line)
@@ -149,6 +150,8 @@ NS.DebugLog = lib:New({
     -- diagnostic text, like every trace line, and never goes through NS.L.
     L = {
         DIAG_WRITTEN = NS.L["Diagnostic report written to the debug console: %d lines. Use Copy to share it."],
+        -- The one pointer line a report verb prints (`/pfe status`; DebugLog minor 23, LibKa0s#79).
+        REPORT_WRITTEN = NS.L["%s: %d lines written to the debug console. Use Copy to share it."],
     },
 
     -- So a console opened by `/pfe debug` moves the checkbox on an already-open options panel.

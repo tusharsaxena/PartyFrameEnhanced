@@ -50,6 +50,21 @@ _G.PFE_TEST = Kit.expose{
   -- What the loader was actually fed, so tests/test_loadorder.lua compares it against a fresh read.
   loadedAddonFiles = ADDON_FILES,
   loadedLibFiles   = LIB_FILES,
+  -- The debug-console lines `fn` wrote (the plain buffer) and the chat lines it printed. A report
+  -- verb (`/pfe status`, debug-logging-§15) writes its body to the console and one pointer line to
+  -- chat, so a suite asserting on the report reads the first list and one asserting on the pointer
+  -- the second. The buffer is cleared first when it nears its cap, so a compaction cannot land
+  -- mid-capture and shift the index this reads from.
+  console = function(fn)
+    local D = NS.DebugLog
+    if #D.buffer > 2000 then D:Clear() end
+    local before, chatBefore = #D.buffer, #mocks.__chat
+    fn()
+    local lines, chat = {}, {}
+    for i = before + 1, #D.buffer do lines[#lines + 1] = D.buffer[i] end
+    for i = chatBefore + 1, #mocks.__chat do chat[#chat + 1] = mocks.__chat[i] end
+    return lines, chat
+  end,
 }
 
 -- The consumer facts for the kit's shared diagnostics contract (debug-logging-§14), run against

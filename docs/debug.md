@@ -12,10 +12,10 @@ Party Frame Enhanced has two debug surfaces, and both write into the same window
   each line means.
 
 The console itself is the library's, and its contract lives in LibKa0s's
-[`docs/api/DebugLog/version-19.2.1-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-19.2.1-docs.md)
-(DebugLog 19.2.1 is the vendored minor, at the LibKa0s tag `CLAUDE.md`'s provenance line names). This page covers only what Party Frame
-Enhanced adds on top. `/pfe status` is a third way to look inside, but it prints a short summary to
-chat and is not a debug surface; [slash-dispatch.md](slash-dispatch.md) has it.
+[`docs/api/DebugLog/version-23.11.1.5-docs.md`](https://github.com/tusharsaxena/LibKa0s/blob/master/docs/api/DebugLog/version-23.11.1.5-docs.md)
+(DebugLog 23.11.1.5 is the vendored minor, at the LibKa0s tag `CLAUDE.md`'s provenance line names). This page covers only what Party Frame
+Enhanced adds on top. `/pfe status` is a third way to look inside: a short report written to this
+console (*Reports*, below); [slash-dispatch.md](slash-dispatch.md) has what it says.
 
 ## The console
 
@@ -214,6 +214,24 @@ load, the report is the markers and the identity header around no sections.
 With no LibKa0s the stub's `RunDiagnostics` prints
 `/pfe diagnostics is unavailable: the LibKa0s library did not load.` for both forms, writes nothing
 and returns 0.
+
+## Reports
+
+A report is a multi-line read-out a player asks for by name (debug-logging-§15, the owner's ruling of
+2026-11-08). Party Frame Enhanced has two report verbs, and both write to this console with one chat
+pointer:
+
+| Verb | How it writes |
+|---|---|
+| `/pfe status` | `NS.DebugLog:Report("Status", "status", …)` in `settings/Slash.lua`: a `/pfe status` header and the summary under the `[Status]` tag, through the **ungated** append, so it lands with logging off and leaves the flag as it was. The console opens if it is hidden, and chat gets exactly one line, *status: N lines written to the debug console. Use Copy to share it.* (`REPORT_WRITTEN`, through `NS.L`). It takes no argument and has no refusal of its own. |
+| `/pfe diagnostics` | The diagnostics report below, through its own helper and its own pointer line (§14). |
+
+Without LibKa0s the stub's `Report` prints the report's lines in chat with no pointer: the player asked
+for it, and chat is the only place left. Everything else stays in chat: acknowledgments, refusals,
+usage, the help index, `/pfe list` and the profile list. `perf`'s `report` and `dump` are the Perf
+library's and already write to this console through the harness's `log` sink (`core/PerfSetup.lua`).
+The cases are in `tests/test_slash.lua` (`status` ungated, revealed, one pointer, the locale's pointer,
+and the stub's chat arm).
 
 ## Where else this is pinned
 

@@ -81,16 +81,24 @@ test("preview: a profile saved unlocked comes back in preview", function()
   assertFalse(NS.State.preview)
 end)
 
+-- The `/pfe status` report as one string: since AD-79-PFE it is written to the debug console
+-- (debug-logging-§15) and chat carries only its pointer.
+local function status()
+  local lines = T.console(function() NS.Slash:OnSlash("status") end)
+  NS.DebugLog:Hide()
+  return table.concat(lines, "\n")
+end
+
 test("status: names the frame system, each unit, each feature, and anything switched off", function()
   NS.db.profile.visibility = "never"
-  local out = slash("status")
+  local out = status()
   NS.db.profile.visibility = "always"
   assertTrue(out:find("Frame system: none found", 1, true) ~= nil)
   assertTrue(out:find("Party 1", 1, true) ~= nil)
   assertTrue(out:find("Cast bars: on", 1, true) ~= nil)
   assertTrue(out:find("visibility never", 1, true) ~= nil)
   slash("unlock")
-  assertTrue(slash("status"):find("unlocked", 1, true) ~= nil)
+  assertTrue(status():find("unlocked", 1, true) ~= nil)
   slash("lock")
 end)
 

@@ -7,6 +7,10 @@ local test, assertEqual, assertTrue, assertNil = T.test, T.assertEqual, T.assert
 local NS, mocks = T.NS, T.mocks
 local Providers, StandIn = NS.Providers, NS.StandIn
 
+-- Sample characters (preview-mode's convention, LibKa0s#87, AD-87-PFE): every made-up person in these
+-- cases is a row of Sim.Sample(client), never a real-looking name or a real realm.
+local Sample = mocks.LibStub("LibKa0s-Sim-1.0").Sample
+
 -- A hidden member frame answering the four getters the stand-in reads.
 local function source(w, h, left, top, scale)
   local f = mocks.CreateFrame("Frame")
@@ -157,24 +161,25 @@ test("standin: marks the player's name (test), with no corner tag for an element
 end)
 
 test("standin: on WoW Forever the name is the first name and surname, held to the frame's width", function()
-  -- red under: a one-value UnitName read ("Traxex" alone on Forever, client-quirks-§5), or a name
-  -- anchored at one end only, which ran past a 72 px raid-style frame.
+  -- red under: a one-value UnitName read ("Samplehunter" alone on Forever, client-quirks-§5), or a
+  -- name anchored at one end only, which ran past a 72 px raid-style frame.
+  local hunter = Sample("forever")[1]
   local base = mocks.UnitName
   mocks.UnitName = function(u)
-    if u == "player" then return "Traxex", "Silentshot" end
+    if u == "player" then return hunter.name, hunter.surname end
     return base(u)
   end
   mocks.RegionalUniqueNamesEnabled = function() return true end
   local ok, err = pcall(function()
     for _, id in ipairs({ "ellesmere", "blizzard-raid", "blizzard-party" }) do
       local f = StandIn.Place(id, nil)
-      assertTrue(f.name.__text:find("Traxex Silentshot", 1, true) == 1, id .. ": " .. tostring(f.name.__text))
+      assertTrue(f.name.__text:find("Samplehunter Mockstride", 1, true) == 1, id .. ": " .. tostring(f.name.__text))
       assertEqual(f.name.__wordWrap, false, id .. ": one line")
       assertEqual(f.name.__nPoints, 2, id .. ": anchored at both ends, so a long name is cut")
     end
     mocks.RegionalUniqueNamesEnabled = nil
     local retail = StandIn.Place("ellesmere", nil).name.__text
-    assertTrue(retail:find("Traxex ", 1, true) == 1 and not retail:find("Silentshot", 1, true),
+    assertTrue(retail:find("Samplehunter ", 1, true) == 1 and not retail:find("Mockstride", 1, true),
       "on Retail the second return is the realm, and it is never drawn: " .. retail)
   end)
   mocks.UnitName, mocks.RegionalUniqueNamesEnabled = base, nil

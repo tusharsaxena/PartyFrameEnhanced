@@ -6,6 +6,10 @@ local test, assertEqual, assertTrue, assertFalse, assertNil =
 local NS, mocks = T.NS, T.mocks
 local Compat = NS.Compat
 
+-- Sample characters (preview-mode's convention, LibKa0s#87, AD-87-PFE): every made-up person in these
+-- cases is a row of Sim.Sample(client), never a real-looking name or a real realm.
+local Sample = mocks.LibStub("LibKa0s-Sim-1.0").Sample
+
 -- A stand-in for a client secret: issecretvalue answers true for it and nothing else. It is a
 -- table, so a comparison against a string answers false rather than raising — the cases below
 -- therefore assert the guard's RESULT, which is what a secret would change.
@@ -128,10 +132,11 @@ test("compat: without the library UnitCharacterName answers UnitName's name alon
   -- The degraded path never concatenates: on WoW Forever that is the first name alone, a lesser label
   -- but never a raise, and never the realm on Retail.
   local NS2, mocks2 = loadDegraded()
-  mocks2.UnitName = function() return "Traxex", "Silentshot" end
+  local hunter = Sample("forever")[1]
+  mocks2.UnitName = function() return hunter.name, hunter.surname end
   local got = answers(NS2.Compat.UnitCharacterName("party1"))
   assertEqual(got.n, 2)
-  assertEqual(got[1], "Traxex")
+  assertEqual(got[1], "Samplehunter")
   assertNil(got[2])
   assertNil((NS2.Compat.UnitCharacterName(nil)))
 end)

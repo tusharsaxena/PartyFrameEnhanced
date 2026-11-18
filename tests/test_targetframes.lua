@@ -8,6 +8,11 @@ local NS, mocks = T.NS, T.mocks
 local TargetFrames = NS.TargetFrames
 local buttons = TargetFrames.__buttons
 
+-- Sample characters (preview-mode's convention, LibKa0s#87, AD-87-PFE): every made-up person in these
+-- cases is a row of Sim.Sample(client), never a real-looking name or a real realm.
+local Sample = mocks.LibStub("LibKa0s-Sim-1.0").Sample
+local HUNTER, MAGE = Sample("forever")[1], Sample("retail")[3]
+
 -- Ka0s Default by name, for a case that pins its values: under the forever kit profile the client's
 -- default skin is WoW Forever (LibKa0s v1.94.0, Skin minor 18), so the boot wears that.
 local function testOnKa0s(name, fn)
@@ -156,7 +161,7 @@ end)
 local function withNames(regional, second, fn)
   local base = mocks.UnitName
   mocks.UnitName = function(u)
-    if u == "party1target" then return "Traxex", second end
+    if u == "party1target" then return HUNTER.name, second end
     return base(u)
   end
   mocks.RegionalUniqueNamesEnabled = regional and function() return true end or nil
@@ -168,19 +173,19 @@ local function withNames(regional, second, fn)
 end
 
 test("targetframes: on WoW Forever a player target's label is its first name and surname", function()
-  -- red under: a one-value UnitName read, which shows "Traxex" alone on Forever.
+  -- red under: a one-value UnitName read, which shows "Samplehunter" alone on Forever.
   prep()
-  withNames(true, "Silentshot", function()
-    target("party1", { name = "Traxex", isPlayer = true, class = "HUNTER" })
-    assertEqual(buttons.party1.text.__text, "Traxex Silentshot")
+  withNames(true, HUNTER.surname, function()
+    target("party1", { name = HUNTER.name, isPlayer = true, class = HUNTER.classFile })
+    assertEqual(buttons.party1.text.__text, "Samplehunter Mockstride")
   end)
 end)
 
 test("targetframes: on Retail the label is the name alone, never the realm", function()
   prep()
-  withNames(false, "Stormrage", function()
-    target("party1", { name = "Traxex", isPlayer = true, class = "HUNTER" })
-    assertEqual(buttons.party1.text.__text, "Traxex")
+  withNames(false, Sample("retail")[1].realm, function()
+    target("party1", { name = HUNTER.name, isPlayer = true, class = HUNTER.classFile })
+    assertEqual(buttons.party1.text.__text, "Samplehunter")
   end)
 end)
 
@@ -203,10 +208,10 @@ testOnKa0s("targetframes: NPCs color by reaction, players by class when asked, t
   target("party1", { name = "Guard", reaction = 5 })
   assertEqual(buttons.party1.bar.__color[1], cfg.friendlyColor.r, "friendly NPC")
   NS.SetByPath("target.useClassColorBar", true)
-  target("party1", { name = "Jaina", isPlayer = true, class = "MAGE" })
+  target("party1", { name = MAGE.name, isPlayer = true, class = MAGE.classFile })
   assertEqual(buttons.party1.bar.__color[1], mocks.RAID_CLASS_COLORS.MAGE.r, "player in class color")
   NS.SetByPath("target.useClassColorBar", false)
-  target("party1", { name = "Jaina", isPlayer = true, class = "MAGE" })
+  target("party1", { name = MAGE.name, isPlayer = true, class = MAGE.classFile })
   assertEqual(buttons.party1.bar.__color[1], cfg.barColor.r, "companion off: the stored swatch")
   mocks.__units.party1target = nil
   drain()

@@ -16,6 +16,8 @@ local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 
 local Element = NS.Element
 local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
+-- The sample mage (Sim.Sample, preview-mode's convention, LibKa0s#87, AD-87-PFE): never a real name.
+local MAGE = mocks.LibStub("LibKa0s-Sim-1.0").Sample("retail")[3]
 local OWNER = "PartyFrameEnhanced"
 local S = NS.Skin
 local SECTIONS = { "castbar", "target", "pet" }
@@ -375,7 +377,7 @@ end))
 test("skin flip: a party member's class still comes first through the unit resolver", onSkin("obsidian", function()
   -- red under: a unit resolver that never says the class resolved, which the skin would paint over.
   local c = mocks.RAID_CLASS_COLORS.MAGE
-  mocks.__units.party2 = { name = "Jaina", class = "MAGE" }
+  mocks.__units.party2 = { name = MAGE.name, class = MAGE.classFile }
   local ok, err = pcall(function()
     local el, cfg, drawn = probe("pet")
     local resolve = Element.UnitResolver(el, "party2")
@@ -402,7 +404,7 @@ test("skin flip: the live target's plain fill follows the skin, for a player and
   NS.PublishVisibility()
   el.bar.SetStatusBarColor = function(_, ...) filled = rgba(...) end
   local ok, err = pcall(function()
-    for _, unit in ipairs({ { name = "Jaina", isPlayer = true, class = "MAGE" },
+    for _, unit in ipairs({ { name = MAGE.name, isPlayer = true, class = MAGE.classFile },
       { name = "Boar", reaction = 2 } }) do
       mocks.__units.party1target = unit
       choose("obsidian")

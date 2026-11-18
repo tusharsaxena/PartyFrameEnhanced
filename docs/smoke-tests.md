@@ -1021,7 +1021,7 @@ and a target dummy.
   every element moves to its member's new position at once, with no error, on both layouts.
   Result: passed (owner, 2026-11-08)
 - **FOREVER-8. Two-word names on the target frames.** Have a party member target another player →
-  the target frame shows that player's **first name and surname** ("Traxex Silentshot"), not the first
+  the target frame shows that player's **first name and surname** (a "First Surname" pair), not the first
   name alone; a name too long for the frame ends in an ellipsis inside the bar, before the percent, and
   never runs past the frame. Target an NPC → its name, as on Retail. Clear the target → the frame
   hides. Result: passed (owner, 2026-11-08)

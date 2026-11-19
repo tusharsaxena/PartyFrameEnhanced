@@ -61,7 +61,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   Result: pass (owner-marked 2026-10-10)
 - **INSTALL-4. A clean load on the vendored LibKa0s.** With `libs/LibKa0s` at the tag `CLAUDE.md`'s provenance
   line names (v1.91.0: Core 17, CorePixel 1, Item 3, Media 12, MediaIcons 1, Schema 3, Slash 21, Widgets 26, WidgetsDropdown 1, WidgetsDragHandle 13, WidgetsAutocomplete 8, WidgetsCopyWindow 5, DebugLog 22, DebugLogDiagnostics 7, DebugLogWindow 4, Options 37, OptionsWidgets 44, OptionsFlow 2, OptionsIds 7, OptionsIdSuggest 2, OptionsIdList 9, OptionsTabs 15, OptionsTabbed 2, OptionsCombat 4, OptionsCompose 19, OptionsDrawer 5, OptionsKeybinds 7, OptionsAppearance 7, OptionsSkinPicker 11, OptionsSkinPickerRows 1, OptionsSwitch 1, OptionsMedia 4, Perf 15, PerfPanel 13, Glow 2, Sim 2, SimTimeline 3, SimPanel 10, SimPanelRender 3, Skin 17, SkinOwnerTokens 1, SkinDefs 27, SkinDefsOthers 8, SkinPaint 19, SkinPaintExtras 19, SkinPaintHud 1, SkinAceConfirm 1, SkinPaintControls 17, SkinEUI 4, SkinAce 9, Charts 1, ChartsRender 1, Toast 4), log in, then `/reload` twice → no Lua error, and no chat line from LibKa0s
-  about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` prints its summary, and `/pfe unlock` unlocks the frames. *Failure:* a page
+  about a missing or older module. `/pfe config` → every page draws as it did. `/pfe status` writes its report to the debug console, and `/pfe unlock` unlocks the frames. *Failure:* a page
   that comes up empty, or an error naming `PartyFrameEnhanced\libs\LibKa0s\…`. Then the icons the
   `LibKa0s icons:` line declares (clear, close, copy, eye, settings; the last two are the skin picker's): `/pfe debug on`, open the console → its Copy
   and Clear controls and its close x draw as icons, not blank squares or text; **Copy** → the copy
@@ -275,10 +275,15 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   placement* and unlock → a translucent plate labeled *Cast bars* appears over the stack. Drag it,
   lock, `/reload` → the stack is where you left it. General → *Reset position* (or
   `/pfe resetposition`) → back to its default. Result: pass (owner-marked 2026-10-10)
-- **PREV-4. Status.** `/pfe status` → the frame system in use, each unit with *frame* or a dash, each
-  feature's state, and a *Note:* line when something is switched off (set *General visibility* to
-  *Never* and run it again). Result: pass (owner-marked 2026-10-10)
-- **PREV-5. Party-only.** Solo: nothing shows, attached or free placement, and `/pfe status` ends with
+- **PREV-4. Status, a console report (amended at AD-79-PFE; debug-logging-§15).** With the debug
+  console closed and logging off (`/pfe debug off`), `/pfe status` → the console opens on its own and
+  shows a `[Status] /pfe status` header, then the frame system in use, each unit with *frame* or a
+  dash, each feature's state, and a *Note:* line when something is switched off (set *General
+  visibility* to *Never* and run it again). Chat gets exactly **one** line, *status: N lines written to
+  the debug console. Use Copy to share it.*, and none of the report. The console's Debug toggle still
+  reads OFF. **Copy** → the report pastes as plain words. *Failure:* the report in chat, a second chat
+  line, an empty console with logging off, or logging turned on by the report. Result: (owed, AD-79-PFE)
+- **PREV-5. Party-only.** Solo: nothing shows, attached or free placement, and the `/pfe status` report ends with
   *not in a party — nothing shows until you join one (try /pfe unlock)*. Join a party → everything
   shows. Convert to a raid → it all goes again. Result: pass (owner-marked 2026-10-10)
 - **PREV-6. Stand-in, EllesmereUI.** Solo, EllesmereUI loaded, *Frame system* Automatic, `/pfe debug
@@ -295,8 +300,8 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 - **PREV-8. Stand-in, Blizzard classic.** Raid-style off → the same as PREV-6 with a portrait, a green
   health bar and a mana bar. If the stand-in came up at screen center, note whether the 120 × 53
   fallback matched. Result: pass (owner-marked 2026-10-10)
-- **PREV-9. Live switch.** With the stand-in up, `/pfe status` reads *unlocked (stand-in)*. Join a
-  party → the stand-in goes, the placeholders move to the real frames, and `/pfe status` reads
+- **PREV-9. Live switch.** With the stand-in up, the `/pfe status` report reads *unlocked (stand-in)*. Join a
+  party → the stand-in goes, the placeholders move to the real frames, and the report reads
   *unlocked (your party frames)*. Leave → the stand-in comes back. Result: pass (owner-marked 2026-10-10)
 
 ## Cast bars
@@ -1016,7 +1021,7 @@ and a target dummy.
   every element moves to its member's new position at once, with no error, on both layouts.
   Result: passed (owner, 2026-11-08)
 - **FOREVER-8. Two-word names on the target frames.** Have a party member target another player →
-  the target frame shows that player's **first name and surname** ("Traxex Silentshot"), not the first
+  the target frame shows that player's **first name and surname** (a "First Surname" pair), not the first
   name alone; a name too long for the frame ends in an ellipsis inside the bar, before the percent, and
   never runs past the frame. Target an NPC → its name, as on Retail. Clear the target → the frame
   hides. Result: passed (owner, 2026-11-08)

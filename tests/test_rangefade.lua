@@ -194,12 +194,12 @@ case("rangefade: off, in preview, or with no party frame, every fade is full alp
 end)
 
 case("rangefade: status names which way the fade is running", function()
+  -- Re-pinned at AD-79-PFE: the report is read from the debug console, where it is written now
+  -- (debug-logging-§15); chat carries only its pointer.
   local function status()
-    local before = #mocks.__chat
-    NS.Slash:OnSlash("status")
-    local out = {}
-    for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
-    return table.concat(out, "\n")
+    local lines = T.console(function() NS.Slash:OnSlash("status") end)
+    NS.DebugLog:Hide()
+    return table.concat(lines, "\n")
   end
   assertEqual(RangeFade.Mode(), "idle", "no frame system on screen")
   assertTrue(status():find("Range fade: waiting for party frames", 1, true) ~= nil)

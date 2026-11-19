@@ -16,14 +16,6 @@ test("party: InParty is a party of 2-5 — not solo, not a raid", function()
   assertEqual(type(NS.Units.InParty()), "boolean")
 end)
 
-local function slash(msg)
-  local before = #mocks.__chat
-  NS.Slash:OnSlash(msg)
-  local out = {}
-  for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
-  return table.concat(out, "\n")
-end
-
 -- The roster changes: the client fires GROUP_ROSTER_UPDATE to every listener.
 local function world(inGroup, inRaid)
   mocks.__context.inGroup, mocks.__context.inRaid = inGroup, inRaid
@@ -88,10 +80,18 @@ test("party: preview skips the rule — unlocked solo, the free-placement placeh
   world(true, false)
 end)
 
+-- The `/pfe status` report as one string: since AD-79-PFE it is written to the debug console
+-- (debug-logging-§15) and chat carries only its pointer.
+local function status()
+  local lines = T.console(function() NS.Slash:OnSlash("status") end)
+  NS.DebugLog:Hide()
+  return table.concat(lines, "\n")
+end
+
 test("party: /pfe status says so when you're not in a party", function()
   world(false, false)
-  local out = slash("status")
+  local out = status()
   world(true, false)
   assertTrue(out:find("not in a party", 1, true) ~= nil)
-  assertFalse(slash("status"):find("not in a party", 1, true) ~= nil, "in a party it is quiet")
+  assertFalse(status():find("not in a party", 1, true) ~= nil, "in a party it is quiet")
 end)

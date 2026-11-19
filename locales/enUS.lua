@@ -226,6 +226,10 @@ L["Debug console"] = "Debug console"
 L["Diagnostic report written to the debug console: %d lines. Use Copy to share it."] =
     "Diagnostic report written to the debug console: %d lines. Use Copy to share it."
 
+-- A report verb's one chat pointer (core/DebugLogSetup.lua's REPORT_WRITTEN; debug-logging-§15)
+L["%s: %d lines written to the debug console. Use Copy to share it."] =
+    "%s: %d lines written to the debug console. Use Copy to share it."
+
 -- Migration runner (core/Database.lua)
 L["Settings migration to v%d failed; your settings were left as they were"] =
     "Settings migration to v%d failed; your settings were left as they were"

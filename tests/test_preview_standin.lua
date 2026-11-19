@@ -269,18 +269,26 @@ test("preview: Lock frame is the switch, and no Test mode row survives beside it
   off()
 end)
 
+-- The `/pfe status` report as one string: since AD-79-PFE it is written to the debug console
+-- (debug-logging-§15) and chat carries only its pointer.
+local function status()
+  local lines = T.console(function() NS.Slash:OnSlash("status") end)
+  NS.DebugLog:Hide()
+  return table.concat(lines, "\n")
+end
+
 test("preview: status names what preview is showing, and neither verb survives in NS.COMMANDS",
     function()
   prep()
   world(false, false)
   slash("unlock")
-  local out = slash("status")
+  local out = status()
   assertTrue(out:find("unlocked (stand-in)", 1, true) ~= nil, out)
   assertFalse(out:find("not in a party", 1, true) ~= nil, "preview replaces the hint")
   off()
   world(true, false)
   slash("unlock")
-  assertTrue(slash("status"):find("unlocked (your party frames)", 1, true) ~= nil)
+  assertTrue(status():find("unlocked (your party frames)", 1, true) ~= nil)
   off()
   for _, e in ipairs(NS.COMMANDS) do
     assertTrue(e[1] ~= "test", "/pfe test went with the Test mode row")

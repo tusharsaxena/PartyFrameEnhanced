@@ -414,7 +414,7 @@ Total.
 - prose self-test: the disclosure names what each entry suppressed, and says when it is bounded
 - prose self-test: a malformed waived is a failure, not a silence
 
-### test_slash.lua (35)
+### test_slash.lua (38)
 
 - slash: every NS.COMMANDS entry is a positional {name, desc, fn} triple
 - slash: the reserved verbs are all present
@@ -448,6 +448,9 @@ Total.
 - slash: `profile "<name with spaces>"` strips the quotes and keeps the spaces
 - slash: a sub-verb matches in any case, and the current profile is already on
 - slash: `profile <name>` refuses in combat and switches nothing
+- slash: `status` writes its report to the console, ungated and revealed, with one chat pointer
+- slash: the `status` pointer line is the locale's
+- slash: without LibKa0s, `status` streams its report to chat with no pointer
 - slash: `status` prints the frame system's label through NS.L
 - slash: `status` names an unlock with preview on once
 - slash: `status` still reports an unlock whose preview was refused
@@ -854,7 +857,7 @@ Total.
 | test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
 | test_prose.lua | 15 |
-| test_slash.lua | 35 |
+| test_slash.lua | 38 |
 | test_disabled.lua | 22 |
 | test_diagnostics.lua | 18 |
 | test_launcher.lua | 31 |
@@ -879,4 +882,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **657** |
+| **Total** | **660** |

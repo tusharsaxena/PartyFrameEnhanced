@@ -286,12 +286,12 @@ end)
 
 test("providers: /pfe status names the events the client refused", function()
   -- red under: runStatus that never reads NS.RejectedEvents
+  -- Re-pinned at AD-79-PFE: the report is read from the debug console, where it is written now
+  -- (debug-logging-§15); chat carries only its pointer.
   local function status()
-    local before = #mocks.__chat
-    NS.Slash:OnSlash("status")
-    local out = {}
-    for i = before + 1, #mocks.__chat do out[#out + 1] = mocks.__chat[i] end
-    return table.concat(out, "\n")
+    local lines = T.console(function() NS.Slash:OnSlash("status") end)
+    NS.DebugLog:Hide()
+    return table.concat(lines, "\n")
   end
   assertTrue(status():find("Events the client refused", 1, true) == nil, "quiet with nothing refused")
   local rejected = NS.RejectedEvents

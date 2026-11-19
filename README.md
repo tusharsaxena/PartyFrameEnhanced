@@ -100,7 +100,7 @@ Enhanced is built around that, so a pull can't break it.
 
 | Symptom | Fix |
 |---|---|
-| Nothing shows next to my party frames | Type `/pfe status`. It tells you which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe unlock` shows you what it would look like. |
+| Nothing shows next to my party frames | Type `/pfe status`. It writes a short report to the debug console (chat tells you it did) that says which party frames the addon found, which members have a frame, and whether something is switched off. The usual culprits are **General visibility** set to **Never** or the wrong **Frame system** on the **General** page. Solo or in a raid, nothing shows on purpose; `/pfe unlock` shows you what it would look like. |
 | My own row is missing | Blizzard's classic party layout doesn't show you. Use the raid-style layout, EllesmereUI, or free placement. |
 | Target or pet frames are missing after someone joined mid-fight | On EllesmereUI and Blizzard's raid-style party frames they should move with their party member straight away; if they fade instead, send `/pfe diagnostics` with a bug report. On Blizzard's classic party frames they come back when combat ends, because the game doesn't let addons move clickable frames in combat. |
 | Cast bars or target frames draw over other windows, or hide behind something | By default they sit on the same layer as your party frames, so a window that covers your party frames covers them too. To change that, pick another layer under **Frame strata** on the **General** page. |

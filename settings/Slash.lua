@@ -178,7 +178,11 @@ end
 function NS.SetEnabled(on) runEnabled(on) end
 
 -- `/pfe status`: what the addon found and what it is doing, for a player asking "why is nothing
--- showing". Reads only public seams; changes nothing.
+-- showing". Reads only public seams; changes nothing. It is a REPORT (debug-logging-§15, the owner's
+-- ruling of 2026-11-08): the lines go to the debug console through NS.DebugLog:Report, ungated, the
+-- console is revealed and chat gets the library's one pointer line. Without the library the stub
+-- streams the same lines to chat with no pointer. It has no usage or refusal of its own: it is live
+-- while disabled and takes no argument.
 local FEATURES = {
     { "castbar", L["Cast bars"] }, { "target", L["Target frames"] }, { "pet", L["Pet frames"] },
 }
@@ -217,25 +221,30 @@ local function statusFlags()
     return flags
 end
 
-function runStatus()
-    print(L["Frame system: %s"]:format(NS.Providers.ActiveLabel() or L["none found"]))
+-- The report's body, one `out(line)` per line, in the order a player reads it.
+local function statusBody(out)
+    out(L["Frame system: %s"]:format(NS.Providers.ActiveLabel() or L["none found"]))
     local parts = {}
     for _, unit in ipairs(NS.Units.LIST) do
         local mark = NS.Providers.FrameFor(unit) and L["frame"] or "\226\128\148"
         if not NS.Units.IsIncluded(unit) then mark = L["off"] end
         parts[#parts + 1] = NS.Units.LABEL[unit] .. ": " .. mark
     end
-    print("  " .. table.concat(parts, "  \194\183  "))
+    out("  " .. table.concat(parts, "  \194\183  "))
     for _, f in ipairs(FEATURES) do
-        print("  " .. f[2] .. ": " .. featureState(NS.db.profile[f[1]]))
+        out("  " .. f[2] .. ": " .. featureState(NS.db.profile[f[1]]))
     end
-    print("  " .. L["Range fade: %s"]:format(rangeFadeState()))
+    out("  " .. L["Range fade: %s"]:format(rangeFadeState()))
     local flags = statusFlags()
-    if #flags > 0 then print("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
+    if #flags > 0 then out("  " .. L["Note: %s"]:format(table.concat(flags, ", "))) end
     local rejected = NS.RejectedEvents
     if #rejected > 0 then
-        print("  " .. L["Events the client refused: %s"]:format(table.concat(rejected, ", ")))
+        out("  " .. L["Events the client refused: %s"]:format(table.concat(rejected, ", ")))
     end
+end
+
+function runStatus()
+    NS.DebugLog:Report("Status", "status", statusBody)
 end
 
 -- The guided run lives in LibKa0s-Perf; the library returns lines and this prints them

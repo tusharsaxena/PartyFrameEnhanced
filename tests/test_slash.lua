@@ -5,6 +5,8 @@ local T = _G.PFE_TEST
 local test, assertEqual, assertTrue = T.test, T.assertEqual, T.assertTrue
 local NS, mocks = T.NS, T.mocks
 
+local loadDegraded = dofile("tests/degraded_env.lua")
+
 local function slash(msg)
   local before = #mocks.__chat
   NS.Slash:OnSlash(msg)
@@ -542,6 +544,61 @@ test("slash: `profile <name>` refuses in combat and switches nothing", function(
   end)
 end)
 
+-- `/pfe status` is a REPORT (debug-logging-§15, the owner's ruling of 2026-11-08): its body goes to
+-- the debug console and chat gets one pointer line. Returns the console lines, then the chat lines.
+local function statusReport() return T.console(function() NS.Slash:OnSlash("status") end) end
+
+local POINTER = "%s: %d lines written to the debug console. Use Copy to share it."
+
+test("slash: `status` writes its report to the console, ungated and revealed, with one chat pointer", function()
+  -- Re-pinned at AD-79-PFE: the summary printed to chat line by line until the report seam.
+  -- red under: runStatus printing to chat (no console line, several chat lines), a report written
+  -- through the GATED sink (nothing lands with logging off: the falsification of "ungated"), or a
+  -- second chat line beside the pointer (the falsification of "exactly one").
+  local D = NS.DebugLog
+  NS.State.debug = false
+  D:Hide()
+  local lines, chat = statusReport()
+  assertTrue(#lines >= 3, "the header and the body landed in the console: " .. #lines)
+  assertTrue(lines[1]:find("[Status] /pfe status", 1, true) ~= nil, "the header names the verb: " .. lines[1])
+  assertTrue(lines[2]:find("Frame system: ", 1, true) ~= nil, "the body follows it: " .. lines[2])
+  assertEqual(#chat, 1, "exactly one chat line: " .. joined(chat))
+  assertTrue(chat[1]:find(POINTER:format("status", #lines), 1, true) ~= nil,
+    "the pointer counts every line, the header included: " .. chat[1])
+  assertTrue(chat[1]:find("Frame system", 1, true) == nil, "and carries none of the report")
+  assertTrue(NS.State.debug == false, "the report leaves trace logging off")
+  assertTrue(D:IsShown(), "the hidden console was revealed")
+  D:Hide()
+end)
+
+test("slash: the `status` pointer line is the locale's", function()
+  -- The descriptor hands the library L[POINTER] as REPORT_WRITTEN at load (core/DebugLogSetup.lua),
+  -- as it hands DIAG_WRITTEN, so the key has to exist and the line has to be formatted from it.
+  -- red under: the key missing from locales/enUS.lua (localization-§1).
+  assertTrue(rawget(NS.L, POINTER) ~= nil, "the pointer is an enUS key")
+  local lines, chat = statusReport()
+  NS.DebugLog:Hide()
+  assertEqual(#chat, 1)
+  assertTrue(chat[1]:find(NS.L[POINTER]:format("status", #lines), 1, true) ~= nil, chat[1])
+end)
+
+test("slash: without LibKa0s, `status` streams its report to chat with no pointer", function()
+  -- red under: the stub's Report taking (self, tag, fn), which read the TITLE as the body, so the
+  -- library-absent `/pfe status` printed nothing at all (debug-logging-§15's stub arm).
+  local NS2, mocks2 = loadDegraded()
+  NS2:InitDB()
+  NS2.addon:OnEnable()
+  while mocks2.__fireTimers() > 0 do end
+  local before = #mocks2.__chat
+  NS2.Slash:OnSlash("status")
+  local said = {}
+  for i = before + 1, #mocks2.__chat do said[#said + 1] = mocks2.__chat[i] end
+  local text = joined(said)
+  assertTrue(text:find("Frame system: ", 1, true) ~= nil, "the body reached chat: " .. text)
+  assertTrue(text:find("Range fade: ", 1, true) ~= nil, "all of it: " .. text)
+  assertTrue(text:find("written to the debug console", 1, true) == nil, "and no pointer: " .. text)
+end)
+
 test("slash: `status` prints the frame system's label through NS.L", function()
   -- red under: the provider labels were raw strings, so 'Blizzard (raid-style)' and
   -- 'Blizzard (classic)' had no enUS key and a translation could never reach /pfe status
@@ -557,17 +614,21 @@ test("slash: `status` prints the frame system's label through NS.L", function()
   mocks.CompactPartyFrame = container
   mocks.EditModeManagerFrame = { UseRaidStylePartyFrames = function() return true end }
   NS.Providers.Resolve()
-  local out = slash("status")
+  local out = statusReport()
+  NS.DebugLog:Hide()
   mocks.CompactPartyFrame, mocks.EditModeManagerFrame = nil, nil
   mocks.__context.inGroup = savedGroup
   NS.Providers.Resolve()
   local want = "Frame system: " .. NS.L["Blizzard (raid-style)"]
-  assertEqual(out[1]:sub(-#want), want, "the L-routed label ends the first line")
+  -- Re-pinned at AD-79-PFE: line 1 is the report's `/pfe status` header, so the label ends line 2.
+  assertEqual(out[2]:sub(-#want), want, "the L-routed label ends the body's first line")
 end)
 
--- The `Note:` line of `/pfe status`, or "" when there is none.
+-- The `Note:` line of the `/pfe status` report, or "" when there is none.
 local function statusNote()
-  for _, line in ipairs(slash("status")) do
+  local lines = statusReport()
+  NS.DebugLog:Hide()
+  for _, line in ipairs(lines) do
     local note = line:match("Note: (.*)$")
     if note then return note end
   end

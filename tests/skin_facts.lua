@@ -13,6 +13,12 @@ local ROWS = {
   { file = "modules/StandIn.lua", substring = "|cff999999", why = STANDIN .. ": its (test) mark", cause = "A7" },
   { file = "modules/StandIn.lua", substring = "Raid-Bar-Hp-Fill", why = STANDIN .. ": the raid frame's own art", cause = "A7" },
   { file = "modules/StandIn.lua", substring = "Raid-Bar-Hp-Bg", why = STANDIN .. ": the raid frame's own art", cause = "A7" },
+  -- Kit revision 58 reads `return` triples: the stand-in's class and power hues with no client table.
+  { file = "modules/StandIn.lua", substring = "return 0.2, 0.8, 0.2", why = STANDIN .. ": its health bar with no class color", cause = "A7" },
+  { file = "modules/StandIn.lua", substring = "return 0, 0, 1", why = STANDIN .. ": its power bar with no power color", cause = "A7" },
+  -- AceDB merges every swatch's table, so a stored color that is no table never reaches a player.
+  { file = "modules/Element.lua", substring = "return 1, 1, 1, 1", why = "a stored swatch that is no table: AceDB's defaults fill every one",
+    category = "unreachable default" },
   { file = "modules/Preview.lua", substring = "REFUSED_COMBAT = \"|cff808080\"", why = CHAT, cause = "L13" },
   { file = "modules/Preview.lua", substring = "REFUSED_SUSPENDED = \"|cff808080\"", why = CHAT, cause = "L13" },
 }

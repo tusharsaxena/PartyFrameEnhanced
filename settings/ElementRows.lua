@@ -6,9 +6,11 @@ local _, NS = ...
 -- The three composers take `fromSkin = true` (skinning-§6): each adds its "Use the skin's texture /
 -- border / font" companion after its rows, defaulting to the profile's true (X3), and disables the
 -- picker it governs while it is on. modules/Element.lua draws through S.Resolve. The fill, background,
--- border and text colors and the Font shadow have no composer row, so each block carries its own
--- "Use the skin's color" or "Use the skin's shadow" as an extra (LibKa0s Options doc, Moving to,
--- section 3); no swatch beside one is dimmed (options-ui-§17).
+-- border and text colors and the Font shadow each carry their own "Use the skin's color" or "Use the
+-- skin's shadow" as an extra (LibKa0s Options doc, Moving to, section 3), written before the
+-- composers emitted them; from OptionsCompose minor 20 (LibKa0s v1.108.0) a composer finds a
+-- companion an extra declares and governs with it, emitting no second one. No swatch beside one is
+-- dimmed (options-ui-§17); Font shadow, a toggle, is, while its companion is on (minor 20).
 -- Loads after settings/OptionsSetup.lua (the composers live on NS.Helpers) and before the pages.
 
 local L = NS.L

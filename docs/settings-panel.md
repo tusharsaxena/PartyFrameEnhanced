@@ -142,7 +142,9 @@ The three media *Use the skin's …* companions (skinning-§6) are on by default
 picker it governs is dimmed and shows the skin's value, and the element draws the skin's bar texture,
 border style and thickness, or HUD font. The color and shadow companions are on by default too, but
 their swatch is never dimmed (options-ui-§17): it stays live, is not read while the companion is on,
-and comes back when it goes off. A class color and the cast-state colors come first. While the font follows it, the drawn
+and comes back when it goes off. Font shadow, a toggle rather than a swatch, is dimmed while *Use the
+skin's shadow* is on and reads ticked where the skin draws a shadow (OptionsCompose minor 20, LibKa0s
+v1.108.0). A class color and the cast-state colors come first. While the font follows it, the drawn
 size scales with the skin's HUD size and the stored size is kept; Font flags on *From skin* follow the
 Skin tab's Font outline, and a picked flag wins.
 

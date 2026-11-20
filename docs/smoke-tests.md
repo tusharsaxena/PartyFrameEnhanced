@@ -924,6 +924,14 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   *Failure:* the picker opening with nothing unlocked, an eye that only unlocks, the elements left
   unlocked after any close, an unlock the player made before opening undone by the close, or an
   unlock in combat. Result:
+- **SKIN-44. Font shadow is dimmed while the skin's shadow draws (SD-RV-PFE, LibKa0s v1.108.0, OptionsCompose
+  minor 20).** On Cast Bars, Target Frames and Pet Frames, Text tab → with **Use the skin's shadow** ticked (the
+  default), **Font shadow** is dimmed and reads ticked under a skin that draws a shadow (Ka0s Default draws
+  none, so it reads unticked there). Untick **Use the skin's shadow** → Font shadow comes back live and shows
+  your stored value; toggle it → the text's shadow follows it. Each Text tab shows one **Use the skin's
+  shadow** and one **Use the skin's color**, never two. The Font color, Bar color, Background color and
+  Border color swatches stay live with their companions on. *Failure:* Font shadow live while the companion
+  is on, a companion row drawn twice, or a swatch dimmed. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -1143,3 +1151,6 @@ The LibKa0s v1.91.0 re-vendor (2026-11-06, FU-RV-PFE) reopens INSTALL-4. It chan
 On 2026-11-02 the owner reported that every check on the smoke lists of the full skinning run and its smoke feedback batch (Ka0sAddonsCommonTasks `docs/2026-11-01-FULL_SKINNING/` and `docs/2026-11-01-SMOKE_FEEDBACK/`) passed, apart from DpsRace's clock font, the skinned look of the AceGUI Dropdown and the Ka0sMedia_Font and Ka0sMedia_Statusbar pickers, FadeNineSlice and IconBorder (`docs/2026-11-02-SMOKE_ROUND3/`, R3-SMOKE). Passed, recorded on each `Result:` line as `Passed (owner, 2026-11-02)`: INSTALL-4, LAYER-2, PANEL-8, SKIN-1, SKIN-5, SKIN-24, SKIN-25, SKIN-27, SKIN-32, SKIN-33, SKIN-34, SKIN-35, SKIN-37, SKIN-38 and UNIT-9. Failed, re-opened as R3-L3 (IconBorder's 1 px outline and zoom) and recorded as `Failed (owner, 2026-11-02): re-opened as R3-L3`: SKIN-36. Still owed: SKIN-4, whose expected result the third smoke round itself changed after the owner's run.
 
 On 2026-11-08 the owner reported that every check of the WoW Forever port (W2-PF-01, Ka0sAddonsCommonTasks `docs/2026-11-07-WOW_FOREVER_PORT_STEP5/04_WAVE2_SMOKE.md`) passed, with a Retail sanity pass: FOREVER-1 to FOREVER-16, each recorded on its `Result:` line as `passed (owner, 2026-11-08)`.
+
+The LibKa0s v1.108.0 re-vendor (SD-RV-PFE, 2026-11-20; Ka0sAddonsCommonTasks
+`docs/2026-11-20-LIBKA0S_94_97_99_100/`) reopens INSTALL-4 and adds SKIN-44, owed.

@@ -98,7 +98,8 @@ and `fontShadowFromSkin` do the same for the colors and the Font shadow, as `ext
 ruling of 2026-11-01): the fill draws `pf.castFill`, `pf.targetFill` or `pf.petFill`, the background
 `pf.barBg`, the border `bar.border`, the text `hud.text` and the shadow `hud.shadow`, each owner token
 holding this addon's old color under Ka0s Default and following `bar.fill` or `bar.bg` elsewhere. The
-swatch stays live and stored. A class color comes first, and the cast-state and reaction colors are
+swatch stays live and stored; Font shadow, a toggle, is dimmed while its companion is on (OptionsCompose
+minor 20, LibKa0s v1.108.0), which governs with this addon's own `extra` row and emits no second one. A class color comes first, and the cast-state and reaction colors are
 meaning colors with no companion. `borderShow` defaults off: a skin's `None`, Ka0s Default's
 among them, defers to it and to the stored style and thickness, and a real style wins over all three
 (`S.BarBorder`). Since LibKa0s v1.82.0 the size scales with the skin

@@ -550,15 +550,22 @@ collection's first adopter; only the paths, the brand and the preview are this a
   `EllesmereUIDB` itself only for the stand-in's size, never for the skin gate (the `library-stack-§6`
   row under *Documented deviations*).
 - **What stays unskinned, on purpose.** The stand-in party frame (`modules/StandIn.lua`) imitates the
-  frame system it stands in for, so offsets tuned against it hold. The reset confirmation is a
+  frame system it stands in for, so offsets tuned against it hold: skinning-§9's *Preview stand-ins*
+  class (owner U-24, 2026-11-20). Its *(test)* mark is this addon's own annotation, so it reads
+  `text.muted` and repaints on a skin switch; the picker's unlock preview changes only the mark and
+  the attached elements. The reset confirmation is a
   StaticPopup (Blizzard's). Chat lines (`NS.PREFIX`, the `ON` / `OFF` marks, refusals) go to the
   chat frame, which is not a skinned surface (X7). The launcher's tooltip is GameTooltip, drawn by
   `LibKa0s-Launcher-1.0`.
 - **The two skin gates (kit revision 50, skinning-§1).** `test_skin_values` fails on a typed color or
   texture no kit category takes and no row in `tests/skin_facts.lua` names: the rows are the stand-in's
-  look, art and *(test)* mark (A7) and the preview refusals' chat lines (L13). `test_skin_switch` takes
-  the painted surfaces the same file declares, each part of each element, the spell icon's edge and a
-  holder's plate and caption, and fails one that does not change under a probe skin.
+  look, art and fallback hues (cause `SD-RULE`, the plan item holding the owner's U-24), one unreachable
+  default (a kit row category, revision 58) and the preview refusals' chat lines (L13). `test_skin_switch`
+  takes the painted surfaces the same file declares, each part of each element (the bar texture and the
+  background texture with `expect = "texture"`, drawn through a LibSharedMedia fake that gives every key
+  a path of its own, and both text lines), the spell icon's edge, a holder's plate and caption and the
+  stand-in's *(test)* mark, and fails one whose drawn families do not each change under a probe skin
+  (kit revision 58).
 
 ## Known Limitations
 

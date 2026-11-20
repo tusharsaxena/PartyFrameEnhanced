@@ -319,7 +319,7 @@ Total.
 - status: names the frame system, each unit, each feature, and anything switched off
 - preview: PLAYER_REGEN_DISABLED is held only while unlocked, and combat still re-locks
 
-### test_standin.lua (16)
+### test_standin.lua (17)
 
 - standin: Automatic imitates EllesmereUI when loaded, else raid-style or classic by Edit Mode
 - standin: a pinned Frame system wins — EllesmereUI even unloaded, Blizzard by Edit Mode
@@ -329,6 +329,7 @@ Total.
 - standin: a secret size or position is never compared — fallback and center
 - standin: draws beneath what attaches to it, on the strata of the frames it imitates
 - standin: marks the player's name (test), with no corner tag for an element to cover, and drags
+- standin: the (test) mark reads the skin's text.muted, and a skin switch repaints it
 - standin: on WoW Forever the name is the first name and surname, held to the frame's width
 - standin: imitating EllesmereUI, its configured party size beats what the hidden button measures
 - standin: fills party1 only when no real frame holds it, and clearing it restores the real map
@@ -665,36 +666,47 @@ Total.
 - skin values: no typed value outside the kit's categories and the host's rows
 - skin values: the check is falsifiable, a planted value of each shape is reported
 
-### test_skin_switch.lua (32)
+### test_skin_switch.lua (43)
 
 - skin switch: the check is falsifiable, a surface that redraws a literal is reported
 - skin switch: the check is falsifiable, a bar whose texture never moves is reported
 - skin switch: the cast bar's fill changes
 - skin switch: the cast bar's bar texture changes
+- skin switch: the cast bar's background texture changes
 - skin switch: the cast bar's background changes
 - skin switch: the cast bar's border style changes
 - skin switch: the cast bar's border color changes
 - skin switch: the cast bar's text color changes
 - skin switch: the cast bar's face changes
 - skin switch: the cast bar's text shadow changes
+- skin switch: the cast bar's second line's color changes
+- skin switch: the cast bar's second line's face changes
 - skin switch: the target frame's fill changes
 - skin switch: the target frame's bar texture changes
+- skin switch: the target frame's background texture changes
 - skin switch: the target frame's background changes
 - skin switch: the target frame's border style changes
 - skin switch: the target frame's border color changes
 - skin switch: the target frame's text color changes
 - skin switch: the target frame's face changes
 - skin switch: the target frame's text shadow changes
+- skin switch: the target frame's second line's color changes
+- skin switch: the target frame's second line's face changes
 - skin switch: the pet frame's fill changes
 - skin switch: the pet frame's bar texture changes
+- skin switch: the pet frame's background texture changes
 - skin switch: the pet frame's background changes
 - skin switch: the pet frame's border style changes
 - skin switch: the pet frame's border color changes
 - skin switch: the pet frame's text color changes
 - skin switch: the pet frame's face changes
 - skin switch: the pet frame's text shadow changes
+- skin switch: the pet frame's second line's color changes
+- skin switch: the pet frame's second line's face changes
 - skin switch: the cast bar's spell icon edge changes
 - skin switch: the cast bar's spell icon edge changes with the Scope ignored
+- skin switch: the stand-in's (test) mark changes
+- skin switch: the stand-in's (test) mark changes with the Scope ignored
 - skin switch: a holder's plate changes
 - skin switch: a holder's plate changes with the Scope ignored
 - skin switch: a holder's caption changes
@@ -852,7 +864,7 @@ Total.
 | test_layers.lua | 5 |
 | test_party.lua | 6 |
 | test_preview.lua | 8 |
-| test_standin.lua | 16 |
+| test_standin.lua | 17 |
 | test_preview_standin.lua | 17 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
@@ -871,7 +883,7 @@ Total.
 | test_skin_flip.lua | 38 |
 | test_skin_fonts.lua | 12 |
 | test_skin_values.lua | 3 |
-| test_skin_switch.lua | 32 |
+| test_skin_switch.lua | 43 |
 | test_client_globals.lua | 3 |
 | test_skin_picker.lua | 26 |
 | test_skin_outline.lua | 8 |
@@ -883,4 +895,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **661** |
+| **Total** | **673** |

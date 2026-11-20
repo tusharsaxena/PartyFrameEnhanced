@@ -932,6 +932,14 @@ INSTALL-4, SLASH-1, SKIN-3, SKIN-4, SKIN-6, SKIN-8, SKIN-9 and SKIN-24 belong to
   shadow** and one **Use the skin's color**, never two. The Font color, Bar color, Background color and
   Border color swatches stay live with their companions on. *Failure:* Font shadow live while the companion
   is on, a companion row drawn twice, or a swatch dimmed. Result:
+- **SKIN-45. The stand-in's (test) mark follows the skin; the stand-in does not (SD-SK-PFE, owner U-24).** Solo,
+  `/pfe unlock` → the stand-in shows your name and a gray *(test)* under Ka0s Default. `/pfe skin`, pick
+  **Ember**, then **High Contrast** and **WoW Midnight** with the picker up → the *(test)* mark takes each
+  skin's muted text color at once, with no reload, while the stand-in's ground, edge, health bar, power bar
+  and name keep the imitated frame's look; the attached cast bar, target and pet frames follow the skin.
+  Back to **Ka0s Default** → the mark is gray again. Repeat on each *Frame system* look (EllesmereUI,
+  raid-style, Blizzard party). *Failure:* a mark that stays gray in every skin, a mark that changes only
+  after re-locking, or a stand-in bar or ground that changes with the skin. Result:
 - **SKIN-26. The Font outline setting (D-06; default moved by LibKa0s v1.83.0, D-10).** With the HUD
   showing on a default profile, Skin tab → **Font outline** reads *HUD text only* → the cast bar, target
   and pet text is outlined, and the settings pages' and the debug console's words are not (with Ignore
@@ -1153,4 +1161,5 @@ On 2026-11-02 the owner reported that every check on the smoke lists of the full
 On 2026-11-08 the owner reported that every check of the WoW Forever port (W2-PF-01, Ka0sAddonsCommonTasks `docs/2026-11-07-WOW_FOREVER_PORT_STEP5/04_WAVE2_SMOKE.md`) passed, with a Retail sanity pass: FOREVER-1 to FOREVER-16, each recorded on its `Result:` line as `passed (owner, 2026-11-08)`.
 
 The LibKa0s v1.108.0 re-vendor (SD-RV-PFE, 2026-11-20; Ka0sAddonsCommonTasks
-`docs/2026-11-20-LIBKA0S_94_97_99_100/`) reopens INSTALL-4 and adds SKIN-44, owed.
+`docs/2026-11-20-LIBKA0S_94_97_99_100/`) reopens INSTALL-4 and adds SKIN-44, owed. The skin-defaults item (SD-SK-PFE)
+adds SKIN-45, owed.

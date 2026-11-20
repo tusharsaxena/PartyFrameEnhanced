@@ -24,9 +24,17 @@ local LAYERS = NS.Constants.LAYERS
 local StandIn = {}
 NS.StandIn = StandIn
 
--- After the player's name, in gray: a corner tag sat under whatever the player attached there (the
--- cast bar's time text, in game), and the name line is the one place nothing attaches over.
-local TEST_MARK = "|cff999999" .. L["(test)"] .. "|r"
+-- After the player's name: a corner tag sat under whatever the player attached there (the cast bar's
+-- time text, in game), and the name line is the one place nothing attaches over. The look of the
+-- frame it imitates stays the host's in every skin (skinning-§9 Preview stand-ins, owner U-24,
+-- 2026-11-20), but the mark is this addon's own annotation, so it follows the skin: `text.muted`,
+-- read at each placement and on every skin switch (the OnLooksChanged repaint at the end).
+local function testMark()
+    local r, g, b = NS.Skin.Color("text.muted")
+    if type(r) ~= "number" then return L["(test)"] end
+    return ("|cff%02x%02x%02x%s|r"):format(math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5),
+        math.floor(b * 255 + 0.5), L["(test)"])
+end
 
 local WHITE     = "Interface\\Buttons\\WHITE8X8"
 local RAID_FILL = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
@@ -256,9 +264,15 @@ function StandIn.Place(id, source, configured)
     -- never concatenated, so one reads as no name.
     local name = Compat.UnitCharacterName("player")
     if Compat.IsSecret(name) or type(name) ~= "string" then name = "" end
-    f.name:SetText(name .. " " .. TEST_MARK)
+    f.__name = name
+    f.name:SetText(name .. " " .. testMark())
     return f
 end
+
+-- A skin switch while the stand-in is placed repaints its mark; nothing else on it follows the skin.
+NS.Skin.OnLooksChanged(function()
+    if frame and frame.__name then frame.name:SetText(frame.__name .. " " .. testMark()) end
+end)
 
 function StandIn.Show() StandIn.Frame():Show() end
 

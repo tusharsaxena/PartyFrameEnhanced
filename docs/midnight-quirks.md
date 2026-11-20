@@ -5,7 +5,7 @@ the addon carries a workaround for, where it lives, and what breaks if the worka
 The first part below is the collection's client-quirks catalog, vendored from the standard and
 replaced wholesale on every re-vendor, so never edit inside its markers; this addon's own entries follow it.
 
-<!-- BEGIN VENDORED: quirks catalog v2.115.0 (source: WowAddonStandards) -->
+<!-- BEGIN VENDORED: quirks catalog v2.116.0 (source: WowAddonStandards) -->
 > Part of the **[Ka0s WoW Addon Standard](https://github.com/tusharsaxena/WowAddonStandards/blob/master/standards/STANDARDS.md)** — the split standard. This section is vendored whole into every addon's `docs/midnight-quirks.md` (§1), so its links are absolute. Cross-references use the `filename-§N` form (see the index's section map).
 
 ## Client quirks

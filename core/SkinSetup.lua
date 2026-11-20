@@ -109,6 +109,7 @@ NS.SKIN_TOKENS = {
 NS.SKIN_FALLBACK = {
     ["text.accent"] = { 1, 0.82, 0, 1 },
     ["bar.border"]  = { 0, 0, 0, 1 },
+    ["text.muted"]  = { 0.7, 0.7, 0.72, 1 },   -- the stand-in's (test) mark (U-24)
 }
 
 -- The source row's values and order.

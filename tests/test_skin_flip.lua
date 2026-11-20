@@ -114,9 +114,13 @@ end)
 test("skin flip: no swatch carries disabledIf, and no class or meaning color has a companion", function()
   -- red under: a composed swatch grayed by its companion (options-ui-§17).
   for _, section in ipairs(SECTIONS) do
-    for _, key in ipairs({ "barColor", "bgColor", "borderColor", "fontColor", "fontShadow" }) do
+    for _, key in ipairs({ "barColor", "bgColor", "borderColor", "fontColor" }) do
       assertEqual(NS.FindSchemaRow(section .. "." .. key).disabledIf, nil, key)
     end
+    -- Font shadow is a toggle, not a swatch: from OptionsCompose minor 20 (LibKa0s v1.108.0) the
+    -- composer disables it while its companion, this addon's own extra row, is on.
+    assertEqual(NS.FindSchemaRow(section .. ".fontShadow").disabledIf, section .. ".fontShadowFromSkin",
+      section .. ": Font shadow is not read while the skin's shadow draws")
     for _, key in ipairs({ "useClassColorBar", "useClassColorBg", "useClassColorBorder", "useClassColorFont" }) do
       assertEqual(NS.FindSchemaRow(section .. "." .. key .. "FromSkin"), nil, key)
     end

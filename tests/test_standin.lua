@@ -160,6 +160,34 @@ test("standin: marks the player's name (test), with no corner tag for an element
   assertTrue(not StandIn.IsShown())
 end)
 
+test("standin: the (test) mark reads the skin's text.muted, and a skin switch repaints it", function()
+  -- red under: a literal gray (|cff999999) in every skin. The mark is the addon's own annotation, so it
+  -- follows the skin while the imitation keeps its host's look (skinning-§9 Preview stand-ins, owner
+  -- U-24, 2026-11-20).
+  local Skin = mocks.LibStub("LibKa0s-Skin-1.0")
+  local function hex()
+    local r, g, b = NS.Skin.Color("text.muted")
+    return ("|cff%02x%02x%02x"):format(math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5),
+      math.floor(b * 255 + 0.5))
+  end
+  local function settle() while mocks.__fireTimers() > 0 do end end
+  local ok, err = pcall(function()
+    local f = StandIn.Place("ellesmere", nil)
+    StandIn.Show()
+    assertTrue(f.name.__text:find(hex() .. "(test)|r", 1, true) ~= nil, "Ka0s Default's text.muted")
+    local home = f.name.__text
+    Skin:SetChoice("PartyFrameEnhanced", "ka0s", "ember")
+    settle()
+    assertTrue(hex() ~= home:match("|cff%x%x%x%x%x%x"), "Ember's text.muted is another color")
+    assertTrue(f.name.__text:find(hex() .. "(test)|r", 1, true) ~= nil, "the switch repaints the mark")
+    assertTrue(f.name.__text:find("Testchar", 1, true) ~= nil, "the name is kept")
+  end)
+  Skin:SetChoice("PartyFrameEnhanced", "ka0s", "ka0s")
+  settle()
+  StandIn.Hide()
+  if not ok then error(err, 0) end
+end)
+
 test("standin: on WoW Forever the name is the first name and surname, held to the frame's width", function()
   -- red under: a one-value UnitName read ("Samplehunter" alone on Forever, client-quirks-§5), or a
   -- name anchored at one end only, which ran past a 72 px raid-style frame.
@@ -282,7 +310,10 @@ local function freshStandIn(present)
       return f
     end,
   }, { __index = mocks })
-  local ns2 = { Compat = NS.Compat, L = NS.L, Constants = NS.Constants }
+  -- The skin seam the mark reads (core/SkinSetup.lua loads first in game); a listener of its own, so
+  -- a fresh module never joins the suite's skin switches.
+  local skin = { Color = NS.Skin.Color, OnLooksChanged = function(fn) return fn end }
+  local ns2 = { Compat = NS.Compat, L = NS.L, Constants = NS.Constants, Skin = skin }
   local Loader = dofile("tests/_kit/loader.lua")
   Loader.addonName = "PartyFrameEnhanced"
   Loader.load("modules/StandIn.lua", ns2, view)

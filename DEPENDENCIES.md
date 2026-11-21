@@ -104,6 +104,7 @@ python3 -c "import PIL; print(PIL.__version__)"
 
 ```sh
 lua tests/run.lua                                     # the suite — must be green
+KA0S_KIT_CLIENT=forever lua tests/run.lua             # the same suite as WoW Forever — must be green
 ~/.claude/dev-copilot/bin/ka0s-bounded luacheck .   # must be 0 warnings / 0 errors
 lua tests/perf.lua                                    # offline perf scenarios (outside the gate)
 bash tests/_kit/run-automated-tests.sh --suite complexity   # the sighted complexity report (release-time)

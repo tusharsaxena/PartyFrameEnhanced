@@ -189,7 +189,7 @@ test("standin: the (test) mark reads the skin's text.muted, and a skin switch re
 end)
 
 test("standin: on WoW Forever the name is the first name and surname, held to the frame's width", function()
-  -- red under: a one-value UnitName read ("Samplehunter" alone on Forever, client-quirks-§5), or a
+  -- red under: a one-value UnitName read ("Samplehunter" alone on Forever, forever-quirks-§4), or a
   -- name anchored at one end only, which ran past a 72 px raid-style frame.
   local hunter = Sample("forever")[1]
   local base = mocks.UnitName

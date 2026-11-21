@@ -156,7 +156,7 @@ test("targetframes: UNIT_TARGET paints the name, health, percent and marker", fu
   drain()
 end)
 
--- WoW Forever's names (client-quirks-§5): names are unique per region, and UnitName answers the first
+-- WoW Forever's names (forever-quirks-§4): names are unique per region, and UnitName answers the first
 -- name and then the SURNAME, where Retail answers the name and then the realm.
 local function withNames(regional, second, fn)
   local base = mocks.UnitName

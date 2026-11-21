@@ -260,7 +260,7 @@ function StandIn.Place(id, source, configured)
     local w, h = place(f, id, source, configured)
     local r, g, b = classColor()
     PRESETS[id](f, w, h, r, g, b)
-    -- The character name: first name and surname on WoW Forever (client-quirks-§5). A secret is
+    -- The character name: first name and surname on WoW Forever (forever-quirks-§4). A secret is
     -- never concatenated, so one reads as no name.
     local name = Compat.UnitCharacterName("player")
     if Compat.IsSecret(name) or type(name) ~= "string" then name = "" end

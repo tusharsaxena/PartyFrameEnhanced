@@ -24,7 +24,7 @@ Compat.IsSecret = CompatLib and CompatLib.IsSecret or function(v)
     return f ~= nil and f(v) and true or false
 end
 
---- A unit's character name and realm (client-quirks-§5; LibKa0s-Compat-1.0 minor 4). Where names are
+--- A unit's character name and realm (forever-quirks-§4; LibKa0s-Compat-1.0 minor 4). Where names are
 --- unique per region (WoW Forever), UnitName answers the first name and then the SURNAME, so a
 --- one-value read shows "Samplehunter" alone; this answers "Samplehunter Mockstride" there, and UnitName's own
 --- name and realm elsewhere. A unit with no surname (a pet, an NPC) answers its name. A secret name

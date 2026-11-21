@@ -14,7 +14,7 @@ library's and are not documented here.
 
 `Compat.IsSecret` is one of them: it is routed from `LibKa0s-Compat-1.0` (see that library's own
 documentation), so it is neither counted nor documented as a shim here. So is
-`Compat.UnitCharacterName` (Compat minor 4, client-quirks-§5): every name this addon draws or logs
+`Compat.UnitCharacterName` (Compat minor 4, forever-quirks-§4): every name this addon draws or logs
 reads it, because on WoW Forever `UnitName` answers the first name and then the surname, and this
 answers "First Surname" there and UnitName's own name elsewhere. Without the library a two-value stub
 answers UnitName's first return and joins nothing.

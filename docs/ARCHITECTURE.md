@@ -79,7 +79,7 @@ What the port checked, and what it changed (W2-PF-01, 2026-11-08):
 - **The strata read.** `RangeFade.StackFor` tests a party frame's strata for a secret before it indexes
   the rank table, as the stand-in's `strataOf` already did: a secret strata is a string, so the type
   test passes it, and indexing a table with a secret raises.
-- **Names** (client-quirks-§5). On Forever, `UnitName` answers the first name and then the surname, so a
+- **Names** (forever-quirks-§4). On Forever, `UnitName` answers the first name and then the surname, so a
   one-value read shows the first name alone. The target and pet labels, the stand-in's name and the
   target and pet debug lines read `Compat.UnitCharacterName` (LibKa0s-Compat-1.0 minor 4), which answers
   "First Surname" where `RegionalUniqueNamesEnabled()` is true and UnitName's own name elsewhere. A pet
@@ -630,6 +630,7 @@ the addon now serves Forever; smoke check FOREVER-4 is the client's word on it.
 | `slash-dispatch.md` | Present | 19 commands in `NS.COMMANDS` (trigger: eight or more) |
 | `profiles.md` | Present | A profile control ships (`settings/Profiles.lua`) |
 | `midnight-quirks.md` | Present | Always (documentation-§3): the vendored client-quirks catalog (client-quirks-§1), plus the cast bars' and providers' secret-value workarounds |
+| `forever-quirks.md` | Present | The addon ships on WoW Forever (Clients `Retail · Forever`): the vendored Forever quirks catalog (forever-quirks-§1); its own section holds none yet |
 | `compat-layer.md` | Present | `core/Compat.lua` publishes 14 shims (the standard's grep over `core/Compat.lua`, `grep -cE '^\s*function\s+[A-Za-z_][A-Za-z0-9_]*\.' core/Compat.lua`), plus `IsSecret` routed from `LibKa0s-Compat-1.0`, which is the library's and is not counted (trigger: three or more) |
 | `message-bus.md` | Not applicable | 4 messages (trigger: more than ten) |
 | `debug.md` | Present | The diagnostics report is a debug surface (`/pfe diagnostics`, `modules/Diagnostics.lua`) |

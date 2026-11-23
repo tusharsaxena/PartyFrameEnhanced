@@ -340,6 +340,17 @@ local function reskinAll()
     if t0 then Perf.Note("reskin", debugprofilestop() - t0) end
 end
 
+-- The colors that follow a unit's class (background, border, text) for every bar, without the
+-- restyle: a party flip, a preview toggle or a roster change moves the unit each bar describes, and
+-- those colors are otherwise painted only on a config change (FB-PFE-01). A party member's own class
+-- is never secret. Plain frames, so legal in combat.
+local function recolorAll()
+    for _, unit in ipairs(Units.LIST) do
+        local el = bars[unit]
+        if el then Element.ApplyColors(el, cfg, Element.UnitResolver(el, unit)) end
+    end
+end
+
 -- Registered only while the feature is on and the unit included: a disabled unit costs no dispatch.
 local function syncEvents()
     rebind()
@@ -436,8 +447,13 @@ end)
 ev:RegisterMessage(NS.MSG.VISIBILITY, function()
     if not cfg then return end
     syncEvents()
+    recolorAll()
     refreshAll()
 end)
+-- A member joining, leaving or swapping slots inside a party publishes no VISIBILITY (only the party
+-- flip does), and the new occupant's class is what the text colors follow.
+NS.SafeRegisterEvent(ev, "GROUP_ROSTER_UPDATE", function() if cfg then recolorAll() end end,
+    NS.RejectedEvents)
 ev:RegisterMessage(NS.MSG.LAYOUT, function() if cfg then refreshAll() end end)
 
 -- A skin switch, a font or texture override, or EllesmereUI's looks moving restyles every cast bar

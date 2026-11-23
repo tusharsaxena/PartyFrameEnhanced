@@ -34,17 +34,23 @@ if not lib then
     -- The class-color resolver the target and pet frames call on every render: a working
     -- fallback, following the library's three rules (options-ui-§17) — the stored alpha survives,
     -- an unresolvable class falls through to the stored swatch, the swatch is read in both modes.
-    function NS.ResolveColor(stored, on, unit)
+    function NS.ResolveColor(stored, on, unit, standIn)
         if type(stored) ~= "table" then stored = {} end
         local r, g, b, a = stored.r or 1, stored.g or 1, stored.b or 1, stored.a or 1
         if not on then return r, g, b, a end
-        local cr, cg, cb = NS.ClassColor(unit)
+        local cr, cg, cb = NS.ClassColor(unit, standIn)
         if cr == nil then return r, g, b, a end
         return cr, cg, cb, a
     end
 
     -- The class color for a unit, or nil: nil is an answer, and Element.Drawn reads it as "no class".
-    function NS.ClassColor(unit)
+    -- `standIn` (the library's Core minor 20): resolved instead while `unit` does not exist, so a
+    -- preview shows the player's class (FB-PFE-01).
+    function NS.ClassColor(unit, standIn)
+        if standIn and unit and unit ~= standIn and type(UnitExists) == "function" then
+            local okE, exists = pcall(UnitExists, unit)
+            if okE and not exists then unit = standIn end
+        end
         local ok, _, token = pcall(UnitClass, unit or "player")
         local c = (ok and type(token) == "string" and type(RAID_CLASS_COLORS) == "table")
             and RAID_CLASS_COLORS[token] or nil

@@ -114,6 +114,8 @@ Kit.run{
     "test_preview",
     "test_standin",
     "test_preview_standin",
+    -- "Use class color" in the preview (the player stand-in) and after a roster change (FB-PFE-01).
+    "test_class_color_preview",
     "test_debug_coverage",
     "test_library_lines",
     "test_perf_buckets",

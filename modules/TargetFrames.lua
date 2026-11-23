@@ -92,8 +92,12 @@ local function paintAll(btn)
     if cfg.showMarker then Compat.RaidMarker(btn.marker, token) else btn.marker:Hide() end
 end
 
+--- The preview's colors. Its stand-in is hostile, so a reaction color still comes first; with
+--- reaction off, "Use class color" shows the player's class, the preview's stand-in (options-ui-§17,
+--- FB-PFE-01). The player's own class is never secret.
 local function previewColors(btn)
-    local resolve = Element.ClassResolver(nil)
+    local _, playerClass = UnitClass("player")
+    local resolve = Element.ClassResolver(type(playerClass) == "string" and playerClass or nil)
     local r, g, b, a
     if cfg.colorReaction then
         r, g, b, a = Element.Stored(cfg.hostileColor)

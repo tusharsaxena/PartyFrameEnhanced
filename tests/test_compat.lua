@@ -122,6 +122,9 @@ local NOT_WIRED = {
   -- LibKa0s v1.94.0 (Compat minor 4): the character-identity readers. UnitCharacterName is wired (the
   -- name labels); these three have no caller here, because AceDB keys the profiles itself.
   "RegionalNames", "CharacterKey", "RealmKey",
+  -- LibKa0s v1.110.0 (Compat minor 6): the bank and container readers (LibKa0s#101). No bank here.
+  "BankerKind", "CONTAINER_PATTERNS_BY_CLIENT", "CanViewCharacterBank", "ContainerGroups",
+  "NumPurchasedBankTabs", "UnreadyBankContainers",
 }
 
 test("compat: UnitCharacterName is the library's member on the live load", function()

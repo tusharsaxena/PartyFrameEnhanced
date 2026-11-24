@@ -1182,3 +1182,9 @@ v2.119.0's options-ui-§17 "A preview shows a class") re-vendors LibKa0s v1.112.
 preview the player's class on the cast, target and pet bars, and repaints the cast bars' class-following colors on a
 roster change: it adds CAST-9 and CAST-10, owed. The re-vendor also drops High Contrast's HUD shadow to 1, -1 and turns
 the library copy window into a companion with the close alone.
+
+The feedback batch's round 2 (FB2-PFE-01 of Ka0sAddonsCommonTasks `docs/2026-11-24-FEEDBACK_BATCH/R2_SMOKE_FEEDBACK.md`,
+LibKa0s v1.113.0, standard v2.120.0) re-vendors LibKa0s v1.113.0 (Sim 5, WidgetsDropdown 4), which reopens INSTALL-4.
+It adds no check: this addon runs no sim, so no step panel opens from it; its dropdowns are the settings panel's
+AceGUI pullouts and the launcher's client menu, both outside skinning-§4's *A selected entry reads apart*; and it
+draws no sample person (the preview's labels and the stand-in's own name are unchanged), so nothing a player sees moves.

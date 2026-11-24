@@ -173,11 +173,11 @@ local function withNames(regional, second, fn)
 end
 
 test("targetframes: on WoW Forever a player target's label is its first name and surname", function()
-  -- red under: a one-value UnitName read, which shows "Samplehunter" alone on Forever.
+  -- red under: a one-value UnitName read, which shows the first name alone on Forever.
   prep()
   withNames(true, HUNTER.surname, function()
     target("party1", { name = HUNTER.name, isPlayer = true, class = HUNTER.classFile })
-    assertEqual(buttons.party1.text.__text, "Samplehunter Mockstride")
+    assertEqual(buttons.party1.text.__text, HUNTER.fullName)
   end)
 end)
 
@@ -185,7 +185,7 @@ test("targetframes: on Retail the label is the name alone, never the realm", fun
   prep()
   withNames(false, Sample("retail")[1].realm, function()
     target("party1", { name = HUNTER.name, isPlayer = true, class = HUNTER.classFile })
-    assertEqual(buttons.party1.text.__text, "Samplehunter")
+    assertEqual(buttons.party1.text.__text, HUNTER.name)
   end)
 end)
 

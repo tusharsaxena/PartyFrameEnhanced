@@ -371,6 +371,12 @@ Total.
 - class preview: the target frames' preview draws the player's class with reaction off
 - class preview: the pet frames' preview draws the player's class
 
+### test_sample_names.lua (3)
+
+- sample names: the matcher flags a person or realm literal and passes prose
+- sample names: no Sample/Mock person literal lives outside tests/, libs/ and frozen docs
+- sample names: the library publishes the surfaces a future sample would read
+
 ### test_debug_coverage.lua (13)
 
 - coverage: a secure write queued in combat logs once per key held, then one flush line
@@ -879,6 +885,7 @@ Total.
 | test_standin.lua | 17 |
 | test_preview_standin.lua | 17 |
 | test_class_color_preview.lua | 9 |
+| test_sample_names.lua | 3 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
@@ -908,4 +915,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **682** |
+| **Total** | **685** |

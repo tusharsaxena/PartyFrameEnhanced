@@ -139,7 +139,7 @@ test("compat: without the library UnitCharacterName answers UnitName's name alon
   mocks2.UnitName = function() return hunter.name, hunter.surname end
   local got = answers(NS2.Compat.UnitCharacterName("party1"))
   assertEqual(got.n, 2)
-  assertEqual(got[1], "Samplehunter")
+  assertEqual(got[1], hunter.name)
   assertNil(got[2])
   assertNil((NS2.Compat.UnitCharacterName(nil)))
 end)

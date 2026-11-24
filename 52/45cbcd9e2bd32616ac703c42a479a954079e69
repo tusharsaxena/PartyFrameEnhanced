@@ -1,0 +1,4 @@
+FB2 independent review (workflow wf_0f1c645f-6fa, 2026-11-24): ok
+Fixes: none
+Gate: I re-ran the full gate on HEAD 5245cbc myself. Retail: 685 passed / 0 failed / 1 skipped (686 total, exit 0). Forever (KA0S_KIT_CLIENT=forever, because the TOC ## Interface is 120105, 16001): 685 passed / 0 failed / 1 skipped. The skipped case is the expected diagnostics-contract opt-out case. luacheck: 0 warnings / 0 errors in 94 files. All runs went through ka0s-bounded and none timed out. The working tree is clean.
+Open:

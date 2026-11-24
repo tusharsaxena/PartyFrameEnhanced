@@ -1187,4 +1187,5 @@ The feedback batch's round 2 (FB2-PFE-01 of Ka0sAddonsCommonTasks `docs/2026-11-
 LibKa0s v1.113.0, standard v2.120.0) re-vendors LibKa0s v1.113.0 (Sim 5, WidgetsDropdown 4), which reopens INSTALL-4.
 It adds no check: this addon runs no sim, so no step panel opens from it; its dropdowns are the settings panel's
 AceGUI pullouts and the launcher's client menu, both outside skinning-§4's *A selected entry reads apart*; and it
-draws no sample person (the preview's labels and the stand-in's own name are unchanged), so nothing a player sees moves.
+draws no sample person (the preview's labels and the stand-in's own name are unchanged), so nothing a player sees moves. The library's re-cut of v1.113.0 (FB2-PFE-02: a selected row is Ka0s Default's gold in every skin)
+moves only WidgetsDropdown, whose menus this addon does not draw, so it adds and amends no check either.

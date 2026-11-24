@@ -114,6 +114,10 @@ Kit.run{
     "test_preview",
     "test_standin",
     "test_preview_standin",
+    -- "Use class color" in the preview (the player stand-in) and after a roster change (FB-PFE-01).
+    "test_class_color_preview",
+    -- No sample person typed outside tests/; the library is the one source (FB2-PFE-01, LibKa0s#104).
+    "test_sample_names",
     "test_debug_coverage",
     "test_library_lines",
     "test_perf_buckets",

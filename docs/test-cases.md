@@ -359,6 +359,24 @@ Total.
 - preview: Lock frame is the switch, and no Test mode row survives beside it
 - preview: status names what preview is showing, and neither verb survives in NS.COMMANDS
 
+### test_class_color_preview.lua (9)
+
+- class preview: out of a party the cast bar fill draws the player's class, skin companion false
+- class preview: out of a party the cast bar text draws the player's class, skin companion false
+- class preview: out of a party the cast bar fill draws the player's class, skin companion true
+- class preview: out of a party the cast bar text draws the player's class, skin companion true
+- class preview: out of preview, an absent unit has no stand-in
+- class preview: a real party member wins over the stand-in
+- class preview: a roster change repaints the cast bar text in the new member's class
+- class preview: the target frames' preview draws the player's class with reaction off
+- class preview: the pet frames' preview draws the player's class
+
+### test_sample_names.lua (3)
+
+- sample names: the matcher flags a person or realm literal and passes prose
+- sample names: no Sample/Mock person literal lives outside tests/, libs/ and frozen docs
+- sample names: the library publishes the surfaces a future sample would read
+
 ### test_debug_coverage.lua (13)
 
 - coverage: a secure write queued in combat logs once per key held, then one flush line
@@ -866,6 +884,8 @@ Total.
 | test_preview.lua | 8 |
 | test_standin.lua | 17 |
 | test_preview_standin.lua | 17 |
+| test_class_color_preview.lua | 9 |
+| test_sample_names.lua | 3 |
 | test_debug_coverage.lua | 13 |
 | test_library_lines.lua | 13 |
 | test_perf_buckets.lua | 3 |
@@ -895,4 +915,4 @@ Total.
 | test_layout_cap.lua | 13 |
 | test_lizard_sighted.lua | 8 |
 | Skipped | 1 |
-| **Total** | **673** |
+| **Total** | **685** |

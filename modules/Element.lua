@@ -380,14 +380,24 @@ function Element.ClassResolver(classToken)
     return resolver
 end
 
+--- The stand-in a preview resolves a class on (options-ui-§17, standard v2.119.0: "A preview shows a
+--- class"): the player while preview is on, nil otherwise. The library uses it only while the
+--- described unit does not exist (Core minor 20), so a real party member still wins (FB-PFE-01).
+function Element.StandIn()
+    if NS.State.preview then return "player" end
+    return nil
+end
+
 --- A resolver for a party member's own class (never secret), cached on the element, with the same
---- five returns.
+--- five returns. Out of a party the preview draws on party1, which does not exist: it resolves the
+--- player stand-in, read at call time so the one cached closure serves both modes.
 function Element.UnitResolver(el, unit)
     local resolver = el.__unitResolver
     if not resolver then
         resolver = function(stored, on)
-            local r, g, b, a = NS.ResolveColor(stored, on, unit)
-            return r, g, b, a, on and NS.ClassColor(unit) ~= nil
+            local standIn = Element.StandIn()
+            local r, g, b, a = NS.ResolveColor(stored, on, unit, standIn)
+            return r, g, b, a, on and NS.ClassColor(unit, standIn) ~= nil
         end
         el.__unitResolver = resolver
     end

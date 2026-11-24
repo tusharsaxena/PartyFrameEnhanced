@@ -47,7 +47,9 @@ the anchor engine, the three features, preview mode, the diagnostics report's se
 (`tests/test_skinsetup.lua`), the holders' paint (`tests/test_skin_holders.lua`), the HUD's media
 and the v2 reset (`tests/test_skin_hud.lua`), the HUD's Font flags and sizes under LibKa0s v1.82.0 and
 the v3 migration (`tests/test_skin_fonts.lua`), the colors, shadow, border, gloss, icon edge and v4 and v5 steps
-(`tests/test_skin_flip.lua`), the Font outline (`tests/test_skin_outline.lua`), the
+(`tests/test_skin_flip.lua`), "Use class color" in the preview (the player stand-in, `Element.StandIn`)
+and after a roster change (`tests/test_class_color_preview.lua`, FB-PFE-01), the gate that no sample person
+is typed outside `tests/` (`tests/test_sample_names.lua`, FB2-PFE-01, LibKa0s#104), the Font outline (`tests/test_skin_outline.lua`), the
 `/pfe skin` verb (`tests/test_skin_verb.lua`), the first-run picker and the Profiles tree
 (`tests/test_skin_picker.lua`), and the kit's typed-value gate and skin-switch test, whose facts are
 `tests/skin_facts.lua`. The library's own

@@ -18,7 +18,7 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
 | PROFILE-1 – 10 | Profiles | the Profiles page, the `profile` verb and its sub-verbs, Reset all settings |
 | STATE-1 – 9 | Enable, disable and stand-down | the live surface, refusals, the total stand-down |
 | PREV-1 – 9 | Preview, placement and status | unlock, free placement, `/pfe status`, the party-only rule, the stand-in |
-| CAST-1 – 8 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings, a profile switch from preview |
+| CAST-1 – 10 | Cast bars | placement per member, channels, interrupts, the frame-system switch, settings, a profile switch from preview, the preview's class color, a roster change repainting the text |
 | UNIT-1 – 11 | Target and pet frames | placement, health, colors, raid markers, health updates, click to target |
 | FADE-1 – 4 | Out-of-range fade | EllesmereUI, Blizzard raid-style and classic, the switch and preview |
 | LAYER-1 – 4 | Frame layering | the free-placement plate under its bars, texts and marks over the border, the stand-in's strata, the strata tooltip |
@@ -336,6 +336,19 @@ PASS, or FAIL and what you saw. A new pass overwrites the old results, and git k
   'u'`). Then `/pfe lock`, `/pfe profile A`, `/pfe unlock`, `/pfe profile B`, `/pfe unlock`, and
   switch back and forth between the two unlocked profiles a few times → still zero Lua errors, and
   the preview casts keep their fill color. Run it once solo and once in a party. Result:
+- **CAST-9. The preview shows your class (FB-PFE-01; Ka0sAddonsCommonTasks S-P1).** Out of a party,
+  `/pfe unlock`. Cast Bars → Bar → Fill: tick *Use class color for fill* → the preview bars draw your
+  class color, not the normal cast color, with *Use the skin's color* ticked and unticked. Cast Bars →
+  Text: tick its *Use class color* → the preview's spell name and time draw your class color, ticked
+  or unticked skin box alike. Target Frames with *Color by reaction* off and *Use class color* on → the
+  preview target bars draw your class color; with reaction on → the hostile color. Pet Frames with *Use
+  class color* on → the preview pet bars draw your class color. *Failure:* the orange cast color or
+  the white font color on any preview bar. Result:
+- **CAST-10. A roster change repaints the text (FB-PFE-01; Ka0sAddonsCommonTasks S-P2).** In a party,
+  Cast Bars → Text → *Use class color* on, *Use the skin's color* off. A member of one class casts →
+  their spell name is in their class color. Have that member leave and another class join (or two
+  members swap slots) → the next cast's text is in the new member's class color, with no /reload and
+  no settings change. Result:
 
 ## Target and pet frames
 
@@ -1163,3 +1176,16 @@ On 2026-11-08 the owner reported that every check of the WoW Forever port (W2-PF
 The LibKa0s v1.108.0 re-vendor (SD-RV-PFE, 2026-11-20; Ka0sAddonsCommonTasks
 `docs/2026-11-20-LIBKA0S_94_97_99_100/`) reopens INSTALL-4 and adds SKIN-44, owed. The skin-defaults item (SD-SK-PFE)
 adds SKIN-45, owed.
+
+The feedback batch (FB-PFE-01 of Ka0sAddonsCommonTasks `docs/2026-11-24-FEEDBACK_BATCH/`, LibKa0s v1.112.0, standard
+v2.119.0's options-ui-§17 "A preview shows a class") re-vendors LibKa0s v1.112.0, which reopens INSTALL-4, gives the
+preview the player's class on the cast, target and pet bars, and repaints the cast bars' class-following colors on a
+roster change: it adds CAST-9 and CAST-10, owed. The re-vendor also drops High Contrast's HUD shadow to 1, -1 and turns
+the library copy window into a companion with the close alone.
+
+The feedback batch's round 2 (FB2-PFE-01 of Ka0sAddonsCommonTasks `docs/2026-11-24-FEEDBACK_BATCH/R2_SMOKE_FEEDBACK.md`,
+LibKa0s v1.113.0, standard v2.120.0) re-vendors LibKa0s v1.113.0 (Sim 5, WidgetsDropdown 4), which reopens INSTALL-4.
+It adds no check: this addon runs no sim, so no step panel opens from it; its dropdowns are the settings panel's
+AceGUI pullouts and the launcher's client menu, both outside skinning-§4's *A selected entry reads apart*; and it
+draws no sample person (the preview's labels and the stand-in's own name are unchanged), so nothing a player sees moves. The library's re-cut of v1.113.0 (FB2-PFE-02: a selected row is Ka0s Default's gold in every skin)
+moves only WidgetsDropdown, whose menus this addon does not draw, so it adds and amends no check either.

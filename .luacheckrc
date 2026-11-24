@@ -18,7 +18,7 @@ read_globals = {
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
   -- UnitExists is absent on purpose: a raw UnitExists(compound token) is the secret-value hazard
   -- core/Compat.lua documents removing (the "No UnitExists shim" note), so a new call fails lint.
-  "UnitClass", "UnitName", "UnitIsPlayer", "UnitReaction",
+  "UnitClass", "UnitExists", "UnitName", "UnitIsPlayer", "UnitReaction",
   "UnitHealth", "UnitHealthMax", "UnitHealthPercent",
   "UnitInRange",
   "UnitCastingInfo", "UnitChannelInfo", "UnitCastingDuration", "UnitChannelDuration",

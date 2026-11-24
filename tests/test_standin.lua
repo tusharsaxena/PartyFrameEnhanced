@@ -189,7 +189,7 @@ test("standin: the (test) mark reads the skin's text.muted, and a skin switch re
 end)
 
 test("standin: on WoW Forever the name is the first name and surname, held to the frame's width", function()
-  -- red under: a one-value UnitName read ("Samplehunter" alone on Forever, forever-quirks-§4), or a
+  -- red under: a one-value UnitName read (the first name alone on Forever, forever-quirks-§4), or a
   -- name anchored at one end only, which ran past a 72 px raid-style frame.
   local hunter = Sample("forever")[1]
   local base = mocks.UnitName
@@ -201,13 +201,13 @@ test("standin: on WoW Forever the name is the first name and surname, held to th
   local ok, err = pcall(function()
     for _, id in ipairs({ "ellesmere", "blizzard-raid", "blizzard-party" }) do
       local f = StandIn.Place(id, nil)
-      assertTrue(f.name.__text:find("Samplehunter Mockstride", 1, true) == 1, id .. ": " .. tostring(f.name.__text))
+      assertTrue(f.name.__text:find(hunter.fullName, 1, true) == 1, id .. ": " .. tostring(f.name.__text))
       assertEqual(f.name.__wordWrap, false, id .. ": one line")
       assertEqual(f.name.__nPoints, 2, id .. ": anchored at both ends, so a long name is cut")
     end
     mocks.RegionalUniqueNamesEnabled = nil
     local retail = StandIn.Place("ellesmere", nil).name.__text
-    assertTrue(retail:find("Samplehunter ", 1, true) == 1 and not retail:find("Mockstride", 1, true),
+    assertTrue(retail:find(hunter.name .. " ", 1, true) == 1 and not retail:find(hunter.surname, 1, true),
       "on Retail the second return is the realm, and it is never drawn: " .. retail)
   end)
   mocks.UnitName, mocks.RegionalUniqueNamesEnabled = base, nil

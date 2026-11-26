@@ -206,7 +206,8 @@ load, the report is the markers and the identity header around no sections.
   comparison. `tests/test_diagnostics.lua` scans the sections file for these calls.
 - **It never calls `GetPoint` on a Blizzard or EllesmereUI frame.** Positions come from the stored
   config and from Anchor's memo of what it last applied, and a foreign frame is reported by name.
-- **It does not call `UnitExists`**, which `.luacheckrc` bans; a nil class token already says a party
+- **It does not call `UnitExists`** (core/Compat.lua's "No UnitExists shim"; the one caller is
+  `NS.ClassColor`'s preview stand-in check, on a party token); a nil class token already says a party
   slot is empty.
 - **Nothing is redacted.** Players send the report to the maintainer privately, so it prints what a
   maintainer needs to reproduce the bug.

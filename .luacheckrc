@@ -16,8 +16,9 @@ read_globals = {
   "Settings", "C_Timer", "C_AddOns", "IsAddOnLoaded", "DEFAULT_CHAT_FRAME",
   "StaticPopup_Show", "hooksecurefunc", "InCombatLockdown", "UnitAffectingCombat",
   -- Units and their data. Several return secret values in combat; see spec §7 and core/Compat.lua.
-  -- UnitExists is absent on purpose: a raw UnitExists(compound token) is the secret-value hazard
-  -- core/Compat.lua documents removing (the "No UnitExists shim" note), so a new call fails lint.
+  -- UnitExists is read in one place: NS.ClassColor (core/CoreSetup.lua) pcalls it on a party token,
+  -- never a compound one, to resolve the preview's stand-in (FB-PFE-01). A raw UnitExists(compound
+  -- token) stays the secret-value hazard core/Compat.lua documents (the "No UnitExists shim" note).
   "UnitClass", "UnitExists", "UnitName", "UnitIsPlayer", "UnitReaction",
   "UnitHealth", "UnitHealthMax", "UnitHealthPercent",
   "UnitInRange",

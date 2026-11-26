@@ -101,8 +101,8 @@ local function settings(out)
 end
 
 -- The party the addon sees: class tokens only, which are never secret for a party member. No
--- UnitExists: .luacheckrc bans it (core/Compat.lua's "No UnitExists shim"), and a nil class
--- already says the slot is empty.
+-- UnitExists (core/Compat.lua's "No UnitExists shim"; only NS.ClassColor's stand-in check calls
+-- it), and a nil class already says the slot is empty.
 local function party(out)
     local Units = NS.Units
     out:add("Party", "party: inParty=%s inRaid=%s", Units.InParty(), read(IsInRaid))
